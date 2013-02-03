@@ -12,7 +12,8 @@ require_once 'DBQueryResult.class.php';
 /**
  * Use this for simple queries
  * 
- * @authorphileon
+ * @author phileon
+ * @copyright plentymarkets GmbH www.plentymarkets.com
  */
 class DBQuery extends DBBase
 {

@@ -16,7 +16,7 @@ require_once ROOT.'lib/db/DBQuery.class.php';
  * So do not wonder - just be happy :)
  * 
  * @author phileon
- *
+ * @copyright plentymarkets GmbH www.plentymarkets.com
  */
 class StoreToken
 {

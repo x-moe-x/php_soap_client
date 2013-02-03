@@ -8,7 +8,7 @@ require_once 'LoggerBase.class.php';
  * Logger::instance('soap')->debug("debug message");
  * 
  * @author phileon
- *
+ * @copyright plentymarkets GmbH www.plentymarkets.com
  */
 class Logger extends LoggerBase
 {

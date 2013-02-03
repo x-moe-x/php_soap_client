@@ -5,7 +5,7 @@ require_once 'DBResult.interface.php';
 /**
  * 
  * @author phileon
- *
+ * @copyright plentymarkets GmbH www.plentymarkets.com
  */
 class DBQueryResult implements DBResult
 {

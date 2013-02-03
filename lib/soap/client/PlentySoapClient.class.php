@@ -14,6 +14,11 @@ require_once ROOT.'lib/soap/tools/StoreToken.class.php';
 require_once ROOT.'lib/soap/controller/PlentySoap.class.php';
 
 
+/**
+ * 
+ * @author phileon
+ * @copyright plentymarkets GmbH www.plentymarkets.com
+ */
 class PlentySoapClient 
 {
 	/**

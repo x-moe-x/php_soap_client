@@ -8,7 +8,7 @@ require_once ROOT.'lib/soap/client/PlentySoapClient.class.php';
  * 
  * 
  * @author phileon
- *
+ * @copyright plentymarkets GmbH www.plentymarkets.com
  */
 abstract class PlentySoapCall
 {

@@ -6,7 +6,7 @@ require_once ROOT.'config/logger.inc.php';
  * Global logger base class
  * 
  * @author phileon
- *
+ * @copyright plentymarkets GmbH www.plentymarkets.com
  */
 class LoggerBase
 {

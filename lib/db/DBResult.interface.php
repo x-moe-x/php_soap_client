@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * 
+ * @author phileon
+ * @copyright plentymarkets GmbH www.plentymarkets.com
+ */
 interface DBResult
 {
 	

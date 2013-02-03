@@ -6,7 +6,7 @@ require_once ROOT.'lib/log/Logger.class.php';
  * abstract db connector used by PlentyDBBase
  * 
  * @author phileon
- * 
+ * @copyright plentymarkets GmbH www.plentymarkets.com
  */
 abstract class DBAbstractConnector
 {

@@ -8,6 +8,7 @@ require_once ROOT.'lib/log/Logger.class.php';
  * DBConnector
  * 
  * @author phileon
+ * @copyright plentymarkets GmbH www.plentymarkets.com
  */
 class DBConnector extends DBAbstractConnector
 {

@@ -20,7 +20,7 @@ require_once ROOT.'lib/soap/generator/PlentymarketsSOAPModelGenerator.class.php'
  * 
  * 
  * @author phileon
- *
+ * @copyright plentymarkets GmbH www.plentymarkets.com
  */
 class PlentymarketsSOAPGenerator
 {

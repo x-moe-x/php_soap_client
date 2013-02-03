@@ -8,7 +8,7 @@ require_once 'DBAbstractConnector.abstract.php';
  * Actually only {@link DBQuery} exists as child class.
  * 
  * @author phileon
- *
+ * @copyright plentymarkets GmbH www.plentymarkets.com
  */
 class DBBase
 {

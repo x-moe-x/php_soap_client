@@ -6,7 +6,7 @@ require_once 'DBQuery.class.php';
  * Some simple tools to quickly create a query
  * 
  * @author phileon
- *
+ * @copyright plentymarkets GmbH www.plentymarkets.com
  */
 class DBUtils
 {
