@@ -4,7 +4,7 @@ require_once ROOT.'lib/log/Logger.class.php';
 
 /**
  * Run an example. 
- * Usage: look at cli/PlentymarketsSOAPExampleLoader.cli.php
+ * Usage: look at cli/PlentymarketsSoapExampleLoader.cli.php
  * 
  * @author phileon
  * @copyright plentymarkets GmbH www.plentymarkets.com
@@ -64,7 +64,7 @@ class PlentymarketsSOAPExampleLoader
 		}
 		else
 		{
-			$this->getLogger()->crit('You have to insert a valid example name e.g. shell> php cli/PlentymarketsSOAPExampleLoader.cli.php GetServerTime');
+			$this->getLogger()->crit('You have to insert a valid example name e.g. shell> php cli/PlentymarketsSoapExampleLoader.cli.php GetServerTime');
 			
 			$this->displayValidExamples();
 		}

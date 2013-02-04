@@ -14,7 +14,7 @@ require_once ROOT.'lib/soap/generator/PlentymarketsSOAPModelGenerator.class.php'
 /**
  * Simple generator for plentymarkets soap api objects
  * 
- * run: shell> php cli/PlentymarketsSOAPGenerator.cli.php
+ * run: shell> php cli/PlentymarketsSoapGenerator.cli.php
  * 
  * check config file: soap.inc.php
  * 

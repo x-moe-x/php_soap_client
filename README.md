@@ -9,7 +9,7 @@ Sie müssen zuerst alle SOAP Objekte durch den Code-Generator erstellen lassen.
 
 Starten Sie den Code Generator per Shell:
 
-    shell> php cli/PlentymarketsSOAPGenerator.cli.php
+    shell> php cli/PlentymarketsSoapGenerator.cli.php
 
 ## Datenbank
 Viele Beispiele benötigen eine Datenbank. Erstellen Sie daher eine MySQL-Datenbank.
@@ -19,4 +19,4 @@ Legen Sie zur Ausführung der Beispiele alle Tabellen in der Datei `config/examp
 ## SOAP Test
 Nun können Sie einen API-Test-Aufruf starten:
 
-    shell> php cli/PlentymarketsSOAPExampleLoader.cli.php [ExampleName]
+    shell> php cli/PlentymarketsSoapExampleLoader.cli.php [ExampleName]

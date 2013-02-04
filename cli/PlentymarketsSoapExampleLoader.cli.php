@@ -3,8 +3,8 @@
 /*
  * usage:
  * 
- * shell> php cli/PlentymarketsSOAPExampleLoader.cli.php [ExampleName]
- * shell> php cli/PlentymarketsSOAPExampleLoader.cli.php GetServerTime
+ * shell> php cli/PlentymarketsSoapExampleLoader.cli.php [ExampleName]
+ * shell> php cli/PlentymarketsSoapExampleLoader.cli.php GetServerTime
  * 
  * If you want to see log output, than run this before:
  * shell> tail -f log/soap.log &
