@@ -1,6 +1,7 @@
 # plentymarkets SOAP API
 Vielen Dank für Ihr Interesse an der plentymarkets SOAP API!
 Weitere Informationen finden Sie in unserem [Handbuch](http://man.plentymarkets.eu/soap-api/).
+Außerdem haben Sie die Möglichkeit, in [diesem Video](https://vimeo.com/58852181) eine detailliert Einführung in unseren **PHP SOAP Client** zu erhalten.
 
 ## SOAP
 Bevor Sie starten können, passen Sie die Parameter in der Datei `config/soap.inc.php` an.
