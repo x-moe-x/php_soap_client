@@ -7,8 +7,8 @@
  */
 
 require_once realpath(dirname(__FILE__).'/../').'/config/basic.inc.php';
-require_once ROOT.'lib/soap/generator/PlentymarketsSOAPGenerator.class.php';
+require_once ROOT.'lib/soap/generator/PlentymarketsSoapGenerator.class.php';
 
-PlentymarketsSOAPGenerator::getInstance()->run();
+PlentymarketsSoapGenerator::getInstance()->run();
 
 ?>

@@ -24,7 +24,7 @@ define('SOAP_PASSWORD', '!Your_PWD!:');
 
 
 /*
- * the following params are used from PlentymarketsSOAPGenerator.class.php
+ * the following params are used from PlentymarketsSoapGenerator.class.php
  */
 
 /*

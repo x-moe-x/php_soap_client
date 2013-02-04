@@ -9,11 +9,11 @@ require_once ROOT.'lib/log/Logger.class.php';
  * @author phileon
  * @copyright plentymarkets GmbH www.plentymarkets.com
  */
-class PlentymarketsSOAPExampleLoader
+class PlentymarketsSoapExampleLoader
 {
 	/**
 	 *
-	 * @var PlentymarketsSOAPExampleLoader
+	 * @var PlentymarketsSoapExampleLoader
 	 */
 	private static $instance = null;
 	
@@ -25,13 +25,13 @@ class PlentymarketsSOAPExampleLoader
 	/**
 	 * singleton pattern
 	 *
-	 * @return PlentymarketsSOAPExampleLoader
+	 * @return PlentymarketsSoapExampleLoader
 	 */
 	public static function getInstance()
 	{
-		if( !isset(self::$instance) || !(self::$instance instanceof PlentymarketsSOAPExampleLoader))
+		if( !isset(self::$instance) || !(self::$instance instanceof PlentymarketsSoapExampleLoader))
 		{
-			self::$instance = new PlentymarketsSOAPExampleLoader();
+			self::$instance = new PlentymarketsSoapExampleLoader();
 		}
 	
 		return self::$instance;

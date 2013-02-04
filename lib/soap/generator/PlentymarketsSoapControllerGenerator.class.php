@@ -6,7 +6,7 @@ require_once ROOT.'lib/log/Logger.class.php';
  * @author phileon
  * @copyright plentymarkets GmbH www.plentymarkets.com
  */
-class PlentymarketsSOAPControllerGenerator
+class PlentymarketsSoapControllerGenerator
 {
 	/**
 	 *

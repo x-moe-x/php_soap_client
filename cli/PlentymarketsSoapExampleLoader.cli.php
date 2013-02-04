@@ -12,8 +12,8 @@
  */
 
 require_once realpath(dirname(__FILE__).'/../').'/config/basic.inc.php';
-require_once ROOT.'lib/soap/example_loader/PlentymarketsSOAPExampleLoader.class.php';
+require_once ROOT.'lib/soap/example_loader/PlentymarketsSoapExampleLoader.class.php';
 
-PlentymarketsSOAPExampleLoader::getInstance()->run($argv);
+PlentymarketsSoapExampleLoader::getInstance()->run($argv);
 
 ?>

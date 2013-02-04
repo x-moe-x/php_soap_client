@@ -6,8 +6,8 @@
 require_once ROOT.'config/soap.inc.php';
 
 
-require_once ROOT.'lib/soap/generator/PlentymarketsSOAPControllerGenerator.class.php';
-require_once ROOT.'lib/soap/generator/PlentymarketsSOAPModelGenerator.class.php';
+require_once ROOT.'lib/soap/generator/PlentymarketsSoapControllerGenerator.class.php';
+require_once ROOT.'lib/soap/generator/PlentymarketsSoapModelGenerator.class.php';
 
 
 
@@ -22,11 +22,11 @@ require_once ROOT.'lib/soap/generator/PlentymarketsSOAPModelGenerator.class.php'
  * @author phileon
  * @copyright plentymarkets GmbH www.plentymarkets.com
  */
-class PlentymarketsSOAPGenerator
+class PlentymarketsSoapGenerator
 {
 	/**
 	 *
-	 * @var PlentymarketsSOAPGenerator
+	 * @var PlentymarketsSoapGenerator
 	 */
 	private static $instance = null;
 	
@@ -38,13 +38,13 @@ class PlentymarketsSOAPGenerator
 	/**
 	 * singleton pattern
 	 *
-	 * @return PlentymarketsSOAPGenerator
+	 * @return PlentymarketsSoapGenerator
 	 */
 	public static function getInstance()
 	{
-		if( !isset(self::$instance) || !(self::$instance instanceof PlentymarketsSOAPGenerator))
+		if( !isset(self::$instance) || !(self::$instance instanceof PlentymarketsSoapGenerator))
 		{
-			self::$instance = new PlentymarketsSOAPGenerator();
+			self::$instance = new PlentymarketsSoapGenerator();
 		}
 	
 		return self::$instance;
@@ -55,10 +55,10 @@ class PlentymarketsSOAPGenerator
 	 */
 	public function run()
 	{
-		$plentymarketsSOAPModelGenerator = new PlentymarketsSOAPModelGenerator();
+		$plentymarketsSOAPModelGenerator = new PlentymarketsSoapModelGenerator();
 		$plentymarketsSOAPModelGenerator->run();
 		
-		$plentymarketsSOAPControllerGenerator = new PlentymarketsSOAPControllerGenerator();
+		$plentymarketsSOAPControllerGenerator = new PlentymarketsSoapControllerGenerator();
 		$plentymarketsSOAPControllerGenerator->run();
 	}
 }
