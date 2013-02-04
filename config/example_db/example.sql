@@ -82,3 +82,26 @@ CREATE  TABLE `soap_db`.`plenty_vat_config` (
 DEFAULT CHARACTER SET = utf8
 COLLATE = utf8_unicode_ci;
 
+/**
+ * used by SoapCall_GetCurrentStocks.class.php
+ */
+CREATE TABLE `plenty_stock` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `item_id` int(11) DEFAULT NULL,
+  `price_id` int(11) DEFAULT NULL,
+  `attribute_value_set_id` int(11) DEFAULT NULL,
+  `ean` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `warehouse_id` int(11) DEFAULT NULL,
+  `warehouse_type` tinyint(4) DEFAULT NULL,
+  `storage_location_id` tinyint(4) DEFAULT NULL,
+  `storage_location_name` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `storage_location_stock` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `physical_stock` decimal(8,2) DEFAULT NULL,
+  `netto_stock` decimal(8,2) DEFAULT NULL,
+  `average_price` decimal(10,4) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`),
+  UNIQUE KEY `unique_key` (`item_id`,`price_id`,`attribute_value_set_id`,`warehouse_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+

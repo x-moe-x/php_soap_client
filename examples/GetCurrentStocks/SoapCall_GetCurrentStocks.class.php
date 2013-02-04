@@ -16,25 +16,43 @@ class SoapCall_GetCurrentStocks extends PlentySoapCall
 			$this->getLogger()->debug(__FUNCTION__.' start');
 			
 			/*
-			 * do soap call
+			 * Get all warehouses
 			 */
-			$response	=	$this->getPlentySoap()->GetCurrentStocks(new PlentySoapRequest_GetCurrentStocks());
+			$warehouseResult = DBQuery::getInstance()->select('SELECT warehouse_id FROM plenty_warehouse');
 			
 			/*
-			 * check soap response
+			 * the soap call for each warehouse
 			 */
-			if( $response->Success == true )
+			while ( ($warehouseRow = $warehouseResult->fetchAssoc()) && $warehouseRow )
 			{
-				$this->getLogger()->debug(__FUNCTION__.' Request Success - : GetCurrentStocks');
+				$oPlentySoapRequest_GetCurrentStocks = new PlentySoapRequest_GetCurrentStocks();
+				$oPlentySoapRequest_GetCurrentStocks->WarehouseID = $warehouseRow['warehouse_id'];
+				/*
+				 * Timestamp now - 15 minutes
+				 */
+				$oPlentySoapRequest_GetCurrentStocks->LastUpdate = time() - 900;
 				
 				/*
-				 * parse and save the data
+				 * do soap call
 				 */
-				$this->parseResponse($response);
-			}
-			else
-			{
-				$this->getLogger()->debug(__FUNCTION__.' Request Error');
+				$response	=	$this->getPlentySoap()->GetCurrentStocks($oPlentySoapRequest_GetCurrentStocks);
+					
+				/*
+				 * check soap response
+				*/
+				if( $response->Success == true )
+				{
+					$this->getLogger()->debug(__FUNCTION__.' Request Success - : GetCurrentStocks - Warehouse : '.$warehouseRow['warehouse_id']);
+				
+					/*
+					 * parse and save the data
+					*/
+					$this->parseResponse($response);
+				}
+				else
+				{
+					$this->getLogger()->debug(__FUNCTION__.' Request Error - Warehouse : '.$warehouseRow['warehouse_id']);
+				}
 			}
 		}
 		catch(Exception $e)
@@ -50,7 +68,17 @@ class SoapCall_GetCurrentStocks extends PlentySoapCall
 	 */
 	private function parseResponse($response)
 	{
-		
+		if(is_object($response->CurrentStocks->item))
+		{
+			$this->saveInDatabase($response->CurrentStocks->item);			
+		}
+		elseif (is_array($response->CurrentStocks->item))
+		{
+			foreach ($response->CurrentStocks->item as $currentStock)
+			{
+				$this->saveInDatabase($currentStock);
+			}
+		}
 	}
 	
 	/**
@@ -58,9 +86,25 @@ class SoapCall_GetCurrentStocks extends PlentySoapCall
 	 * 
 	 * @param PlentySoapObject_GetCurrentStocks 
 	 */
-	private function saveInDatabase()
+	private function saveInDatabase($currentStocks)
 	{
+		$sku = explode('-', $currentStocks->SKU);
+		$query = 'REPLACE INTO plenty_stock '.DBUtils::buildInsert(	array(	'item_id' => $sku[0],
+																			'price_id' =>  $sku[1],
+																			'attribute_value_set_id' => $sku[2],
+																			'ean' => $currentStocks->EAN,
+																			'warehouse_id' => $currentStocks->WarehouseID,
+																			'warehouse_type' => $currentStocks->WarehouseType,
+																			'storage_location_id' => $currentStocks->StorageLocationID,
+																			'storage_location_name' => $currentStocks->StorageLocationName,
+																			'storage_location_stock' => $currentStocks->StorageLocationStock,
+																			'physical_stock' => $currentStocks->PhysicalStock,
+																			'netto_stock' => $currentStocks->NetStock,
+																			'average_price' => $currentStocks->AveragePrice,
+																		));
+		$this->getLogger()->debug(__FUNCTION__.' '.$query);
 		
+		DBQuery::getInstance()->replace($query);
 	}
 }
 
