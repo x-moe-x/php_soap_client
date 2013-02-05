@@ -18,6 +18,11 @@ class PlentySoapDaemonAction_GetOrderStatusList extends PlentySoapDaemonAction
 		 * run once a day
 		 */
 		$this->setTimeInterval(1440);
+		
+		/*
+		 * deactive this action for PlentySoapDaemon?
+		 */
+		$this->setDeactiveThisAction(false);
 	}
 	
 	public function execute()

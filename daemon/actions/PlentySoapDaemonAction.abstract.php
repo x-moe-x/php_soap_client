@@ -33,6 +33,12 @@ abstract class PlentySoapDaemonAction
 	 */
 	private $identifier4Logger = '';
 	
+	/**
+	 * 
+	 * @var boolean
+	 */
+	private $deactiveThisAction = false;
+	
 	public function __construct($identifier4Logger)
 	{
 		$this->identifier4Logger = $identifier4Logger;
@@ -72,8 +78,10 @@ abstract class PlentySoapDaemonAction
 			$this->setTimeInterval(5);
 		}
 
-		if($this->getLastRunTimestamp()==0
-				|| (time()-($this->getTimeInterval()*60)) >= $this->getLastRunTimestamp()
+		if($this->deactiveThisAction===false
+				&& ($this->getLastRunTimestamp()==0
+						|| (time()-($this->getTimeInterval()*60)) >= $this->getLastRunTimestamp()
+					)
 		)
 		{
 			return true;
@@ -148,6 +156,23 @@ abstract class PlentySoapDaemonAction
 		}
 		
 		return null;
+	}
+	
+	/**
+	 * set true, if this action should currently not executed by PlentySoapDaemon
+	 * 
+	 * @param boolean $deactiveThisAction
+	 */
+	protected function setDeactiveThisAction($deactiveThisAction)
+	{
+		if($deactiveThisAction)
+		{
+			$this->deactiveThisAction = true;
+		}
+		else
+		{
+			$this->deactiveThisAction = false;
+		}
 	}
 }
 ?>
