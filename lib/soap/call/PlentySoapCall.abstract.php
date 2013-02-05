@@ -33,11 +33,17 @@ abstract class PlentySoapCall
 	private $retryCount				=	0;
 	
 	/**
+	 * 
+	 * @var boolean
+	 */
+	private $verbose				= true;
+	
+	/**
 	 * Identifier string for Logger
 	 * 
 	 * @var string
 	 */
-	public	$identifier4Logger;
+	private	$identifier4Logger;
 	
 	
 	public function __construct($identifier4Logger)
@@ -110,6 +116,35 @@ abstract class PlentySoapCall
 	protected function getLogger()
 	{
 		return Logger::instance($this->identifier4Logger);
+	}
+	
+	/**
+	 * call getLogger()->debug($message) if $this->verbose
+	 *
+	 * @param string $message
+	 */
+	protected function debug($message)
+	{
+		if($this->verbose===true)
+		{
+			$this->getLogger()->debug($message);
+		}
+	}
+	
+	/**
+	 * 
+	 * @param boolean $verbose
+	 */
+	public function setVerbose($verbose)
+	{
+		if($verbose)
+		{
+			$this->verbose = true;
+		}
+		else
+		{
+			$this->verbose = false;
+		}
 	}
 	
 	/**

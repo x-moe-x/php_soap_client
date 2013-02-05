@@ -242,10 +242,11 @@ abstract class DBAbstractConnector
 	 */
 	protected function openConnection($bFirstTry=true)
 	{
-		$this->getLogger()->debug(__FUNCTION__.'() [?] Opening connection ... '.($bFirstTry ? ' first' : 'second').' try.');
+		//$this->getLogger()->debug(__FUNCTION__.'() [?] Opening connection ... '.($bFirstTry ? ' first' : 'second').' try.');
+		
 		if(!$this->getMySQLi())
 		{
-			$this->getLogger()->debug(__FUNCTION__.'() [?] Opening connection for ("'.$this->getDataBase().'", "'.$this->getDataSource().'", "'.$this->getUserName().'"');
+			//$this->getLogger()->debug(__FUNCTION__.'() [?] Opening connection for ("'.$this->getDataBase().'", "'.$this->getDataSource().'", "'.$this->getUserName().'"');
 			
 			try 
 			{
@@ -265,7 +266,7 @@ abstract class DBAbstractConnector
 				/*
 				 * system debug
 				 */
-				$this->getLogger()->debug(__FUNCTION__.'() [?] Connection error : ('.mysqli_connect_errno().') '.mysqli_connect_error());
+				$this->getLogger()->crit(__FUNCTION__.' connection error : ('.mysqli_connect_errno().') '.mysqli_connect_error());
 				
 				if($bFirstTry)
 				{
@@ -278,9 +279,10 @@ abstract class DBAbstractConnector
 						/*
 						 * system debug
 						 */
-						$this->getLogger()->debug(__FUNCTION__.'() [?] Retrying in 3 seconds.....');
+						$this->getLogger()->debug(__FUNCTION__.' retrying in 3 seconds.....');
 						
 						sleep(3);
+						
 						return $this->openConnection(false);
 					}
 				}
@@ -290,8 +292,9 @@ abstract class DBAbstractConnector
 			{
 				$this->setMySQLi($oMySQLi);
 			}
-			$this->getLogger()->debug(__FUNCTION__.'() ['.$this->getMySQLi()->thread_id.'] Connection started!');
+			
 		}
+		
 		return $this;
 	}
 	

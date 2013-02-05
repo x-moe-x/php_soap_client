@@ -99,7 +99,11 @@ abstract class PlentySoapDaemonAction
 	}
 
 	/**
-	 * @param number $timeInterval
+	 * define the intervall in minutes. minimum value: 5
+	 * once a day: 1440
+	 * once a hour: 60
+	 * every quarter of an hour: 15
+	 * @param number $timeInterval = minutes
 	 */
 	public function setTimeInterval($timeInterval) 
 	{
@@ -121,5 +125,29 @@ abstract class PlentySoapDaemonAction
 		$this->lastRunTimestamp = $lastRunTimestamp;
 	}
 
+	/**
+	 * require and instance soap call adapter class
+	 *  
+	 * @param string $soapCallName
+	 * @return PlentySoapCall|Null
+	 */
+	protected function getSoapCallAdapterClass($soapCallName)
+	{
+		$file = ROOT.'daemon/adapter/'.$soapCallName.'/Adapter_'.$soapCallName.'.class.php';
+		if(is_file($file))
+		{
+			$clazz = 'Adapter_'.$soapCallName;
+			
+			require_once $file;
+			$o = new $clazz();
+			
+			if(isset($o) && $o instanceof PlentySoapCall)
+			{
+				return $o;
+			}
+		}
+		
+		return null;
+	}
 }
 ?>

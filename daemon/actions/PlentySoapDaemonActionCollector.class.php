@@ -30,6 +30,10 @@ class PlentySoapDaemonActionCollector
 	 */
 	private static $instance = null;
 	
+	/**
+	 * 
+	 * @var boolean
+	 */
 	private $verboseFlagFromSoapDaemon = true;
 	
 	/**

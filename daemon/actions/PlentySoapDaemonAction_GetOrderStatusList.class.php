@@ -3,6 +3,7 @@
 require_once 'PlentySoapDaemonAction.abstract.php';
 
 /**
+ * Save once a day all order status params to local datatable.
  *
  * @author phileon
  * @copyright plentymarkets GmbH www.plentymarkets.com
@@ -14,14 +15,20 @@ class PlentySoapDaemonAction_GetOrderStatusList extends PlentySoapDaemonAction
 		parent::__construct(__CLASS__);
 		
 		/*
-		 * once a day
+		 * run once a day
 		 */
 		$this->setTimeInterval(1440);
 	}
 	
 	public function execute()
 	{
-		echo 'hello world!' . chr(10);
+		$soapCallAdapter = $this->getSoapCallAdapterClass('GetOrderStatusList');
+		if($soapCallAdapter instanceof Adapter_GetOrderStatusList)
+		{
+			$soapCallAdapter->setVerbose(self::VERBOSE);
+			$soapCallAdapter->setLang('de');
+			$soapCallAdapter->execute();
+		}
 	}
 }
 

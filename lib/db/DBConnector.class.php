@@ -67,15 +67,13 @@ class DBConnector extends DBAbstractConnector
 	 */
 	private function initConnection()
 	{
-		$this->getLogger()->debug(__FUNCTION__.' Initializing connection  '.SQL_DATA_SOURCE.' db '.SQL_DATA_BASE);
-		
 		$this->
 			setDataBase(SQL_DATA_BASE)->
 			setDataSource(SQL_DATA_SOURCE)->
 			setUserName(SQL_USERNAME)->
 			setPassword(SQL_PASSWORD);
 
-		$this->getLogger()->debug(__FUNCTION__.' Connection initialized');
+		$this->getLogger()->debug(__FUNCTION__.' connection initialized host:'.SQL_DATA_SOURCE.' db:'.SQL_DATA_BASE);
 		
 		return $this;
 	}
