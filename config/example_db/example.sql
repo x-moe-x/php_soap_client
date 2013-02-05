@@ -16,21 +16,21 @@ DEFAULT CHARACTER SET = utf8
 COLLATE = utf8_unicode_ci;
 
 /**
- * used by SoapCall_GetCountriesOfDelivery.class.php
+ * used by Adapter_GetCountriesOfDelivery.class.php
  */
-CREATE  TABLE `soap_db`.`plenty_countries_of_delivery` (
-  `country_id` INT NOT NULL ,
-  `active` INT NULL ,
-  `country_name` VARCHAR(126) NULL ,
-  `iso_code_2` CHAR(2) NULL ,
-  PRIMARY KEY (`country_id`) ,
-  UNIQUE INDEX `country_id_UNIQUE` (`country_id` ASC) )
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8
-COLLATE = utf8_unicode_ci;
+CREATE TABLE `plenty_countries_of_delivery` (
+  `country_id` int(11) NOT NULL,
+  `active` int(11) DEFAULT NULL,
+  `country_name` varchar(126) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `iso_code_2` char(2) COLLATE utf8_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`country_id`),
+  UNIQUE KEY `country_id_UNIQUE` (`country_id`),
+  KEY `iso_key` (`iso_code_2`),
+  KEY `active_key` (`active`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
 
 /**
- * used by SoapCall_GetMethodOfPayments.class.php
+ * used by Adapter_GetMethodOfPayments.class.php
  */
 CREATE  TABLE `soap_db`.`plenty_method_of_payments` (
   `method_of_payment_id` INT NOT NULL ,
@@ -44,9 +44,9 @@ DEFAULT CHARACTER SET = utf8
 COLLATE = utf8_unicode_ci;
 
 /**
- * used by SoapCall_GetOrderStatusList.class.php
+ * used by Adapter_GetOrderStatusList.class.php
  */
-CREATE TABLE `plenty_order_status` (
+CREATE TABLE `soap_db`.`plenty_order_status` (
   `order_status` decimal(4,2) NOT NULL,
   `lang` char(2) COLLATE utf8_unicode_ci NOT NULL,
   `status_name` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
@@ -57,7 +57,7 @@ DEFAULT CHARSET = utf8
 COLLATE = utf8_unicode_ci;
 
 /**
- * used by SoapCall_GetWarehouseList.class.php
+ * used by Adapter_GetWarehouseList.class.php
  */
 CREATE  TABLE `soap_db`.`plenty_warehouse` (
   `warehouse_id` INT NOT NULL ,
@@ -70,7 +70,7 @@ DEFAULT CHARACTER SET = utf8
 COLLATE = utf8_unicode_ci;
 
 /**
- * SoapCall_GetVATConfig.class.php
+ * used by Adapter_GetVATConfig.class.php
  */
 CREATE  TABLE `soap_db`.`plenty_vat_config` (
   `country_id` INT NOT NULL ,
@@ -101,7 +101,10 @@ CREATE TABLE `plenty_stock` (
   `average_price` decimal(10,4) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id_UNIQUE` (`id`),
-  UNIQUE KEY `unique_key` (`item_id`,`price_id`,`attribute_value_set_id`,`warehouse_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+  UNIQUE KEY `unique_key` (`item_id`,`price_id`,`attribute_value_set_id`,`warehouse_id`),
+  KEY `item_key` (`item_id`,`price_id`,`attribute_value_set_id`),
+  KEY `ean_key` (`ean`),
+  KEY `warehouse_key` (`warehouse_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
 
 

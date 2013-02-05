@@ -290,6 +290,12 @@ abstract class DBAbstractConnector
 			}
 			else
 			{
+				/*
+				 * needed for utf8 !!
+				 */
+				$oMySQLi->query("SET NAMES 'utf8'");
+				
+				
 				$this->setMySQLi($oMySQLi);
 			}
 			
