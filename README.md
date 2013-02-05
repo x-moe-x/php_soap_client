@@ -22,7 +22,7 @@ Nun können Sie einen API-Test-Aufruf starten:
     shell> php cli/PlentymarketsSoapExampleLoader.cli.php [ExampleName]
     
 ## SOAP Daemon
-Die wohl beste Möglichkeit Daten zwischen zwei System synchron zu halten ist ein Daemon-Prozess. Also ein permanent laufender Prozess, welcher unterschiedliche Aktionen in einem fest definierten Intervall ausführt.
+Die wohl beste Möglichkeit, um Daten zwischen zwei System synchron zu halten, ist ein Daemon-Prozess. Also ein permanent laufender Prozess, welcher unterschiedliche Aktionen in einem fest definierten Intervall ausführt.
 Weiterhin wäre dabei auch eine weitere Anforderung spielend einfach möglich: keine API Calls werden mehr parallel ausgeführt!
 
 Wir haben für Sie einen einfach zu pflegenden Daemon-Prozess entwickelt - starten:
