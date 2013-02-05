@@ -85,7 +85,7 @@ COLLATE = utf8_unicode_ci;
 /**
  * used by SoapCall_GetCurrentStocks.class.php
  */
-CREATE TABLE `plenty_stock` (
+CREATE TABLE `soap_db`.`plenty_stock` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `item_id` int(11) DEFAULT NULL,
   `price_id` int(11) DEFAULT NULL,

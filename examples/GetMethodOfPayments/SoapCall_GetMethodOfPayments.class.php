@@ -4,7 +4,7 @@ require_once ROOT.'lib/soap/call/PlentySoapCall.abstract.php';
 
 /**
  *
- * I might be a better idea to run this call via
+ * It might be a better idea to run this call via
  * PlentySoap.daemon.php
  * So you can keep you local db/system up2date in an easy way
  *
@@ -121,14 +121,15 @@ class SoapCall_GetMethodOfPayments extends PlentySoapCall
 		}
 		
 		$query = 'REPLACE INTO `plenty_method_of_payments` '.
-								DBUtils::buildInsert(	array(	'method_of_payment_id'		=>	$methodOfPayment->CountryID,
+								DBUtils::buildInsert(	array(	'method_of_payment_id'		=>	$methodOfPayment->MethodOfPaymentID,
 																'method_of_payment_name'	=>	$methodOfPayment->Name,
 																'active_countries'			=>	implode(',', $activeCountriesOfDelivery),
 																'active_multishops'			=>	implode(',', $activeMultishops)
 															)
 													);
 
-		$this->getLogger()->debug(__FUNCTION__.' '.$query);
+		$this->getLogger()->debug(__FUNCTION__.' new MOP '.$methodOfPayment->MethodOfPaymentID.' '.$methodOfPayment->Name);
+	
 	
 		DBQuery::getInstance()->replace($query);
 	}
