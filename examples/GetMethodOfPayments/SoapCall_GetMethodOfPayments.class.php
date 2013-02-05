@@ -2,6 +2,13 @@
 
 require_once ROOT.'lib/soap/call/PlentySoapCall.abstract.php';
 
+/**
+ *
+ * I might be a better idea to run this call via
+ * PlentySoap.daemon.php
+ * So you can keep you local db/system up2date in an easy way
+ *
+ */
 class SoapCall_GetMethodOfPayments extends PlentySoapCall 
 {
 	public function __construct()
