@@ -6,7 +6,7 @@ require_once ROOT.'lib/soap/call/PlentySoapCall.abstract.php';
  * Save all order status params to local datatable.
  * 
  * @author phileon
- *
+ * @copyright plentymarkets GmbH www.plentymarkets.com
  */
 class Adapter_GetOrderStatusList extends PlentySoapCall 
 {
@@ -59,7 +59,7 @@ class Adapter_GetOrderStatusList extends PlentySoapCall
 				$this->truncateTable();
 				
 				/*
-				 * Parse and save the data
+				 * parse and save the data
 				 */
 				$this->parseResponse($response);
 			}
@@ -101,7 +101,7 @@ class Adapter_GetOrderStatusList extends PlentySoapCall
 	}
 	
 	/**
-	 * Save the data in the database
+	 * Save the data in plenty_order_status
 	 *
 	 * @param PlentySoapObject_GetOrderStatus $orderStatus
 	 */
@@ -114,7 +114,7 @@ class Adapter_GetOrderStatusList extends PlentySoapCall
 															)
 													);
 	
-		$this->getLogger()->debug(__FUNCTION__.' '.$query);
+		$this->getLogger()->debug(__FUNCTION__.' save status '.$orderStatus->OrderStatus.' '.$orderStatus->OrderStatusName);
 	
 		DBQuery::getInstance()->replace($query);
 	}

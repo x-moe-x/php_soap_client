@@ -83,7 +83,7 @@ class StoreToken
 																						'soap_token_user_id' => $soapUserId,
 																						), 
 																				array('soap_token_inserted'));
-			$this->getLogger()->debug(__FUNCTION__.' '.$query);
+			$this->getLogger()->debug(__FUNCTION__.' save new token '.$query);
 			
 			DBQuery::getInstance()->replace($query);
 		}
@@ -125,7 +125,7 @@ class StoreToken
 						FROM `plenty_soap_token`
 						WHERE `soap_token_user`="'.$soapUser.'" && DAY(`soap_token_inserted`)=DAY(NOW())';
 			
-			$this->getLogger()->debug(__FUNCTION__.' '.$query);
+			//$this->getLogger()->debug(__FUNCTION__.' '.$query);
 			
 			$result = DBQuery::getInstance()->selectAssoc($query);
 			
