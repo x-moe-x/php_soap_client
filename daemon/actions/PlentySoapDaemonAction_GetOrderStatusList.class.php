@@ -22,7 +22,7 @@ class PlentySoapDaemonAction_GetOrderStatusList extends PlentySoapDaemonAction
 		/*
 		 * deactive this action for PlentySoapDaemon?
 		 */
-		$this->setDeactiveThisAction(false);
+		$this->setDeactiveThisAction(true);
 	}
 	
 	public function execute()

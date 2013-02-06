@@ -22,7 +22,7 @@ class PlentySoapDaemonAction_GetCountriesOfDelivery extends PlentySoapDaemonActi
 		/*
 		 * deactive this action for PlentySoapDaemon?
 		 */
-		$this->setDeactiveThisAction(false);
+		$this->setDeactiveThisAction(true);
 	}
 	
 	public function execute()

@@ -83,7 +83,7 @@ DEFAULT CHARACTER SET = utf8
 COLLATE = utf8_unicode_ci;
 
 /**
- * used by SoapCall_GetCurrentStocks.class.php
+ * used by Adapter_GetCurrentStocks.class.php
  */
 CREATE TABLE `soap_db`.`plenty_stock` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -107,4 +107,12 @@ CREATE TABLE `soap_db`.`plenty_stock` (
   KEY `warehouse_key` (`warehouse_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
 
-
+/**
+ * used by Adapter_GetCurrentStocks.class.php
+ */
+CREATE TABLE `plenty_stock_last_update` (
+  `warehouse_id` int(11) NOT NULL,
+  `last_update_timestamp` int(11) DEFAULT NULL,
+  PRIMARY KEY (`warehouse_id`)
+) ENGINE=InnoDB DEFAULT CHARSET = utf8 
+COLLATE = utf8_unicode_ci;
