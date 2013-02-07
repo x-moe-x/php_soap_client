@@ -27,7 +27,7 @@ class PlentySoapDaemonAction_GetCountriesOfDelivery extends PlentySoapDaemonActi
 	
 	public function execute()
 	{
-		$soapCallAdapter = $this->getSoapCallAdapterClass('GetCountriesOfDelivery');
+		$soapCallAdapter = $this->getSoapCallAdapterClass($this->getClassPostfix(__CLASS__));
 		if($soapCallAdapter instanceof Adapter_GetCountriesOfDelivery)
 		{
 			$soapCallAdapter->setVerbose(self::VERBOSE);

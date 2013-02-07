@@ -27,7 +27,7 @@ class PlentySoapDaemonAction_GetVATConfig extends PlentySoapDaemonAction
 	
 	public function execute()
 	{
-		$soapCallAdapter = $this->getSoapCallAdapterClass('GetVATConfig');
+		$soapCallAdapter = $this->getSoapCallAdapterClass($this->getClassPostfix(__CLASS__));
 		if($soapCallAdapter instanceof Adapter_GetVATConfig)
 		{
 			$soapCallAdapter->setVerbose(self::VERBOSE);

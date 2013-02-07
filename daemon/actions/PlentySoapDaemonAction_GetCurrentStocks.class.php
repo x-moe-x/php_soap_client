@@ -28,7 +28,7 @@ class PlentySoapDaemonAction_GetCurrentStocks extends PlentySoapDaemonAction
 	
 	public function execute()
 	{
-		$soapCallAdapter = $this->getSoapCallAdapterClass('GetCurrentStocks');
+		$soapCallAdapter = $this->getSoapCallAdapterClass($this->getClassPostfix(__CLASS__));
 		if($soapCallAdapter instanceof Adapter_GetCurrentStocks)
 		{
 			$soapCallAdapter->setVerbose(self::VERBOSE);

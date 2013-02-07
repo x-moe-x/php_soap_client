@@ -27,7 +27,7 @@ class PlentySoapDaemonAction_GetWarehouseList extends PlentySoapDaemonAction
 	
 	public function execute()
 	{
-		$soapCallAdapter = $this->getSoapCallAdapterClass('GetWarehouseList');
+		$soapCallAdapter = $this->getSoapCallAdapterClass($this->getClassPostfix(__CLASS__));
 		if($soapCallAdapter instanceof Adapter_GetWarehouseList)
 		{
 			$soapCallAdapter->setVerbose(self::VERBOSE);

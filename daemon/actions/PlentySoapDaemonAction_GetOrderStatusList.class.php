@@ -27,7 +27,7 @@ class PlentySoapDaemonAction_GetOrderStatusList extends PlentySoapDaemonAction
 	
 	public function execute()
 	{
-		$soapCallAdapter = $this->getSoapCallAdapterClass('GetOrderStatusList');
+		$soapCallAdapter = $this->getSoapCallAdapterClass($this->getClassPostfix(__CLASS__));
 		if($soapCallAdapter instanceof Adapter_GetOrderStatusList)
 		{
 			$soapCallAdapter->setVerbose(self::VERBOSE);

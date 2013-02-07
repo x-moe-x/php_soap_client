@@ -27,7 +27,7 @@ class PlentySoapDaemonAction_GetMethodOfPayments extends PlentySoapDaemonAction
 	
 	public function execute()
 	{
-		$soapCallAdapter = $this->getSoapCallAdapterClass('GetMethodOfPayments');
+		$soapCallAdapter = $this->getSoapCallAdapterClass($this->getClassPostfix(__CLASS__));
 		if($soapCallAdapter instanceof Adapter_GetMethodOfPayments)
 		{
 			$soapCallAdapter->setVerbose(self::VERBOSE);
