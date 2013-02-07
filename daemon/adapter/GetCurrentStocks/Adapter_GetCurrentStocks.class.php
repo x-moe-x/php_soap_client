@@ -30,6 +30,18 @@ class Adapter_GetCurrentStocks extends PlentySoapCall
 	 */
 	private $currentTimestamp = 0;
 	
+	/**
+	 * 
+	 * @var int
+	 */
+	private $lastUpdateTimestamp = 0;
+	
+	/**
+	 * 
+	 * @var int
+	 */
+	private $currentPage = 0;
+	
 	public function __construct()
 	{
 		parent::__construct(__CLASS__);
@@ -60,30 +72,33 @@ class Adapter_GetCurrentStocks extends PlentySoapCall
 			return;
 		}
 		
-		$this->callOnePage(1);
-	}
-	
-	/**
-	 * 
-	 * @param number $page
-	 */
-	private function callOnePage($page=1)
-	{
 		/*
 		 * when was the last call for this warehouse id?
 		 */
-		$lastUpdateTimestamp = $this->getLastUpdateTimestamp($this->warehouseId);
+		$this->lastUpdateTimestamp = $this->getLastUpdateTimestamp();
+		$this->currentPage = 1;
 		
+		$this->callOnePage();
+	}
+	
+	/**
+	 * perform api call
+	 * 
+	 */
+	private function callOnePage()
+	{
 		try
 		{
 			$oPlentySoapRequest_GetCurrentStocks = new PlentySoapRequest_GetCurrentStocks();
-			$oPlentySoapRequest_GetCurrentStocks->Page = $page;
+			$oPlentySoapRequest_GetCurrentStocks->Page = $this->currentPage;
 			$oPlentySoapRequest_GetCurrentStocks->WarehouseID = $this->warehouseId;
 			
 			/*
-			 * Timestamp now - 15 minutes
+			 * Use for retrieval of all pages always have the same timestamp.
+			 * Use for the next call in a few minutes the current timestamp of now.
+			 * Therefore it is important to store the time of the last successful retrieval.
 			 */
-			$oPlentySoapRequest_GetCurrentStocks->LastUpdate = $lastUpdateTimestamp;
+			$oPlentySoapRequest_GetCurrentStocks->LastUpdate = $this->lastUpdateTimestamp;
 		
 			/*
 			 * do soap call
@@ -95,14 +110,16 @@ class Adapter_GetCurrentStocks extends PlentySoapCall
 			 */
 			if( $response->Success == true )
 			{
+				$this->getLogger()->debug(__FUNCTION__.' request succeed - warehouse: '.$this->warehouseId.' page: '.$this->currentPage);
+				
 				/*
-				 * save next last timestamp - important!
+				 * store timestamp for the next retrieval
 				 */
-				$this->setLastUpdateTimestamp($this->warehouseId, $this->currentTimestamp);
-		
-		
-				$this->getLogger()->debug(__FUNCTION__.' request succeed - warehouse : '.$this->warehouseId);
-					
+				if($this->currentPage==1)
+				{
+					$this->setLastUpdateTimestamp($this->warehouseId, $this->currentTimestamp);
+				}
+
 				/*
 				 * parse and save the data
 				 */
@@ -114,9 +131,19 @@ class Adapter_GetCurrentStocks extends PlentySoapCall
 				{
 					foreach($response->ErrorMessages->item as $errorItem)
 					{
-						$this->getLogger()->crit(__FUNCTION__.' request Error - warehouse: '.$this->warehouseId.' code: '.$errorItem->Code.' '.$errorItem->Message);
+						if($errorItem->Code=='EST0003')
+						{
+							/*
+							 * since last retrieval, there are no new data available
+							 */
+							$this->getLogger()->debug(__FUNCTION__.' there are no new data available');
+							break;
+						}
+						else 
+						{
+							$this->getLogger()->crit(__FUNCTION__.' request Error - warehouse: '.$this->warehouseId.' code: '.$errorItem->Code.' '.$errorItem->Message);
+						}
 					}
-						
 				}
 			}
 		}
@@ -125,52 +152,7 @@ class Adapter_GetCurrentStocks extends PlentySoapCall
 			$this->onExceptionAction($e);
 		}
 	}
-	
-	/**
-	 * 
-	 * @param int $warehouseId
-	 * @return int
-	 */
-	private function getLastUpdateTimestamp($warehouseId)
-	{
-		$query = 'SELECT last_update_timestamp FROM plenty_stock_last_update WHERE warehouse_id='.$warehouseId.' LIMIT 1';
 		
-		$result = DBQuery::getInstance()->selectAssoc($query);
-		
-		$this->getLogger()->debug(__FUNCTION__.' '.$query);
-		
-		if(isset($result['last_update_timestamp']) && $result['last_update_timestamp']>0)
-		{
-			return $result['last_update_timestamp'];
-		}
-		
-		/*
-		 * for the first run use timestamp: now - 48h 
-		 */
-		return time()-(60*60*48);
-	}
-	
-	/**
-	 * 
-	 * @param int $warehouseId
-	 * @param int $timestamp
-	 */
-	private function setLastUpdateTimestamp($warehouseId, $timestamp)
-	{
-		if($warehouseId>0)
-		{
-			$query = 'REPLACE INTO plenty_stock_last_update '
-												.	DBUtils::buildInsert(array(
-																				'warehouse_id' => $warehouseId,
-																				'last_update_timestamp' => $timestamp
-																			));
-			
-			DBQuery::getInstance()->replace($query);
-			
-			$this->getLogger()->debug(__FUNCTION__.' '.$query);
-		}
-	}
-	
 	/**
 	 * Parse the response
 	 * 
@@ -188,6 +170,16 @@ class Adapter_GetCurrentStocks extends PlentySoapCall
 			{
 				$this->saveInDatabase($currentStock);
 			}
+		}
+		
+		if($response->Pages>$this->currentPage)
+		{
+			++$this->currentPage;
+			
+			/**
+			 * perform call for next page
+			 */
+			$this->callOnePage();
 		}
 	}
 	
@@ -217,6 +209,51 @@ class Adapter_GetCurrentStocks extends PlentySoapCall
 		$this->getLogger()->debug(__FUNCTION__.' get stock data for item/sku: '.$currentStocks->SKU.' netto_stock: '.$currentStocks->NetStock);
 		
 		DBQuery::getInstance()->replace($query);
+	}
+	
+	/**
+	 * select last_update_timestamp for current warehouse id
+	 * 
+	 * @return int
+	 */
+	private function getLastUpdateTimestamp()
+	{
+		$query = 'SELECT last_update_timestamp FROM plenty_stock_last_update WHERE warehouse_id='.$this->warehouseId.' LIMIT 1';
+	
+		$result = DBQuery::getInstance()->selectAssoc($query);
+	
+		$this->getLogger()->debug(__FUNCTION__.' '.$query);
+	
+		if(isset($result['last_update_timestamp']) && $result['last_update_timestamp']>0)
+		{
+			return $result['last_update_timestamp'];
+		}
+	
+		/*
+		 * for the first run use timestamp: now - 48h
+		*/
+		return time()-(60*60*48);
+	}
+	
+	/**
+	 *
+	 * @param int $warehouseId
+	 * @param int $timestamp
+	 */
+	private function setLastUpdateTimestamp($warehouseId, $timestamp)
+	{
+		if($warehouseId>0)
+		{
+			$query = 'REPLACE INTO plenty_stock_last_update '
+					.	DBUtils::buildInsert(array(
+							'warehouse_id' => $warehouseId,
+							'last_update_timestamp' => $timestamp
+					));
+						
+					DBQuery::getInstance()->replace($query);
+						
+					$this->getLogger()->debug(__FUNCTION__.' '.$query);
+		}
 	}
 }
 
