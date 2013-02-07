@@ -155,7 +155,14 @@ class PlentySoapDaemon
 			$pid = posix_getpid();
 			if(isset($pid) && $pid>0)
 			{
-				file_put_contents(self::PID_FILE_DEST, $pid);
+				if (is_writable(self::PID_FILE_DEST))
+				{
+					file_put_contents(self::PID_FILE_DEST, $pid);
+				}
+				else
+				{
+					$this->getLogger()->debug(__FUNCTION__.' I can not write pid file: Permission denied');
+				}
 			}
 			else
 			{
