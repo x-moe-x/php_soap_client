@@ -133,7 +133,12 @@ class Adapter_GetCurrentStocks extends PlentySoapCall
 	 */
 	private function getLastUpdateTimestamp($warehouseId)
 	{
-		$result = DBQuery::getInstance()->selectAssoc('SELECT last_update_timestamp FROM plenty_stock_last_update WHERE warehouse_id='.$warehouseId.' LIMIT 1');
+		$query = 'SELECT last_update_timestamp FROM plenty_stock_last_update WHERE warehouse_id='.$warehouseId.' LIMIT 1';
+		
+		$result = DBQuery::getInstance()->selectAssoc($query);
+		
+		$this->getLogger()->debug(__FUNCTION__.' '.$query);
+		
 		if(isset($result['last_update_timestamp']) && $result['last_update_timestamp']>0)
 		{
 			return $result['last_update_timestamp'];
@@ -154,11 +159,15 @@ class Adapter_GetCurrentStocks extends PlentySoapCall
 	{
 		if($warehouseId>0)
 		{
-			DBQuery::getInstance()->replace('REPLACE INTO last_update_timestamp '
+			$query = 'REPLACE INTO plenty_stock_last_update '
 												.	DBUtils::buildInsert(array(
 																				'warehouse_id' => $warehouseId,
 																				'last_update_timestamp' => $timestamp
-																			)));
+																			));
+			
+			DBQuery::getInstance()->replace($query);
+			
+			$this->getLogger()->debug(__FUNCTION__.' '.$query);
 		}
 	}
 	
@@ -205,7 +214,7 @@ class Adapter_GetCurrentStocks extends PlentySoapCall
 																			'average_price' => $currentStocks->AveragePrice,
 																		));
 		
-		$this->getLogger()->debug(__FUNCTION__.' get stock data for item/sku '.$sku);
+		$this->getLogger()->debug(__FUNCTION__.' get stock data for item/sku: '.$currentStocks->SKU.' netto_stock: '.$currentStocks->NetStock);
 		
 		DBQuery::getInstance()->replace($query);
 	}
