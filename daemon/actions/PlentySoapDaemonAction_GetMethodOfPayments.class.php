@@ -22,7 +22,7 @@ class PlentySoapDaemonAction_GetMethodOfPayments extends PlentySoapDaemonAction
 		/*
 		 * deactive this action for PlentySoapDaemon?
 		 */
-		$this->setDeactiveThisAction(false);
+		$this->setDeactiveThisAction(true);
 	}
 	
 	public function execute()
