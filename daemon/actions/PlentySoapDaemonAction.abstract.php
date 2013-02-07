@@ -182,7 +182,7 @@ abstract class PlentySoapDaemonAction
 	 */
 	protected function getClassPostfix($className)
 	{
-		return strtr($className, array('PlentySoapDaemonAction_' => '', '.class.php' => ''));
+		return str_replace('PlentySoapDaemonAction_', '', $className);
 	}
 }
 ?>
