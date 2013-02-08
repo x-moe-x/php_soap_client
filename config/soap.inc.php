@@ -55,6 +55,6 @@ define('SOAP_CONTROLLER_CLASS_NAME', 'PlentySoap');
 /*
  * autoloader for all soap model classes
 */
-require_once ROOT.'lib/soap/autoloader/SOAPModelLoader.fnc.php';
+require_once ROOT.'lib/soap/autoloader/SoapModelLoader.fnc.php';
 
 ?>
