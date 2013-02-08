@@ -1,4 +1,3 @@
-
 CREATE DATABASE `soap_db`; /*!40100 DEFAULT CHARACTER SET utf8 */
 
 /**
@@ -27,7 +26,7 @@ CREATE TABLE `plenty_countries_of_delivery` (
   UNIQUE KEY `country_id_UNIQUE` (`country_id`),
   KEY `iso_key` (`iso_code_2`),
   KEY `active_key` (`active`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 /**
  * used by Adapter_GetMethodOfPayments.class.php
@@ -105,7 +104,7 @@ CREATE TABLE `soap_db`.`plenty_stock` (
   KEY `item_key` (`item_id`,`price_id`,`attribute_value_set_id`),
   KEY `ean_key` (`ean`),
   KEY `warehouse_key` (`warehouse_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 /**
  * used by Adapter_GetCurrentStocks.class.php
