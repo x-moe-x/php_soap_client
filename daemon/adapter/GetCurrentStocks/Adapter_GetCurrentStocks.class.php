@@ -25,18 +25,21 @@ class Adapter_GetCurrentStocks extends PlentySoapCall
 	private $warehouseId = 0;
 	
 	/**
+	 * the current timestamp needs to be redefined for each execution
 	 * 
 	 * @var int
 	 */
 	private $currentTimestamp = 0;
 	
 	/**
+	 * the timestamp of the last query api
 	 * 
 	 * @var int
 	 */
 	private $lastUpdateTimestamp = 0;
 	
 	/**
+	 * internal page counter
 	 * 
 	 * @var int
 	 */
@@ -45,16 +48,10 @@ class Adapter_GetCurrentStocks extends PlentySoapCall
 	public function __construct()
 	{
 		parent::__construct(__CLASS__);
-		
-		/*
-		 * current timestamop with an tiny buffer of 45 seconds
-		 *
-		 * used for next call
-		 */
-		$this->currentTimestamp = time()-45;
 	}
 	
 	/**
+	 * reset warehouse id 
 	 * 
 	 * @param int $warehouseId
 	 */
@@ -65,6 +62,9 @@ class Adapter_GetCurrentStocks extends PlentySoapCall
 	
 	public function execute() 
 	{
+		/*
+		 * warehouse id is a mandatory input
+		 */
 		if(!isset($this->warehouseId) || !$this->warehouseId)
 		{
 			$this->getLogger()->err(__FUNCTION__.' you have to set a warehouseId first');
@@ -73,11 +73,25 @@ class Adapter_GetCurrentStocks extends PlentySoapCall
 		}
 		
 		/*
+		 * current timestamop with an tiny buffer of 45 seconds
+		 *
+		 * used for next call
+		 */
+		$this->currentTimestamp = time()-45;
+		
+		/*
 		 * when was the last call for this warehouse id?
 		 */
 		$this->lastUpdateTimestamp = $this->getLastUpdateTimestamp();
+		
+		/*
+		 * start with page 1
+		 */
 		$this->currentPage = 1;
 		
+		/*
+		 * perform first api call
+		 */
 		$this->callOnePage();
 	}
 	
@@ -89,6 +103,9 @@ class Adapter_GetCurrentStocks extends PlentySoapCall
 	{
 		try
 		{
+			/*
+			 * define request object
+			 */
 			$oPlentySoapRequest_GetCurrentStocks = new PlentySoapRequest_GetCurrentStocks();
 			$oPlentySoapRequest_GetCurrentStocks->Page = $this->currentPage;
 			$oPlentySoapRequest_GetCurrentStocks->WarehouseID = $this->warehouseId;
@@ -117,7 +134,7 @@ class Adapter_GetCurrentStocks extends PlentySoapCall
 				 */
 				if($this->currentPage==1)
 				{
-					$this->setLastUpdateTimestamp($this->warehouseId, $this->currentTimestamp);
+					$this->saveCurrentTimestamp2DB4TheNextRetrieval();
 				}
 
 				/*
@@ -137,6 +154,7 @@ class Adapter_GetCurrentStocks extends PlentySoapCall
 							 * since last retrieval, there are no new data available
 							 */
 							$this->getLogger()->debug(__FUNCTION__.' there are no new data available');
+							
 							break;
 						}
 						else 
@@ -184,12 +202,17 @@ class Adapter_GetCurrentStocks extends PlentySoapCall
 	}
 	
 	/**
-	 * Save the data in the database
+	 * save data in plenty_stock
 	 * 
 	 * @param PlentySoapObject_GetCurrentStocks 
 	 */
 	private function saveInDatabase($currentStocks)
 	{
+		/*
+		 * stockkeeping unit (SKU)
+		 * 
+		 * plentymarkets SKU = [ITEM_ID]-[PRICE_ID]-[ATTRIBUTE_VALUE_SET_ID]
+		 */
 		$sku = explode('-', $currentStocks->SKU);
 		
 		$query = 'REPLACE INTO plenty_stock '.DBUtils::buildInsert(	array(	'item_id' => $sku[0],
@@ -206,13 +229,13 @@ class Adapter_GetCurrentStocks extends PlentySoapCall
 																			'average_price' => $currentStocks->AveragePrice,
 																		));
 		
-		$this->getLogger()->debug(__FUNCTION__.' get stock data for item/sku: '.$currentStocks->SKU.' netto_stock: '.$currentStocks->NetStock);
+		$this->getLogger()->debug(__FUNCTION__.' get stock data for item-sku: '.$currentStocks->SKU.' netto_stock: '.$currentStocks->NetStock);
 		
 		DBQuery::getInstance()->replace($query);
 	}
 	
 	/**
-	 * select last_update_timestamp for current warehouse id
+	 * Select last_update_timestamp from plenty_stock_last_update
 	 * 
 	 * @return int
 	 */
@@ -230,24 +253,31 @@ class Adapter_GetCurrentStocks extends PlentySoapCall
 		}
 	
 		/*
-		 * for the first run use timestamp: now - 48h
-		*/
-		return time()-(60*60*48);
+		 * This seems to be the first stock call...
+		 * 
+		 * We therefore use a very large time interval, once to get all important data.
+		 * 
+		 * We use: current date minus 90 days.
+		 * 
+		 * IMPORTANT
+		 * Use such a large time interval really only for the very first api call.
+		 * Because from now on, you only interested in the changes since the last api call.
+		 */
+		return time()-(60*60*24*90);
 	}
 	
 	/**
-	 *
-	 * @param int $warehouseId
-	 * @param int $timestamp
+	 * Save $this->currentTimestamp in plenty_stock_last_update
+	 * 
 	 */
-	private function setLastUpdateTimestamp($warehouseId, $timestamp)
+	private function saveCurrentTimestamp2DB4TheNextRetrieval()
 	{
-		if($warehouseId>0)
+		if($this->warehouseId>0)
 		{
 			$query = 'REPLACE INTO plenty_stock_last_update '
 					.	DBUtils::buildInsert(array(
-							'warehouse_id' => $warehouseId,
-							'last_update_timestamp' => $timestamp
+							'warehouse_id' => $this->warehouseId,
+							'last_update_timestamp' => $this->currentTimestamp
 					));
 						
 					DBQuery::getInstance()->replace($query);

@@ -17,7 +17,7 @@ COLLATE = utf8_unicode_ci;
 /**
  * used by Adapter_GetCountriesOfDelivery.class.php
  */
-CREATE TABLE `plenty_countries_of_delivery` (
+CREATE TABLE `soap_db`.`plenty_countries_of_delivery` (
   `country_id` int(11) NOT NULL,
   `active` int(11) DEFAULT NULL,
   `country_name` varchar(126) COLLATE utf8_unicode_ci DEFAULT NULL,
@@ -109,7 +109,7 @@ CREATE TABLE `soap_db`.`plenty_stock` (
 /**
  * used by Adapter_GetCurrentStocks.class.php
  */
-CREATE TABLE `plenty_stock_last_update` (
+CREATE TABLE `soap_db`.`plenty_stock_last_update` (
   `warehouse_id` int(11) NOT NULL,
   `last_update_timestamp` int(11) DEFAULT NULL,
   PRIMARY KEY (`warehouse_id`)
