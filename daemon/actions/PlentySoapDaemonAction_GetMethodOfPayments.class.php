@@ -20,9 +20,9 @@ class PlentySoapDaemonAction_GetMethodOfPayments extends PlentySoapDaemonAction
 		$this->setTimeInterval(1440);
 
 		/*
-		 * deactive this action for PlentySoapDaemon?
+		 * deactivate this action for PlentySoapDaemon?
 		 */
-		$this->setDeactiveThisAction(true);
+		$this->setDeactivateThisAction(true);
 	}
 	
 	public function execute()

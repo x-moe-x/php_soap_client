@@ -21,9 +21,9 @@ class PlentySoapDaemonAction_GetCurrentStocks extends PlentySoapDaemonAction
 		$this->setTimeInterval(15);
 		
 		/*
-		 * deactive this action for PlentySoapDaemon?
+		 * deactivate this action for PlentySoapDaemon?
 		 */
-		$this->setDeactiveThisAction(true);
+		$this->setDeactivateThisAction(true);
 	}
 	
 	public function execute()

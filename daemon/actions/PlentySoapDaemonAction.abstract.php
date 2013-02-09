@@ -163,7 +163,7 @@ abstract class PlentySoapDaemonAction
 	 * 
 	 * @param boolean $deactiveThisAction
 	 */
-	protected function setDeactiveThisAction($deactiveThisAction)
+	protected function setDeactivateThisAction($deactiveThisAction)
 	{
 		if($deactiveThisAction)
 		{
