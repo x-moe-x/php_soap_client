@@ -150,7 +150,7 @@ class PlentyItemDataPushItems extends PlentySoapCall
 							/*
 							 * add an image for this new item
 							 */
-							$this->pushImage((int)$idList[0]);
+							//$this->pushImage((int)$idList[0]);
 						}
 					}
 				}
