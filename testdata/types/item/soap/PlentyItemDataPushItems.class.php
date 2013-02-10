@@ -74,7 +74,7 @@ class PlentyItemDataPushItems extends PlentySoapCall
 					/*
 					 * check if max. number of items of this call is reached
 					 */
-					if($c >= 2)
+					if($c >= 50)
 					{
 						/*
 						 * push to api
@@ -114,8 +114,6 @@ class PlentyItemDataPushItems extends PlentySoapCall
 	
 	public function execute()
 	{
-		$this->getLogger()->debug(__FUNCTION__);
-		
 		try
 		{
 			/*
@@ -132,7 +130,7 @@ class PlentyItemDataPushItems extends PlentySoapCall
 
 				/*
 				 * parse and save the data
-				*/
+				 */
 				if(is_array($response->SuccessMessages->item))
 				{
 					foreach($response->SuccessMessages->item as $item)
@@ -150,7 +148,7 @@ class PlentyItemDataPushItems extends PlentySoapCall
 							/*
 							 * add an image for this new item
 							 */
-							//$this->pushImage((int)$idList[0]);
+							$this->pushImage((int)$idList[0]);
 						}
 					}
 				}

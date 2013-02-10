@@ -126,7 +126,10 @@ class PlentyItemDataCollectorWilliamShakespeare
 							{
 								$this->generateItem($categoryId, $itemUrl);
 								
-								sleep(1);
+								/*
+								 * sleep a while 
+								 */
+								usleep(500000);
 							}
 						}
 					}
