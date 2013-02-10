@@ -3,6 +3,9 @@
 require_once ROOT.'lib/log/Logger.class.php';
 
 /**
+ * This collector collects the complete works of William Shakespeare.
+ * They are provided as public domain at the following page 
+ * http://shakespeare.mit.edu/ 
  * 
  * @author phileon
  *
