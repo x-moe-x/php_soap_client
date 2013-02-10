@@ -1,6 +1,8 @@
 <?php
 
 require_once ROOT.'lib/soap/call/PlentySoapCall.abstract.php';
+require_once ROOT.'testdata/types/item/collector/PlentyItemDataCollectorImages.class.php';
+require_once ROOT.'testdata/types/item/soap/PlentyItemDataPushImage.class.php';
 
 /**
  *
@@ -16,6 +18,12 @@ class PlentyItemDataPushItems extends PlentySoapCall
 	private $plentySoapRequest_AddItemsBase = null;
 
 	/**
+	 * 
+	 * @var PlentyItemDataCollectorImages
+	 */
+	private $plentyItemDataCollectorImages = null;
+	
+	/**
 	 *
 	 * @var PlentyItemDataPushItems
 	 */
@@ -24,6 +32,8 @@ class PlentyItemDataPushItems extends PlentySoapCall
 	public function __construct()
 	{
 		parent::__construct(__CLASS__);
+		
+		$this->plentyItemDataCollectorImages = new PlentyItemDataCollectorImages();
 	}
 	
 	/**
@@ -48,8 +58,6 @@ class PlentyItemDataPushItems extends PlentySoapCall
 	 */
 	public function pushItems($itemList)
 	{
-		$this->getLogger()->debug(__FUNCTION__);
-		
 		$this->plentySoapRequest_AddItemsBase = new PlentySoapRequest_AddItemsBase();
 		
 		if(is_array($itemList))
@@ -124,8 +132,29 @@ class PlentyItemDataPushItems extends PlentySoapCall
 
 				/*
 				 * parse and save the data
-				 */
-				$this->parseResponse($response);
+				*/
+				if(is_array($response->SuccessMessages->item))
+				{
+					foreach($response->SuccessMessages->item as $item)
+					{
+						if($item->Code=='SIB0001' && strpos($item->Message, ';')!==false)
+						{
+							/*
+							 * 0 = itemId
+							 * 1 = priceId
+							 */
+							$idList = explode(';', $item->Message);
+							
+							$this->getLogger()->debug(__FUNCTION__.' new item id: '.$idList[0]);
+								
+							/*
+							 * add an image for this new item
+							 */
+							$this->pushImage((int)$idList[0]);
+						}
+					}
+				}
+
 			}
 			else
 			{
@@ -139,39 +168,21 @@ class PlentyItemDataPushItems extends PlentySoapCall
 	}
 	
 	/**
-	 * Parse the response
+	 * add an image for this new item
 	 *
-	 * @param PlentySoapResponse_GetWarehouseList $response
+	 * @param int $itemId
 	 */
-	private function parseResponse($response)
+	private function pushImage($itemId)
 	{
-		//print_r($response);
-		
-		return;
-		
-		if(is_array($response->WarehouseList->item))
+		$imageUrl = $this->plentyItemDataCollectorImages->getOneImageUrl();
+		 
+		if(strlen($imageUrl) && $itemId>0)
 		{
-			/*
-			 * If more than one warehouse
-			 */
-			foreach ($response->WarehouseList->item as $warehouse)
-			{
-				if($warehouse->item->Type==0)
-				{
-					$this->warehouseList[$warehouse->Name] = $warehouse->WarehouseID;
-				}
-			}
+			PlentyItemDataPushImage::getInstance()->setImageUrl($imageUrl)->setItemId($itemId)->execute();
 		}
-		
-		/*
-		 * only one warehouse
-		 */
-		elseif (is_object($response->WarehouseList->item))
+		else
 		{
-			if($response->WarehouseList->item->Type==0)
-			{
-				$this->warehouseList[$response->WarehouseList->item->Name] = $response->WarehouseList->item->WarehouseID;
-			}
+			$this->getLogger()->debug(__FUNCTION__.' I miss some data - itemId: '.$itemId.' imageUrl: '.$imageUrl);
 		}
 	}
 	

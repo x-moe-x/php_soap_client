@@ -35,6 +35,9 @@ class PlentyTestdataGeneratorType_item extends PlentyTestdataGeneratorTypeBase
 	
 	public function execute()
 	{
+		/*
+		 * collect some texts for new items
+		 */
 		$plentyItemDataCollectorWilliamShakespeare = new PlentyItemDataCollectorWilliamShakespeare();
 		$plentyItemDataCollectorWilliamShakespeare->setQuantity($this->getQuantity());
 		$plentyItemDataCollectorWilliamShakespeare->setLang($this->getLang());
@@ -42,9 +45,17 @@ class PlentyTestdataGeneratorType_item extends PlentyTestdataGeneratorTypeBase
 
 		$this->itemList = $plentyItemDataCollectorWilliamShakespeare->getItemList();
 		
+		/*
+		 * add prices, availability options ...
+		 */
 		$this->addMoreData();
 
+		/*
+		 * push items to api
+		 */
 		PlentyItemDataPushItems::getInstance()->pushItems($this->itemList);
+		
+
 	}
 
 	/**
