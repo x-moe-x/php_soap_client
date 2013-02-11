@@ -3,7 +3,8 @@
 require_once ROOT.'lib/soap/call/PlentySoapCall.abstract.php';
 
 /**
- *
+ * This class retrieves all producer and can create new producer.
+ * 
  * @author phileon
  * @copyright plentymarkets GmbH www.plentymarkets.com
  */

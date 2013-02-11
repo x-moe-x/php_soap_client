@@ -3,7 +3,8 @@
 require_once ROOT.'lib/soap/call/PlentySoapCall.abstract.php';
 
 /**
- *
+ * This class retrieves all the categories of the first level and can create new categories of the first level.
+ * 
  * @author phileon
  * @copyright plentymarkets GmbH www.plentymarkets.com
  */

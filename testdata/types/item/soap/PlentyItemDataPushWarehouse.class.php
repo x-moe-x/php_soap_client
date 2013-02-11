@@ -3,7 +3,8 @@
 require_once ROOT.'lib/soap/call/PlentySoapCall.abstract.php';
 
 /**
- *
+ * This class retrieves all the warehouses in plentymarkets.
+ * 
  * @author phileon
  * @copyright plentymarkets GmbH www.plentymarkets.com
  */
@@ -105,7 +106,7 @@ class PlentyItemDataPushWarehouse extends PlentySoapCall
 	/**
 	 * 
 	 * @param string $name
-	 * @return number
+	 * @return number warehouseId or 0 if not exists
 	 */
 	public function checkWarehouse($name)
 	{
@@ -119,7 +120,7 @@ class PlentyItemDataPushWarehouse extends PlentySoapCall
 	
 	/**
 	 * 
-	 * @return number
+	 * @return number warehouseId or 0 if no one exists
 	 */
 	public function getFirstWarehouseId()
 	{
@@ -135,7 +136,9 @@ class PlentyItemDataPushWarehouse extends PlentySoapCall
 	}
 	
 	/**
+	 * currently not available
 	 * 
+	 * @deprecated
 	 * @param string $name
 	 */
 	public function saveNewWarehouse($name)
@@ -143,14 +146,6 @@ class PlentyItemDataPushWarehouse extends PlentySoapCall
 		/*
 		 * currently not available...
 		 */
-	}
-	
-	/**
-	 * @param string $lang
-	 */
-	public function setLang($lang)
-	{
-		$this->lang = $lang;
 	}
 	
 }
