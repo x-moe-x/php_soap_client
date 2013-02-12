@@ -1,23 +1,12 @@
 <?php
 
 require_once ROOT.'lib/soap/call/PlentySoapCall.abstract.php';
+require_once ROOT.'lib/image/Text2Image.class.php';
+
 
 /**
- * NOT READY
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
+ * This class adds a picture an added item. 
+ * For more test data, the image will get texts and then transmitted twice.
  * 
  * @author phileon
  * @copyright plentymarkets GmbH www.plentymarkets.com
@@ -35,6 +24,12 @@ class PlentyItemDataPushImage extends PlentySoapCall
 	 * @var string
 	 */
 	private $imageUrl = '';
+	
+	/**
+	 * 
+	 * @var PlentySoapRequest_AddItemsImage
+	 */
+	private $oPlentySoapRequest_AddItemsImage = null;
 
 	/**
 	 *
@@ -62,22 +57,68 @@ class PlentyItemDataPushImage extends PlentySoapCall
 		return self::$instance;
 	}
 	
+	/**
+	 * Create multiple versions of the image and then passes these versions directly to ->execute()
+	 * 
+	 * @param number $numberOfImages
+	 */
+	public function pushTestImage2API($numberOfImages=2)
+	{
+		if(strlen($this->imageUrl) && $this->itemId>0)
+		{
+			for($i=1; $i<=$numberOfImages; $i++)
+			{
+				$base64 = Text2Image::getInstance()->setImageUrl($this->imageUrl)
+													->pushText2Image('#'.$i, 20, 110, 96)
+													->getFileBase64();
+				
+				$fileEnding = Text2Image::getInstance()->getFileEnding();
+				
+				if(strlen($base64))
+				{
+					$oPlentySoapObject_FileBase64Encoded = new PlentySoapObject_FileBase64Encoded();
+					$oPlentySoapObject_FileBase64Encoded->FileData = $base64;
+					$oPlentySoapObject_FileBase64Encoded->FileEnding = $fileEnding;
+					$oPlentySoapObject_FileBase64Encoded->FileName = 'plentymarkets_testimage_'.$this->itemId.'_'.$i;
+					
+					$oPlentySoapObject_ItemImage = new PlentySoapObject_ItemImage();
+					$oPlentySoapObject_ItemImage->ImageData = $oPlentySoapObject_FileBase64Encoded;
+					$oPlentySoapObject_ItemImage->Availability = 1;
+					$oPlentySoapObject_ItemImage->Position = ($i-1);
+						
+					$this->oPlentySoapRequest_AddItemsImage = new PlentySoapRequest_AddItemsImage();
+					$this->oPlentySoapRequest_AddItemsImage->Image = $oPlentySoapObject_ItemImage;
+					$this->oPlentySoapRequest_AddItemsImage->ItemID = $this->itemId;
+					
+					$this->execute();
+				}
+				else
+				{
+					$this->getLogger()->crit(__FUNCTION__.' I did not get base64 data.');
+				}
+			}
+			
+		}
+		else
+		{
+			$this->getLogger()->crit(__FUNCTION__.' I miss some data - itemId:'.$this->itemId.' imageUrl:'.$this->imageUrl);
+		}
+	}
+	
 	public function execute()
 	{
+		if(!($this->oPlentySoapRequest_AddItemsImage instanceof PlentySoapRequest_AddItemsImage))
+		{
+			$this->getLogger()->crit(__FUNCTION__.' $this->oPlentySoapRequest_AddItemsImage is not an instance of PlentySoapRequest_AddItemsImage');
+			return ;	
+		}
+		
 		try
 		{
-			$oPlentySoapObject_ItemImage = new PlentySoapObject_ItemImage();
-			$oPlentySoapObject_ItemImage->ImageURL = $this->imageUrl;
-			$oPlentySoapObject_ItemImage->ImageID = $this->itemId;
-			
-			$oPlentySoapRequest_AddItemsImage = new PlentySoapRequest_AddItemsImage();
-			$oPlentySoapRequest_AddItemsImage->Image = $oPlentySoapObject_ItemImage;
-			$oPlentySoapRequest_AddItemsImage->ItemID = $this->itemId;
-			
 			/*
 			 * do soap call
 			 */
-			$response	=	$this->getPlentySoap()->AddItemsImage($oPlentySoapRequest_AddItemsImage);
+			$response	=	$this->getPlentySoap()->AddItemsImage($this->oPlentySoapRequest_AddItemsImage);
 				
 			/*
 			 * check soap response

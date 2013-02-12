@@ -3,9 +3,12 @@
 require_once ROOT.'lib/soap/call/PlentySoapCall.abstract.php';
 require_once ROOT.'testdata/types/item/collector/PlentyItemDataCollectorImages.class.php';
 require_once ROOT.'testdata/types/item/soap/PlentyItemDataPushImage.class.php';
+require_once ROOT.'testdata/types/item/soap/PlentyItemDataPushStock.class.php';
 
 /**
- *
+ * This class needs an array of PlentySoapObject_AddItemsBaseItemBase objects.
+ * Commit the list to pushItems($itemList). This method calls ->execute() on its own. 
+ * 
  * @author phileon
  * @copyright plentymarkets GmbH www.plentymarkets.com
  */
@@ -22,6 +25,13 @@ class PlentyItemDataPushItems extends PlentySoapCall
 	 * @var PlentyItemDataCollectorImages
 	 */
 	private $plentyItemDataCollectorImages = null;
+	
+	/**
+	 * used for push stock
+	 * 
+	 * @var int
+	 */
+	private $warehouseId = 0;
 	
 	/**
 	 *
@@ -54,7 +64,7 @@ class PlentyItemDataPushItems extends PlentySoapCall
 	/**
 	 * push items to api
 	 * 
-	 * @param unknown $itemList
+	 * @param unknown $itemList array of PlentySoapObject_AddItemsBaseItemBase objects 
 	 */
 	public function pushItems($itemList)
 	{
@@ -149,8 +159,19 @@ class PlentyItemDataPushItems extends PlentySoapCall
 							 * add an image for this new item
 							 */
 							$this->pushImage((int)$idList[0]);
+							
+							/*
+							 * push items to stock data objects
+							 */
+							$this->push2StockStack((int)$idList[0], (int)$idList[1]);
 						}
 					}
+					
+					/*
+					 * push stock to api
+					 */
+					PlentyItemDataPushStock::getInstance()->pushData2API();
+					
 				}
 
 			}
@@ -176,13 +197,48 @@ class PlentyItemDataPushItems extends PlentySoapCall
 		 
 		if(strlen($imageUrl) && $itemId>0)
 		{
-			PlentyItemDataPushImage::getInstance()->setImageUrl($imageUrl)->setItemId($itemId)->execute();
+			PlentyItemDataPushImage::getInstance()->setImageUrl($imageUrl)->setItemId($itemId)->pushTestImage2API(2);
 		}
 		else
 		{
 			$this->getLogger()->debug(__FUNCTION__.' I miss some data - itemId: '.$itemId.' imageUrl: '.$imageUrl);
 		}
 	}
+	
+	/**
+	 * push items to stock data objects
+	 * 
+	 * @param int $itemId
+	 * @param int $priceId
+	 */
+	private function push2StockStack($itemId, $priceId)
+	{
+		if($itemId>0 && $priceId>0 && $this->warehouseId>0)
+		{
+			PlentyItemDataPushStock::getInstance()->setItemId($itemId)
+													->setPriceId($priceId)
+													->setAttributeValueSetId(0)
+													->setWarehouseId($this->warehouseId)
+													->pushItemData2Stack(2);
+		}
+		else
+		{
+			$this->getLogger()->crit(__FUNCTION__.' I miss some data - itemId: '.$itemId.' priceId: '.$priceId.' warehouseId: '.$this->warehouseId);
+		}
+	}
+	
+	/**
+	 * @param number $warehouseId
+	 * 
+	 * @return PlentyItemDataPushItems
+	 */
+	public function setWarehouseId($warehouseId) 
+	{
+		$this->warehouseId = $warehouseId;
+		
+		return $this;
+	}
+
 	
 }
 ?>

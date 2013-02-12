@@ -12,6 +12,17 @@ require_once 'soap/PlentyItemDataPushItems.class.php';
  * 
  * It is also a complex example to create items.
  * 
+ * List of possible SOAP calls - please active them in plentymarket for your soap-user:
+ * GetItemCategoryCatalogBase
+ * AddItemCategory
+ * AddItemsImage
+ * AddItemsBase
+ * GetProducers
+ * SetProducers
+ * SetCurrentStocks
+ * GetWarehouseList
+ * 
+ * 
  * @author phileon
  * @copyright plentymarkets GmbH www.plentymarkets.com
  */
@@ -23,6 +34,14 @@ class PlentyTestdataGeneratorType_item extends PlentyTestdataGeneratorTypeBase
 	 */
 	private $itemList = array();
 	
+	/**
+	 * one warehouse id
+	 * used for MainWarehouse and push stock testdata
+	 * 
+	 * @var int
+	 */
+	private $warehouseId = 0;
+	
 	public function __construct()
 	{
 		/*
@@ -31,6 +50,8 @@ class PlentyTestdataGeneratorType_item extends PlentyTestdataGeneratorTypeBase
 		PlentyItemDataPushCategory::getInstance()->execute();
 		PlentyItemDataPushWarehouse::getInstance()->execute();
 		PlentyItemDataPushProducer::getInstance()->execute();
+		
+		$this->warehouseId = PlentyItemDataPushWarehouse::getInstance()->getFirstWarehouseId();
 	}
 	
 	public function execute()
@@ -53,9 +74,8 @@ class PlentyTestdataGeneratorType_item extends PlentyTestdataGeneratorTypeBase
 		/*
 		 * push items to api
 		 */
-		PlentyItemDataPushItems::getInstance()->pushItems($this->itemList);
+		PlentyItemDataPushItems::getInstance()->setWarehouseId($this->warehouseId)->pushItems($this->itemList);
 		
-
 	}
 
 	/**
@@ -100,7 +120,7 @@ class PlentyTestdataGeneratorType_item extends PlentyTestdataGeneratorTypeBase
 					$plentySoapObject_ItemStock = new PlentySoapObject_ItemStock();
 					$plentySoapObject_ItemStock->ChangeAvailablePositiveStock = true;
 					$plentySoapObject_ItemStock->ChangeNotAvailableNoStock = true;
-					$plentySoapObject_ItemStock->MainWarehouseID = PlentyItemDataPushWarehouse::getInstance()->getFirstWarehouseId();
+					$plentySoapObject_ItemStock->MainWarehouseID = $this->warehouseId;
 						
 					$item->Stock = $plentySoapObject_ItemStock;
 						
