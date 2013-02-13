@@ -28,3 +28,14 @@ Weiterhin wäre dabei auch eine weitere Anforderung spielend einfach möglich: k
 Wir haben für Sie einen einfach zu pflegenden Daemon-Prozess entwickelt - starten:
 
     shell> php cli/PlentySoap.daemon.php
+
+##Testdatengenerator
+Das Standard-Problem bei der Entwicklung einer Integration ist meist die Nichtexistenz von sinnvollen Testdaten. 
+Auch hierfür wurde eine Lösung geschaffen, welches gleichzeitig als komplexeres Beispiel zur Erstellung von 
+Artikelstammdatensätzen dient. Die dabei erstellten Artikel erhalten sinnvolle Namen, eine Artikelbeschreibung, 
+eine Kategorie, ein Preis-Set, Artikelbilder und einige Dinge mehr. Der Testdatengenerator ist ebenfalls so modular 
+aufgebaut, damit hier sehr einfach eigene Generatoren erstellt werden können.
+
+Durch diesen Befehlt werden 50 Artikelstammdaten angelegt:
+
+    shell> php cli/PlentyTestdataGenerator.cli.php type:item quantity:50 
