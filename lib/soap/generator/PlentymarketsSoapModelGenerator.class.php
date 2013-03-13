@@ -92,7 +92,7 @@ class PlentymarketsSoapModelGenerator
 						'content'	=> '<?php' . chr(10) . chr(10)
 										.	'// generated ' . date('r') . chr(10) . chr(10)
 										.	'/**' . chr(10)
-										.	' * this is auto generated code, so do not chance anything' . chr(10)
+										.	' * this is auto generated code, so do not change anything' . chr(10)
 										.	' *' . chr(10)
 										.	' */' . chr(10)
 										.	'class ' . SOAP_CLASS_PREFIX . $result[2] . chr(10)
