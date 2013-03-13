@@ -92,7 +92,7 @@ class PlentymarketsSoapModelGenerator
 						'content'	=> '<?php' . chr(10) . chr(10)
 										.	'// generated ' . date('r') . chr(10) . chr(10)
 										.	'/**' . chr(10)
-										.	' * this is auto generated code, so do not chance anything' . chr(10)
+										.	' * this is auto generated code, so do not change anything' . chr(10)
 										.	' *' . chr(10)
 										.	' */' . chr(10)
 										.	'class ' . SOAP_CLASS_PREFIX . $result[2] . chr(10)
@@ -119,13 +119,15 @@ class PlentymarketsSoapModelGenerator
 		
 		foreach(array_keys($fields) as $i) 
 		{
-			list($type, $fieldname) = explode(' ',trim($fields[$i]));
-			
-			if (!$fieldname) 
+			$typeAndFieldname = explode(' ',trim($fields[$i]));
+			if (count($typeAndFieldname) != 2)
 			{
 				unset($fields[$i]);
 				continue;
 			}
+		
+			list($type, $fieldname) = $typeAndFieldname; 
+			
 			
 			$fields[$i] = '';
 			$fields[$i] .= '	/**' . chr(10);
