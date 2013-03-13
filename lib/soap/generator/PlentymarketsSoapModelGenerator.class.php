@@ -119,13 +119,15 @@ class PlentymarketsSoapModelGenerator
 		
 		foreach(array_keys($fields) as $i) 
 		{
-			list($type, $fieldname) = explode(' ',trim($fields[$i]));
-			
-			if (!$fieldname) 
+			$typeAndFieldname = explode(' ',trim($fields[$i]));
+			if (count($typeAndFieldname) != 2)
 			{
 				unset($fields[$i]);
 				continue;
 			}
+		
+			list($type, $fieldname) = $typeAndFieldname; 
+			
 			
 			$fields[$i] = '';
 			$fields[$i] .= '	/**' . chr(10);
