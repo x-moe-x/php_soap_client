@@ -164,9 +164,15 @@ class PlentymarketsSoapControllerGenerator
 				{
 					$this->classMap[$arg0] = SOAP_CLASS_PREFIX . trim($arg0);
 				}
+								
+				if(isset($returntypes) && strlen($returntypes))
+				{
+					$this->classMap[$returntypes] = SOAP_CLASS_PREFIX . trim($returntypes);
+				}
 				
 				$args[$i] = SOAP_CLASS_PREFIX . trim($args[$i]);
 			}
+			
 			
 			$result .= '	/**' . chr(10);
 			$result .= '	 *' . chr(10);
