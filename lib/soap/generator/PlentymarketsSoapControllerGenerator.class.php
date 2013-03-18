@@ -82,7 +82,7 @@ class PlentymarketsSoapControllerGenerator
 		$content .= '/**' . chr(10);
 		$content .= ' * plentymarkets SOAP-API controller class' . chr(10);
 		$content .= ' *' . chr(10);
-		$content .= ' * this is auto generated code, so do not chance anything' . chr(10);
+		$content .= ' * this is auto generated code, so do not change anything' . chr(10);
 		$content .= ' *' . chr(10);
 		$content .= ' * @class ' . SOAP_CONTROLLER_CLASS_NAME . chr(10);
 		$content .= ' */' . chr(10);
