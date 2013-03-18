@@ -3,3 +3,5 @@
 .project
 .DS_Store
 /log
+/lib/soap/controller
+/lib/soap/model
