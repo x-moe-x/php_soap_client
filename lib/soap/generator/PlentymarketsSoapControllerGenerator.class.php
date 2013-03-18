@@ -141,40 +141,36 @@ class PlentymarketsSoapControllerGenerator
 		$result = '';
 		
 		preg_match('/(.*) (\w+)\((.*)\)/',$string,$res);
-		// if there's a function according to the above match... (res[1])
 		if(isset($res[1]))
 		{
-			// ... generate returntypes and requirements from res[1]
 			list($returntypes, $requires) = $this->getReturn($res[1]);
 			
-			//TODO add return types to classmap
-			
-			// ... array from res[3] which contains elements of '<arg type> <arg>'
-			$argumentStrings = $this->getArguments($res[3]);
+			$args = $this->getArguments($res[3]);
 			
 			$withLogin = false;
 			
-			// ... get first arg type and first arg to use for a check of LoginInformation type
-			list ($firstType, $firstArg) = explode(" ", trim($argumentStrings[0]));
+			list ($firstType, $firstArg) = explode(" ", trim($args[0]));
 			
 			if ($firstType == 'LoginInformation') 
 			{
 				$withLogin = true;
 			}
 			
-			// ... for each element of $argumentStrings perform ...
-			foreach (array_keys($argumentStrings) as $i)
+			foreach (array_keys($args) as $i)
 			{
-				// ... get current arument type
-				list($currentArgumentType) = explode(" ",trim($argumentStrings[$i]));
+				list($arg0) = explode(" ",trim($args[$i]));
 				
-				if(isset($currentArgumentType) && strlen($currentArgumentType))
+				if(isset($arg0) && strlen($arg0))
 				{
-					// and store it into the class map for further use
-					$this->classMap[$currentArgumentType] = SOAP_CLASS_PREFIX . trim($currentArgumentType);
+					$this->classMap[$arg0] = SOAP_CLASS_PREFIX . trim($arg0);
+				}
+								
+				if(isset($returntypes) && strlen($returntypes))
+				{
+					$this->classMap[$returntypes] = SOAP_CLASS_PREFIX . trim($returntypes);
 				}
 				
-				$argumentStrings[$i] = SOAP_CLASS_PREFIX . trim($argumentStrings[$i]);
+				$args[$i] = SOAP_CLASS_PREFIX . trim($args[$i]);
 			}
 			
 			
@@ -184,7 +180,7 @@ class PlentymarketsSoapControllerGenerator
 			$result .= '	 * ' . $string . chr(10);
 			$result .= '	 *' . chr(10);
 			
-			foreach($argumentStrings as $a) 
+			foreach($args as $a) 
 			{
 				$result .= '	 * @param ' . $a . chr(10);
 			}
@@ -192,10 +188,10 @@ class PlentymarketsSoapControllerGenerator
 			$result .= '	 *' . chr(10);
 			$result .= '	 * @return ' . $returntypes . chr(10);
 			$result .= '	 */' . chr(10);
-			$result .= '	public function ' .$res[2] . '('.$this->implodeArguments($argumentStrings, $withLogin). ')'. chr(10);
+			$result .= '	public function ' .$res[2] . '('.$this->implodeArguments($args, $withLogin). ')'. chr(10);
 			$result .= '	{' . chr(10);
 			$result .= '		' . $requires . chr(10);
-			$result .= '		return parent::__soapCall("'.$res[2].'",array('.implode(", ",$this->getVars2Arguments($argumentStrings, $withLogin)).'));' . chr(10);
+			$result .= '		return parent::__soapCall("'.$res[2].'",array('.implode(", ",$this->getVars2Arguments($args, $withLogin)).'));' . chr(10);
 			$result .= '	}' . chr(10);
 			$result .= '	' . chr(10);
 		}
