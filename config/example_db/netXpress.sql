@@ -46,5 +46,6 @@ CREATE TABLE `soap_db`.`OrderHead` (
 	`TotalVAT` decimal(8,2) DEFAULT NULL,
 	`WarehouseID` int(11) DEFAULT NULL,
 	PRIMARY KEY (`id`),
-	UNIQUE KEY `id_UNIQUE` (`id`)
+	UNIQUE KEY `id_UNIQUE` (`id`),
+	UNIQUE KEY `unique_key` (`OrderID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
