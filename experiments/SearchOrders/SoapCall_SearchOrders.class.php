@@ -4,54 +4,54 @@ require_once ROOT.'lib/soap/call/PlentySoapCall.abstract.php';
 require_once 'Request_SearchOrders.class.php';
 
 
-class SoapCall_SearchOrders extends PlentySoapCall 
+class SoapCall_SearchOrders extends PlentySoapCall
 {
-	
+
 	private $page								=	0;
 	private $pages								=	-1;
 	private $oPlentySoapRequest_SearchOrders	=	null;
-	
+
 	public function __construct()
 	{
 		parent::__construct(__CLASS__);
 	}
-	
+
 	public function execute()
 	{
 		$this->getLogger()->debug(__FUNCTION__);
-		
+
 		if( $this->pages == -1 )
 		{
 			try
 			{
 				$oRequest_SearchOrders					=	new Request_SearchOrders();
-				
+
 				$this->oPlentySoapRequest_SearchOrders	=	$oRequest_SearchOrders->getRequest();
-				
+
 				/*
 				 * do soap call
-				 */
+				*/
 				$response		=	$this->getPlentySoap()->SearchOrders( $this->oPlentySoapRequest_SearchOrders );
-				
-				
+
+
 				if( $response->Success == true )
 				{
 					$ordersFound	=	count($response->Orders->item);
 					$pagesFound		=	$response->Pages;
-					
+						
 					$this->getLogger()->debug(__FUNCTION__.' Request Success - orders found : '.$ordersFound .' / pages : '.$pagesFound );
-					
+						
 					// auswerten
 					$this->responseInterpretation( $response );
-					
+						
 					if( $pagesFound > $this->page )
 					{
 						$this->page 	= 	1;
 						$this->pages 	=	$pagesFound;
-						
+
 						$this->executePages();
 					}
-										
+
 				}
 				else
 				{
@@ -68,9 +68,9 @@ class SoapCall_SearchOrders extends PlentySoapCall
 			$this->executePages();
 		}
 	}
-	
-	
-	
+
+
+
 	public function executePages()
 	{
 		while( $this->pages > $this->page )
@@ -79,40 +79,45 @@ class SoapCall_SearchOrders extends PlentySoapCall
 			try
 			{
 				$response		=	$this->getPlentySoap()->SearchOrders( $this->oPlentySoapRequest_SearchOrders );
-				
+
 				if( $response->Success == true )
 				{
 					$ordersFound	=	count($response->Orders->item);
 					$this->getLogger()->debug(__FUNCTION__.' Request Success - orders found : '.$ordersFound .' / page : '.$this->page );
-					
+						
 					// auswerten
 					$this->responseInterpretation( $response );
 				}
-				
+
 				$this->page++;
-				
-			}	
+
+			}
 			catch(Exception $e)
 			{
 				$this->onExceptionAction($e);
 			}
+				
+			// TODO remove after debugging:
+			// stop after 10 pages
+			if ($this->page >= 3)
+				break;
 		}
 	}
-	
-	
-	
+
+
+
 	private function responseInterpretation(PlentySoapResponse_SearchOrders $oPlentySoapResponse_SearchOrders )
 	{
 		if( is_array( $oPlentySoapResponse_SearchOrders->Orders->item ) )
 		{
 			foreach( $oPlentySoapResponse_SearchOrders->Orders->item AS $order)
 			{
-				$this->getLogger()->debug(__FUNCTION__.' : ' 
-								. 	' OrderID : '			.$order->OrderHead->OrderID				.','
-								.	' ExternalOrderID : '	.$order->OrderHead->ExternalOrderID		.','
-								.	' CustomerID : '		.$order->OrderHead->CustomerID			.','
-								.	' TotalInvoice : '		.$order->OrderHead->TotalInvoice	
-									);
+				$this->getLogger()->debug(__FUNCTION__.' : '
+						. 	' OrderID : '			.$order->OrderHead->OrderID				.','
+						.	' ExternalOrderID : '	.$order->OrderHead->ExternalOrderID		.','
+						.	' CustomerID : '		.$order->OrderHead->CustomerID			.','
+						.	' TotalInvoice : '		.$order->OrderHead->TotalInvoice
+				);
 				if( isset($order->OrderItems->item) && is_array( $order->OrderItems->item ) )
 				{
 					foreach( $order->OrderItems->item AS $oitems)
@@ -122,7 +127,7 @@ class SoapCall_SearchOrders extends PlentySoapCall
 								.	' Item SKU : '			.$oitems->SKU				.','
 								.	' Quantity : '			.$oitems->Quantity			.','
 								.	' Price : '				.$oitems->Price
-							);
+						);
 					}
 				}
 				else
@@ -142,12 +147,12 @@ class SoapCall_SearchOrders extends PlentySoapCall
 		}
 		else
 		{
-			$this->getLogger()->debug(__FUNCTION__.' : ' 
-								. 	' OrderID : '			.$oPlentySoapResponse_SearchOrders->Orders->item->OrderID				.','
-								.	' ExternalOrderID : '	.$oPlentySoapResponse_SearchOrders->Orders->item->ExternalOrderID		.','
-								.	' CustomerID : '		.$oPlentySoapResponse_SearchOrders->Orders->item->CustomerID			.','
-								.	' TotalInvoice : '		.$oPlentySoapResponse_SearchOrders->Orders->item->TotalInvoice	
-									);
+			$this->getLogger()->debug(__FUNCTION__.' : '
+					. 	' OrderID : '			.$oPlentySoapResponse_SearchOrders->Orders->item->OrderID				.','
+					.	' ExternalOrderID : '	.$oPlentySoapResponse_SearchOrders->Orders->item->ExternalOrderID		.','
+					.	' CustomerID : '		.$oPlentySoapResponse_SearchOrders->Orders->item->CustomerID			.','
+					.	' TotalInvoice : '		.$oPlentySoapResponse_SearchOrders->Orders->item->TotalInvoice
+			);
 			if( is_array( $oPlentySoapResponse_SearchOrders->Orders->item->OrderItems->item ) )
 			{
 				foreach( $oPlentySoapResponse_SearchOrders->Orders->item->item AS $oitems)

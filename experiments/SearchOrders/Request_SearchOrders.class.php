@@ -47,7 +47,7 @@ class Request_SearchOrders
 		
 		$oPlentySoapRequest_SearchOrders->ReferrerID					=	null;
 		
-		$oPlentySoapRequest_SearchOrders->OrderStatus					=	3.0;
+		$oPlentySoapRequest_SearchOrders->OrderStatus					=	null;
 		
 		$oPlentySoapRequest_SearchOrders->Page							=	0;
 		
