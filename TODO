@@ -1,0 +1,10 @@
+Orders:
+	OrderHead	identified by OrderID
+	OrderItem[]	identified by ?, contains OrderID
+
+Store Orders in db:
+	Get orders page by page:
+	1.	Store OrderHead in db
+	2.	Store OrderItems in db	<- how to identify those items so they don't get stuffed in the db multiple times?
+
+
