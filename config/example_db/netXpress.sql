@@ -75,3 +75,15 @@ CREATE TABLE `soap_db`.`OrderItem` (
 	PRIMARY KEY (`id`),
 	UNIQUE KEY `id_UNIQUE` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+DROP TABLE `soap_db`.`MetaLastUpdate`;
+ 
+CREATE TABLE `soap_db`.`MetaLastUpdate` (
+	`id` int(11) NOT NULL AUTO_INCREMENT,
+	`Function` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`LastUpdate` int(11) DEFAULT NULL,
+	`CurrentLastUpdate` int(11) DEFAULT NULL,
+	PRIMARY KEY (`id`),
+	UNIQUE KEY `id_UNIQUE` (`id`),
+	UNIQUE KEY `unique_key` (`Function`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
