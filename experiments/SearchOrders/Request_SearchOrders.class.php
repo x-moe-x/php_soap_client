@@ -4,7 +4,7 @@
 class Request_SearchOrders 
 {
 
-	public function getRequest()
+	public function getRequest($lastUpdate, $currentTime)
 	{
 		$oPlentySoapRequest_SearchOrders	=	new PlentySoapRequest_SearchOrders();
 			
@@ -25,9 +25,9 @@ class Request_SearchOrders
 		
 		$oPlentySoapRequest_SearchOrders->InvoiceNumber					=	null;
 		
-		$oPlentySoapRequest_SearchOrders->LastUpdateFrom				=	0;
+		$oPlentySoapRequest_SearchOrders->LastUpdateFrom				=	$lastUpdate;
 		
-		$oPlentySoapRequest_SearchOrders->LastUpdateTill				=	null;
+		$oPlentySoapRequest_SearchOrders->LastUpdateTill				=	$currentTime;
 		
 		$oPlentySoapRequest_SearchOrders->MultishopID					=	0;
 		

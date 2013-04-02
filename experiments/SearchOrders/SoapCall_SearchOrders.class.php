@@ -64,13 +64,15 @@ class SoapCall_SearchOrders extends PlentySoapCall
 	{
 		$this->getLogger()->debug(__FUNCTION__);
 
+		list($lastUpdate, $currentTime, $id) = $this->initMetaDB();
+
 		if( $this->pages == -1 )
 		{
 			try
 			{
 				$oRequest_SearchOrders					=	new Request_SearchOrders();
 
-				$this->oPlentySoapRequest_SearchOrders	=	$oRequest_SearchOrders->getRequest();
+				$this->oPlentySoapRequest_SearchOrders	=	$oRequest_SearchOrders->getRequest($lastUpdate, $currentTime);
 
 				/*
 				 * do soap call
@@ -111,6 +113,8 @@ class SoapCall_SearchOrders extends PlentySoapCall
 		{
 			$this->executePages();
 		}
+		
+		$this->finishMetaDB($id,$currentTime);
 	}
 
 
