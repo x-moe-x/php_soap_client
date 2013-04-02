@@ -170,6 +170,34 @@ class SoapCall_SearchOrders extends PlentySoapCall
 				.	' Quantity : '			.$oOrderItem->Quantity			.','
 				.	' Price : '				.$oOrderItem->Price
 		);
+		
+		// store OrderHeads into DB
+		$query = 'REPLACE INTO `OrderItem` '.
+				DBUtils::buildInsert(
+						array(
+								'BundleItemID'			=>	$oOrderItem->BundleItemID,
+								'Currency'				=>	$oOrderItem->Currency,
+								'ExternalItemID'		=>	$oOrderItem->ExternalItemID,
+								'ExternalOrderItemID'	=>	$oOrderItem->ExternalOrderItemID,
+								'ItemID'				=>	$oOrderItem->ItemID,
+								'ItemNo'				=>	$oOrderItem->ItemNo,
+							/*	'ItemRebate'			=>	$oOrderItem->ItemRebate,	 108 property, currently not available */
+								'ItemText'				=>	$oOrderItem->ItemText,
+								'NeckermannItemNo'		=>	$oOrderItem->NeckermannItemNo,
+								'OrderID'				=>	$oOrderItem->OrderID,
+								'OrderRowID'			=>	$oOrderItem->OrderRowID,
+								'Price'					=>	$oOrderItem->Price,
+								'Quantity'				=>	$oOrderItem->Quantity,
+								'ReferrerID'			=>	$oOrderItem->ReferrerID,
+								'SKU'					=>	$oOrderItem->SKU,
+							/*	'SalesOrderProperties'	=>	$oOrderItem->SalesOrderProperties, currently ignored*/
+								'VAT'					=>	$oOrderItem->VAT,
+								'WarehouseID'			=>	$oOrderItem->WarehouseID
+								
+						)
+				);
+		
+		DBQuery::getInstance()->replace($query);
 	}
 
 	private function processOrder($oOrder)

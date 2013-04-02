@@ -49,3 +49,29 @@ CREATE TABLE `soap_db`.`OrderHead` (
 	UNIQUE KEY `id_UNIQUE` (`id`),
 	UNIQUE KEY `unique_key` (`OrderID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+DROP TABLE `soap_db`.`OrderItem`;
+ 
+CREATE TABLE `soap_db`.`OrderItem` (
+	`id` int(11) NOT NULL AUTO_INCREMENT,
+	`BundleItemID` int(11) DEFAULT NULL,
+	`Currency` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`ExternalItemID` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`ExternalOrderItemID` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`ItemID` int(11) DEFAULT NULL,
+	`ItemNo` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`ItemRebate` decimal(8,2) DEFAULT NULL,
+	`ItemText` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`NeckermannItemNo` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`OrderID` int(11) DEFAULT NULL,
+	`OrderRowID` int(11) DEFAULT NULL,
+	`Price` decimal(8,2) DEFAULT NULL,
+	`Quantity` decimal(8,2) DEFAULT NULL,
+	`ReferrerID` int(11) DEFAULT NULL,
+	`SKU` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`SalesOrderProperties` int(11) DEFAULT NULL,
+	`VAT` decimal(8,2) DEFAULT NULL,
+	`WarehouseID` int(11) DEFAULT NULL,
+	PRIMARY KEY (`id`),
+	UNIQUE KEY `id_UNIQUE` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
