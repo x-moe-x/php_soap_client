@@ -204,6 +204,11 @@ class SoapCall_SearchOrders extends PlentySoapCall
 				);
 
 		DBQuery::getInstance()->replace($query);
+
+		// delete old OrderItems to prevent duplicate insertion
+
+		$query = 'DELETE FROM `OrderItem` WHERE `OrderID` = ' . $oOrderHead->OrderID;
+		DBQuery::getInstance()->delete($query);
 	}
 
 	private function processOrderItem($oOrderItem, $oOrderID)
