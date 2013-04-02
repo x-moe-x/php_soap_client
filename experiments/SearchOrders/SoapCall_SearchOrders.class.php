@@ -11,9 +11,53 @@ class SoapCall_SearchOrders extends PlentySoapCall
 	private $pages								=	-1;
 	private $oPlentySoapRequest_SearchOrders	=	null;
 
+	/// db-function name to store corresponding last update timestamps
+	private $functionName						=	'SearchOrderExperiment';
+
 	public function __construct()
 	{
 		parent::__construct(__CLASS__);
+	}
+
+	private function initMetaDB(){
+		// get lastupdate
+		$query = 'SELECT * FROM MetaLastUpdate WHERE `Function` = \''. $this->functionName.'\'';
+
+		$result = DBQuery::getInstance()->select($query)->fetchAssoc();
+
+		$lastUpdate = intval($result['LastUpdate']);
+		$currentTime = time();
+
+		// store current timestamp
+		$query = 'REPLACE INTO `MetaLastUpdate` '.
+				DBUtils::buildInsert(
+						array(
+								'id'	=>  $result['id'],
+								'Function'	=>	$this->functionName,
+								'LastUpdate'	=> $lastUpdate,
+								'CurrentLastUpdate'	=> $currentTime
+						)
+				);
+
+		DBQuery::getInstance()->replace($query);
+
+		return array($lastUpdate, $currentTime, $id);
+	}
+
+	private function finishMetaDB($id, $currentTime)
+	{
+		// store current timestamp
+		$query = 'REPLACE INTO `MetaLastUpdate` '.
+				DBUtils::buildInsert(
+						array(
+								'id'	=>  $id,
+								'Function'	=>	$this->functionName,
+								'LastUpdate'	=> $currentTime,
+								'CurrentLastUpdate'	=> $currentTime
+						)
+				);
+
+		DBQuery::getInstance()->replace($query);
 	}
 
 	public function execute()
