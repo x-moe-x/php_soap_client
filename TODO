@@ -1,12 +1,16 @@
-27.03.2012, HomeOffice, Start 19:00
-
 Orders:
 	OrderHead	identified by OrderID
 	OrderItem[]	identified by ?, contains OrderID
+	several other stuff currently considered unimportant
 
-Store Orders in db:
-	Get orders page by page:
+store Orders in db:
+	get orders page by page:
+	1.	check if order changed since last update
+	2.	if so (or if it's a new order): update/store order in db, identified by it's OrderID
+	3.	delete all corresponding OrderItem in OrderItem table
+	4.	store all OrterItems in db
 	1.	Store OrderHead in db
 	2.	Store OrderItems in db	<- how to identify those items so they don't get stuffed in the db multiple times?
 
+necesary: meta-table to store lastupdate timestamps
 
