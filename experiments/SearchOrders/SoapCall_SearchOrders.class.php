@@ -11,14 +11,60 @@ class SoapCall_SearchOrders extends PlentySoapCall
 	private $pages								=	-1;
 	private $oPlentySoapRequest_SearchOrders	=	null;
 
+	/// db-function name to store corresponding last update timestamps
+	private $functionName						=	'SearchOrderExperiment';
+
 	public function __construct()
 	{
 		parent::__construct(__CLASS__);
 	}
 
+	private function initMetaDB(){
+		// get lastupdate
+		$query = 'SELECT * FROM MetaLastUpdate WHERE `Function` = \''. $this->functionName.'\'';
+
+		$result = DBQuery::getInstance()->select($query)->fetchAssoc();
+
+		$lastUpdate = intval($result['LastUpdate']);
+		$currentTime = time();
+
+		// store current timestamp
+		$query = 'REPLACE INTO `MetaLastUpdate` '.
+				DBUtils::buildInsert(
+						array(
+								'id'	=>  $result['id'],
+								'Function'	=>	$this->functionName,
+								'LastUpdate'	=> $lastUpdate,
+								'CurrentLastUpdate'	=> $currentTime
+						)
+				);
+
+		DBQuery::getInstance()->replace($query);
+
+		return array($lastUpdate, $currentTime, $id);
+	}
+
+	private function finishMetaDB($id, $currentTime)
+	{
+		// store current timestamp
+		$query = 'REPLACE INTO `MetaLastUpdate` '.
+				DBUtils::buildInsert(
+						array(
+								'id'	=>  $id,
+								'Function'	=>	$this->functionName,
+								'LastUpdate'	=> $currentTime,
+								'CurrentLastUpdate'	=> $currentTime
+						)
+				);
+
+		DBQuery::getInstance()->replace($query);
+	}
+
 	public function execute()
 	{
 		$this->getLogger()->debug(__FUNCTION__);
+
+		list($lastUpdate, $currentTime, $id) = $this->initMetaDB();
 
 		if( $this->pages == -1 )
 		{
@@ -26,7 +72,7 @@ class SoapCall_SearchOrders extends PlentySoapCall
 			{
 				$oRequest_SearchOrders					=	new Request_SearchOrders();
 
-				$this->oPlentySoapRequest_SearchOrders	=	$oRequest_SearchOrders->getRequest();
+				$this->oPlentySoapRequest_SearchOrders	=	$oRequest_SearchOrders->getRequest($lastUpdate, $currentTime);
 
 				/*
 				 * do soap call
@@ -67,6 +113,8 @@ class SoapCall_SearchOrders extends PlentySoapCall
 		{
 			$this->executePages();
 		}
+		
+		$this->finishMetaDB($id,$currentTime);
 	}
 
 
@@ -160,6 +208,11 @@ class SoapCall_SearchOrders extends PlentySoapCall
 				);
 
 		DBQuery::getInstance()->replace($query);
+
+		// delete old OrderItems to prevent duplicate insertion
+
+		$query = 'DELETE FROM `OrderItem` WHERE `OrderID` = ' . $oOrderHead->OrderID;
+		DBQuery::getInstance()->delete($query);
 	}
 
 	private function processOrderItem($oOrderItem, $oOrderID)
