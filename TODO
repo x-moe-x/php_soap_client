@@ -1,0 +1,16 @@
+Orders:
+	OrderHead	identified by OrderID
+	OrderItem[]	identified by ?, contains OrderID
+	several other stuff currently considered unimportant
+
+store Orders in db:
+	get orders page by page:
+	1.	check if order changed since last update
+	2.	if so (or if it's a new order): update/store order in db, identified by it's OrderID
+	3.	delete all corresponding OrderItems in OrderItem table
+	4.	store all OrterItems in db
+
+implement robust behaviour for not-yet-existing functions
+check currently ignored fields
+
+
