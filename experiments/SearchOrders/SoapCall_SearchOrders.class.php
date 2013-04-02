@@ -180,9 +180,9 @@ class SoapCall_SearchOrders extends PlentySoapCall
 								'Marking1ID'				=>	$oOrderHead->Marking1ID,
 								'MethodOfPaymentID'			=>	$oOrderHead->MethodOfPaymentID,
 								'MultishopID'				=>	$oOrderHead->MultishopID,
-							/*	'OrderDocumentNumbers'		=>	$oOrderHead->OrderDocumentNumbers, currently ignored */
+							/*	'OrderDocumentNumbers'		=>	$oOrderHead->OrderDocumentNumbers, ignored since not part of the request */
 								'OrderID'					=>	$oOrderHead->OrderID,
-							/*	'OrderInfos'				=>	$oOrderHead->OrderInfos, currently ignored */
+							/*	'OrderInfos'				=>	$oOrderHead->OrderInfos, ignored since not part of the request */
 								'OrderStatus'				=>	$oOrderHead->OrderStatus,
 								'OrderTimestamp'			=>	$oOrderHead->OrderTimestamp,
 								'OrderType'					=>	$oOrderHead->OrderType,

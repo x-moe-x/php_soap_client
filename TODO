@@ -7,9 +7,10 @@ store Orders in db:
 	get orders page by page:
 	1.	check if order changed since last update
 	2.	if so (or if it's a new order): update/store order in db, identified by it's OrderID
-	3.	delete all corresponding OrderItem in OrderItem table
+	3.	delete all corresponding OrderItems in OrderItem table
 	4.	store all OrterItems in db
 
-necesary: meta-table to store lastupdate timestamps
 implement robust behaviour for not-yet-existing functions
+check currently ignored fields
+
 

@@ -17,6 +17,8 @@ class Request_SearchOrders
 		
 		$oPlentySoapRequest_SearchOrders->GetParcelService				=	false;
 		
+		$oPlentySoapRequest_SearchOrders->GetOrderDocumentNumbers		= 	false;
+		
 		$oPlentySoapRequest_SearchOrders->GetSalesOrderProperties		=	false;
 		
 		$oPlentySoapRequest_SearchOrders->CustomerCountryID				=	null;
