@@ -41,7 +41,7 @@ class SoapCall_SearchOrders extends PlentySoapCall
 
 		DBQuery::getInstance()->replace($query);
 
-		return array($lastUpdate, $currentTime, $id);
+		return array($lastUpdate, $currentTime, $result['id']);
 	}
 
 	private function finishMetaDB($id, $currentTime)
@@ -273,7 +273,7 @@ class SoapCall_SearchOrders extends PlentySoapCall
 		}
 	}
 
-	private function responseInterpretation(PlentySoapResponse_SearchOrders $oPlentySoapResponse_SearchOrders )
+	private function responseInterpretation($oPlentySoapResponse_SearchOrders )
 	{
 		if( is_array( $oPlentySoapResponse_SearchOrders->Orders->item ) )
 		{
