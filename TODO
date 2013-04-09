@@ -18,5 +18,6 @@ store AttributeValueSets in db:
 
 implement robust behaviour for not-yet-existing functions
 OrderItem.ItemText is too small
+remove id from OrderHead?
 
 
