@@ -234,7 +234,7 @@ class SoapCall_SearchOrders extends PlentySoapCall
 								'ExternalOrderItemID'	=>	$oOrderItem->ExternalOrderItemID,
 								'ItemID'				=>	$oOrderItem->ItemID,
 								'ItemNo'				=>	$oOrderItem->ItemNo,
-							/*	'ItemRebate'			=>	$oOrderItem->ItemRebate,	 108 property, currently not available */
+								'ItemRebate'			=>	$oOrderItem->ItemRebate,
 								'ItemText'				=>	$oOrderItem->ItemText,
 								'NeckermannItemNo'		=>	$oOrderItem->NeckermannItemNo,
 								'OrderID'				=>	$oOrderItem->OrderID,
@@ -243,7 +243,7 @@ class SoapCall_SearchOrders extends PlentySoapCall
 								'Quantity'				=>	$oOrderItem->Quantity,
 								'ReferrerID'			=>	$oOrderItem->ReferrerID,
 								'SKU'					=>	$oOrderItem->SKU,
-							/*	'SalesOrderProperties'	=>	$oOrderItem->SalesOrderProperties, currently ignored*/
+							/*	'SalesOrderProperties'	=>	$oOrderItem->SalesOrderProperties, ignored since not part of the request */
 								'VAT'					=>	$oOrderItem->VAT,
 								'WarehouseID'			=>	$oOrderItem->WarehouseID
 								
