@@ -9,6 +9,12 @@ store Orders in db:
 	2.	if so (or if it's a new order): update/store order in db, identified by it's OrderID
 	3.	delete all corresponding OrderItems in OrderItem table
 	4.	store all OrterItems in db
+	
+	(5.	to get needed AttributeValueSets request them after processing the orders all at one)
+	
+store AttributeValueSets in db:
+	1.	check if current AttributeValueSet already exists in db
+	2.	if not start a request and store it
 
 implement robust behaviour for not-yet-existing functions
 OrderItem.ItemText is too small

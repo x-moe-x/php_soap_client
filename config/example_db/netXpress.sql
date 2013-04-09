@@ -87,3 +87,12 @@ CREATE TABLE `soap_db`.`MetaLastUpdate` (
 	UNIQUE KEY `id_UNIQUE` (`id`),
 	UNIQUE KEY `unique_key` (`Function`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+DROP TABLE `soap_db`.`AttributeValueSet;
+ 
+CREATE TABLE `soap_db`.`AttributeValueSet` (
+	`id` int(11) NOT NULL AUTO_INCREMENT,
+	PRIMARY KEY (`id`),
+	UNIQUE KEY `id_UNIQUE` (`id`),
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
