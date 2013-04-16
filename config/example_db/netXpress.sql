@@ -98,3 +98,52 @@ CREATE TABLE `soap_db`.`AttributeValueSet` (
 	UNIQUE KEY `id_UNIQUE` (`AttributeValueSetID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+DROP TABLE `soap_db`.`ItemsBase`;
+ 
+CREATE TABLE `soap_db`.`ItemsBase` (
+	`ItemID`int(11) NOT NULL,
+	`ASIN`varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`AttributeValueSets`int(11) DEFAULT NULL,
+	`Availability`int(11) DEFAULT NULL,
+	`BundleType`varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Categories`int(11) DEFAULT NULL,
+	`Condition`int(11) DEFAULT NULL,
+	`CustomsTariffNumber`varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`DeepLink`varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`EAN1`varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`EAN2`varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`EAN3`varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`EAN4`varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`EbayEPID`varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`ExternalItemID`varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`FSK`int(11) DEFAULT NULL,
+	`FreeTextFields`int(11) DEFAULT NULL,
+	`HasAttributes`int(11) DEFAULT NULL,
+	`ISBN`varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Inserted`int(11) DEFAULT NULL,
+	`ItemAttributeMarkup`int(11) DEFAULT NULL,
+	`ItemNo`varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`ItemProperties`int(11) DEFAULT NULL,
+	`ItemSuppliers`int(11) DEFAULT NULL,
+	`ItemURL`varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`LastUpdate`int(11) DEFAULT NULL,
+	`Marking1ID`int(11) DEFAULT NULL,
+	`Marking2ID`int(11) DEFAULT NULL,
+	`Model`varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Others`int(11) DEFAULT NULL,
+	`ParcelServicePresetIDs`int(11) DEFAULT NULL,
+	`PriceSet`int(11) DEFAULT NULL,
+	`ProducerID`int(11) DEFAULT NULL,
+	`ProducingCountryID`int(11) DEFAULT NULL,
+	`Published`int(11) DEFAULT NULL,
+	`Stock`int(11) DEFAULT NULL,
+	`StorageLocation`int(11) DEFAULT NULL,
+	`Texts`int(11) DEFAULT NULL,
+	`Type`int(11) DEFAULT NULL,
+	`VATInternalID`int(11) DEFAULT NULL,
+	`WebShopSpecial`varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	PRIMARY KEY (`ItemID`),
+	UNIQUE KEY `id_UNIQUE` (`ItemID`),
+	UNIQUE KEY `unique_key` (`ItemNo`, `EAN1`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
