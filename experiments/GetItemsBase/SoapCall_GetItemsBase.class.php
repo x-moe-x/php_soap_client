@@ -92,6 +92,56 @@ class SoapCall_GetItemsBase extends PlentySoapCall
 				. 	' ItemNo : '			.$oItemsBase->ItemNo		.','
 				. 	' Name : '				.$oItemsBase->Texts->Name
 		);
+
+		// store OrderHeads into DB
+		$query = 'REPLACE INTO `ItemsBase` '.
+				DBUtils::buildInsert(
+						array(
+								'ASIN'						=> $oItemsBase->ASIN,
+							/*	'AttributeValueSets'		=> $oItemsBase->AttributeValueSets,	ignored since not part of the request	*/
+							/*	'Availability'				=> $oItemsBase->Availability,	currently considered irrelevant	*/
+								'BundleType'				=> $oItemsBase->BundleType,
+							/*	'Categories'				=> $oItemsBase->Categories,	ignored since not part of the request	*/
+								'Condition'					=> $oItemsBase->Condition,
+								'CustomsTariffNumber'		=> $oItemsBase->CustomsTariffNumber,
+								'DeepLink'					=> $oItemsBase->DeepLink,
+								'EAN1'						=> $oItemsBase->EAN1,
+								'EAN2'						=> $oItemsBase->EAN2,
+								'EAN3'						=> $oItemsBase->EAN3,
+								'EAN4'						=> $oItemsBase->EAN4,
+								'EbayEPID'					=> $oItemsBase->EbayEPID,
+								'ExternalItemID'			=> $oItemsBase->ExternalItemID,
+								'FSK'						=> $oItemsBase->FSK,
+							/*	'FreeTextFields'			=> $oItemsBase->FreeTextFields,	currently considered irrelevant	*/
+								'HasAttributes'				=> $oItemsBase->HasAttributes,
+								'ISBN'						=> $oItemsBase->ISBN,
+								'Inserted'					=> $oItemsBase->Inserted,
+							/*	'ItemAttributeMarkup'		=> $oItemsBase->ItemAttributeMarkup,	ignored since not part of the request	*/
+								'ItemID'					=> $oItemsBase->ItemID,
+								'ItemNo'					=> $oItemsBase->ItemNo,
+							/*	'ItemProperties'			=> $oItemsBase->ItemProperties,	ignored since not part of the request	*/
+							/*	'ItemSuppliers'				=> $oItemsBase->ItemSuppliers,	ignored since not part of the request	*/
+							/*	'ItemURL'					=> $oItemsBase->ItemURL,	ignored since not part of the request	*/
+								'LastUpdate'				=> $oItemsBase->LastUpdate,
+								'Marking1ID'				=> $oItemsBase->Marking1ID,
+								'Marking2ID'				=> $oItemsBase->Marking2ID,
+								'Model'						=> $oItemsBase->Model,
+							/*	'Others'					=> $oItemsBase->Others,	ignored since not part of the request	*/
+							/*	'ParcelServicePresetIDs'	=> $oItemsBase->ParcelServicePresetIDs,*/
+							/*	'PriceSet'					=> $oItemsBase->PriceSet,	currently considered irrelevant	*/
+								'ProducerID'				=> $oItemsBase->ProducerID,
+								'ProducingCountryID'		=> $oItemsBase->ProducingCountryID,
+								'Published'					=> $oItemsBase->Published,
+							/*	'Stock'						=> $oItemsBase->Stock,	currently considered irrelevant	*/
+								'StorageLocation'			=> $oItemsBase->StorageLocation,
+							/*	'Texts'						=> $oItemsBase->Texts,	currently considered irrelevant	*/
+								'Type'						=> $oItemsBase->Type,
+								'VATInternalID'				=> $oItemsBase->VATInternalID,
+								'WebShopSpecial'			=> $oItemsBase->WebShopSpecial
+						)
+				);
+
+		DBQuery::getInstance()->replace($query);
 	}
 
 	private function executePages()
