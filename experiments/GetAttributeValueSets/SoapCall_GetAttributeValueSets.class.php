@@ -25,13 +25,23 @@ class SoapCall_GetAttributeValueSets extends PlentySoapCall
 			
 			$oPlentySoapRequest_GetAttributeValueSets = new Request_GetAttributeValueSets();			
 			
-			$response		=	$this->getPlentySoap()->GetAttributeValueSets($oPlentySoapRequest_GetAttributeValueSets->getRequest(1));
+			$response		=	$this->getPlentySoap()->GetAttributeValueSets($oPlentySoapRequest_GetAttributeValueSets->getRequest(array(1,2,26,31)));
 
 
 			if( $response->Success == true )
 			{		
-				$this->getLogger()->debug(__FUNCTION__.' Request Success');
-			
+				$this->getLogger()->debug(__FUNCTION__.' Request Success, '.
+						count($response->AttributeValueSets->item)
+						.' AttributeValueSets found');
+
+				foreach ($response->AttributeValueSets->item as $currentAVS)
+				{
+					$this->getLogger()->debug(__FUNCTION__.' : '
+							. 	' AVSID : '			.$currentAVS->AttributeValueSetID				.','
+							.	' AVSFrontendName : '	.$currentAVS->AttributeValueSetFrontendName		.','
+							.	' AVSBackendName : '		.$currentAVS->AttributeValueSetBackendName
+					);
+				}
 			}
 			else
 			{
