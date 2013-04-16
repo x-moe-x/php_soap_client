@@ -2,6 +2,7 @@
 
 require_once ROOT.'lib/soap/call/PlentySoapCall.abstract.php';
 require_once 'Request_SearchOrders.class.php';
+require_once ROOT.'experiments/GetAttributeValueSets/Request_GetAttributeValueSets.class.php';
 
 
 class SoapCall_SearchOrders extends PlentySoapCall
@@ -115,9 +116,8 @@ class SoapCall_SearchOrders extends PlentySoapCall
 			$this->executePages($oAttributeValueSetIDs);
 		}
 		
-		$oAttributeValueSetIDs = array_unique($oAttributeValueSetIDs);
-
-		// TODO process any found AttributeValueSetIDs
+		// process any found AttributeValueSetIDs
+		$this->processAttributeValueSetIDs(array_unique($oAttributeValueSetIDs));
 
 		$this->finishMetaDB($id,$currentTime);
 	}
@@ -302,6 +302,39 @@ class SoapCall_SearchOrders extends PlentySoapCall
 			$this->processOrder($oPlentySoapResponse_SearchOrders->Orders->item, $AttributeValueSetIDs);
 		}
 		$this->getLogger()->debug(__FUNCTION__.' : done' );
+	}
+
+	private function processAttributeValueSetIDs($oAttributeValueSetIDs)
+	{
+		$oPlentySoapRequest_GetAttributeValueSets = new Request_GetAttributeValueSets();
+
+		$response		=	$this->getPlentySoap()->GetAttributeValueSets($oPlentySoapRequest_GetAttributeValueSets->getRequest($oAttributeValueSetIDs));
+
+		if( $response->Success == true )
+		{
+			$this->getLogger()->debug(__FUNCTION__.' Request Success, '.
+					count($response->AttributeValueSets->item)
+					.' AttributeValueSets found');
+
+			foreach ($response->AttributeValueSets->item as $currentAVS)
+			{
+				// store AttributeValueSets into DB
+				$query = 'REPLACE INTO `AttributeValueSet` '.
+						DBUtils::buildInsert(
+								array(
+										'AttributeValueSetID'					=>	$currentAVS->AttributeValueSetID,
+										'AttributeValueSetFrontendName'				=>	$currentAVS->AttributeValueSetFrontendName,
+										'AttributeValueSetBackendName'				=>	$currentAVS->AttributeValueSetBackendName
+								)
+						);
+
+				DBQuery::getInstance()->replace($query);
+			}
+		}
+		else
+		{
+			$this->getLogger()->debug(__FUNCTION__.' Request Error');
+		}
 	}
 }
 
