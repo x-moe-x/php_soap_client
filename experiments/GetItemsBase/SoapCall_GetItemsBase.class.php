@@ -93,7 +93,7 @@ class SoapCall_GetItemsBase extends PlentySoapCall
 				. 	' Name : '				.$oItemsBase->Texts->Name
 		);
 
-		// store OrderHeads into DB
+		// store ItemsBase into DB
 		$query = 'REPLACE INTO `ItemsBase` '.
 				DBUtils::buildInsert(
 						array(
