@@ -134,7 +134,19 @@ class SoapCall_GetItemsBase extends PlentySoapCall
 								'Published'					=> $oItemsBase->Published,
 							/*	'Stock'						=> $oItemsBase->Stock,	currently considered irrelevant	*/
 								'StorageLocation'			=> $oItemsBase->StorageLocation,
-							/*	'Texts'						=> $oItemsBase->Texts,	currently considered irrelevant	*/
+							/*	'Texts'						=> $oItemsBase->Texts,	replaced with it's subitems	*/
+								'Keywords'					=> $oItemsBase->Texts->Keywords,
+								'Lang'						=> $oItemsBase->Texts->Lang,
+								'LongDescription'			=> $oItemsBase->Texts->LongDescription,
+								'MetaDescription'			=> $oItemsBase->Texts->MetaDescription,
+								'Name'						=> $oItemsBase->Texts->Name,
+								'Name2'						=> $oItemsBase->Texts->Name2,
+								'Name3'						=> $oItemsBase->Texts->Name3,
+								'ShortDescription'			=> $oItemsBase->Texts->ShortDescription,
+								'TechnicalData'				=> $oItemsBase->Texts->TechnicalData,
+							/*
+							 *	end of Texts' replacement 
+							 */
 								'Type'						=> $oItemsBase->Type,
 								'VATInternalID'				=> $oItemsBase->VATInternalID,
 								'WebShopSpecial'			=> $oItemsBase->WebShopSpecial
