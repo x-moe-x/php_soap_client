@@ -102,7 +102,30 @@ DROP TABLE `soap_db`.`ItemsBase`;
  
 CREATE TABLE `soap_db`.`ItemsBase` (
 	`ItemID`int(11) NOT NULL,
+	`ItemNo`varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`EAN1`varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`EAN2`varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`EAN3`varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`EAN4`varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
 	`ASIN`varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	/*
+	 * replace Texts with it's subitems
+	 *
+	 * `Texts`int(11) DEFAULT NULL,
+	 *
+	 */
+	 `Name` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	 `Name2` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	 `Name3` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	 `Keywords` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	 `Lang` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	 `LongDescription` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	 `MetaDescription` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	 `ShortDescription` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	 `TechnicalData` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	/*
+	 * end of Texts' replacement
+	 */
 	`AttributeValueSets`int(11) DEFAULT NULL,
 	`Availability`int(11) DEFAULT NULL,
 	`BundleType`varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
@@ -110,19 +133,13 @@ CREATE TABLE `soap_db`.`ItemsBase` (
 	`Condition`int(11) DEFAULT NULL,
 	`CustomsTariffNumber`varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
 	`DeepLink`varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
-	`EAN1`varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
-	`EAN2`varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
-	`EAN3`varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
-	`EAN4`varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
 	`EbayEPID`varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
 	`ExternalItemID`varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
 	`FSK`int(11) DEFAULT NULL,
-	`FreeTextFields`int(11) DEFAULT NULL,
 	`HasAttributes`int(11) DEFAULT NULL,
 	`ISBN`varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
 	`Inserted`int(11) DEFAULT NULL,
 	`ItemAttributeMarkup`int(11) DEFAULT NULL,
-	`ItemNo`varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
 	`ItemProperties`int(11) DEFAULT NULL,
 	`ItemSuppliers`int(11) DEFAULT NULL,
 	`ItemURL`varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
@@ -138,27 +155,38 @@ CREATE TABLE `soap_db`.`ItemsBase` (
 	`Published`int(11) DEFAULT NULL,
 	`Stock`int(11) DEFAULT NULL,
 	`StorageLocation`int(11) DEFAULT NULL,
-	/*
-	 * replace Texts with it's subitems
-	 *
-	 * `Texts`int(11) DEFAULT NULL,
-	 *
-	 */
-	 `Keywords` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
-	 `Lang` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
-	 `LongDescription` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
-	 `MetaDescription` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
-	 `Name` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
-	 `Name2` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
-	 `Name3` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
-	 `ShortDescription` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
-	 `TechnicalData` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
-	/*
-	 * end of Texts' replacement
-	 */
 	`Type`int(11) DEFAULT NULL,
 	`VATInternalID`int(11) DEFAULT NULL,
 	`WebShopSpecial`varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	/*
+	 * replace FreeTextFields with it's subitems
+	 *
+	 *	`FreeTextFields`int(11) DEFAULT NULL,
+	 *
+	 */
+	`Free1` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Free2` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Free3` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Free4` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Free5` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Free6` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Free7` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Free8` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Free9` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Free10` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Free11` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Free12` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Free13` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Free14` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Free15` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Free16` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Free17` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Free18` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Free19` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Free20` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	/*
+	 * end of FreeTextFields' replacement
+	 */
 	PRIMARY KEY (`ItemID`),
 	UNIQUE KEY `id_UNIQUE` (`ItemID`),
 	UNIQUE KEY `unique_key` (`ItemNo`, `EAN1`)
