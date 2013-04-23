@@ -61,7 +61,16 @@ class SoapCall_GetItemsBase extends PlentySoapCall
 				}
 				else
 				{
-					$this->getLogger()->debug(__FUNCTION__.' Request Error');
+					if (count($response->ErrorMessages->item) > 0)
+					{
+						foreach($response->ErrorMessages->item as $item)
+						{
+							if ($item->Code == "EIB0004")
+								$this->getLogger()->debug(__FUNCTION__.' No new ItemsBase data available');
+						}
+					}
+					else
+						$this->getLogger()->debug(__FUNCTION__.' Request Error');
 				}
 			}
 			catch(Exception $e)
