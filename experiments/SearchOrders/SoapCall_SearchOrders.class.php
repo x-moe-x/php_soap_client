@@ -3,6 +3,7 @@
 require_once ROOT.'lib/soap/call/PlentySoapCall.abstract.php';
 require_once 'Request_SearchOrders.class.php';
 require_once ROOT.'experiments/GetAttributeValueSets/Request_GetAttributeValueSets.class.php';
+require_once ROOT.'includes/DBLastUpdate.php';
 
 
 class SoapCall_SearchOrders extends PlentySoapCall
@@ -21,52 +22,11 @@ class SoapCall_SearchOrders extends PlentySoapCall
 		parent::__construct(__CLASS__);
 	}
 
-	private function initMetaDB(){
-		// get lastupdate
-		$query = 'SELECT * FROM MetaLastUpdate WHERE `Function` = \''. $this->functionName.'\'';
-
-		$result = DBQuery::getInstance()->select($query)->fetchAssoc();
-
-		$lastUpdate = intval($result['LastUpdate']);
-		$currentTime = time();
-
-		// store current timestamp
-		$query = 'REPLACE INTO `MetaLastUpdate` '.
-				DBUtils::buildInsert(
-						array(
-								'id'	=>  $result['id'],
-								'Function'	=>	$this->functionName,
-								'LastUpdate'	=> $lastUpdate,
-								'CurrentLastUpdate'	=> $currentTime
-						)
-				);
-
-		DBQuery::getInstance()->replace($query);
-
-		return array($lastUpdate, $currentTime, $result['id']);
-	}
-
-	private function finishMetaDB($id, $currentTime)
-	{
-		// store current timestamp
-		$query = 'REPLACE INTO `MetaLastUpdate` '.
-				DBUtils::buildInsert(
-						array(
-								'id'	=>  $id,
-								'Function'	=>	$this->functionName,
-								'LastUpdate'	=> $currentTime,
-								'CurrentLastUpdate'	=> $currentTime
-						)
-				);
-
-		DBQuery::getInstance()->replace($query);
-	}
-
 	public function execute()
 	{
 		$this->getLogger()->debug(__FUNCTION__);
 
-		list($lastUpdate, $currentTime, $id) = $this->initMetaDB();
+		list($lastUpdate, $currentTime, $id) = lastUpdateStart($this->functionName);
 
 		if( $this->pages == -1 )
 		{
@@ -119,7 +79,7 @@ class SoapCall_SearchOrders extends PlentySoapCall
 		// process any found AttributeValueSetIDs
 		$this->processAttributeValueSetIDs(array_unique($this->oAttributeValueSetIDs));
 
-		$this->finishMetaDB($id,$currentTime);
+		lastUpdateFinish($id,$currentTime,$this->functionName);
 	}
 
 	public function executePages()
