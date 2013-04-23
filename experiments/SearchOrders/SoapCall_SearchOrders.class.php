@@ -77,7 +77,8 @@ class SoapCall_SearchOrders extends PlentySoapCall
 		}
 		
 		// process any found AttributeValueSetIDs
-		$this->processAttributeValueSetIDs(array_unique($this->oAttributeValueSetIDs));
+		if (count($this->oAttributeValueSetIDs) > 0)
+			$this->processAttributeValueSetIDs(array_unique($this->oAttributeValueSetIDs));
 
 		lastUpdateFinish($id,$currentTime,$this->functionName);
 	}
