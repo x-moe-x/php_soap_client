@@ -2,6 +2,7 @@
 
 require_once ROOT.'lib/soap/call/PlentySoapCall.abstract.php';
 require_once 'Request_GetItemsBase.class.php';
+require_once ROOT.'includes/DBLastUpdate.php';
 
 
 
@@ -10,6 +11,9 @@ class SoapCall_GetItemsBase extends PlentySoapCall
 	private $page								=	0;
 	private $pages								=	-1;
 	private $oPlentySoapRequest_GetItemsBase	=	null;
+
+	/// db-function name to store corresponding last update timestamps
+	private $functionName						=	'GetItemsBase';
 
 	public function __construct()
 	{
@@ -20,6 +24,8 @@ class SoapCall_GetItemsBase extends PlentySoapCall
 	{
 		$this->getLogger()->debug(__FUNCTION__);
 
+		list($lastUpdate, $currentTime, $id) = lastUpdateStart($this->functionName);
+
 		if ($this->pages == -1)
 		{
 			try
@@ -27,7 +33,7 @@ class SoapCall_GetItemsBase extends PlentySoapCall
 
 				$oRequest_GetItemsBase = new Request_GetItemsBase();
 
-				$this->oPlentySoapRequest_GetItemsBase = $oRequest_GetItemsBase->getRequest();
+				$this->oPlentySoapRequest_GetItemsBase = $oRequest_GetItemsBase->getRequest($lastUpdate, $currentTime);
 
 				/*
 				 * do soap call
@@ -67,6 +73,8 @@ class SoapCall_GetItemsBase extends PlentySoapCall
 		{
 			$this->executePages();
 		}
+
+		lastUpdateFinish($id,$currentTime,$this->functionName);
 	}
 
 	private function responseInterpretation($oPlentySoapResponse_GetItemsBase)
