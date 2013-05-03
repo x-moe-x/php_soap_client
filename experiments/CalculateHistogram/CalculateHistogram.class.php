@@ -35,18 +35,32 @@ class CalculateHistogram
 		$endTimestamp = 1367359199;		//	30.04.2013, 23:59:59
 
 		// retreive latest orders from db
-		$query = 'SELECT OrderItem.*, OrderHead.OrderTimestamp, OrderHead.OrderType  FROM OrderItem LEFT JOIN (OrderHead) ON (OrderHead.OrderID = OrderItem.OrderID) WHERE OrderItem.ItemID = 210 AND OrderHead.OrderTimestamp >= '.$startTimestamp.' AND OrderHead.OrderTimestamp <= '.$endTimestamp.' AND (OrderHead.OrderStatus < 8 OR OrderHead.OrderStatus >= 9) AND OrderHead.OrderType = "order" ORDER BY OrderItem.OrderID';
+		$query = 'SELECT
+						SUM(CAST(OrderItem.Quantity AS SIGNED)) AS `quantity`,
+						FROM_UNIXTIME(OrderHead.OrderTimestamp, "%Y") AS `year`,
+						FROM_UNIXTIME(OrderHead.OrderTimestamp, "%m") AS `month`,
+						FROM_UNIXTIME(OrderHead.OrderTimestamp, "%d") AS `day`,
+						COUNT(OrderHead.OrderID) AS `orders`
+					FROM OrderItem LEFT JOIN (OrderHead) ON (OrderHead.OrderID = OrderItem.OrderID) 
+					WHERE
+						OrderItem.ItemID = 210 AND
+						OrderHead.OrderTimestamp >= '.$startTimestamp.' AND
+						OrderHead.OrderTimestamp <= '.$endTimestamp.' AND
+						(OrderHead.OrderStatus < 8 OR OrderHead.OrderStatus >= 9) AND
+						OrderType = "order"
+					GROUP BY
+						`day`
+		';
 
-		$itemResult = DBQuery::getInstance()->select($query);
+		$dayResult = DBQuery::getInstance()->select($query);
 
 		$countA210 = 0;
 
-		for ($itemRowNr = 0; $itemRowNr < $itemResult->getNumRows(); ++$itemRowNr)
+		while($currentDay = $dayResult->fetchAssoc())
 		{
-			$currentItem = $itemResult->fetchAssoc();
+			$countA210 += intval($currentDay['quantity']);
+			$this->getLogger()->debug(__FUNCTION__.' : Day: '.$currentDay['day'].'.'.$currentDay['month'].'.'.$currentDay['year'].' Quantity: '. $currentDay['quantity']);
 
-			$countA210 += intval($currentItem['Quantity']);
-			$this->getLogger()->debug(__FUNCTION__.' : Quantity: '. $currentItem['Quantity'].' OrderID: '.$currentItem['OrderID'] );
 		}
 		$this->getLogger()->debug(__FUNCTION__.' : Total a210 found: '. $countA210 );
 	}
