@@ -59,7 +59,7 @@ class CalculateHistogram
 		while($currentDay = $dayResult->fetchAssoc())
 		{
 			$countA210 += intval($currentDay['quantity']);
-			$this->getLogger()->debug(__FUNCTION__.' : Day: '.$currentDay['day'].'.'.$currentDay['month'].'.'.$currentDay['year'].' Quantity: '. $currentDay['quantity']);
+			$this->getLogger()->debug(__FUNCTION__.' : Day: '.$currentDay['day'].'.'.$currentDay['month'].'.'.$currentDay['year'].' Quantity: '. $currentDay['quantity'] . ', Total Orders: ' . $currentDay['orders']);
 
 		}
 		$this->getLogger()->debug(__FUNCTION__.' : Total a210 found: '. $countA210 );
