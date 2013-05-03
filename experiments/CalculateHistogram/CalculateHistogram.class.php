@@ -35,7 +35,7 @@ class CalculateHistogram
 		$endTimestamp = 1367359199;		//	30.04.2013, 23:59:59
 
 		// retreive latest orders from db
-		$query = 'SELECT OrderItem.*, OrderHead.OrderTimestamp  FROM OrderItem LEFT JOIN (OrderHead) ON (OrderHead.OrderID = OrderItem.OrderID) WHERE OrderItem.ItemID = 210 AND OrderHead.OrderTimestamp >= '.$startTimestamp.' AND OrderHead.OrderTimestamp <= '.$endTimestamp.' AND (OrderHead.OrderStatus < 8 OR OrderHead.OrderStatus >= 9) ORDER BY OrderItem.OrderID';
+		$query = 'SELECT OrderItem.*, OrderHead.OrderTimestamp, OrderHead.OrderType  FROM OrderItem LEFT JOIN (OrderHead) ON (OrderHead.OrderID = OrderItem.OrderID) WHERE OrderItem.ItemID = 210 AND OrderHead.OrderTimestamp >= '.$startTimestamp.' AND OrderHead.OrderTimestamp <= '.$endTimestamp.' AND (OrderHead.OrderStatus < 8 OR OrderHead.OrderStatus >= 9) AND OrderHead.OrderType = "order" ORDER BY OrderItem.OrderID';
 
 		$itemResult = DBQuery::getInstance()->select($query);
 
