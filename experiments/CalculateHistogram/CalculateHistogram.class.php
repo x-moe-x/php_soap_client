@@ -31,40 +31,22 @@ class CalculateHistogram
 	{
 		$this->getLogger()->debug(__FUNCTION__.' : CalculateHistogram' );
 
-		$startTimestamp = 1366186219; 	//	17.04.2013, 10:10:19
-		$endTimestamp = 1366399240;		//	19.04.2013, 21:20:40
+		$startTimestamp = 1364767200; 	//	01.04.2013, 00:00:00
+		$endTimestamp = 1367359199;		//	30.04.2013, 23:59:59
 
 		// retreive latest orders from db
-		$query = 'SELECT * FROM `OrderHead` WHERE (`OrderTimestamp` >= '.$startTimestamp.' AND `OrderTimestamp` <= '.$endTimestamp. ') AND (`OrderStatus` < 8 OR `OrderStatus` >= 9) AND OrderType = "order" ORDER BY `OrderTimestamp`';
+		$query = 'SELECT OrderItem.*, OrderHead.OrderTimestamp  FROM OrderItem LEFT JOIN (OrderHead) ON (OrderHead.OrderID = OrderItem.OrderID) WHERE OrderItem.ItemID = 210 AND OrderHead.OrderTimestamp >= '.$startTimestamp.' AND OrderHead.OrderTimestamp <= '.$endTimestamp.' AND (OrderHead.OrderStatus < 8 OR OrderHead.OrderStatus >= 9) ORDER BY OrderItem.OrderID';
 
-		$orderResult = DBQuery::getInstance()->select($query);
+		$itemResult = DBQuery::getInstance()->select($query);
 
 		$countA210 = 0;
 
-		for ($orderRowNr = 0; $orderRowNr < $orderResult->getNumRows(); ++$orderRowNr )
+		for ($itemRowNr = 0; $itemRowNr < $itemResult->getNumRows(); ++$itemRowNr)
 		{
-			$currentOrder = $orderResult->fetchAssoc();
+			$currentItem = $itemResult->fetchAssoc();
 
-			// should print list of 166 orders
-			//$this->getLogger()->debug(__FUNCTION__.' : OrderID: '. $currentOrder['OrderID'] );
-
-			// retreive latest items from db
-
-			$query = 'SELECT * FROM `OrderItem` WHERE `OrderID` = '. $currentOrder['OrderID'];
-
-			$itemResult = DBQuery::getInstance()->select($query);
-			for ($itemRowNr = 0; $itemRowNr < $itemResult->getNumRows(); ++$itemRowNr)
-			{
-				$currentItem = $itemResult->fetchAssoc();
-
-				//$this->getLogger()->debug(__FUNCTION__.' : ItemID: '. $currentItem['ItemID'] );
-
-				if (intval($currentItem['ItemID']) == 210)
-				{
-					$countA210 += intval($currentItem['Quantity']);
-					$this->getLogger()->debug(__FUNCTION__.' : Quantity: '. $currentItem['Quantity'].' OrderID: '.$currentItem['OrderID'] );
-				}
-			}
+			$countA210 += intval($currentItem['Quantity']);
+			$this->getLogger()->debug(__FUNCTION__.' : Quantity: '. $currentItem['Quantity'].' OrderID: '.$currentItem['OrderID'] );
 		}
 		$this->getLogger()->debug(__FUNCTION__.' : Total a210 found: '. $countA210 );
 	}
