@@ -31,19 +31,42 @@ class CalculateHistogram
 	{
 		$this->getLogger()->debug(__FUNCTION__.' : CalculateHistogram' );
 
-		$startTimestamp = 1366153200;	//	17.04.2013
-		$endTimestamp = 1366326000;		//	19.04.2013
+		$startTimestamp = 1366186219; 	//	17.04.2013, 10:10:19
+		$endTimestamp = 1366399240;		//	19.04.2013, 21:20:40
 
 		// retreive latest orders from db
-		$query = 'SELECT * FROM `OrderHead` WHERE `OrderTimestamp` > '.$startTimestamp.' AND `OrderTimestamp` <= '.$endTimestamp;
+		$query = 'SELECT * FROM `OrderHead` WHERE `OrderTimestamp` >= '.$startTimestamp.' AND `OrderTimestamp` <= '.$endTimestamp. ' ORDER BY `OrderTimestamp`';
 
-		$result = DBQuery::getInstance()->select($query);
+		$orderResult = DBQuery::getInstance()->select($query);
 
-		for ($rowNr = 0; $rowNr < $result->getNumRows(); ++$rowNr )
+		$countA210 = 0;
+
+		for ($orderRowNr = 0; $orderRowNr < $orderResult->getNumRows(); ++$orderRowNr )
 		{
-			$currentOrder = $result->fetchAssoc();
-			$this->getLogger()->debug(__FUNCTION__.' : OrderID: '. $currentOrder['id''] );
+			$currentOrder = $orderResult->fetchAssoc();
+
+			// should print list of 166 orders
+			//$this->getLogger()->debug(__FUNCTION__.' : OrderID: '. $currentOrder['OrderID'] );
+
+			// retreive latest items from db
+
+			$query = 'SELECT * FROM `OrderItem` WHERE `OrderID` = '. $currentOrder['OrderID'];
+
+			$itemResult = DBQuery::getInstance()->select($query);
+			for ($itemRowNr = 0; $itemRowNr < $itemResult->getNumRows(); ++$itemRowNr)
+			{
+				$currentItem = $itemResult->fetchAssoc();
+
+				//$this->getLogger()->debug(__FUNCTION__.' : ItemID: '. $currentItem['ItemID'] );
+
+				if (intval($currentItem['ItemID']) == 210)
+				{
+					$countA210 += intval($currentItem['Quantity']);
+					$this->getLogger()->debug(__FUNCTION__.' : Quantity: '. $currentItem['Quantity'].' OrderID: '.$currentItem['OrderID'] );
+				}
+			}
 		}
+		$this->getLogger()->debug(__FUNCTION__.' : Total a210 found: '. $countA210 );
 	}
 
 	/**
