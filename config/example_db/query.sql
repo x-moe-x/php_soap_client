@@ -3,10 +3,8 @@ SELECT
 	SUM(CAST(OrderItem.Quantity AS SIGNED)) AS `quantity`,
 	COUNT(OrderHead.OrderID) AS `orders`,
 	(AVG(`quantity`) + STDDEV(`quantity`))*1.35 AS `range`,
+	DATEDIFF(FROM_UNIXTIME(1367334415),FROM_UNIXTIME(OrderHead.OrderTimestamp)) DIV 30.5 AS `intervall`,
 	CAST(GROUP_CONCAT(IF(OrderItem.Quantity > 0 ,CAST(OrderItem.Quantity AS SIGNED),NULL) ORDER BY OrderItem.Quantity DESC SEPARATOR ', ') AS CHAR) AS `quantities`,
-	FROM_UNIXTIME(OrderHead.OrderTimestamp, '%Y') AS `year`,
-	FROM_UNIXTIME(OrderHead.OrderTimestamp, '%m') AS `month`,
-	FROM_UNIXTIME(OrderHead.OrderTimestamp, '%d') AS `day`,
 	ItemsBase.Marking1ID FROM OrderItem LEFT JOIN (OrderHead, ItemsBase) ON (OrderHead.OrderID = OrderItem.OrderID AND OrderItem.ItemID = ItemsBase.ItemID)
 WHERE
 	(OrderHead.OrderTimestamp BETWEEN 1359669600 AND 1367334415) AND
@@ -15,7 +13,6 @@ WHERE
 	ItemsBase.Marking1ID IN (9,12,16,20) /* yellow, red, green, black */
 GROUP BY
 	OrderItem.ItemID,
-	`month`,
-	OrderItem.ItemID
+	`intervall`
 ORDER BY
-	`quantity` DESC LIMIT 1000
+	ItemID, `intervall` LIMIT 1000
