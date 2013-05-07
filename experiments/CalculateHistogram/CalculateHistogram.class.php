@@ -31,7 +31,7 @@ class CalculateHistogram
 	{
 		$this->getLogger()->debug(__FUNCTION__.' : CalculateHistogram' );
 
-		$startTimestamp = 1364767200; 	//	01.04.2013, 00:00:00
+		$startTimestamp = 1359669600; 	//	01.02.2013, 00:00:00
 		$endTimestamp = 1367359199;		//	30.04.2013, 23:59:59
 
 		// retreive latest orders from db

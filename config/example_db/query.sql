@@ -14,6 +14,7 @@ WHERE
 	OrderType = 'order' AND
 	ItemsBase.Marking1ID IN (9,12,16,20) /* yellow, red, green, black */
 GROUP BY
+	OrderItem.ItemID,
 	`month`,
 	OrderItem.ItemID
 ORDER BY
