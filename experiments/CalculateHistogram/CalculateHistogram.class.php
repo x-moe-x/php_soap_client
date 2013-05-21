@@ -65,6 +65,26 @@ class CalculateHistogram
 		$this->getLogger()->debug(__FUNCTION__.' : Total a210 found: '. $countA210 );
 	}
 
+	private function getIntervallQuery($startTimestamp, $daysBack, $rangeConfidenceMultiplyer) {
+		return '
+			SELECT
+				OrderItem.ItemID,
+				SUM(CAST(OrderItem.Quantity AS SIGNED)) AS `quantity`,
+				(AVG(`quantity`) + STDDEV(`quantity`))*' . $rangeConfidenceMultiplyer . ' AS `range`,
+				CAST(GROUP_CONCAT(IF(OrderItem.Quantity > 0 ,CAST(OrderItem.Quantity AS SIGNED),NULL) ORDER BY OrderItem.Quantity DESC SEPARATOR ",") AS CHAR) AS `quantities`,
+				ItemsBase.Marking1ID FROM OrderItem LEFT JOIN (OrderHead, ItemsBase) ON (OrderHead.OrderID = OrderItem.OrderID AND OrderItem.ItemID = ItemsBase.ItemID)
+			WHERE
+				(OrderHead.OrderTimestamp BETWEEN ' . $startTimestamp . '-(86400*' . $daysBack . ') AND ' . $startTimestamp . ') AND
+				(OrderHead.OrderStatus < 8 OR OrderHead.OrderStatus >= 9) AND
+				OrderType = "order" AND
+				ItemsBase.Marking1ID IN (9,12,16,20) /* yellow, red, green, black */
+			GROUP BY
+				OrderItem.ItemID
+			ORDER BY
+				ItemID
+				';
+	}
+
 	/**
 	 *
 	 * @return Logger
