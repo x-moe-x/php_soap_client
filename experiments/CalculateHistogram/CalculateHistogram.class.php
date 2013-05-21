@@ -31,39 +31,38 @@ class CalculateHistogram
 	{
 		$this->getLogger()->debug(__FUNCTION__.' : CalculateHistogram' );
 
-		$startTimestamp = 1359669600; 	//	01.02.2013, 00:00:00
-		$endTimestamp = 1367359199;		//	30.04.2013, 23:59:59
+		$currentTime = 1367359199;
+		//	30.04.2013, 23:59:59
+
+		$spikeTolerance = 0.1;
 
 		// retreive latest orders from db
-		$query = 'SELECT
-						SUM(CAST(OrderItem.Quantity AS SIGNED)) AS `quantity`,
-						FROM_UNIXTIME(OrderHead.OrderTimestamp, "%Y") AS `year`,
-						FROM_UNIXTIME(OrderHead.OrderTimestamp, "%m") AS `month`,
-						FROM_UNIXTIME(OrderHead.OrderTimestamp, "%d") AS `day`,
-						COUNT(OrderHead.OrderID) AS `orders`
-					FROM OrderItem LEFT JOIN (OrderHead) ON (OrderHead.OrderID = OrderItem.OrderID) 
-					WHERE
-						OrderItem.ItemID = 210 AND
-						OrderHead.OrderTimestamp >= '.$startTimestamp.' AND
-						OrderHead.OrderTimestamp <= '.$endTimestamp.' AND
-						(OrderHead.OrderStatus < 8 OR OrderHead.OrderStatus >= 9) AND
-						OrderType = "order"
-					GROUP BY
-						`day`
-		';
+		$query = $this -> getIntervallQuery($currentTime, 90, 1.35);
 
-		$dayResult = DBQuery::getInstance()->select($query);
+		$articleResult = DBQuery::getInstance() -> select($query);
 
-		$countA210 = 0;
+		// for every article do:
+		while ($currentArticle = $articleResult -> fetchAssoc()) {
 
-		while($currentDay = $dayResult->fetchAssoc())
-		{
-			$countA210 += intval($currentDay['quantity']);
-			$this->getLogger()->debug(__FUNCTION__.' : Day: '.$currentDay['day'].'.'.$currentDay['month'].'.'.$currentDay['year'].' Quantity: '. $currentDay['quantity'] . ', Total Orders: ' . $currentDay['orders']);
+			$skipBeforeIndex = 0;
+			$index;
+
+			$quantities = explode(',', $currentArticle['quantities']);
+			$nrOfQuantities = count($quantities);
+
+			// check quantities in descending order
+			for ($index = 0; $index < $nrOfQuantities; ++$index) {
+				// if we are already below the confidence range: stop the loop
+				if ($quantities[$index] <= $currentArticle['range'])
+					break;
+
+			}
+
+			$this -> getLogger() -> debug(__FUNCTION__ . ' : Article: ' . $currentArticle['ItemID'] . ', skipping after index ' . $index);
 
 		}
-		$this->getLogger()->debug(__FUNCTION__.' : Total a210 found: '. $countA210 );
 	}
+
 
 	private function getIntervallQuery($startTimestamp, $daysBack, $rangeConfidenceMultiplyer) {
 		return '
@@ -89,11 +88,9 @@ class CalculateHistogram
 	 *
 	 * @return Logger
 	 */
-	protected function getLogger()
-	{
-		return Logger::instance($this->identifier4Logger);
+	protected function getLogger() {
+		return Logger::instance($this -> identifier4Logger);
 	}
+
 }
-
-
 ?>
