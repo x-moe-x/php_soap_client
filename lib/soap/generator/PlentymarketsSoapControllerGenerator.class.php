@@ -177,6 +177,8 @@ class PlentymarketsSoapControllerGenerator
 				$argumentStrings[$i] = SOAP_CLASS_PREFIX . trim($argumentStrings[$i]);
 			}
 			
+			// Response
+			$this->classMap[$returntypes] = SOAP_CLASS_PREFIX . trim($returntypes);
 			
 			$result .= '	/**' . chr(10);
 			$result .= '	 *' . chr(10);

@@ -1,4 +1,4 @@
-CREATE DATABASE `soap_db`; /*!40100 DEFAULT CHARACTER SET utf8 */
+CREATE DATABASE IF NOT EXISTS `soap_db` /*!40100 DEFAULT CHARACTER SET utf8 */;
 
 /**
  * used by StoreToken.class.php
