@@ -69,7 +69,7 @@ class CalculateHistogram
 			SELECT
 				OrderItem.ItemID,
 				SUM(CAST(OrderItem.Quantity AS SIGNED)) AS `quantity`,
-				(AVG(`quantity`) + STDDEV(`quantity`))*' . $rangeConfidenceMultiplyer . ' AS `range`,
+				AVG(`quantity`) + STDDEV(`quantity`) * ' . $rangeConfidenceMultiplyer . ' AS `range`,
 				CAST(GROUP_CONCAT(IF(OrderItem.Quantity > 0 ,CAST(OrderItem.Quantity AS SIGNED),NULL) ORDER BY OrderItem.Quantity DESC SEPARATOR ",") AS CHAR) AS `quantities`,
 				ItemsBase.Marking1ID FROM OrderItem LEFT JOIN (OrderHead, ItemsBase) ON (OrderHead.OrderID = OrderItem.OrderID AND OrderItem.ItemID = ItemsBase.ItemID)
 			WHERE
