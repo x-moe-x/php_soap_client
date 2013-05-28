@@ -95,6 +95,45 @@ class CalculateHistogram {
 		}
 	}
 
+	private function getArticleAdjustedQuantity($quantities, $quantity, $range, $spikeTolerance, $minToleratedSpikes) {
+
+		// check quantities in descending order
+		for ($index = 0; $index < count($quantities); ++$index) {
+
+			// if we are already below the confidence range: stop the loop
+			if ($quantities[$index] <= $range) {
+				break;
+			} else {
+				// otherwise we need to check for tolerated spikes
+
+				// get sub array
+				$spikes = array_slice($quantities, $index, $minToleratedSpikes);
+
+				// assume all spikes are in tolerance range
+				$tolerateSpikes = true;
+
+				// check subarray
+				for ($spikeIndex = 1; $spikeIndex < count($spikes); ++$spikeIndex) {
+
+					// if at least one element is below spike tolerance range:
+					if ($spikes[$spikeIndex] < $spikes[0] * (1 - $spikeTolerance)) {
+
+						// sḱip normative spike and break off the loop to try the next one...
+						$quantity -= $quantities[$index];
+						$tolerateSpikes = false;
+						break;
+					}
+				}
+
+				// found min. number of spike fitting in tolerance range, so all the rest is "in"
+				if ($tolerateSpikes)
+					break;
+			}
+		}
+
+		return $quantity;
+	}
+
 	private function getIntervallQuery($startTimestamp, $daysBack, $rangeConfidenceMultiplyer) {
 		return '
 			SELECT
