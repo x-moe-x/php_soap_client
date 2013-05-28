@@ -25,7 +25,7 @@ class CalculateHistogram {
 		//	30.04.2013, 23:59:59
 
 		$spikeTolerance = 0.1;
-		$minToleratedSpikes = 4;
+		$minToleratedSpikes = 12;
 
 		// retreive latest orders from db
 		$query = $this -> getIntervallQuery($currentTime, 90, 1.35);
@@ -35,9 +35,8 @@ class CalculateHistogram {
 		// for every article do:
 		while ($currentArticle = $articleResult -> fetchAssoc()) {
 
-			$quantities = explode(',', $currentArticle['quantities']);
-
-			$this -> getLogger() -> debug(__FUNCTION__ . ' : Article: ' . $currentArticle['ItemID'] . ', daily sale: ' . $this -> getArticleAdjustedQuantity($quantities, $currentArticle['quantity'], $currentArticle['range'], $spikeTolerance, $minToleratedSpikes) / 90);
+			$adjustedQuantity = $this -> getArticleAdjustedQuantity(explode(',', $currentArticle['quantities']), $currentArticle['quantity'], $currentArticle['range'], $spikeTolerance, $minToleratedSpikes);
+			$this -> getLogger() -> debug(__FUNCTION__ . ' : Article: ' . $currentArticle['ItemID'] . ', difference: ' . ($currentArticle['quantity'] - $adjustedQuantity) . ', daily sale: ' . $adjustedQuantity / 90);
 		}
 	}
 
