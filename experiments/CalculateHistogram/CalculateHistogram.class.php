@@ -4,12 +4,6 @@ require_once ROOT . 'lib/db/DBQuery.class.php';
 require_once ROOT . 'lib/db/DBQueryResult.class.php';
 
 /**
- * 1. retrteive data
- *
- * 2. stuff in histogram
- *
- * 3. show results
- *
  * @author x-moe-x
  * @copyright net-xpress GmbH & Co. KG www.net-xpress.com
  */
@@ -41,57 +35,9 @@ class CalculateHistogram {
 		// for every article do:
 		while ($currentArticle = $articleResult -> fetchAssoc()) {
 
-			$skipBeforeIndex = 0;
-			$toleratedSpikes = 0;
-			$index;
-
 			$quantities = explode(',', $currentArticle['quantities']);
 
-			$nrOfQuantities = count($quantities);
-
-			// check quantities in descending order
-			for ($index = 0; $index < $nrOfQuantities; ++$index) {
-
-				// if we are already below the confidence range: stop the loop
-				if ($quantities[$index] <= $currentArticle['range']) {
-					break;
-				} else {
-					// otherwise we need to check for tolerated spikes
-
-					// get sub array
-					$spikes = array_slice($quantities, $index, $minToleratedSpikes);
-
-					// assume all spikes are in tolerance range
-					$tolerateSpikes = true;
-
-					// check subarray
-					for ($spikeIndex = 1; $spikeIndex < count($spikes); ++$spikeIndex) {
-
-						// if at least one element is below spike tolerance range:
-						if ($spikes[$spikeIndex] < $spikes[0] * (1 - $spikeTolerance)) {
-
-							// sḱip normative spike and break off the loop to try the next one...
-							++$skipBeforeIndex;
-							$tolerateSpikes = false;
-							break;
-						}
-					}
-
-					// found min. number of spike fitting in tolerance range, so all the rest is "in"
-					if ($tolerateSpikes)
-						break;
-				}
-			}
-
-			// adjust period total quantity
-			$adjustedQuantity = $currentArticle['quantity'];
-
-			for ($index = 0; $index < $skipBeforeIndex; ++$index) {
-				$adjustedQuantity -= $quantities[$index];
-			}
-
-			$this -> getLogger() -> debug(__FUNCTION__ . ' : Article: ' . $currentArticle['ItemID'] . ', daily sale: ' . $adjustedQuantity / 90);
-
+			$this -> getLogger() -> debug(__FUNCTION__ . ' : Article: ' . $currentArticle['ItemID'] . ', daily sale: ' . $this -> getArticleAdjustedQuantity($quantities, $currentArticle['quantity'], $currentArticle['range'], $spikeTolerance, $minToleratedSpikes) / 90);
 		}
 	}
 
