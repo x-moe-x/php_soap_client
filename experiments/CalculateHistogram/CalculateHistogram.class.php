@@ -24,23 +24,25 @@ class CalculateHistogram {
 		$currentTime = 1367359199;
 		//	30.04.2013, 23:59:59
 
-		$spikeTolerance = 0.1;
-		$minToleratedSpikes = 12;
+		$spikeTolerance = 0.3;
+		$minToleratedSpikes = 3;
 
 		// retreive latest orders from db
-		$query = $this -> getIntervallQuery($currentTime, 90, 1.35);
+		$query = $this -> getIntervallQuery($currentTime, 90, 3);
 
 		$articleResult = DBQuery::getInstance() -> select($query);
 
 		// for every article do:
 		while ($currentArticle = $articleResult -> fetchAssoc()) {
 
-			$adjustedQuantity = $this -> getArticleAdjustedQuantity(explode(',', $currentArticle['quantities']), $currentArticle['quantity'], $currentArticle['range'], $spikeTolerance, $minToleratedSpikes);
-			$this -> getLogger() -> debug(__FUNCTION__ . ' : Article: ' . $currentArticle['ItemID'] . ', difference: ' . ($currentArticle['quantity'] - $adjustedQuantity) . ', daily sale: ' . $adjustedQuantity / 90);
+			$index;
+			$quantities = explode(',', $currentArticle['quantities']);
+			$adjustedQuantity = $this -> getArticleAdjustedQuantity($quantities, $currentArticle['quantity'], $currentArticle['range'], $spikeTolerance, $minToleratedSpikes, $index);
+				$this -> getLogger() -> debug(__FUNCTION__ . ' : Article: ' . $currentArticle['ItemID'] . ', skipped ' . $index . '/' . count($quantities) . ' orders, total: ' . $currentArticle['quantity'] . ', adjusted: ' . $adjustedQuantity . ', difference: ' . ($currentArticle['quantity'] - $adjustedQuantity) . ', daily sale: ' . $adjustedQuantity / 90);
 		}
 	}
 
-	private function getArticleAdjustedQuantity($quantities, $quantity, $range, $spikeTolerance, $minToleratedSpikes) {
+	private function getArticleAdjustedQuantity($quantities, $quantity, $range, $spikeTolerance, $minToleratedSpikes, &$index) {
 
 		// check quantities in descending order
 		for ($index = 0; $index < count($quantities); ++$index) {
