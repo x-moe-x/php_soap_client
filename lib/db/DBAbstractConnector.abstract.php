@@ -46,6 +46,13 @@ abstract class DBAbstractConnector
 	private $SQLSocket;
 	
 	/**
+	 * The port to be used for the connection to the database
+	 *
+	 * @var int
+	 */
+	private $SQLPort;
+
+	/**
 	 * A mysqli instance.
 	 * 
 	 * @var mysqli
@@ -144,6 +151,16 @@ abstract class DBAbstractConnector
 	}
 	
 	/**
+	 * Get the port for the database.
+	 *
+	 * @return string
+	 */
+	public function getPort()
+	{
+		return $this->SQLPort;
+	}
+
+	/**
 	 * Get the database handle (instance of mysqli).
 	 * 
 	 * @return mysqli
@@ -217,6 +234,18 @@ abstract class DBAbstractConnector
 		$this->SQLSocket = $sSocket;
 		return $this;
 	}
+	/**
+	 * Set the port for the database.
+	 *
+	 * @param int $sPort
+	 *
+	 * @return DBAbstractConnector
+	 */
+	protected function setPort($sPort)
+	{
+		$this->SQLPort = $sPort;
+		return $this;
+	}
 	
 	/**
 	 * Set the database handle (instance of mysqli).
@@ -250,7 +279,7 @@ abstract class DBAbstractConnector
 			
 			try 
 			{
-				$oMySQLi = new mysqli($this->getDataSource(), $this->getUserName(), $this->getPassword(), $this->getDataBase());
+				$oMySQLi = new mysqli($this->getDataSource(), $this->getUserName(), $this->getPassword(), $this->getDataBase(), $this->getPort(), $this->getSocket());
 			} 
 			catch (Exception $e) 
 			{

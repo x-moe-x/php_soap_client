@@ -19,4 +19,14 @@ define('SQL_USERNAME', 'my_soap_user');
  */
 define('SQL_PASSWORD', 'I_like_SOAP!_:)');
 
+/*
+ * database port (default: 3306)
+ */
+define('SQL_PORT', 3306);
+
+/*
+ * database socket (default: null)
+ */
+define('SQL_SOCKET', null);
+
 ?>
