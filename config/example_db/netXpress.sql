@@ -90,6 +90,7 @@ CREATE TABLE `soap_db`.`MetaLastUpdate` (
 	UNIQUE KEY `unique_key` (`Function`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+/* deprecated! */
 DROP TABLE `soap_db`.`AttributeValueSet`;
  
 CREATE TABLE `soap_db`.`AttributeValueSet` (
@@ -98,6 +99,26 @@ CREATE TABLE `soap_db`.`AttributeValueSet` (
 	`AttributeValueSetFrontendName` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
 	PRIMARY KEY (`AttributeValueSetID`),
 	UNIQUE KEY `id_UNIQUE` (`AttributeValueSetID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+DROP TABLE `soap_db`.`AttributeValueSets`;
+ 
+CREATE TABLE `soap_db`.`AttributeValueSets` (
+	`id` int(11) NOT NULL AUTO_INCREMENT,
+	`ItemID` int(11) NOT NULL,
+	`AttributeValueSetID` int(11) NOT NULL,
+	`AttributeValueSetName` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
+	`Availability` int(11) DEFAULT NULL,
+	`EAN` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`EAN2` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`EAN3` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`EAN4` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`ASIN` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`ColliNo` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`PriceID` int(11) DEFAULT NULL,
+	`PurchasePrice` decimal(8,2) DEFAULT NULL,
+	PRIMARY KEY (`id`),
+	UNIQUE KEY `id_UNIQUE` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 DROP TABLE `soap_db`.`ItemsBase`;
