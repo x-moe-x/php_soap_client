@@ -108,11 +108,6 @@ class SoapCall_SearchOrders extends PlentySoapCall
 			{
 				$this->onExceptionAction($e);
 			}
-
-			// TODO remove after debugging:
-			// stop after 3 pages
-			if ($this->page >= 3)
-				break;
 		}
 	}
 
