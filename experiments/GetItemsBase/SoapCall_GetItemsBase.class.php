@@ -102,6 +102,12 @@ class SoapCall_GetItemsBase extends PlentySoapCall
 		$this->getLogger()->debug(__FUNCTION__.' : done' );
 	}
 
+	private function processAttributeValueSet($oItemID, $oAttributeValueSet){
+		print_r($oAttributeValueSet);
+
+		//TODO store AttributeValueSets to DB
+	}
+
 	private function processItemsBase($oItemsBase)
 	{
 		$this->getLogger()->debug(__FUNCTION__.' : '
@@ -115,7 +121,7 @@ class SoapCall_GetItemsBase extends PlentySoapCall
 				DBUtils::buildInsert(
 						array(
 								'ASIN'						=> $oItemsBase->ASIN,
-							/*	'AttributeValueSets'		=> $oItemsBase->AttributeValueSets,	ignored since not part of the request	*/
+							/*	'AttributeValueSets'		=> $oItemsBase->AttributeValueSets,	skipped here and stored to seperate table	*/
 							/*	'Availability'				=> $oItemsBase->Availability,	currently considered irrelevant	*/
 								'BundleType'				=> $oItemsBase->BundleType,
 							/*	'Categories'				=> $oItemsBase->Categories,	ignored since not part of the request	*/
@@ -191,6 +197,17 @@ class SoapCall_GetItemsBase extends PlentySoapCall
 				);
 
 		DBQuery::getInstance()->replace($query);
+
+		// process AttributeValueSets
+		if ($oItemsBase->HasAttributes){
+			if (is_array($oItemsBase->AttributeValueSets->item)){
+				foreach ($oItemsBase->AttributeValueSets->item as $attributeValueSet) {
+					$this->processAttributeValueSet($oItemsBase->ItemID, $attributeValueSet);
+				}
+			}else{
+				$this->processAttributeValueSet($oItemsBase->ItemID, $oItemsBase->AttributeValueSets->item);
+			}
+		}
 	}
 
 	private function executePages()
