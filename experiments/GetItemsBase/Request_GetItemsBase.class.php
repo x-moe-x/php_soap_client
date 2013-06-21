@@ -4,11 +4,11 @@
 class Request_GetItemsBase 
 {
 
-	public function getRequest($lastUpdate, $currentTime)
+	public function getRequest($lastUpdate, $currentTime, $page)
 	{
 		$oPlentySoapRequest_GetItemsBase = new PlentySoapRequest_GetItemsBase();
 
-		$oPlentySoapRequest_GetItemsBase->Page = 0;
+		$oPlentySoapRequest_GetItemsBase->Page = $page;
 
 		$oPlentySoapRequest_GetItemsBase->ItemID = null;
 
