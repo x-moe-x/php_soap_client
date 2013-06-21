@@ -10,6 +10,7 @@ class SoapCall_SearchOrders extends PlentySoapCall
 
 	private $page								=	0;
 	private $pages								=	-1;
+	private $startAtPage						=	0;
 	private $oPlentySoapRequest_SearchOrders	=	null;
 
 	/// db-function name to store corresponding last update timestamps
@@ -24,7 +25,7 @@ class SoapCall_SearchOrders extends PlentySoapCall
 	{
 		$this->getLogger()->debug(__FUNCTION__);
 
-		list($lastUpdate, $currentTime, $id) = lastUpdateStart($this->functionName);
+		list($lastUpdate, $currentTime, $this -> startAtPage) = lastUpdateStart($this -> functionName);
 
 		if( $this->pages == -1 )
 		{
@@ -32,7 +33,11 @@ class SoapCall_SearchOrders extends PlentySoapCall
 			{
 				$oRequest_SearchOrders					=	new Request_SearchOrders();
 
-				$this->oPlentySoapRequest_SearchOrders	=	$oRequest_SearchOrders->getRequest($lastUpdate, $currentTime);
+				$this -> oPlentySoapRequest_SearchOrders = $oRequest_SearchOrders -> getRequest($lastUpdate, $currentTime, $this -> startAtPage);
+
+				if ($this -> startAtPage > 0) {
+					$this -> getLogger() -> debug(__FUNCTION__ . " Starting at page " . $this -> startAtPage);
+				}
 
 				/*
 				 * do soap call
@@ -52,9 +57,10 @@ class SoapCall_SearchOrders extends PlentySoapCall
 
 					if( $pagesFound > $this->page )
 					{
-						$this->page 	= 	1;
+						$this->page	 	=	$this->startAtPage + 1;
 						$this->pages 	=	$pagesFound;
 
+						lastUpdatePageUpdate($this -> functionName, $this -> page);
 						$this->executePages();
 					}
 
@@ -74,7 +80,7 @@ class SoapCall_SearchOrders extends PlentySoapCall
 			$this->executePages();
 		}
 
-		lastUpdateFinish($id,$currentTime,$this->functionName);
+		lastUpdateFinish($currentTime, $this->functionName);
 	}
 
 	public function executePages()
@@ -96,6 +102,7 @@ class SoapCall_SearchOrders extends PlentySoapCall
 				}
 
 				$this->page++;
+				lastUpdatePageUpdate($this->functionName, $this->page);
 
 			}
 			catch(Exception $e)
@@ -105,7 +112,7 @@ class SoapCall_SearchOrders extends PlentySoapCall
 
 			// TODO remove after debugging:
 			// stop after 3 pages
-			if ($this->page >= 3)
+			if ($this->page - $this->startAtPage >= 3)
 				break;
 		}
 	}
