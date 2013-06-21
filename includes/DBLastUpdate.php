@@ -5,38 +5,46 @@ function lastUpdateStart($functionName){
 
 	$result = DBQuery::getInstance()->select($query)->fetchAssoc();
 
+	$currentPage = intval($result['CurrentPage']);
 	$lastUpdate = intval($result['LastUpdate']);
 	$currentTime = time();
 
 	// store current timestamp
-	$query = 'REPLACE INTO `MetaLastUpdate` '.
-			DBUtils::buildInsert(
+	$query = 'UPDATE `MetaLastUpdate` '.
+			DBUtils::buildUpdate(
 					array(
-							'id'	=>  $result['id'],
-							'Function'	=>	$functionName,
-							'LastUpdate'	=> $lastUpdate,
-							'CurrentLastUpdate'	=> $currentTime
+							'CurrentLastUpdate'	=> $currentTime	
 					)
-			);
+			). ' WHERE `Function`=\''.$functionName.'\'';
 
-	DBQuery::getInstance()->replace($query);
+	DBQuery::getInstance()->update($query);
 
-	return array($lastUpdate, $currentTime, $result['id']);
+	return array($lastUpdate, $currentTime, $currentPage);
 }
 
-function lastUpdateFinish($id, $currentTime, $functionName)
+function lastUpdatePageUpdate($functionName, $currentPage){
+	$query = 'UPDATE `MetaLastUpdate` '.
+			DBUtils::buildUpdate(
+				array(
+					'CurrentPage' => $currentPage
+				)
+			).' WHERE `Function`=\''.$functionName.'\'';
+
+			DBQuery::getInstance()->update($query);
+}
+
+function lastUpdateFinish($currentTime, $functionName)
 {
 	// store current timestamp
-	$query = 'REPLACE INTO `MetaLastUpdate` '.
-			DBUtils::buildInsert(
+	$query = 'UPDATE `MetaLastUpdate` '.
+			DBUtils::buildUpdate(
 					array(
-							'id'	=>  $id,
-							'Function'	=>	$functionName,
 							'LastUpdate'	=> $currentTime,
-							'CurrentLastUpdate'	=> $currentTime
+							'CurrentLastUpdate'	=> $currentTime,
+							'CurrentPage' => 0
 					)
 			);
 
-	DBQuery::getInstance()->replace($query);
+	DBQuery::getInstance()->update($query);
 }
 ?>
