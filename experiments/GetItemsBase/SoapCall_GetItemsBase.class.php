@@ -10,6 +10,7 @@ class SoapCall_GetItemsBase extends PlentySoapCall
 {
 	private $page								=	0;
 	private $pages								=	-1;
+	private $startAtPage = 0;
 	private $oPlentySoapRequest_GetItemsBase	=	null;
 
 	/// db-function name to store corresponding last update timestamps
@@ -24,7 +25,7 @@ class SoapCall_GetItemsBase extends PlentySoapCall
 	{
 		$this->getLogger()->debug(__FUNCTION__);
 
-		list($lastUpdate, $currentTime, $id) = lastUpdateStart($this->functionName);
+		list($lastUpdate, $currentTime, $this->startAtPage) = lastUpdateStart($this->functionName);
 
 		if ($this->pages == -1)
 		{
@@ -33,7 +34,11 @@ class SoapCall_GetItemsBase extends PlentySoapCall
 
 				$oRequest_GetItemsBase = new Request_GetItemsBase();
 
-				$this->oPlentySoapRequest_GetItemsBase = $oRequest_GetItemsBase->getRequest($lastUpdate, $currentTime);
+				$this->oPlentySoapRequest_GetItemsBase = $oRequest_GetItemsBase->getRequest($lastUpdate, $currentTime, $this->startAtPage);
+
+				if ($this -> startAtPage > 0) {
+					$this -> getLogger() -> debug(__FUNCTION__ . " Starting at page " . $this -> startAtPage);
+				}
 
 				/*
 				 * do soap call
@@ -52,9 +57,10 @@ class SoapCall_GetItemsBase extends PlentySoapCall
 
 					if ( $pagesFound > $this->page )
 					{
-						$this->page		=	1;
+						$this->page		=	$this->startAtPage +1;
 						$this->pages	=	$pagesFound;
 
+						lastUpdatePageUpdate($this -> functionName, $this -> page);
 						$this->executePages();
 
 					}
@@ -83,7 +89,7 @@ class SoapCall_GetItemsBase extends PlentySoapCall
 			$this->executePages();
 		}
 
-		lastUpdateFinish($id,$currentTime,$this->functionName);
+		lastUpdateFinish($currentTime,$this->functionName);
 	}
 
 	private function responseInterpretation($oPlentySoapResponse_GetItemsBase)
@@ -102,6 +108,34 @@ class SoapCall_GetItemsBase extends PlentySoapCall
 		$this->getLogger()->debug(__FUNCTION__.' : done' );
 	}
 
+	private function processAttributeValueSet($oItemID, $oAttributeValueSet){
+		$this->getLogger()->debug(__FUNCTION__.' : '
+				. 	' AttributeValueSetID : '			.$oAttributeValueSet->AttributeValueSetID		.','
+				. 	' AttributeValueSetName : '				.$oAttributeValueSet->AttributeValueSetName
+		);
+
+		// store AttributeValueSets to DB
+		$query = 'REPLACE INTO `AttributeValueSets` '.
+			DBUtils::buildInsert(
+				array(
+					'ItemID'				=> $oItemID,
+					'AttributeValueSetID'	=> $oAttributeValueSet->AttributeValueSetID,
+					'AttributeValueSetName'	=> $oAttributeValueSet->AttributeValueSetName,
+					'Availability'			=> $oAttributeValueSet->Availability,
+					'EAN'					=> $oAttributeValueSet->EAN,
+					'EAN2'					=> $oAttributeValueSet->EAN2,
+					'EAN3'					=> $oAttributeValueSet->EAN3,
+					'EAN4'					=> $oAttributeValueSet->EAN4,
+					'ASIN'					=> $oAttributeValueSet->ASIN,
+					'ColliNo'				=> $oAttributeValueSet->ColliNo,
+					'PriceID'				=> $oAttributeValueSet->PriceID,
+					'PurchasePrice'			=> $oAttributeValueSet->PurchasePrice
+				)
+			);
+
+			DBQuery::getInstance()->replace($query);
+	}
+
 	private function processItemsBase($oItemsBase)
 	{
 		$this->getLogger()->debug(__FUNCTION__.' : '
@@ -115,7 +149,7 @@ class SoapCall_GetItemsBase extends PlentySoapCall
 				DBUtils::buildInsert(
 						array(
 								'ASIN'						=> $oItemsBase->ASIN,
-							/*	'AttributeValueSets'		=> $oItemsBase->AttributeValueSets,	ignored since not part of the request	*/
+							/*	'AttributeValueSets'		=> $oItemsBase->AttributeValueSets,	skipped here and stored to separate table	*/
 							/*	'Availability'				=> $oItemsBase->Availability,	currently considered irrelevant	*/
 								'BundleType'				=> $oItemsBase->BundleType,
 							/*	'Categories'				=> $oItemsBase->Categories,	ignored since not part of the request	*/
@@ -191,6 +225,21 @@ class SoapCall_GetItemsBase extends PlentySoapCall
 				);
 
 		DBQuery::getInstance()->replace($query);
+
+		// delete old entrys from AttributeValueSets to prevent unrecognized deletes
+		$query = 'DELETE FROM `AttributeValueSets` WHERE `ItemID` = ' . $oItemsBase->ItemID;
+		DBQuery::getInstance()->delete($query);
+
+		// process AttributeValueSets
+		if ($oItemsBase->HasAttributes){
+			if (is_array($oItemsBase->AttributeValueSets->item)){
+				foreach ($oItemsBase->AttributeValueSets->item as $attributeValueSet) {
+					$this->processAttributeValueSet($oItemsBase->ItemID, $attributeValueSet);
+				}
+			}else{
+				$this->processAttributeValueSet($oItemsBase->ItemID, $oItemsBase->AttributeValueSets->item);
+			}
+		}
 	}
 
 	private function executePages()
@@ -212,6 +261,7 @@ class SoapCall_GetItemsBase extends PlentySoapCall
 				}
 
 				$this->page++;
+				lastUpdatePageUpdate($this -> functionName, $this -> page);
 
 			}
 			catch(Exception $e)
@@ -221,7 +271,7 @@ class SoapCall_GetItemsBase extends PlentySoapCall
 
 			// TODO remove after debugging:
 			// stop after 3 pages
-			if ($this->page >= 3)
+			if ($this -> page - $this -> startAtPage >= 3)
 				break;
 
 		}
