@@ -10,6 +10,7 @@ class SoapCall_GetItemsBase extends PlentySoapCall
 {
 	private $page								=	0;
 	private $pages								=	-1;
+	private $startAtPage = 0;
 	private $oPlentySoapRequest_GetItemsBase	=	null;
 
 	/// db-function name to store corresponding last update timestamps
@@ -24,7 +25,7 @@ class SoapCall_GetItemsBase extends PlentySoapCall
 	{
 		$this->getLogger()->debug(__FUNCTION__);
 
-		list($lastUpdate, $currentTime, $id) = lastUpdateStart($this->functionName);
+		list($lastUpdate, $currentTime, $this->startAtPage) = lastUpdateStart($this->functionName);
 
 		if ($this->pages == -1)
 		{
@@ -33,7 +34,11 @@ class SoapCall_GetItemsBase extends PlentySoapCall
 
 				$oRequest_GetItemsBase = new Request_GetItemsBase();
 
-				$this->oPlentySoapRequest_GetItemsBase = $oRequest_GetItemsBase->getRequest($lastUpdate, $currentTime);
+				$this->oPlentySoapRequest_GetItemsBase = $oRequest_GetItemsBase->getRequest($lastUpdate, $currentTime, $this->startAtPage);
+
+				if ($this -> startAtPage > 0) {
+					$this -> getLogger() -> debug(__FUNCTION__ . " Starting at page " . $this -> startAtPage);
+				}
 
 				/*
 				 * do soap call
@@ -52,9 +57,10 @@ class SoapCall_GetItemsBase extends PlentySoapCall
 
 					if ( $pagesFound > $this->page )
 					{
-						$this->page		=	1;
+						$this->page		=	$this->startAtPage +1;
 						$this->pages	=	$pagesFound;
 
+						lastUpdatePageUpdate($this -> functionName, $this -> page);
 						$this->executePages();
 
 					}
@@ -83,7 +89,7 @@ class SoapCall_GetItemsBase extends PlentySoapCall
 			$this->executePages();
 		}
 
-		lastUpdateFinish($id,$currentTime,$this->functionName);
+		lastUpdateFinish($currentTime,$this->functionName);
 	}
 
 	private function responseInterpretation($oPlentySoapResponse_GetItemsBase)
@@ -255,6 +261,7 @@ class SoapCall_GetItemsBase extends PlentySoapCall
 				}
 
 				$this->page++;
+				lastUpdatePageUpdate($this -> functionName, $this -> page);
 
 			}
 			catch(Exception $e)
@@ -264,7 +271,7 @@ class SoapCall_GetItemsBase extends PlentySoapCall
 
 			// TODO remove after debugging:
 			// stop after 3 pages
-			if ($this->page >= 3)
+			if ($this -> page - $this -> startAtPage >= 3)
 				break;
 
 		}
