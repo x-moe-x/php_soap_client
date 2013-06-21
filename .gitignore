@@ -5,3 +5,5 @@
 /log
 /lib/soap/controller
 /lib/soap/model
+/config/soap.inc.php
+/config/db.inc.php
