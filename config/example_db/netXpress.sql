@@ -104,7 +104,6 @@ CREATE TABLE `soap_db`.`AttributeValueSet` (
 DROP TABLE `soap_db`.`AttributeValueSets`;
  
 CREATE TABLE `soap_db`.`AttributeValueSets` (
-	`id` int(11) NOT NULL AUTO_INCREMENT,
 	`ItemID` int(11) NOT NULL,
 	`AttributeValueSetID` int(11) NOT NULL,
 	`AttributeValueSetName` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
@@ -117,8 +116,7 @@ CREATE TABLE `soap_db`.`AttributeValueSets` (
 	`ColliNo` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
 	`PriceID` int(11) DEFAULT NULL,
 	`PurchasePrice` decimal(8,2) DEFAULT NULL,
-	PRIMARY KEY (`id`),
-	UNIQUE KEY `id_UNIQUE` (`id`)
+	PRIMARY KEY (`ItemID`, `AttributeValueSetID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 DROP TABLE `soap_db`.`ItemsBase`;
