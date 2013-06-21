@@ -90,17 +90,6 @@ CREATE TABLE `soap_db`.`MetaLastUpdate` (
 	UNIQUE KEY `unique_key` (`Function`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
-/* deprecated! */
-DROP TABLE `soap_db`.`AttributeValueSet`;
- 
-CREATE TABLE `soap_db`.`AttributeValueSet` (
-	`AttributeValueSetID` int(11) NOT NULL,
-	`AttributeValueSetBackendName` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
-	`AttributeValueSetFrontendName` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
-	PRIMARY KEY (`AttributeValueSetID`),
-	UNIQUE KEY `id_UNIQUE` (`AttributeValueSetID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
 DROP TABLE `soap_db`.`AttributeValueSets`;
  
 CREATE TABLE `soap_db`.`AttributeValueSets` (
