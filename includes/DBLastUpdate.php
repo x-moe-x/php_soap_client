@@ -43,7 +43,7 @@ function lastUpdateFinish($currentTime, $functionName)
 							'CurrentLastUpdate'	=> $currentTime,
 							'CurrentPage' => 0
 					)
-			);
+			).' WHERE `Function`=\''.$functionName.'\'';
 
 	DBQuery::getInstance()->update($query);
 }
