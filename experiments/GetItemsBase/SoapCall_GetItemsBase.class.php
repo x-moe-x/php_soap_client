@@ -102,6 +102,34 @@ class SoapCall_GetItemsBase extends PlentySoapCall
 		$this->getLogger()->debug(__FUNCTION__.' : done' );
 	}
 
+	private function processAttributeValueSet($oItemID, $oAttributeValueSet){
+		$this->getLogger()->debug(__FUNCTION__.' : '
+				. 	' AttributeValueSetID : '			.$oAttributeValueSet->AttributeValueSetID		.','
+				. 	' AttributeValueSetName : '				.$oAttributeValueSet->AttributeValueSetName
+		);
+
+		// store AttributeValueSets to DB
+		$query = 'REPLACE INTO `AttributeValueSets` '.
+			DBUtils::buildInsert(
+				array(
+					'ItemID'				=> $oItemID,
+					'AttributeValueSetID'	=> $oAttributeValueSet->AttributeValueSetID,
+					'AttributeValueSetName'	=> $oAttributeValueSet->AttributeValueSetName,
+					'Availability'			=> $oAttributeValueSet->Availability,
+					'EAN'					=> $oAttributeValueSet->EAN,
+					'EAN2'					=> $oAttributeValueSet->EAN2,
+					'EAN3'					=> $oAttributeValueSet->EAN3,
+					'EAN4'					=> $oAttributeValueSet->EAN4,
+					'ASIN'					=> $oAttributeValueSet->ASIN,
+					'ColliNo'				=> $oAttributeValueSet->ColliNo,
+					'PriceID'				=> $oAttributeValueSet->PriceID,
+					'PurchasePrice'			=> $oAttributeValueSet->PurchasePrice
+				)
+			);
+
+			DBQuery::getInstance()->replace($query);
+	}
+
 	private function processItemsBase($oItemsBase)
 	{
 		$this->getLogger()->debug(__FUNCTION__.' : '
@@ -115,7 +143,7 @@ class SoapCall_GetItemsBase extends PlentySoapCall
 				DBUtils::buildInsert(
 						array(
 								'ASIN'						=> $oItemsBase->ASIN,
-							/*	'AttributeValueSets'		=> $oItemsBase->AttributeValueSets,	ignored since not part of the request	*/
+							/*	'AttributeValueSets'		=> $oItemsBase->AttributeValueSets,	skipped here and stored to separate table	*/
 							/*	'Availability'				=> $oItemsBase->Availability,	currently considered irrelevant	*/
 								'BundleType'				=> $oItemsBase->BundleType,
 							/*	'Categories'				=> $oItemsBase->Categories,	ignored since not part of the request	*/
@@ -191,6 +219,21 @@ class SoapCall_GetItemsBase extends PlentySoapCall
 				);
 
 		DBQuery::getInstance()->replace($query);
+
+		// delete old entrys from AttributeValueSets to prevent unrecognized deletes
+		$query = 'DELETE FROM `AttributeValueSets` WHERE `ItemID` = ' . $oItemsBase->ItemID;
+		DBQuery::getInstance()->delete($query);
+
+		// process AttributeValueSets
+		if ($oItemsBase->HasAttributes){
+			if (is_array($oItemsBase->AttributeValueSets->item)){
+				foreach ($oItemsBase->AttributeValueSets->item as $attributeValueSet) {
+					$this->processAttributeValueSet($oItemsBase->ItemID, $attributeValueSet);
+				}
+			}else{
+				$this->processAttributeValueSet($oItemsBase->ItemID, $oItemsBase->AttributeValueSets->item);
+			}
+		}
 	}
 
 	private function executePages()

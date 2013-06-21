@@ -30,7 +30,7 @@ class Request_GetItemsBase
 
 		$oPlentySoapRequest_GetItemsBase->Lang = null;
 
-		$oPlentySoapRequest_GetItemsBase->GetAttributeValueSets = false;
+		$oPlentySoapRequest_GetItemsBase->GetAttributeValueSets = true;
 
 		$oPlentySoapRequest_GetItemsBase->GetCategories = false;
 
