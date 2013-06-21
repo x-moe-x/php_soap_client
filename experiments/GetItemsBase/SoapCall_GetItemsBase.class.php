@@ -268,12 +268,6 @@ class SoapCall_GetItemsBase extends PlentySoapCall
 			{
 				$this->onExceptionAction($e);
 			}
-
-			// TODO remove after debugging:
-			// stop after 3 pages
-			if ($this -> page - $this -> startAtPage >= 3)
-				break;
-
 		}
 	}
 }

@@ -109,22 +109,17 @@ class SoapCall_SearchOrders extends PlentySoapCall
 			{
 				$this->onExceptionAction($e);
 			}
-
-			// TODO remove after debugging:
-			// stop after 3 pages
-			if ($this->page - $this->startAtPage >= 3)
-				break;
 		}
 	}
 
 	private function processOrderHead($oOrderHead)
 	{
-		$this->getLogger()->debug(__FUNCTION__.' : '
+	/*	$this->getLogger()->debug(__FUNCTION__.' : '
 				. 	' OrderID : '			.$oOrderHead->OrderID				.','
 				.	' ExternalOrderID : '	.$oOrderHead->ExternalOrderID		.','
 				.	' CustomerID : '		.$oOrderHead->CustomerID			.','
 				.	' TotalInvoice : '		.$oOrderHead->TotalInvoice
-		);
+		); */
 
 		// store OrderHeads into DB		
 		$query = 'REPLACE INTO `OrderHead` '.
@@ -182,12 +177,12 @@ class SoapCall_SearchOrders extends PlentySoapCall
 
 	private function processOrderItem($oOrderItem, $oOrderID)
 	{
-		$this->getLogger()->debug(__FUNCTION__.' : '
+		/* $this->getLogger()->debug(__FUNCTION__.' : '
 				. 	' OrderID : '			.$oOrderID	.','
 				.	' Item SKU : '			.$oOrderItem->SKU				.','
 				.	' Quantity : '			.$oOrderItem->Quantity			.','
 				.	' Price : '				.$oOrderItem->Price
-		);
+		); */
 		
 		// store OrderHeads into DB
 		$query = 'REPLACE INTO `OrderItem` '.
@@ -248,7 +243,7 @@ class SoapCall_SearchOrders extends PlentySoapCall
 		{
 			$this->processOrder($oPlentySoapResponse_SearchOrders->Orders->item, $AttributeValueSetIDs);
 		}
-		$this->getLogger()->debug(__FUNCTION__.' : done' );
+		// $this->getLogger()->debug(__FUNCTION__.' : done' );
 	}
 }
 
