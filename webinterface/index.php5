@@ -3,8 +3,10 @@
 require_once realpath(dirname(__FILE__) . '/../') . '/config/basic.inc.php';
 require_once ROOT . 'lib/db/DBQuery.class.php';
 
-if (!(isset($pagenum))) {
+if (!(isset($_GET['pagenum']))) {
 	$pagenum = 1;
+} else {
+	$pagenum = $_GET['pagenum'];
 }
 
 function getArticles($pageNum, $pageRows) {
@@ -167,11 +169,26 @@ function getRows(DBQueryResult $queryResult) {
 			?>
 		</table>
 		<?php
-		$previous = $pagenum - 1;
-		echo " <a href='{$_SERVER['PHP_SELF']}?pagenum=$previous'> <-Previous</a> ";
+		if ($pagenum == 1)
+			;
+		else {
+			echo " <a href='{$_SERVER['PHP_SELF']}?pagenum=1'> <<-First</a> ";
+			echo " ";
+			$previous = $pagenum-1;
+			 echo " <a href='{$_SERVER['PHP_SELF']}?pagenum=$previous'> <-Previous</a> ";
+		}
 
-		$next = $pagenum + 1;
-		echo " <a href='{$_SERVER['PHP_SELF']}?pagenum=$next'>Next -></a> ";
+		 //just a spacer
+		 echo " ---- ";
+
+		if ($pagenum == $last)
+			;
+		else {
+			$next = $pagenum+1;
+			echo " <a href='{$_SERVER['PHP_SELF']}?pagenum=$next'>Next -></a> ";
+			echo " ";
+			echo " <a href='{$_SERVER['PHP_SELF']}?pagenum=$last'>Last ->></a> ";
+		}
 		?>
 	</body>
 </html>
