@@ -9,8 +9,10 @@ if (!(isset($_GET['pagenum']))) {
 	$pagenum = $_GET['pagenum'];
 }
 
-function getArticles($pageNum, $pageRows) {
-	$query = 'SELECT
+define('PAGE_ROWS', 10);
+
+function getQuery() {
+	return 'SELECT
 				ItemsBase.ItemID,
 				ItemsBase.ItemNo,
 				ItemsBase.Name,
@@ -27,7 +29,15 @@ function getArticles($pageNum, $pageRows) {
 				END AttributeValueSetName
 				FROM ItemsBase
 				LEFT JOIN AttributeValueSets
-					ON ItemsBase.ItemID = AttributeValueSets.ItemID
+					ON ItemsBase.ItemID = AttributeValueSets.ItemID';
+}
+
+function getMaxRows() {
+	return DBQuery::getInstance() -> select(getQuery()) -> getNumRows();
+}
+
+function getPageResult($pageNum, $pageRows) {
+	$query = getQuery() . '
 				LIMIT ' . ($pageNum - 1) * $pageRows . ',' . $pageRows;
 
 	$result = DBQuery::getInstance() -> select($query);
@@ -38,9 +48,9 @@ function getCol($data, $class = null) {
 	return '<td' . ($class != null ? ' class=\'' . $class . '\'' : '') . '>' . $data . '</td>';
 }
 
-function getRows(DBQueryResult $queryResult) {
-	for ($i = 0; $i < $queryResult -> getNumRows(); ++$i) {
-		$row = $queryResult -> fetchAssoc();
+function processPage(DBQueryResult $resultPage) {
+	for ($i = 0; $i < $resultPage -> getNumRows(); ++$i) {
+		$row = $resultPage -> fetchAssoc();
 
 		$rowString = '<tr class=\'articleTable' . ($i % 2 == 0 ? 'Even' : 'Odd') . '\'>';
 		$rowString .= getCol($row['ItemID']);
@@ -133,62 +143,63 @@ function getRows(DBQueryResult $queryResult) {
 	<body>
 		<div id="errorMessages">
 			<?php
-			$result = getArticles($pagenum,10);
-			?>
-		</div>
-		<ul>
-			<li>
-				<label for='calculationTimeSingleWeighted'> Zeitraum zur Berechnung (einfach gewichtet): </label>
-				<input id='calculationTimeSingleWeighted' />
-			<li>
-				<label for='calcualtionTimeDoubleWeighted'> Zeitraum zur Berechnung (doppelt gewichtet): </label>
-				<input id='calcualtionTimeDoubleWeighted'/>
-			<li>
-				<label for='standardDeviationFaktor'> Faktor Standardabweichung: </label>
-				<input id='standardDeviationFaktor'/>
-		</ul>
+$last = ceil(getMaxRows()/PAGE_ROWS);
+$page = getPageResult($pagenum, PAGE_ROWS);
+?>
+</div>
+<ul>
+<li>
+<label for='calculationTimeSingleWeighted'> Zeitraum zur Berechnung (einfach gewichtet): </label>
+<input id='calculationTimeSingleWeighted' />
+<li>
+<label for='calcualtionTimeDoubleWeighted'> Zeitraum zur Berechnung (doppelt gewichtet): </label>
+<input id='calcualtionTimeDoubleWeighted'/>
+<li>
+<label for='standardDeviationFaktor'> Faktor Standardabweichung: </label>
+<input id='standardDeviationFaktor'/>
+</ul>
 
-		<div id='filterSelection'>
-			Filter: Alle anzeigen
-		</div>
-		<table id='resultTable'>
-			<tr>
-				<th>Art.ID</th>
-				<th>Name</th>
-				<th>durchschnittlicher Bedarf (Monat)</th>
-				<th>durchschnittlicher Bedarf (Tag)</th>
-				<th>Markierung</th>
-				<th>Empfehlung Meldebestand (Meldebestand alt)</th>
-				<th>Mindesabnahme / Bestellvorschlag (Bestellvorschlag aktuell)</th>
-				<th>Änderung</th>
-				<th>Status Meldebestand </th>
-				<th>Datum</th>
-			</tr>
-			<?php
-				getRows($result);
-			?>
-		</table>
-		<?php
-		if ($pagenum == 1)
-			;
-		else {
-			echo " <a href='{$_SERVER['PHP_SELF']}?pagenum=1'> <<-First</a> ";
-			echo " ";
-			$previous = $pagenum-1;
-			 echo " <a href='{$_SERVER['PHP_SELF']}?pagenum=$previous'> <-Previous</a> ";
-		}
+<div id='filterSelection'>
+Filter: Alle anzeigen
+</div>
+<table id='resultTable'>
+<tr>
+<th>Art.ID</th>
+<th>Name</th>
+<th>durchschnittlicher Bedarf (Monat)</th>
+<th>durchschnittlicher Bedarf (Tag)</th>
+<th>Markierung</th>
+<th>Empfehlung Meldebestand (Meldebestand alt)</th>
+<th>Mindesabnahme / Bestellvorschlag (Bestellvorschlag aktuell)</th>
+<th>Änderung</th>
+<th>Status Meldebestand </th>
+<th>Datum</th>
+</tr>
+<?php
+processPage($page);
+?>
+</table>
+<?php
+if ($pagenum == 1)
+	;
+else {
+	echo " <a href='{$_SERVER['PHP_SELF']}?pagenum=1'> <<-First</a> ";
+	echo " ";
+	$previous = $pagenum - 1;
+	echo " <a href='{$_SERVER['PHP_SELF']}?pagenum=$previous'> <-Previous</a> ";
+}
 
-		 //just a spacer
-		 echo " ---- ";
+//just a spacer
+echo " " . $pagenum . " ";
 
-		if ($pagenum == $last)
-			;
-		else {
-			$next = $pagenum+1;
-			echo " <a href='{$_SERVER['PHP_SELF']}?pagenum=$next'>Next -></a> ";
-			echo " ";
-			echo " <a href='{$_SERVER['PHP_SELF']}?pagenum=$last'>Last ->></a> ";
-		}
-		?>
-	</body>
+if ($pagenum == $last)
+	;
+else {
+	$next = $pagenum + 1;
+	echo " <a href='{$_SERVER['PHP_SELF']}?pagenum=$next'>Next -></a> ";
+	echo " ";
+	echo " <a href='{$_SERVER['PHP_SELF']}?pagenum=$last'>Last ->></a> ";
+}
+?>
+</body>
 </html>
