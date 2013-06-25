@@ -3,7 +3,11 @@
 require_once realpath(dirname(__FILE__) . '/../') . '/config/basic.inc.php';
 require_once ROOT . 'lib/db/DBQuery.class.php';
 
-function getArticles() {
+if (!(isset($pagenum))) {
+	$pagenum = 1;
+}
+
+function getArticles($pageNum, $pageRows) {
 	$query = 'SELECT
 				ItemsBase.ItemID,
 				ItemsBase.ItemNo,
@@ -22,36 +26,36 @@ function getArticles() {
 				FROM ItemsBase
 				LEFT JOIN AttributeValueSets
 					ON ItemsBase.ItemID = AttributeValueSets.ItemID
-				LIMIT 25';
+				LIMIT ' . ($pageNum - 1) * $pageRows . ',' . $pageRows;
 
 	$result = DBQuery::getInstance() -> select($query);
 	return $result;
 }
 
-function getCol($data) {
-	return "<td>" . $data . "</td>";
+function getCol($data, $class = null) {
+	return '<td' . ($class != null ? ' class=\'' . $class . '\'' : '') . '>' . $data . '</td>';
 }
 
 function getRows(DBQueryResult $queryResult) {
 	for ($i = 0; $i < $queryResult -> getNumRows(); ++$i) {
 		$row = $queryResult -> fetchAssoc();
 
-		$rowString = "<tr class='articleTable" . ($i % 2 == 0 ? "Even" : "Odd") . "'>";
+		$rowString = '<tr class=\'articleTable' . ($i % 2 == 0 ? 'Even' : 'Odd') . '\'>';
 		$rowString .= getCol($row['ItemID']);
 		if (intval($row['AttributeValueSetID']) == 0) {
 			$rowString .= getCol($row['Name']);
 		} else {
-			$rowString .= getCol($row['Name'] . ", " . $row['AttributeValueSetName']);
+			$rowString .= getCol($row['Name'] . ', ' . $row['AttributeValueSetName']);
 		}
-		$rowString .= getCol("");
-		$rowString .= getCol("");
-		$rowString .= getCol($row['Marking1ID']);
-		$rowString .= getCol("");
-		$rowString .= getCol("");
-		$rowString .= getCol("");
-		$rowString .= getCol("");
-		$rowString .= getCol("");
-		$rowString .= "</tr>\n";
+		$rowString .= getCol('');
+		$rowString .= getCol('');
+		$rowString .= getCol('●', 'markingColumn marking' . $row['Marking1ID']);
+		$rowString .= getCol('');
+		$rowString .= getCol('');
+		$rowString .= getCol('');
+		$rowString .= getCol('');
+		$rowString .= getCol('');
+		$rowString .= '</tr>';
 
 		echo $rowString;
 	}
@@ -83,6 +87,28 @@ function getRows(DBQueryResult $queryResult) {
 				border-left: 1px solid #ccc;
 			}
 
+			#resultTable .markingColumn {
+				text-align: center;
+				color: white;
+				text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+			}
+
+			#resultTable .marking20 {
+				color: black;
+			}
+
+			#resultTable .marking12 {
+				color: #ff0000;
+			}
+
+			#resultTable .marking9 {
+				color: #ffff00;
+			}
+
+			#resultTable .marking16 {
+				color: #00ff00;
+			}
+
 			#resultTable .articleTableEven {
 				background-color: #eee;
 			}
@@ -105,7 +131,7 @@ function getRows(DBQueryResult $queryResult) {
 	<body>
 		<div id="errorMessages">
 			<?php
-			$result = getArticles();
+			$result = getArticles($pagenum,10);
 			?>
 		</div>
 		<ul>
@@ -137,8 +163,15 @@ function getRows(DBQueryResult $queryResult) {
 				<th>Datum</th>
 			</tr>
 			<?php
-			getRows($result);
+				getRows($result);
 			?>
 		</table>
+		<?php
+		$previous = $pagenum - 1;
+		echo " <a href='{$_SERVER['PHP_SELF']}?pagenum=$previous'> <-Previous</a> ";
+
+		$next = $pagenum + 1;
+		echo " <a href='{$_SERVER['PHP_SELF']}?pagenum=$next'>Next -></a> ";
+		?>
 	</body>
 </html>
