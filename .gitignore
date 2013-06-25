@@ -2,6 +2,7 @@
 .settings
 .project
 .DS_Store
+.htaccess
 /log
 /lib/soap/controller
 /lib/soap/model
