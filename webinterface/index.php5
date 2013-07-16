@@ -6,18 +6,6 @@ require_once ROOT . 'lib/db/DBQuery.class.php';
 require ('smarty/libs/Smarty.class.php');
 $smarty = new Smarty();
 
-if (!(isset($_GET['pagenum']))) {
-	$pagenum = 1;
-} else {
-	$pagenum = $_GET['pagenum'];
-}
-
-if (!(isset($_GET['pagerows']))) {
-	$pagerows = 10;
-} else {
-	$pagerows = ($_GET['pagerows'] > 50 ? 50 : $_GET['pagerows']);
-}
-
 function getQuery() {
 	return 'SELECT
 				ItemsBase.ItemID,
@@ -96,20 +84,19 @@ function processPage(DBQueryResult $resultPage) {
 	return $result;
 }
 
-$page = getPageResult($pagenum, $pagerows);
+if (!(isset($_GET['pagenum']))) {
+	$pagenum = 1;
+} else {
+	$pagenum = $_GET['pagenum'];
+}
 
-$pagination = "<ul id='paginationLinks'>";
-$pagination .= "<li id='paginateFirst'>" . ($pagenum == 1 ? "<<-First" : "<a href='{$_SERVER['PHP_SELF']}?pagenum=1&pagerows=" . $pagerows . "'> <<-First</a>") . "</li>";
-$pagination .= "<li id='paginatePrevious'>" . ($pagenum == 1 ? "<-Previous" : "<a href='{$_SERVER['PHP_SELF']}?pagenum=" . ($pagenum - 1) . "&pagerows=" . $pagerows . "'> <-Previous</a>") . "</li>";
-$pagination .= "<li id='paginatePagenum'>" . $pagenum . "</li>";
-$pagination .= "<li id='paginateNext'>" . ($pagenum == $last ? "Next ->" : "<a href='{$_SERVER['PHP_SELF']}?pagenum=" . ($pagenum + 1) . "&pagerows=" . $pagerows . "'>Next -></a>") . "</li>";
-$pagination .= "<li id='paginateLast'>" . ($pagenum == $last ? "Last ->>" : "<a href='{$_SERVER['PHP_SELF']}?pagenum=" . $last . "&pagerows=" . $pagerows . "'>Last ->></a>") . "</li>";
-$pagination .= "</ul>";
-$pagination .= "<div id='paginationPagerows'>";
-$pagination .= "<select onchange=\"window.location.href = '?pagenum=1&pagerows=' + this.options[this.selectedIndex].value\">";
-$pagination .= "<option id='paginationPagerowsCaption'>Artikel / Seite</option><option value='10'>10</option><option value='20'>20</option><option value='50'>50</option>";
-$pagination .= "</select>";
-$pagination .= "</div>";
+if (!(isset($_GET['pagerows']))) {
+	$pagerows = 10;
+} else {
+	$pagerows = ($_GET['pagerows'] > 50 ? 50 : $_GET['pagerows']);
+}
+
+$page = getPageResult($pagenum, $pagerows);
 
 $smarty -> setTemplateDir('smarty/templates');
 $smarty -> setCompileDir('smarty/templates_c');
