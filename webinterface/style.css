@@ -35,7 +35,7 @@
 	color: #ffff00;
 }
 
-#resultTable .marking16 { 
+#resultTable .marking16 {
 	color: #00ff00;
 }
 
@@ -57,30 +57,38 @@
 	background-color: #00ff00;
 }
 
-#paginationLinks {
+.paginationLinks {
 	padding: 0px;
 	display: inline-block;
 }
 
-#paginationLinks li {
+.paginationLinks a {
+	text-decoration:none;
+	font-size: 1em;
+	font-weight: bold;
+}
+
+.paginationLinks li {
 	display: inline-block;
 	list-style-type: none;
 	margin-right: 1em;
-} 
+	font-size: 3ex;
+	font-weight: bold;
+}
 
-#paginationLinks #paginatePagenum {
+.paginationLinks .paginatePagenum {
 	width: 2em;
 	text-align: center;
 }
 
-#paginationPagerows {
+.paginationPagerows {
 	display: inline-block;
 }
 
-#paginationPagerows #paginationPagerowsCaption {
+.paginationPagerows .paginationPagerowsCaption {
 	text-align: left !important;
 }
 
-#paginationPagerows select option {
+.paginationPagerows select option {
 	text-align: right;
 }
