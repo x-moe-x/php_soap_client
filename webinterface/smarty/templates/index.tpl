@@ -4,6 +4,7 @@
         <meta charset='utf-8'>
         <title>Net-Xpress, Plenty-Soap GUI</title>
         <link rel='stylesheet' type='text/css' href='style.css'/>
+        <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
     </head>
     <body>
         <div id='errorMessages'>
