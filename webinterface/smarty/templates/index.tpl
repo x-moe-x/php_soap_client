@@ -1,15 +1,15 @@
 <!DOCTYPE HTML>
 <html>
     <head>
-        <meta charset="utf-8">
+        <meta charset='utf-8'>
         <title>Net-Xpress, Plenty-Soap GUI</title>
-        <link rel="stylesheet" type="text/css" href="style.css"/>
+        <link rel='stylesheet' type='text/css' href='style.css'/>
     </head>
     <body>
-        <div id="errorMessages">
+        <div id='errorMessages'>
             <!-- display error and debug messages -->
         </div>
-        <ul>
+        <ul id='variableManipulation'>
             <li>
                 <label for='calculationTimeSingleWeighted'> Zeitraum zur Berechnung (einfach gewichtet): </label>
                 <input id='calculationTimeSingleWeighted' />
