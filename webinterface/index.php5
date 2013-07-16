@@ -9,7 +9,11 @@ if (!(isset($_GET['pagenum']))) {
 	$pagenum = $_GET['pagenum'];
 }
 
-define('PAGE_ROWS', 10);
+if (!(isset($_GET['pagerows']))) {
+	$pagerows = 10;
+} else {
+	$pagerows = ($_GET['pagerows'] > 50 ? 50 : $_GET['pagerows']);
+}
 
 function getQuery() {
 	return 'SELECT
@@ -84,9 +88,9 @@ function processPage(DBQueryResult $resultPage) {
 	<body>
 		<div id="errorMessages">
 			<?php
-$last = ceil(getMaxRows()/PAGE_ROWS);
-$page = getPageResult($pagenum, PAGE_ROWS);
-?>
+			$last = ceil(getMaxRows() / $pagerows);
+			$page = getPageResult($pagenum, $pagerows);
+		?>
 </div>
 <ul>
 <li>
@@ -121,26 +125,19 @@ processPage($page);
 ?>
 </table>
 <?php
-if ($pagenum == 1)
-	;
-else {
-	echo " <a href='{$_SERVER['PHP_SELF']}?pagenum=1'> <<-First</a> ";
-	echo " ";
-	$previous = $pagenum - 1;
-	echo " <a href='{$_SERVER['PHP_SELF']}?pagenum=$previous'> <-Previous</a> ";
-}
-
-//just a spacer
-echo " " . $pagenum . " ";
-
-if ($pagenum == $last)
-	;
-else {
-	$next = $pagenum + 1;
-	echo " <a href='{$_SERVER['PHP_SELF']}?pagenum=$next'>Next -></a> ";
-	echo " ";
-	echo " <a href='{$_SERVER['PHP_SELF']}?pagenum=$last'>Last ->></a> ";
-}
+echo "<ul id='paginationLinks'>";
+echo "<li id='paginateFirst'>" . ($pagenum == 1 ? "<<-First" : "<a href='{$_SERVER['PHP_SELF']}?pagenum=1&pagerows=" . $pagerows . "'> <<-First</a>") . "</li>";
+echo "<li id='paginatePrevious'>" . ($pagenum == 1 ? "<-Previous" : "<a href='{$_SERVER['PHP_SELF']}?pagenum=" . ($pagenum - 1) . "&pagerows=" . $pagerows . "'> <-Previous</a>") . "</li>";
+echo "<li id='paginatePagenum'>" . $pagenum . "</li>";
+echo "<li id='paginateNext'>" . ($pagenum == $last ? "Next ->" : "<a href='{$_SERVER['PHP_SELF']}?pagenum=" . ($pagenum + 1) . "&pagerows=" . $pagerows . "'>Next -></a>") . "</li>";
+echo "<li id='paginateLast'>" . ($pagenum == $last ? "Last ->>" : "<a href='{$_SERVER['PHP_SELF']}?pagenum=" . $last . "&pagerows=" . $pagerows . "'>Last ->></a>") . "</li>";
+echo "</ul>";
+echo "<div id='paginationPagerows'>";
+echo "<select onchange=\"window.location.href = '?pagenum=1&pagerows=' + this.options[this.selectedIndex].value\">";
+echo "<option id='paginationPagerowsCaption'>Artikel / Seite</option><option value='10'>10</option><option value='20'>20</option><option value='50'>50</option>";
+echo "</select>";
+echo "</div>";
 ?>
+
 </body>
 </html>
