@@ -79,66 +79,7 @@ function processPage(DBQueryResult $resultPage) {
 	<head>
 		<meta charset="utf-8">
 		<title>Net-Xpress, Plenty-Soap GUI</title>
-		<style>
-			* {
-				font-family: Arial;
-				font-size: 10pt;
-			}
-
-			#filterSelection {
-				background-color: #ff950e;
-			}
-
-			#resultTable {
-				border: 1px solid black;
-				border-collapse: collapse;
-				width: 100%;
-			}
-
-			#resultTable td {
-				border-left: 1px solid #ccc;
-			}
-
-			#resultTable .markingColumn {
-				text-align: center;
-				color: white;
-				text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
-			}
-
-			#resultTable .marking20 {
-				color: black;
-			}
-
-			#resultTable .marking12 {
-				color: #ff0000;
-			}
-
-			#resultTable .marking9 {
-				color: #ffff00;
-			}
-
-			#resultTable .marking16 {
-				color: #00ff00;
-			}
-
-			#resultTable .articleTableEven {
-				background-color: #eee;
-			}
-
-			#resultTable .articleTableOdd {
-				background-color: #fff;
-			}
-
-			#resultTable th {
-				font-weight: normal;
-				border: 1px solid black;
-				padding-top: 1em;
-			}
-
-			#errorMessages {
-				background-color: #00ff00;
-			}
-		</style>
+		<link rel="stylesheet" type="text/css" href="style.css"/>
 	</head>
 	<body>
 		<div id="errorMessages">
