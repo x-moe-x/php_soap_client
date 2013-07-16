@@ -57,20 +57,38 @@ function processPage(DBQueryResult $resultPage) {
 		$row = $resultPage -> fetchAssoc();
 		$preparedRow = array();
 
+		// item id
 		$preparedRow[] = $row['ItemID'];
+
+		// name (& avsn)
 		if (intval($row['AttributeValueSetID']) == 0) {
 			$preparedRow[] = $row['Name'];
 		} else {
 			$preparedRow[] = $row['Name'] . ', ' . $row['AttributeValueSetName'];
 		}
+
+		// average need (per month)
 		$preparedRow[] = null;
+
+		// average need (per day)
 		$preparedRow[] = null;
-		//$rowString .= getCol('●', 'markingColumn marking' . $row['Marking1ID']);
+
+		// mark
+		$preparedRow[] = $row['Marking1ID'];
+
+		// suggested reorder level (old reorder level)
 		$preparedRow[] = null;
+
+		// minimum purchase / order suggestion (current order suggestion)
 		$preparedRow[] = null;
+
+		// change
 		$preparedRow[] = null;
+
+		// status reorder level
 		$preparedRow[] = null;
-		$preparedRow[] = null;
+
+		// date
 		$preparedRow[] = null;
 
 		$result[] = $preparedRow;
