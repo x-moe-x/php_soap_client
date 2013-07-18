@@ -6,7 +6,7 @@
  * 
  * please enter your own wsdl url
  */
-define('WSDL_URL', 'http://plenty-soap-cluster.plenty-test.de/plenty/api/soap/version108/?xml');
+define('WSDL_URL', 'http://plenty-soap-cluster.plenty-test.de/plenty/api/soap/version110/?xml');
 
 /*
  * soap user name

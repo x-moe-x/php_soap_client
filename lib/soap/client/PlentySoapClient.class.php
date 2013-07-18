@@ -15,30 +15,30 @@ require_once ROOT.'lib/soap/controller/PlentySoap.class.php';
 
 
 /**
- * 
+ *
  * @author phileon
  * @copyright plentymarkets GmbH www.plentymarkets.com
  */
-class PlentySoapClient 
+class PlentySoapClient
 {
 	/**
 	 * singleton instance
-	 * 
+	 *
 	 * @var PlentySoapClient
 	 */
 	private static $instance	=	null;
-	
+
 	/**
 	 * @var PlentySoap
 	 */
 	private $soapController;
-	
-	
-	private function __construct() 
+
+
+	private function __construct()
 	{
 		$this->initSoapController();
 	}
-		
+
 	/**
 	 * singleton pattern
 	 *
@@ -50,28 +50,28 @@ class PlentySoapClient
 		{
 			self::$instance = new PlentySoapClient();
 		}
-		
+
 		return self::$instance;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return Logger
 	 */
 	private function getLogger()
 	{
 		return Logger::instance(__CLASS__);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param PlentySoap $soapController
 	 */
 	private function setSoapController(PlentySoap $soapController)
 	{
 		$this->soapController	=	$soapController;
 	}
-	
+
 	/**
 	 * @return PlentySoap
 	 */
@@ -79,10 +79,10 @@ class PlentySoapClient
 	{
 		return $this->soapController;
 	}
-	
+
 	/**
-	 * load last soap token or get a new one 
-	 * 
+	 * load last soap token or get a new one
+	 *
 	 */
 	private function initSoapController()
 	{
@@ -90,29 +90,29 @@ class PlentySoapClient
 		 * load UserId and Token
 		 */
 		list($savedUserId, $savedUserToken)	=	StoreToken::getInstance()->loadToken( SOAP_USER );
-				
+
 		/*
 		 * no valid token, userId available
 		 */
 		if( !strlen( $savedUserToken )  || !strlen( $savedUserId ) )
 		{
 			$this->getLogger()->debug(__FUNCTION__.' : saved token and userId no longer valide');
-			
+
 			$this->doAuthentification();
 		}
 		else
 		{
 			$this->getLogger()->debug(__FUNCTION__.' : token and userId loaded');
-			
+
 			$this->setSoapHeader($savedUserId, $savedUserToken);
 		}
 	}
-	
+
 	/**
 	 * create new soap controller
 	 * create new soap header
 	 * add header to controller
-	 *  
+	 *
 	 * @param String $userID
 	 * @param String $userToken
 	 */
@@ -122,22 +122,22 @@ class PlentySoapClient
 										'UserID' 	=>	$userID,
 										'Token'		=> 	$userToken
 									);
-		
+
 		$auth_vals    		= 	new SoapVar($aHeader, SOAP_ENC_OBJECT);
 		$ns 				=	"Authentification";
 		$oSoapHeader 		=	new SoapHeader($ns,'verifyingToken', $auth_vals, false);
-		
+
 		$oPlentySoap	 	=	 new PlentySoap( WSDL_URL );
-		
+
 		$oPlentySoap->__setSoapHeaders( $oSoapHeader );
 		$this->setSoapController( $oPlentySoap );
-		
+
 		$this->getLogger()->debug(__FUNCTION__.' : header created / controller set');
 	}
-		
+
 	/**
 	 * run get GetAuthentificationToken and call setSoapHeader()
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	private function doAuthentification()
@@ -148,12 +148,12 @@ class PlentySoapClient
 		$oPlentySoapRequest_GetAuthentificationToken			=	new PlentySoapRequest_GetAuthentificationToken();
 		$oPlentySoapRequest_GetAuthentificationToken->Username	=	SOAP_USER;
 		$oPlentySoapRequest_GetAuthentificationToken->Userpass	=	SOAP_PASSWORD;
-		
+
 		/*
 		 * response object
 		 */
 		$oPlentySoapResponse_GetAuthentificationToken			=	new PlentySoapResponse_GetAuthentificationToken();
-		
+
 		try
 		{
 			$oPlentySoap	 							=	new PlentySoap( WSDL_URL );
@@ -163,38 +163,36 @@ class PlentySoapClient
 			{
 				$userId	= $oPlentySoapResponse_GetAuthentificationToken->UserID;
 				$token 	= $oPlentySoapResponse_GetAuthentificationToken->Token;
-				
+
 				/*
 				 * save token and userId
 				 */
 				StoreToken::getInstance()->saveToken(SOAP_USER, $token, $userId);
-				
+
 				$this->setSoapHeader($userId, $token);
 				return;
 			}
 			else
 			{
 				$messages	=	'';
-				
-				/*
-				 *  error messages
-				 */
-				if( is_array( $oPlentySoapResponse_GetAuthentificationToken->ErrorMessages->item ) )
+
+				// error messages
+				if (is_array($oPlentySoapResponse_GetAuthentificationToken->ResponseMessages->item))
 				{
-					foreach( $oPlentySoapResponse_GetAuthentificationToken->ErrorMessages->item as $message )
+					foreach ($oPlentySoapResponse_GetAuthentificationToken->ResponseMessages->item as $Message)
 					{
-						$messages .= $message->Code.'-'.$message->Message;
+						if (is_array($Message->ErrorMessages->item))
+						{
+							foreach ($Message->ErrorMessages->item as $ErrorMessage)
+							{
+								$messages .= $ErrorMessage->Value . ': ' . $ErrorMessage->Key;
+							}
+						}
 					}
 				}
-				else
-				{
-					$messages = 	$oPlentySoapResponse_GetAuthentificationToken->ErrorMessages->item->Code
-								.	'-'
-								.	$oPlentySoapResponse_GetAuthentificationToken->ErrorMessages->item->Message;
-				}
-				
-				$this->getLogger()->crit(__FUNCTION__.' : error getting token : '.$messages );
-				
+
+				$this->getLogger()->crit(__FUNCTION__.': error getting token: '.$messages );
+
 				throw new Exception('error getting token');
 			}
 		}
@@ -203,12 +201,12 @@ class PlentySoapClient
 			/*
 			 * catch exception only for logging, than throw a new one
 			 */
-			$this->getLogger()->crit(__FUNCTION__.' : exception getting token : '.$e->getMessage() );
-			
-			throw new Exception($e->getMessage());
+			$this->getLogger()->crit(__FUNCTION__.': exception getting token: '.$e->getMessage() );
+
+			throw $e;
 		}
 	}
-	
+
 	public function updateToken()
 	{
 		$this->doAuthentification();
