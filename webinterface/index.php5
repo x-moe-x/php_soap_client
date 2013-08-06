@@ -84,6 +84,18 @@ function processPage(DBQueryResult $resultPage) {
 	return $result;
 }
 
+function getWarehouseList() {
+	$query = 'SELECT * FROM `WarehouseList`';
+	$resultWarehouseList = DBQuery::getInstance() -> select($query);
+
+	$result = array();
+	for ($i = 0; $i < $resultWarehouseList -> getNumRows(); ++$i) {
+		$warehouse = $resultWarehouseList -> fetchAssoc();
+		$result[] = array('id' => $warehouse['WarehouseID'], 'name' => $warehouse['Name']);
+	}
+	return $result;
+}
+
 if (!(isset($_GET['pagenum']))) {
 	$pagenum = 1;
 } else {
@@ -109,5 +121,6 @@ $smarty -> assign('pagenum', $pagenum);
 $smarty -> assign('pagerows', $pagerows);
 $smarty -> assign('last', ceil(getMaxRows() / $pagerows));
 $smarty -> assign('rows', processPage($page));
+$smarty -> assign('warehouseList', getWarehouseList());
 $smarty -> display('index.tpl');
 ?>
