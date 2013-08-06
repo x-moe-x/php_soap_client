@@ -84,6 +84,26 @@ function processPage(DBQueryResult $resultPage) {
 	return $result;
 }
 
+function getConfig() {
+	$query = 'SELECT
+				* FROM `MetaConfig`
+				WHERE
+					`ConfigKey` = "CalculationTimeSingleWeighted" OR
+					`ConfigKey` = "CalcualtionTimeDoubleWeighted" OR
+					`ConfigKey` = "MinimumToleratedSpikes" OR
+					`ConfigKey` = "SpikeTolerance" OR
+					`ConfigKey` = "StandardDeviationFactor"';
+	$resultConfigQuery = DBQuery::getInstance() -> select($query);
+
+	$result = array();
+	//TODO add validity check!
+	for ($i = 0; $i < $resultConfigQuery -> getNumRows(); ++$i) {
+		$configRow = $resultConfigQuery->fetchAssoc();
+		$result[$configRow['ConfigKey']] = $configRow['ConfigValue'];
+	}
+	return $result;
+}
+
 function getWarehouseList() {
 	$query = 'SELECT * FROM `WarehouseList`';
 	$resultWarehouseList = DBQuery::getInstance() -> select($query);
@@ -122,5 +142,6 @@ $smarty -> assign('pagerows', $pagerows);
 $smarty -> assign('last', ceil(getMaxRows() / $pagerows));
 $smarty -> assign('rows', processPage($page));
 $smarty -> assign('warehouseList', getWarehouseList());
+$smarty -> assign('config', getConfig());
 $smarty -> display('index.tpl');
 ?>
