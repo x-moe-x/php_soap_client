@@ -39,8 +39,31 @@ class SoapCall_GetWarehouseList extends PlentySoapCall {
 		}
 	}
 
+	private function processWarehouse($oWarehouse) {
+		// store to db
+		$query = 'REPLACE INTO `WarehouseList` ' . DBUtils::buildInsert(array('WarehouseID' => $oWarehouse -> WarehouseID, 'Name' => $oWarehouse -> Name, 'Type' => $oWarehouse -> Type));
+
+		DBQuery::getInstance() -> replace($query);
+	}
+
+	private function clearDB() {
+		$query = 'DELETE FROM `WarehouseList`';
+		$deletedItems = DBQuery::getInstance() -> delete($query);
+		$this -> getLogger() -> debug(__FUNCTION__ . ' : done, deleted ' . $deletedItems . ' items');
+	}
+
 	private function responseInterpretation($oPlentySoapResponse_GetWarehouseList) {
-		$this -> getLogger() -> debug(__FUNCTION__ . ' : not implemented yet');
+		$this -> clearDB();
+		if (is_array($oPlentySoapResponse_GetWarehouseList -> WarehouseList -> item)) {
+			foreach ($oPlentySoapResponse_GetWarehouseList-> WarehouseList->item AS $warehouse) {
+				$this -> processWarehouse($warehouse);
+			}
+			$this -> getLogger() -> debug(__FUNCTION__ . ' : done, added ' . count($oPlentySoapResponse_GetWarehouseList -> WarehouseList -> item) . ' items');
+		} else {
+			$this -> processWarehouse($oPlentySoapResponse_GetWarehouseList -> WarehouseList -> item);
+			$this -> getLogger() -> debug(__FUNCTION__ . ' : done, added 1 item');
+		}
+
 	}
 
 }
