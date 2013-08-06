@@ -15,22 +15,22 @@
 			<ul id='variableManipulation'>
 				<li>
 					<label for='calculationTimeSingleWeighted'> Zeitraum zur Berechnung (einfach gewichtet): </label>
-					<input id='calculationTimeSingleWeighted' />
+					<input id='calculationTimeSingleWeighted' value='{$config.CalculationTimeSingleWeighted}'/>
 					<label class="variableUnit" for='calculationTimeSingleWeighted'>Tage</label>
 				<li>
 					<label for='calcualtionTimeDoubleWeighted'> Zeitraum zur Berechnung (doppelt gewichtet): </label>
-					<input id='calcualtionTimeDoubleWeighted'/>
+					<input id='calcualtionTimeDoubleWeighted' value='{$config.CalcualtionTimeDoubleWeighted}'/>
 					<label class="variableUnit" for='calcualtionTimeDoubleWeighted'>Tage</label>
 				<li>
 					<label for='standardDeviationFaktor'> Faktor Standardabweichung: </label>
-					<input id='standardDeviationFaktor'/>
+					<input id='standardDeviationFaktor' value='{$config.StandardDeviationFactor}'/>
 				<li>
 					<label for='minimumToleratedSpikes'> Mindestanzahl Spitzen: </label>
-					<input id='minimumToleratedSpikes'/>
+					<input id='minimumToleratedSpikes' value='{$config.MinimumToleratedSpikes}'/>
 					<label class="variableUnit" for='minimumToleratedSpikes'>Stück</label>
 				<li>
 					<label for='spikeTolerance'> Spitzentoleranz: </label>
-					<input id='spikeTolerance'/>
+					<input id='spikeTolerance' value='{$config.SpikeTolerance}' />
 					<label class="variableUnit" for='spikeTolerance'>%</label>
 			</ul>
 			<select id='warehouseSelection'>
