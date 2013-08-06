@@ -33,8 +33,12 @@ $(document).ready(function() {
 		$(this).checkFloatval();
 	});
 
-	integerInputfields.add(floatInputFields).focus(function() {
+	integerInputfields.add(floatInputFields).mouseup(function(e) {
+		e.preventDefault();
+	}).focus(function() {
 		if (isNaN($(this).val()))
 			$(this).val("");
+		else
+			$(this).select();
 	});
 });
