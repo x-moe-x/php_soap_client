@@ -99,8 +99,11 @@ function getConfig() {
 	$result = array();
 	//TODO add validity check!
 	for ($i = 0; $i < $resultConfigQuery -> getNumRows(); ++$i) {
-		$configRow = $resultConfigQuery->fetchAssoc();
-		$result[$configRow['ConfigKey']] = $configRow['ConfigValue'];
+		$configRow = $resultConfigQuery -> fetchAssoc();
+		if ($configRow['ConfigKey'] == 'SpikeTolerance' || $configRow['ConfigKey'] == 'StandardDeviationFactor')
+			$result[$configRow['ConfigKey']] = floatval($configRow['ConfigValue']);
+		else
+			$result[$configRow['ConfigKey']] = intval($configRow['ConfigValue']);
 	}
 	return $result;
 }
