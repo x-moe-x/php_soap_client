@@ -1,4 +1,5 @@
 <?php
+ob_start();	// prevent verbose functions from tainting output
 
 require_once realpath(dirname(__FILE__) . '/../') . '/config/basic.inc.php';
 require_once ROOT . 'lib/db/DBQuery.class.php';
@@ -143,5 +144,6 @@ $smarty -> assign('last', ceil(getMaxRows() / $pagerows));
 $smarty -> assign('rows', processPage($page));
 $smarty -> assign('warehouseList', getWarehouseList());
 $smarty -> assign('config', getConfig());
+$smarty -> assign('debug', ob_get_clean());	// make function output available if needed
 $smarty -> display('index.tpl');
 ?>
