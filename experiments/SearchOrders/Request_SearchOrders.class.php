@@ -4,7 +4,7 @@
 class Request_SearchOrders 
 {
 
-	public function getRequest($lastUpdate, $currentTime)
+	public function getRequest($lastUpdate, $currentTime, $page)
 	{
 		$oPlentySoapRequest_SearchOrders	=	new PlentySoapRequest_SearchOrders();
 			
@@ -51,7 +51,7 @@ class Request_SearchOrders
 		
 		$oPlentySoapRequest_SearchOrders->OrderStatus					=	null;
 		
-		$oPlentySoapRequest_SearchOrders->Page							=	0;
+		$oPlentySoapRequest_SearchOrders->Page							=	$page;
 		
 		return $oPlentySoapRequest_SearchOrders;
 	}

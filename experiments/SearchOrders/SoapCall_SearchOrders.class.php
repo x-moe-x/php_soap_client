@@ -2,7 +2,6 @@
 
 require_once ROOT.'lib/soap/call/PlentySoapCall.abstract.php';
 require_once 'Request_SearchOrders.class.php';
-require_once ROOT.'experiments/GetAttributeValueSets/Request_GetAttributeValueSets.class.php';
 require_once ROOT.'includes/DBLastUpdate.php';
 
 
@@ -11,8 +10,8 @@ class SoapCall_SearchOrders extends PlentySoapCall
 
 	private $page								=	0;
 	private $pages								=	-1;
+	private $startAtPage						=	0;
 	private $oPlentySoapRequest_SearchOrders	=	null;
-	private $oAttributeValueSetIDs				=	array();
 
 	/// db-function name to store corresponding last update timestamps
 	private $functionName						=	'SearchOrderExperiment';
@@ -26,7 +25,7 @@ class SoapCall_SearchOrders extends PlentySoapCall
 	{
 		$this->getLogger()->debug(__FUNCTION__);
 
-		list($lastUpdate, $currentTime, $id) = lastUpdateStart($this->functionName);
+		list($lastUpdate, $currentTime, $this -> startAtPage) = lastUpdateStart($this -> functionName);
 
 		if( $this->pages == -1 )
 		{
@@ -34,7 +33,11 @@ class SoapCall_SearchOrders extends PlentySoapCall
 			{
 				$oRequest_SearchOrders					=	new Request_SearchOrders();
 
-				$this->oPlentySoapRequest_SearchOrders	=	$oRequest_SearchOrders->getRequest($lastUpdate, $currentTime);
+				$this -> oPlentySoapRequest_SearchOrders = $oRequest_SearchOrders -> getRequest($lastUpdate, $currentTime, $this -> startAtPage);
+
+				if ($this -> startAtPage > 0) {
+					$this -> getLogger() -> debug(__FUNCTION__ . " Starting at page " . $this -> startAtPage);
+				}
 
 				/*
 				 * do soap call
@@ -54,9 +57,10 @@ class SoapCall_SearchOrders extends PlentySoapCall
 
 					if( $pagesFound > $this->page )
 					{
-						$this->page 	= 	1;
+						$this->page	 	=	$this->startAtPage + 1;
 						$this->pages 	=	$pagesFound;
 
+						lastUpdatePageUpdate($this -> functionName, $this -> page);
 						$this->executePages();
 					}
 
@@ -75,12 +79,8 @@ class SoapCall_SearchOrders extends PlentySoapCall
 		{
 			$this->executePages();
 		}
-		
-		// process any found AttributeValueSetIDs
-		if (count($this->oAttributeValueSetIDs) > 0)
-			$this->processAttributeValueSetIDs(array_unique($this->oAttributeValueSetIDs));
 
-		lastUpdateFinish($id,$currentTime,$this->functionName);
+		lastUpdateFinish($currentTime, $this->functionName);
 	}
 
 	public function executePages()
@@ -102,28 +102,24 @@ class SoapCall_SearchOrders extends PlentySoapCall
 				}
 
 				$this->page++;
+				lastUpdatePageUpdate($this->functionName, $this->page);
 
 			}
 			catch(Exception $e)
 			{
 				$this->onExceptionAction($e);
 			}
-
-			// TODO remove after debugging:
-			// stop after 3 pages
-			if ($this->page >= 3)
-				break;
 		}
 	}
 
 	private function processOrderHead($oOrderHead)
 	{
-		$this->getLogger()->debug(__FUNCTION__.' : '
+	/*	$this->getLogger()->debug(__FUNCTION__.' : '
 				. 	' OrderID : '			.$oOrderHead->OrderID				.','
 				.	' ExternalOrderID : '	.$oOrderHead->ExternalOrderID		.','
 				.	' CustomerID : '		.$oOrderHead->CustomerID			.','
 				.	' TotalInvoice : '		.$oOrderHead->TotalInvoice
-		);
+		); */
 
 		// store OrderHeads into DB		
 		$query = 'REPLACE INTO `OrderHead` '.
@@ -181,12 +177,12 @@ class SoapCall_SearchOrders extends PlentySoapCall
 
 	private function processOrderItem($oOrderItem, $oOrderID)
 	{
-		$this->getLogger()->debug(__FUNCTION__.' : '
+		/* $this->getLogger()->debug(__FUNCTION__.' : '
 				. 	' OrderID : '			.$oOrderID	.','
 				.	' Item SKU : '			.$oOrderItem->SKU				.','
 				.	' Quantity : '			.$oOrderItem->Quantity			.','
 				.	' Price : '				.$oOrderItem->Price
-		);
+		); */
 		
 		// store OrderHeads into DB
 		$query = 'REPLACE INTO `OrderItem` '.
@@ -215,18 +211,6 @@ class SoapCall_SearchOrders extends PlentySoapCall
 				);
 		
 		DBQuery::getInstance()->replace($query);
-
-		// check SKU for non-zero AttributeValueSetId
-		$matches = array();
-		if (preg_match('/\d+-\d+-(\d+)/', $oOrderItem->SKU, $matches) && (count($matches) == 2))
-		{
-			$oAttributeValueSetID = intval($matches[1]);
-
-			if ($oAttributeValueSetID != 0)
-			{
-				$this->oAttributeValueSetIDs[] = $oAttributeValueSetID;
-			}
-		}
 	}
 
 	private function processOrder($oOrder)
@@ -259,40 +243,7 @@ class SoapCall_SearchOrders extends PlentySoapCall
 		{
 			$this->processOrder($oPlentySoapResponse_SearchOrders->Orders->item, $AttributeValueSetIDs);
 		}
-		$this->getLogger()->debug(__FUNCTION__.' : done' );
-	}
-
-	private function processAttributeValueSetIDs()
-	{
-		$oPlentySoapRequest_GetAttributeValueSets = new Request_GetAttributeValueSets();
-
-		$response		=	$this->getPlentySoap()->GetAttributeValueSets($oPlentySoapRequest_GetAttributeValueSets->getRequest($this->oAttributeValueSetIDs));
-
-		if( $response->Success == true )
-		{
-			$this->getLogger()->debug(__FUNCTION__.' Request Success, '.
-					count($response->AttributeValueSets->item)
-					.' AttributeValueSets found');
-
-			foreach ($response->AttributeValueSets->item as $currentAVS)
-			{
-				// store AttributeValueSets into DB
-				$query = 'REPLACE INTO `AttributeValueSet` '.
-						DBUtils::buildInsert(
-								array(
-										'AttributeValueSetID'					=>	$currentAVS->AttributeValueSetID,
-										'AttributeValueSetFrontendName'				=>	$currentAVS->AttributeValueSetFrontendName,
-										'AttributeValueSetBackendName'				=>	$currentAVS->AttributeValueSetBackendName
-								)
-						);
-
-				DBQuery::getInstance()->replace($query);
-			}
-		}
-		else
-		{
-			$this->getLogger()->debug(__FUNCTION__.' Request Error');
-		}
+		// $this->getLogger()->debug(__FUNCTION__.' : done' );
 	}
 }
 

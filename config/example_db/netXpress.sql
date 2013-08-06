@@ -77,25 +77,31 @@ CREATE TABLE `soap_db`.`OrderItem` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 DROP TABLE `soap_db`.`MetaLastUpdate`;
- 
+
 CREATE TABLE `soap_db`.`MetaLastUpdate` (
-	`id` int(11) NOT NULL AUTO_INCREMENT,
-	`Function` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Function` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
 	`LastUpdate` int(11) DEFAULT NULL,
 	`CurrentLastUpdate` int(11) DEFAULT NULL,
-	PRIMARY KEY (`id`),
-	UNIQUE KEY `id_UNIQUE` (`id`),
-	UNIQUE KEY `unique_key` (`Function`)
+	`CurrentPage` int(11) DEFAULT NULL,
+	PRIMARY KEY (`Function`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
-DROP TABLE `soap_db`.`AttributeValueSet`;
+DROP TABLE `soap_db`.`AttributeValueSets`;
  
-CREATE TABLE `soap_db`.`AttributeValueSet` (
+CREATE TABLE `soap_db`.`AttributeValueSets` (
+	`ItemID` int(11) NOT NULL,
 	`AttributeValueSetID` int(11) NOT NULL,
-	`AttributeValueSetBackendName` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
-	`AttributeValueSetFrontendName` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
-	PRIMARY KEY (`AttributeValueSetID`),
-	UNIQUE KEY `id_UNIQUE` (`AttributeValueSetID`)
+	`AttributeValueSetName` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
+	`Availability` int(11) DEFAULT NULL,
+	`EAN` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`EAN2` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`EAN3` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`EAN4` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`ASIN` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`ColliNo` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`PriceID` int(11) DEFAULT NULL,
+	`PurchasePrice` decimal(8,2) DEFAULT NULL,
+	PRIMARY KEY (`ItemID`, `AttributeValueSetID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 DROP TABLE `soap_db`.`MetaConfig`;
@@ -200,3 +206,11 @@ CREATE TABLE `soap_db`.`ItemsBase` (
 	UNIQUE KEY `unique_key` (`ItemNo`, `EAN1`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+DROP TABLE `soap_db`.`WarehouseList`;
+
+CREATE TABLE `soap_db`.`WarehouseList` (
+	`WarehouseID` int(11) NOT NULL,
+	`Name` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Type` int(11) DEFAULT NULL,
+	PRIMARY KEY (`WarehouseID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
