@@ -20,6 +20,21 @@ $.fn.checkFloatval = function() {
 	return this;
 };
 
+$.fn.updateConfig = function() {
+	if (!isNaN($(this).val())) {
+		var data = {
+			key : $(this).attr('id'),
+			value : $(this).val()
+		};
+		console.log("trying to send data", data);
+		$.post('updateConfig.php5', data, function(result) {
+			alert(result);
+		});
+	}
+
+	return this;
+}
+
 $(document).ready(function() {
 
 	var integerInputfields = $('#calculationTimeSingleWeighted, #calcualtionTimeDoubleWeighted, #minimumToleratedSpikes');
@@ -27,10 +42,12 @@ $(document).ready(function() {
 
 	integerInputfields.change(function() {
 		$(this).checkIntval();
+		$(this).updateConfig();
 	});
-	
-	floatInputFields.change(function(){
+
+	floatInputFields.change(function() {
 		$(this).checkFloatval();
+		$(this).updateConfig();
 	});
 
 	integerInputfields.add(floatInputFields).mouseup(function(e) {
