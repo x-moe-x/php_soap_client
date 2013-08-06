@@ -9,7 +9,7 @@
 	</head>
 	<body>
 		<div id='errorMessages'>
-			<!-- display error and debug messages -->
+			{$debug}
 		</div>
 		<div>
 			<ul id='variableManipulation'>
@@ -22,8 +22,8 @@
 					<input id='calcualtionTimeDoubleWeighted' value='{$config.CalcualtionTimeDoubleWeighted}'/>
 					<label class="variableUnit" for='calcualtionTimeDoubleWeighted'>Tage</label>
 				<li>
-					<label for='standardDeviationFaktor'> Faktor Standardabweichung: </label>
-					<input id='standardDeviationFaktor' value='{$config.StandardDeviationFactor}'/>
+					<label for='standardDeviationFactor'> Faktor Standardabweichung: </label>
+					<input id='standardDeviationFactor' value='{$config.StandardDeviationFactor}'/>
 				<li>
 					<label for='minimumToleratedSpikes'> Mindestanzahl Spitzen: </label>
 					<input id='minimumToleratedSpikes' value='{$config.MinimumToleratedSpikes}'/>
