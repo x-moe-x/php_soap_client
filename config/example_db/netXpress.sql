@@ -98,6 +98,14 @@ CREATE TABLE `soap_db`.`AttributeValueSet` (
 	UNIQUE KEY `id_UNIQUE` (`AttributeValueSetID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+DROP TABLE `soap_db`.`MetaConfig`;
+ 
+CREATE TABLE `soap_db`.`MetaConfig` (
+	`ConfigKey` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
+	`ConfigValue` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
+	PRIMARY KEY (`ConfigKey`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 DROP TABLE `soap_db`.`ItemsBase`;
  
 CREATE TABLE `soap_db`.`ItemsBase` (
