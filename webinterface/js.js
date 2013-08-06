@@ -28,7 +28,9 @@ $.fn.updateConfig = function() {
 		};
 		console.log("trying to send data", data);
 		$.post('updateConfig.php5', data, function(result) {
-			alert(result);
+			if (result != "") {
+				alert(result);
+			}
 		});
 	}
 

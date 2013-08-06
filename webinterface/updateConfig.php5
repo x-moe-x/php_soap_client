@@ -16,15 +16,17 @@ if (isset($_POST['key']) && isset($_POST['value'])) {
 		$parsedValue = floatval($_POST['value']);
 	} else {
 		// wrong value
-		header("status: 400");
+		ob_end_clean();
+		echo 'wrong key: ' . $_POST['key'];
 		exit();
 	}
+
+	//TODO add validity checks!
+	$query = 'REPLACE INTO `MetaConfig` ' . DBUtils::buildInsert(array('ConfigKey' => ucfirst($_POST['key']), 'ConfigValue' => $parsedValue));
+	DBQuery::getInstance() -> replace($query);
+	ob_end_clean();
+} else {
+	ob_end_clean();
+	echo 'unsufficient arguments';
 }
-
-//TODO add validity checks!
-$query = 'REPLACE INTO `MetaConfig` ' . DBUtils::buildInsert(array('ConfigKey' => ucfirst($_POST['key']), 'ConfigValue' => $parsedValue));
-
-DBQuery::getInstance() -> replace($query);
-
-$output = ob_get_clean();
 ?>
