@@ -198,3 +198,11 @@ CREATE TABLE `soap_db`.`ItemsBase` (
 	UNIQUE KEY `unique_key` (`ItemNo`, `EAN1`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+DROP TABLE `soap_db`.`WarehouseList`;
+
+CREATE TABLE `soap_db`.`WarehouseList` (
+	`WarehouseID` int(11) NOT NULL,
+	`Name` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Type` int(11) DEFAULT NULL,
+	PRIMARY KEY (`WarehouseID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
