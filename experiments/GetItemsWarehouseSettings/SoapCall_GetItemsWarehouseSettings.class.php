@@ -28,7 +28,7 @@ class SoapCall_GetItemsWarehouseSettings extends PlentySoapCall {
 
 			if (($response -> Success == true) && isset($response -> ItemList)) {
 
-				$this -> getLogger() -> debug(__FUNCTION__ . ' Request Success');
+				$this -> getLogger() -> debug(__FUNCTION__ . ' Request Success, '. count($response -> ItemList->item) .' warehouse settings found');
 
 				// process response
 				$this -> responseInterpretation($response);
@@ -56,9 +56,35 @@ class SoapCall_GetItemsWarehouseSettings extends PlentySoapCall {
 		}
 	}
 
+	private function processWarehouseSetting($oWarehouseSetting) {
+		// store to db
+		$query = 'REPLACE INTO `ItemsWarehouseSettings` ' . DBUtils::buildInsert(
+			array(
+				'ID'					=>	$oWarehouseSetting->ID,
+				'MaximumStock'			=>	$oWarehouseSetting->MaximumStock,
+				'ReorderLevel'			=>	$oWarehouseSetting->ReorderLevel,
+				'SKU'					=>	$oWarehouseSetting->SKU,	// replace with ItemID in combination with AVSI?
+				'StockBuffer'			=>	$oWarehouseSetting->StockBuffer,
+				'StockTurnover'			=>	$oWarehouseSetting->StockTurnover,
+				'StorageLocation'		=>	$oWarehouseSetting->StorageLocation,
+				'StorageLocationType'	=>	$oWarehouseSetting->StorageLocationType,
+				'WarehouseID'			=>	$oWarehouseSetting->WarehouseID,
+				'Zone'					=>	$oWarehouseSetting->Zone
+			)
+		);
+
+		DBQuery::getInstance()->replace($query);
+	}
+
 	private function responseInterpretation($oPlentySoapResponse_GetItemsWarehouseSettings) {
-		$this -> getLogger() -> debug(__FUNCTION__ . ' : not implemented yet');
-		print_r($oPlentySoapResponse_GetItemsWarehouseSettings);
+		if (is_array($oPlentySoapResponse_GetItemsWarehouseSettings -> ItemList -> item)) {
+			foreach ($oPlentySoapResponse_GetItemsWarehouseSettings -> ItemList -> item as $warehouseSetting) {
+				$this -> processWarehouseSetting($warehouseSetting);
+			}
+		} else {
+			$this -> processWarehouseSetting($oPlentySoapResponse_GetItemsWarehouseSettings -> ItemList -> item);
+		}
+		$this -> getLogger() -> debug(__FUNCTION__ . ' done.');
 	}
 
 }
