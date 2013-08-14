@@ -17,24 +17,39 @@ class SoapCall_GetItemsWarehouseSettings extends PlentySoapCall {
 
 		try {
 
-			$oRequest_GetItemsWarehouseSettings = new Request_GetItemsWarehouseSettings();
+			$oRequest_GetItemsWarehouseSettings = new Request_GetItemsWarehouseSettings(1);
 
-			$this -> oPlentySoapRequest_GetItemsWarehouseSettings = $oRequest_GetItemsWarehouseSettings -> getRequest();
+			$this -> oPlentySoapRequest_GetItemsWarehouseSettings = $oRequest_GetItemsWarehouseSettings -> getRequest(array('15-0-1', '8-0-0'), 1);
 
 			/*
 			 * do soap call
 			 */
 			$response = $this -> getPlentySoap() -> GetItemsWarehouseSettings($this -> oPlentySoapRequest_GetItemsWarehouseSettings);
 
-			if ($response -> Success == true) {
+			if (($response -> Success == true) && isset($response -> ItemList)) {
 
 				$this -> getLogger() -> debug(__FUNCTION__ . ' Request Success');
 
 				// process response
 				$this -> responseInterpretation($response);
-
+			} else if (($response -> Success == true) && !isset($response -> ItemList)) {
+				$this -> getLogger() -> debug(__FUNCTION__ . ' Request Success but no items available');
 			} else {
-				$this -> getLogger() -> debug(__FUNCTION__ . ' Request Error');
+				if (isset($response -> ResponseMessages -> item) && is_array($response -> ResponseMessages -> item)) {
+					$errorString = '';
+					foreach ($response -> ResponseMessages -> item as $message) {
+						if (isset($message -> ErrorMessages -> item) && is_array($message -> ErrorMessages -> item)) {
+							foreach ($message -> ErrorMessages -> item as $errorMessage) {
+								$errorString .= $errorMessage -> Key . ': ' . $errorMessage -> Value;
+								$errorString .= ', ';
+							}
+
+						}
+					}
+					$this -> getLogger() -> debug(__FUNCTION__ . ' Request Error: ' . ($errorString != '' ? $errorString : 'unable to retreive error messages'));
+				} else {
+					$this -> getLogger() -> debug(__FUNCTION__ . ' Request Error');
+				}
 			}
 		} catch(Exception $e) {
 			$this -> onExceptionAction($e);
@@ -43,6 +58,7 @@ class SoapCall_GetItemsWarehouseSettings extends PlentySoapCall {
 
 	private function responseInterpretation($oPlentySoapResponse_GetItemsWarehouseSettings) {
 		$this -> getLogger() -> debug(__FUNCTION__ . ' : not implemented yet');
+		print_r($oPlentySoapResponse_GetItemsWarehouseSettings);
 	}
 
 }
