@@ -2,6 +2,7 @@
 
 require_once ROOT . 'lib/db/DBQuery.class.php';
 require_once ROOT . 'lib/db/DBQueryResult.class.php';
+require_once ROOT . 'includes/SKUHelper.php';
 
 /**
  * @author x-moe-x
@@ -35,10 +36,12 @@ class CalculateHistogram {
 		// for every article do:
 		while ($currentArticle = $articleResult -> fetchAssoc()) {
 
+			list($ItemID,$PriceID,$AttributeValueSetID) = SKU2Values($currentArticle['SKU']);
+
 			$index;
 			$quantities = explode(',', $currentArticle['quantities']);
 			$adjustedQuantity = $this -> getArticleAdjustedQuantity($quantities, $currentArticle['quantity'], $currentArticle['range'], $spikeTolerance, $minToleratedSpikes, $index);
-				$this -> getLogger() -> debug(__FUNCTION__ . ' : Article: ' . $currentArticle['ItemID'] . ', skipped ' . $index . '/' . count($quantities) . ' orders, total: ' . $currentArticle['quantity'] . ', adjusted: ' . $adjustedQuantity . ', difference: ' . ($currentArticle['quantity'] - $adjustedQuantity) . ', daily sale: ' . $adjustedQuantity / 90);
+			$this -> getLogger() -> debug(__FUNCTION__ . ' : Article: ' . $ItemID . ', Set: '. $AttributeValueSetID . ', skipped ' . $index . '/' . count($quantities) . ' orders, total: ' . $currentArticle['quantity'] . ', adjusted: ' . $adjustedQuantity . ', difference: ' . ($currentArticle['quantity'] - $adjustedQuantity) . ', daily sale: ' . $adjustedQuantity / 90);
 		}
 	}
 
@@ -85,6 +88,7 @@ class CalculateHistogram {
 		return '
 			SELECT
 				OrderItem.ItemID,
+				OrderItem.SKU,
 				SUM(CAST(OrderItem.Quantity AS SIGNED)) AS `quantity`,
 				AVG(`quantity`) + STDDEV(`quantity`) * ' . $rangeConfidenceMultiplyer . ' AS `range`,
 				CAST(GROUP_CONCAT(IF(OrderItem.Quantity > 0 ,CAST(OrderItem.Quantity AS SIGNED),NULL) ORDER BY OrderItem.Quantity DESC SEPARATOR ",") AS CHAR) AS `quantities`,
@@ -95,7 +99,7 @@ class CalculateHistogram {
 				OrderType = "order" AND
 				ItemsBase.Marking1ID IN (9,12,16,20) /* yellow, red, green, black */
 			GROUP BY
-				OrderItem.ItemID
+				OrderItem.SKU
 			ORDER BY
 				ItemID
 				';
