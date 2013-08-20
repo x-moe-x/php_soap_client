@@ -1,9 +1,21 @@
 <?php
 function lastUpdateStart($functionName){
 	// get lastupdate
-	$query = 'SELECT * FROM MetaLastUpdate WHERE `Function` = \''. $functionName.'\'';
+	$query = 'SELECT * FROM `MetaLastUpdate` WHERE `Function` = \''. $functionName.'\'';
 
 	$result = DBQuery::getInstance()->select($query)->fetchAssoc();
+
+	if (!isset($result)){
+		// init entry
+		$query = 'REPLACE INTO `MetaLastUpdate` '.
+			DBUtils::buildInsert(
+				array(
+					'Function'	=>	$functionName
+				)
+			);
+
+		DBQuery::getInstance()->replace($query);
+	}
 
 	$currentPage = intval($result['CurrentPage']);
 	$lastUpdate = intval($result['LastUpdate']);
