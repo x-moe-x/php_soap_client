@@ -4,7 +4,7 @@ require_once ROOT.'lib/soap/call/PlentySoapCall.abstract.php';
 
 /**
  * This class booked for a passed item randomly generated inventory.
- * 
+ *
  * Usage:
  * Call per item this methods:
  * 				PlentyItemDataPushStock::getInstance()->setItemId($itemId)
@@ -14,7 +14,7 @@ require_once ROOT.'lib/soap/call/PlentySoapCall.abstract.php';
  * 															->pushItemData2Stack(2);  // set number of bookings per item - update this method for productive usage!
  * At the end:
  * 				PlentyItemDataPushStock::getInstance()->pushData2API();
- * 
+ *
  * @author phileon
  * @copyright plentymarkets GmbH www.plentymarkets.com
  */
@@ -25,7 +25,7 @@ class PlentyItemDataPushStock extends PlentySoapCall
 	 * @var int
 	 */
 	private $itemId = 0;
-	
+
 	/**
 	 *
 	 * @var int
@@ -43,38 +43,38 @@ class PlentyItemDataPushStock extends PlentySoapCall
 	 * @var int
 	 */
 	private $warehouseId = 0;
-	
+
 
 	/**
 	 * currently not in use - we generate testdata by rand
-	 * 
+	 *
 	 * @var int
 	 */
 	private $physicalStock = 0;
 
 	/**
-	 * 
+	 *
 	 * @var PlentySoapRequest_SetCurrentStocks
 	 */
 	private $plentySoapRequest_SetCurrentStocks = null;
-	
+
 	/**
-	 * 
+	 *
 	 * @var array
 	 */
 	private $stockList = array();
-	
+
 	/**
 	 *
 	 * @var PlentyItemDataPushStock
 	 */
 	private static $instance = null;
-	
+
 	public function __construct()
 	{
 		parent::__construct(__CLASS__);
 	}
-	
+
 	/**
 	 * singleton pattern
 	 *
@@ -86,13 +86,13 @@ class PlentyItemDataPushStock extends PlentySoapCall
 		{
 			self::$instance = new PlentyItemDataPushStock();
 		}
-	
+
 		return self::$instance;
 	}
-	
+
 	/**
 	 * call this after filling data via setItemId, setPriceId... for each item once
-	 * 
+	 *
 	 * @param number $bookingsEachItem
 	 */
 	public function pushItemData2Stack($bookingsEachItem=1)
@@ -112,7 +112,8 @@ class PlentyItemDataPushStock extends PlentySoapCall
 				$plentySoapObject_SetCurrentStocks->SKU = $this->itemId.'-'.$this->priceId.'-'.(int)$this->attributeValueSetId;
 				$plentySoapObject_SetCurrentStocks->WarehouseID = $this->warehouseId;
 				$plentySoapObject_SetCurrentStocks->StorageLocation = -1;
-					
+				$plentySoapObject_SetCurrentStocks->Reason = 100;
+
 				$this->stockList[] = $plentySoapObject_SetCurrentStocks;
 			}
 		}
@@ -121,10 +122,10 @@ class PlentyItemDataPushStock extends PlentySoapCall
 			$this->getLogger()->crit(__FUNCTION__.' I miss some data itemId: '.$this->itemId.' priceId: '.$this->priceId.' warehouseId: '.$this->warehouseId);
 		}
 	}
-	
+
 	/**
 	 * This function transfers the collected data in the correct item number to ->execute()
-	 * 
+	 *
 	 */
 	public function pushData2API()
 	{
@@ -132,28 +133,28 @@ class PlentyItemDataPushStock extends PlentySoapCall
 		{
 			$i = 0;
 			$this->plentySoapRequest_SetCurrentStocks = new PlentySoapRequest_SetCurrentStocks();
-				
+
 			foreach($this->stockList as $plentySoapObject_SetCurrentStocks)
 			{
 				++$i;
-		
+
 				if($i>=100)
 				{
 					$this->execute();
-						
+
 					$this->plentySoapRequest_SetCurrentStocks->CurrentStocks = array();
 				}
-		
+
 				$this->plentySoapRequest_SetCurrentStocks->CurrentStocks[] = $plentySoapObject_SetCurrentStocks;
 			}
 		}
-		
+
 		if(is_array($this->plentySoapRequest_SetCurrentStocks->CurrentStocks) && count($this->plentySoapRequest_SetCurrentStocks->CurrentStocks)>0)
 		{
 			$this->execute();
 		}
 	}
-	
+
 	public function execute()
 	{
 		try
@@ -162,7 +163,7 @@ class PlentyItemDataPushStock extends PlentySoapCall
 			 * do soap call
 			 */
 			$response	=	$this->getPlentySoap()->SetCurrentStocks($this->plentySoapRequest_SetCurrentStocks);
-				
+
 			/*
 			 * check soap response
 			*/
@@ -180,58 +181,58 @@ class PlentyItemDataPushStock extends PlentySoapCall
 			$this->onExceptionAction($e);
 		}
 	}
-	
+
 	/**
 	 * @param number $itemId
-	 * 
+	 *
 	 * @return PlentyItemDataPushStock
 	 */
-	public function setItemId($itemId) 
+	public function setItemId($itemId)
 	{
 		$this->itemId = $itemId;
-		
+
 		return $this;
 	}
 
 	/**
 	 * @param number $priceId
-	 * 
+	 *
 	 * @return PlentyItemDataPushStock
 	 */
-	public function setPriceId($priceId) 
+	public function setPriceId($priceId)
 	{
 		$this->priceId = $priceId;
-		
+
 		return $this;
 	}
 
 	/**
 	 * @param number $attributeValueSetId
-	 * 
+	 *
 	 * @return PlentyItemDataPushStock
 	 */
-	public function setAttributeValueSetId($attributeValueSetId) 
+	public function setAttributeValueSetId($attributeValueSetId)
 	{
 		$this->attributeValueSetId = $attributeValueSetId;
-		
+
 		return $this;
 	}
 
 	/**
 	 * @param number $warehouseId
-	 * 
+	 *
 	 * @return PlentyItemDataPushStock
 	 */
-	public function setWarehouseId($warehouseId) 
+	public function setWarehouseId($warehouseId)
 	{
 		$this->warehouseId = $warehouseId;
-		
+
 		return $this;
 	}
 
 	/**
 	 * currently not in use - we generate testdata by rand
-	 * 
+	 *
 	 * @param number $physicalStock
 	 *
 	 * @return PlentyItemDataPushStock
@@ -239,9 +240,9 @@ class PlentyItemDataPushStock extends PlentySoapCall
 	public function setPhysicalStock($physicalStock)
 	{
 		$this->physicalStock = $physicalStock;
-	
+
 		return $this;
 	}
-	
+
 }
 ?>

@@ -9,19 +9,19 @@ class SoapCall_AddOrders extends PlentySoapCall
 	{
 		parent::__construct(__CLASS__);
 	}
-	
+
 	private $OrderId = 0;
-	
+
 	public function execute()
 	{
 		try
 		{
 			$this->getLogger()->debug(__FUNCTION__.' start');
-			
+
 			$oAddCustomer = new SoapCall_AddCustomers();
 			$oAddCustomer->execute();
 			$customerId = $oAddCustomer->getCustomerID();
-			
+
 			if(isset($customerId) && $customerId > 0)
 			{
 				$oPlentySoapRequest_AddOrders = $this->buildRequest($customerId);
@@ -35,75 +35,96 @@ class SoapCall_AddOrders extends PlentySoapCall
 				 */
 				if( $response->Success == true )
 				{
-					$result = explode(';', $response->SuccessMessages->item[0]->Message);
-					$this->OrderId = $result[1];
-				
-					$this->getLogger()->debug(__FUNCTION__.' Request Success - AddOrders : ' . $this->OrderId );
+
+					if(is_array($response->ResponseMessages->item))
+					{
+						foreach($response->ResponseMessages->item as $ResponseMessages)
+						{
+							$orderId = null;
+							$status = null;
+
+							foreach ($ResponseMessages->SuccessMessages->item as $SuccessMessage)
+							{
+								if ($SuccessMessage->Key == 'OrderID')
+								{
+									$orderId = (integer) $SuccessMessage->Value;
+								}
+								else if ($SuccessMessage->Key == 'Status')
+								{
+									$status = (integer) $SuccessMessage->Value;
+								}
+							}
+						}
+					}
+
+					$this->OrderId = $orderId;
+
+					$this->getLogger()->debug(__FUNCTION__.' Request Success - AddOrders : ' . $this->OrderId . ' - Status: '. $status);
 				}
 				else
 				{
 					$this->getLogger()->debug(__FUNCTION__.' Request Error');
 				}
 			}
-			else 
+			else
 			{
 				$this->getLogger()->debug(__FUNCTION__.' Invalid CustomerId');
-			}			
+			}
 		}
 		catch(Exception $e)
 		{
 			$this->onExceptionAction($e);
 		}
 	}
-	
+
 	/**
 	 * Build the AddOrders Request Object
-	 * 
+	 *
 	 * @param integer $customerId
 	 * @return PlentySoapRequest_AddOrders
 	 */
 	private function buildRequest($customerId)
 	{
 		$request = new PlentySoapRequest_AddOrders();
-		
+
 		/*
-		 * Build the PlentySoapObject_Order 
+		 * Build the PlentySoapObject_Order
 		 */
 		$order = new PlentySoapObject_Order();
-		
+
 		/*
 		 * Build order head
 		 */
 		$order->OrderHead = $this->getOrderHead($customerId);
-		
+
 		/*
 		 * Build order item
 		 */
 		$order->OrderItems[] = $this->getFirstOrderItem();
-		
+
 		/*
 		 * Build a secound order item
 		 */
 		$order->OrderItems[] = $this->getSecoundOrderItem();
-		
+
 		/*
 		 * add the order to the request object
 		 */
 		$request->Orders[] = $order;
-		
+
 		return $request;
 	}
-	
+
 	/**
 	 * Build the order head object
-	 * 
+	 *
 	 * @var integer $customerId
 	 * @return PlentySoapObject_OrderHead
 	 */
 	private function getOrderHead($customerId)
 	{
 		$orderHead = new PlentySoapObject_OrderHead();
-			
+
 		$orderHead->OrderID = null;
 		$orderHead->ExternalOrderID = 'SOAPOrderEx1';
 		$orderHead->OrderType = 'order';
@@ -130,13 +151,13 @@ class SoapCall_AddOrders extends PlentySoapCall
 		$orderHead->TotalBrutto = 1326.90;
 		$orderHead->IsNetto = 0;
 		$orderHead->TotalInvoice = 1331.80;
-		
+
 		return $orderHead;
 	}
-	
+
 	/**
 	 * Build order item object
-	 * 
+	 *
 	 * @return PlentySoapObject_OrderItem
 	 */
 	private function getFirstOrderItem()
@@ -155,10 +176,10 @@ class SoapCall_AddOrders extends PlentySoapCall
 		$orderItem->Currency = 'EUR';
 		$orderItem->ItemNo = 'EXSO01';
 		$orderItem->ExternalItemID = 'ExSOAP01';
-		
+
 		return $orderItem;
 	}
-	
+
 	/**
 	 * Build order item object
 	 *
@@ -180,10 +201,10 @@ class SoapCall_AddOrders extends PlentySoapCall
 		$orderItem->Currency = 'EUR';
 		$orderItem->ItemNo = 'EXSO02';
 		$orderItem->ExternalItemID = 'ExSOAP02';
-	
+
 		return $orderItem;
 	}
-	
+
 	public function getOrderId()
 	{
 		return $this->OrderId;
