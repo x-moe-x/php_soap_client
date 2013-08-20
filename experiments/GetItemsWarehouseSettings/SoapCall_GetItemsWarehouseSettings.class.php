@@ -3,6 +3,7 @@
 require_once ROOT . 'lib/soap/call/PlentySoapCall.abstract.php';
 require_once 'Request_GetItemsWarehouseSettings.class.php';
 require_once ROOT . 'includes/DBLastUpdate.php';
+require_once ROOT . 'includes/SKUHelper.php';
 
 class SoapCall_GetItemsWarehouseSettings extends PlentySoapCall {
 
@@ -42,7 +43,7 @@ class SoapCall_GetItemsWarehouseSettings extends PlentySoapCall {
 				if ($i > 7)
 					break;
 				$current = $pairs -> fetchAssoc();
-				$requestSKUs[] = $current['ItemID'] . '-0-' . $current['AttributeValueSetID'];
+				$requestSKUs[] = Values2SKU($current['ItemID'], $current['AttributeValueSetID']);
 			}
 
 			$oRequest_GetItemsWarehouseSettings = new Request_GetItemsWarehouseSettings();
@@ -71,7 +72,6 @@ class SoapCall_GetItemsWarehouseSettings extends PlentySoapCall {
 								$errorString .= $errorMessage -> Key . ': ' . $errorMessage -> Value;
 								$errorString .= ', ';
 							}
-
 						}
 					}
 					$this -> getLogger() -> debug(__FUNCTION__ . ' Request Error: ' . ($errorString != '' ? $errorString : 'unable to retreive error messages'));
@@ -85,15 +85,11 @@ class SoapCall_GetItemsWarehouseSettings extends PlentySoapCall {
 	}
 
 	private function processWarehouseSetting($oWarehouseSetting) {
-		if ((preg_match('/(\d+)-\d+-(\d+)/', $oWarehouseSetting -> SKU, $matches) == 1) && count($matches) == 3) {
-			$ItemID = $matches[1];
-			$AVSI = $matches[2];
-		} else {
-			echo "error";
-		}
+		list($ItemID, $PriceID, $AttributeValueSetID) = SKU2Values($oWarehouseSetting -> SKU);
 
-		$this -> getLogger() -> info(__FUNCTION__ . ' SKU: ' . $oWarehouseSetting -> SKU . ' ItemID: ' . $ItemID . ' AVSI: ' . $AVSI);
+		$this -> getLogger() -> info(__FUNCTION__ . ' SKU: ' . $oWarehouseSetting -> SKU . ' ItemID: ' . $ItemID . ' AVSI: ' . $AttributeValueSetID);
 		// store to db
+		// @formatter:off
 		$query = 'REPLACE INTO `ItemsWarehouseSettings` ' . DBUtils::buildInsert(
 			array(
 				'ID'					=>	$oWarehouseSetting->ID,
@@ -101,7 +97,7 @@ class SoapCall_GetItemsWarehouseSettings extends PlentySoapCall {
 				'ReorderLevel'			=>	$oWarehouseSetting->ReorderLevel,
 			/*  'SKU'					=>	$oWarehouseSetting->SKU,	// replace with ItemID in combination with AVSI */
 				'ItemID'				=>	$ItemID,
-				'AttributeValueSetID'	=>	$AVSI,
+				'AttributeValueSetID'	=>	$AttributeValueSetID,
 			/*
 			 * 	End of SKU replacement
 			 */
@@ -113,6 +109,7 @@ class SoapCall_GetItemsWarehouseSettings extends PlentySoapCall {
 				'Zone'					=>	$oWarehouseSetting->Zone
 			)
 		);
+		// @formatter:on
 
 		DBQuery::getInstance() -> replace($query);
 	}
