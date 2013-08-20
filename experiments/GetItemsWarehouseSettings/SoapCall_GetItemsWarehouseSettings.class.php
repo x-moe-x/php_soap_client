@@ -12,14 +12,42 @@ class SoapCall_GetItemsWarehouseSettings extends PlentySoapCall {
 		parent::__construct(__CLASS__);
 	}
 
+	private function getSKUQuery() {
+		return 'SELECT
+				ItemsBase.ItemID,
+				CASE WHEN (AttributeValueSets.AttributeValueSetID IS null) THEN
+					"0"
+				ELSE
+					AttributeValueSets.AttributeValueSetID
+				END AttributeValueSetID
+				FROM ItemsBase
+				LEFT JOIN AttributeValueSets
+					ON ItemsBase.ItemID = AttributeValueSets.ItemID';
+	}
+
 	public function execute() {
 		$this -> getLogger() -> debug(__FUNCTION__);
 
 		try {
 
-			$oRequest_GetItemsWarehouseSettings = new Request_GetItemsWarehouseSettings(1);
+			// get all ItemID-AttributeValueSetID pairs
+			$pairs = DBQuery::getInstance() -> select($this -> getSKUQuery());
+			$maxPairs = $pairs -> getNumRows();
+			$this -> getLogger() -> debug(__FUNCTION__ . ' itemid-avsi-pairs: ' . $maxPairs);
 
-			$this -> oPlentySoapRequest_GetItemsWarehouseSettings = $oRequest_GetItemsWarehouseSettings -> getRequest(array('15-0-1', '8-0-0'), 1);
+			// for each 100 pairs get items warehouse settings
+			$requestSKUs = array();
+			for ($i = 0; $i < 100; ++$i) {
+				//TODO prevent exception to be thrown
+				if ($i > 7)
+					break;
+				$current = $pairs -> fetchAssoc();
+				$requestSKUs[] = $current['ItemID'] . '-0-' . $current['AttributeValueSetID'];
+			}
+
+			$oRequest_GetItemsWarehouseSettings = new Request_GetItemsWarehouseSettings();
+
+			$this -> oPlentySoapRequest_GetItemsWarehouseSettings = $oRequest_GetItemsWarehouseSettings -> getRequest($requestSKUs, 1);
 
 			/*
 			 * do soap call
@@ -28,7 +56,7 @@ class SoapCall_GetItemsWarehouseSettings extends PlentySoapCall {
 
 			if (($response -> Success == true) && isset($response -> ItemList)) {
 
-				$this -> getLogger() -> debug(__FUNCTION__ . ' Request Success, '. count($response -> ItemList->item) .' warehouse settings found');
+				$this -> getLogger() -> debug(__FUNCTION__ . ' Request Success, ' . count($response -> ItemList -> item) . ' warehouse settings found');
 
 				// process response
 				$this -> responseInterpretation($response);
