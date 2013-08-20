@@ -45,8 +45,10 @@ class SoapCall_GetItemsBase extends PlentySoapCall
 				*/
 				$response		=	$this->getPlentySoap()->GetItemsBase($this->oPlentySoapRequest_GetItemsBase);
 
-				if( $response->Success == true )
+				if( ($response->Success == true )&& isset($response->ItemsBase))
 				{
+					// request successful, processing data..
+
 					$articlesFound		= 	count($response->ItemsBase->item);
 					$pagesFound			=	$response->Pages;
 
@@ -64,19 +66,13 @@ class SoapCall_GetItemsBase extends PlentySoapCall
 						$this->executePages();
 
 					}
+				} else if (($response->Success == true ) && !isset($response->ItemsBase)){
+					// request successful, but no data to process
+					$this->getLogger()->debug(__FUNCTION__.' Request Success -  but no matching articles found');
 				}
 				else
 				{
-					if (count($response->ErrorMessages->item) > 0)
-					{
-						foreach($response->ErrorMessages->item as $item)
-						{
-							if ($item->Code == "EIB0004")
-								$this->getLogger()->debug(__FUNCTION__.' No new ItemsBase data available');
-						}
-					}
-					else
-						$this->getLogger()->debug(__FUNCTION__.' Request Error');
+					$this->getLogger()->debug(__FUNCTION__.' Request Error');
 				}
 			}
 			catch(Exception $e)
@@ -109,10 +105,12 @@ class SoapCall_GetItemsBase extends PlentySoapCall
 	}
 
 	private function processAttributeValueSet($oItemID, $oAttributeValueSet){
-		$this->getLogger()->debug(__FUNCTION__.' : '
+		$this->getLogger()->info(__FUNCTION__.' : '
 				. 	' AttributeValueSetID : '			.$oAttributeValueSet->AttributeValueSetID		.','
 				. 	' AttributeValueSetName : '				.$oAttributeValueSet->AttributeValueSetName
 		);
+
+		// TODO add ASIN support
 
 		// store AttributeValueSets to DB
 		$query = 'REPLACE INTO `AttributeValueSets` '.
@@ -138,7 +136,7 @@ class SoapCall_GetItemsBase extends PlentySoapCall
 
 	private function processItemsBase($oItemsBase)
 	{
-		$this->getLogger()->debug(__FUNCTION__.' : '
+		$this->getLogger()->info(__FUNCTION__.' : '
 				. 	' ItemID : '			.$oItemsBase->ItemID		.','
 				. 	' ItemNo : '			.$oItemsBase->ItemNo		.','
 				. 	' Name : '				.$oItemsBase->Texts->Name
@@ -148,7 +146,7 @@ class SoapCall_GetItemsBase extends PlentySoapCall
 		$query = 'REPLACE INTO `ItemsBase` '.
 				DBUtils::buildInsert(
 						array(
-								'ASIN'						=> $oItemsBase->ASIN,
+							/*	'ASIN'						=> $oItemsBase->ASIN, moved to AttributeValueSets in 109 api definition	*/
 							/*	'AttributeValueSets'		=> $oItemsBase->AttributeValueSets,	skipped here and stored to separate table	*/
 							/*	'Availability'				=> $oItemsBase->Availability,	currently considered irrelevant	*/
 								'BundleType'				=> $oItemsBase->BundleType,
@@ -160,7 +158,7 @@ class SoapCall_GetItemsBase extends PlentySoapCall
 								'EAN2'						=> $oItemsBase->EAN2,
 								'EAN3'						=> $oItemsBase->EAN3,
 								'EAN4'						=> $oItemsBase->EAN4,
-								'EbayEPID'					=> $oItemsBase->EbayEPID,
+							/*	'EbayEPID'					=> $oItemsBase->EbayEPID, ignored since removed in 109 api definition	*/
 								'ExternalItemID'			=> $oItemsBase->ExternalItemID,
 								'FSK'						=> $oItemsBase->FSK,
 							/*	'FreeTextFields'			=> $oItemsBase->FreeTextFields,	replaced with it's subitems	*/

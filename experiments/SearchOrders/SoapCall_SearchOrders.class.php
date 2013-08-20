@@ -45,7 +45,7 @@ class SoapCall_SearchOrders extends PlentySoapCall
 				$response		=	$this->getPlentySoap()->SearchOrders( $this->oPlentySoapRequest_SearchOrders );
 
 
-				if( $response->Success == true )
+				if( ($response->Success == true ) && isset($response->Orders->item))
 				{
 					$ordersFound	=	count($response->Orders->item);
 					$pagesFound		=	$response->Pages;
@@ -64,6 +64,9 @@ class SoapCall_SearchOrders extends PlentySoapCall
 						$this->executePages();
 					}
 
+				} else if( ($response->Success == true ) && !isset($response->Orders->item))
+				{
+					$this->getLogger()->debug(__FUNCTION__.' Request Success - but no matching orders found');
 				}
 				else
 				{
@@ -114,7 +117,7 @@ class SoapCall_SearchOrders extends PlentySoapCall
 
 	private function processOrderHead($oOrderHead)
 	{
-	/*	$this->getLogger()->debug(__FUNCTION__.' : '
+		/* $this->getLogger()->info(__FUNCTION__.' : '
 				. 	' OrderID : '			.$oOrderHead->OrderID				.','
 				.	' ExternalOrderID : '	.$oOrderHead->ExternalOrderID		.','
 				.	' CustomerID : '		.$oOrderHead->CustomerID			.','
@@ -139,7 +142,8 @@ class SoapCall_SearchOrders extends PlentySoapCall
 								'LastUpdate'				=>	$oOrderHead->LastUpdate,
 								'Marking1ID'				=>	$oOrderHead->Marking1ID,
 								'MethodOfPaymentID'			=>	$oOrderHead->MethodOfPaymentID,
-								'MultishopID'				=>	$oOrderHead->MultishopID,
+							// TODO rename in db shceme
+								'MultishopID'				=>	$oOrderHead->StoreID,
 							/*	'OrderDocumentNumbers'		=>	$oOrderHead->OrderDocumentNumbers, ignored since not part of the request */
 								'OrderID'					=>	$oOrderHead->OrderID,
 							/*	'OrderInfos'				=>	$oOrderHead->OrderInfos, ignored since not part of the request */
@@ -177,7 +181,7 @@ class SoapCall_SearchOrders extends PlentySoapCall
 
 	private function processOrderItem($oOrderItem, $oOrderID)
 	{
-		/* $this->getLogger()->debug(__FUNCTION__.' : '
+		/* $this->getLogger()->info(__FUNCTION__.' : '
 				. 	' OrderID : '			.$oOrderID	.','
 				.	' Item SKU : '			.$oOrderItem->SKU				.','
 				.	' Quantity : '			.$oOrderItem->Quantity			.','
