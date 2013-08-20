@@ -57,13 +57,26 @@ class SoapCall_GetItemsWarehouseSettings extends PlentySoapCall {
 	}
 
 	private function processWarehouseSetting($oWarehouseSetting) {
+		if ((preg_match('/(\d+)-\d+-(\d+)/', $oWarehouseSetting -> SKU, $matches) == 1) && count($matches) == 3) {
+			$ItemID = $matches[1];
+			$AVSI = $matches[2];
+		} else {
+			echo "error";
+		}
+
+		$this -> getLogger() -> info(__FUNCTION__ . ' SKU: ' . $oWarehouseSetting -> SKU . ' ItemID: ' . $ItemID . ' AVSI: ' . $AVSI);
 		// store to db
 		$query = 'REPLACE INTO `ItemsWarehouseSettings` ' . DBUtils::buildInsert(
 			array(
 				'ID'					=>	$oWarehouseSetting->ID,
 				'MaximumStock'			=>	$oWarehouseSetting->MaximumStock,
 				'ReorderLevel'			=>	$oWarehouseSetting->ReorderLevel,
-				'SKU'					=>	$oWarehouseSetting->SKU,	// replace with ItemID in combination with AVSI?
+			/*  'SKU'					=>	$oWarehouseSetting->SKU,	// replace with ItemID in combination with AVSI */
+				'ItemID'				=>	$ItemID,
+				'AttributeValueSetID'	=>	$AVSI,
+			/*
+			 * 	End of SKU replacement
+			 */
 				'StockBuffer'			=>	$oWarehouseSetting->StockBuffer,
 				'StockTurnover'			=>	$oWarehouseSetting->StockTurnover,
 				'StorageLocation'		=>	$oWarehouseSetting->StorageLocation,
@@ -73,7 +86,7 @@ class SoapCall_GetItemsWarehouseSettings extends PlentySoapCall {
 			)
 		);
 
-		DBQuery::getInstance()->replace($query);
+		DBQuery::getInstance() -> replace($query);
 	}
 
 	private function responseInterpretation($oPlentySoapResponse_GetItemsWarehouseSettings) {

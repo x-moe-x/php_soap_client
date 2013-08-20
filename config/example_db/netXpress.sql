@@ -201,15 +201,25 @@ CREATE TABLE `soap_db`.`ItemsBase` (
 DROP TABLE `soap_db`.`ItemsWarehouseSettings`;
 
 CREATE TABLE `soap_db`.`ItemsWarehouseSettings` (
+	/*
+	 * replace SKU with ItemID and AttributeValueSetID
+	 *
+	 * `SKU` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
+	 *
+	 */
+	 `ItemID` int(11) NOT NULL,
+	 `AttributeValueSetID` int(11) NOT NULL,
+	 /*
+	  * end of SKU replacement
+	  */
 	`ID` int(11) DEFAULT NULL,
 	`MaximumStock` int(11) DEFAULT NULL,
 	`ReorderLevel` int(11) DEFAULT NULL,
-	`SKU` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
 	`StockBuffer` int(11) DEFAULT NULL,
 	`StockTurnover` int(11) DEFAULT NULL,
 	`StorageLocation` int(11) DEFAULT NULL,
 	`StorageLocationType` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
 	`WarehouseID` int(11) DEFAULT NULL,
 	`Zone` int(11) DEFAULT NULL,
-	PRIMARY KEY (`SKU`)
+	PRIMARY KEY (`ItemID`, `AttributeValueSetID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
