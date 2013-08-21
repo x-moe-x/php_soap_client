@@ -1,40 +1,33 @@
 <?php
 
-require_once ROOT.'lib/soap/call/PlentySoapCall.abstract.php';
+require_once ROOT . 'lib/soap/call/PlentySoapCall.abstract.php';
 require_once 'Request_GetItemsBase.class.php';
-require_once ROOT.'includes/DBLastUpdate.php';
+require_once ROOT . 'includes/DBLastUpdate.php';
 
-
-
-class SoapCall_GetItemsBase extends PlentySoapCall
-{
-	private $page								=	0;
-	private $pages								=	-1;
+class SoapCall_GetItemsBase extends PlentySoapCall {
+	private $page = 0;
+	private $pages = -1;
 	private $startAtPage = 0;
-	private $oPlentySoapRequest_GetItemsBase	=	null;
+	private $oPlentySoapRequest_GetItemsBase = null;
 
 	/// db-function name to store corresponding last update timestamps
-	private $functionName						=	'GetItemsBase';
+	private $functionName = 'GetItemsBase';
 
-	public function __construct()
-	{
+	public function __construct() {
 		parent::__construct(__CLASS__);
 	}
 
-	public function execute()
-	{
-		$this->getLogger()->debug(__FUNCTION__);
+	public function execute() {
+		$this -> getLogger() -> debug(__FUNCTION__);
 
-		list($lastUpdate, $currentTime, $this->startAtPage) = lastUpdateStart($this->functionName);
+		list($lastUpdate, $currentTime, $this -> startAtPage) = lastUpdateStart($this -> functionName);
 
-		if ($this->pages == -1)
-		{
-			try
-			{
+		if ($this -> pages == -1) {
+			try {
 
 				$oRequest_GetItemsBase = new Request_GetItemsBase();
 
-				$this->oPlentySoapRequest_GetItemsBase = $oRequest_GetItemsBase->getRequest($lastUpdate, $currentTime, $this->startAtPage);
+				$this -> oPlentySoapRequest_GetItemsBase = $oRequest_GetItemsBase -> getRequest($lastUpdate, $currentTime, $this -> startAtPage);
 
 				if ($this -> startAtPage > 0) {
 					$this -> getLogger() -> debug(__FUNCTION__ . " Starting at page " . $this -> startAtPage);
@@ -42,78 +35,63 @@ class SoapCall_GetItemsBase extends PlentySoapCall
 
 				/*
 				 * do soap call
-				*/
-				$response		=	$this->getPlentySoap()->GetItemsBase($this->oPlentySoapRequest_GetItemsBase);
+				 */
+				$response = $this -> getPlentySoap() -> GetItemsBase($this -> oPlentySoapRequest_GetItemsBase);
 
-				if( ($response->Success == true )&& isset($response->ItemsBase))
-				{
+				if (($response -> Success == true) && isset($response -> ItemsBase)) {
 					// request successful, processing data..
 
-					$articlesFound		= 	count($response->ItemsBase->item);
-					$pagesFound			=	$response->Pages;
+					$articlesFound = count($response -> ItemsBase -> item);
+					$pagesFound = $response -> Pages;
 
-					$this->getLogger()->debug(__FUNCTION__.' Request Success - articles found : '.$articlesFound .' / pages : '.$pagesFound );
+					$this -> getLogger() -> debug(__FUNCTION__ . ' Request Success - articles found : ' . $articlesFound . ' / pages : ' . $pagesFound);
 
 					// process response
-					$this->responseInterpretation($response);
+					$this -> responseInterpretation($response);
 
-					if ( $pagesFound > $this->page )
-					{
-						$this->page		=	$this->startAtPage +1;
-						$this->pages	=	$pagesFound;
+					if ($pagesFound > $this -> page) {
+						$this -> page = $this -> startAtPage + 1;
+						$this -> pages = $pagesFound;
 
 						lastUpdatePageUpdate($this -> functionName, $this -> page);
-						$this->executePages();
+						$this -> executePages();
 
 					}
-				} else if (($response->Success == true ) && !isset($response->ItemsBase)){
+				} else if (($response -> Success == true) && !isset($response -> ItemsBase)) {
 					// request successful, but no data to process
-					$this->getLogger()->debug(__FUNCTION__.' Request Success -  but no matching articles found');
+					$this -> getLogger() -> debug(__FUNCTION__ . ' Request Success -  but no matching articles found');
+				} else {
+					$this -> getLogger() -> debug(__FUNCTION__ . ' Request Error');
 				}
-				else
-				{
-					$this->getLogger()->debug(__FUNCTION__.' Request Error');
-				}
+			} catch(Exception $e) {
+				$this -> onExceptionAction($e);
 			}
-			catch(Exception $e)
-			{
-				$this->onExceptionAction($e);
-			}
-		}
-		else
-		{
-			$this->executePages();
+		} else {
+			$this -> executePages();
 		}
 
-		lastUpdateFinish($currentTime,$this->functionName);
+		lastUpdateFinish($currentTime, $this -> functionName);
 	}
 
-	private function responseInterpretation($oPlentySoapResponse_GetItemsBase)
-	{
-		if( is_array( $oPlentySoapResponse_GetItemsBase->ItemsBase->item ) )
-		{
-			foreach( $oPlentySoapResponse_GetItemsBase->ItemsBase->item AS $itemsBase)
-			{
-				$this->processItemsBase($itemsBase);
+	private function responseInterpretation($oPlentySoapResponse_GetItemsBase) {
+		if (is_array($oPlentySoapResponse_GetItemsBase -> ItemsBase -> item)) {
+			foreach ($oPlentySoapResponse_GetItemsBase->ItemsBase->item AS $itemsBase) {
+				$this -> processItemsBase($itemsBase);
 			}
+		} else {
+			$this -> processItemsBase($oPlentySoapResponse_GetItemsBase -> Orders -> item);
 		}
-		else
-		{
-			$this->processItemsBase($oPlentySoapResponse_GetItemsBase->Orders->item);
-		}
-		$this->getLogger()->debug(__FUNCTION__.' : done' );
+		$this -> getLogger() -> debug(__FUNCTION__ . ' : done');
 	}
 
-	private function processAttributeValueSet($oItemID, $oAttributeValueSet){
-		$this->getLogger()->info(__FUNCTION__.' : '
-				. 	' AttributeValueSetID : '			.$oAttributeValueSet->AttributeValueSetID		.','
-				. 	' AttributeValueSetName : '				.$oAttributeValueSet->AttributeValueSetName
-		);
+	private function processAttributeValueSet($oItemID, $oAttributeValueSet) {
+		$this -> getLogger() -> info(__FUNCTION__ . ' : ' . ' AttributeValueSetID : ' . $oAttributeValueSet -> AttributeValueSetID . ',' . ' AttributeValueSetName : ' . $oAttributeValueSet -> AttributeValueSetName);
 
 		// TODO add ASIN support
 
 		// store AttributeValueSets to DB
-		$query = 'REPLACE INTO `AttributeValueSets` '.
+		$query = 'REPLACE INTO `AttributeValueSets` ' .
+		// @formatter:off
 			DBUtils::buildInsert(
 				array(
 					'ItemID'				=> $oItemID,
@@ -130,20 +108,17 @@ class SoapCall_GetItemsBase extends PlentySoapCall
 					'PurchasePrice'			=> $oAttributeValueSet->PurchasePrice
 				)
 			);
+			// @formatter:on
 
-			DBQuery::getInstance()->replace($query);
+		DBQuery::getInstance() -> replace($query);
 	}
 
-	private function processItemsBase($oItemsBase)
-	{
-		$this->getLogger()->info(__FUNCTION__.' : '
-				. 	' ItemID : '			.$oItemsBase->ItemID		.','
-				. 	' ItemNo : '			.$oItemsBase->ItemNo		.','
-				. 	' Name : '				.$oItemsBase->Texts->Name
-		);
+	private function processItemsBase($oItemsBase) {
+		$this -> getLogger() -> info(__FUNCTION__ . ' : ' . ' ItemID : ' . $oItemsBase -> ItemID . ',' . ' ItemNo : ' . $oItemsBase -> ItemNo . ',' . ' Name : ' . $oItemsBase -> Texts -> Name);
 
 		// store ItemsBase into DB
-		$query = 'REPLACE INTO `ItemsBase` '.
+		$query = 'REPLACE INTO `ItemsBase` ' .
+		// @formatter:off
 				DBUtils::buildInsert(
 						array(
 							/*	'ASIN'						=> $oItemsBase->ASIN, moved to AttributeValueSets in 109 api definition	*/
@@ -221,53 +196,48 @@ class SoapCall_GetItemsBase extends PlentySoapCall
 								'WebShopSpecial'			=> $oItemsBase->WebShopSpecial
 						)
 				);
+                // @formatter:on
 
-		DBQuery::getInstance()->replace($query);
+		DBQuery::getInstance() -> replace($query);
 
 		// delete old entrys from AttributeValueSets to prevent unrecognized deletes
-		$query = 'DELETE FROM `AttributeValueSets` WHERE `ItemID` = ' . $oItemsBase->ItemID;
-		DBQuery::getInstance()->delete($query);
+		$query = 'DELETE FROM `AttributeValueSets` WHERE `ItemID` = ' . $oItemsBase -> ItemID;
+		DBQuery::getInstance() -> delete($query);
 
 		// process AttributeValueSets
-		if ($oItemsBase->HasAttributes){
-			if (is_array($oItemsBase->AttributeValueSets->item)){
+		if ($oItemsBase -> HasAttributes) {
+			if (is_array($oItemsBase -> AttributeValueSets -> item)) {
 				foreach ($oItemsBase->AttributeValueSets->item as $attributeValueSet) {
-					$this->processAttributeValueSet($oItemsBase->ItemID, $attributeValueSet);
+					$this -> processAttributeValueSet($oItemsBase -> ItemID, $attributeValueSet);
 				}
-			}else{
-				$this->processAttributeValueSet($oItemsBase->ItemID, $oItemsBase->AttributeValueSets->item);
+			} else {
+				$this -> processAttributeValueSet($oItemsBase -> ItemID, $oItemsBase -> AttributeValueSets -> item);
 			}
 		}
 	}
 
-	private function executePages()
-	{
-		while ( $this->pages > $this->page )
-		{
-			$this->oPlentySoapRequest_GetItemsBase->Page = $this->page;
-			try
-			{
-				$response		=	$this->getPlentySoap()->GetItemsBase( $this->oPlentySoapRequest_GetItemsBase );
+	private function executePages() {
+		while ($this -> pages > $this -> page) {
+			$this -> oPlentySoapRequest_GetItemsBase -> Page = $this -> page;
+			try {
+				$response = $this -> getPlentySoap() -> GetItemsBase($this -> oPlentySoapRequest_GetItemsBase);
 
-				if( $response->Success == true )
-				{
-					$articlesFound	=	count($response->ItemsBase->item);
-					$this->getLogger()->debug(__FUNCTION__.' Request Success - articles found : '.$articlesFound .' / page : '.$this->page );
+				if ($response -> Success == true) {
+					$articlesFound = count($response -> ItemsBase -> item);
+					$this -> getLogger() -> debug(__FUNCTION__ . ' Request Success - articles found : ' . $articlesFound . ' / page : ' . $this -> page);
 
 					// auswerten
-					$this->responseInterpretation( $response);
+					$this -> responseInterpretation($response);
 				}
 
-				$this->page++;
+				$this -> page++;
 				lastUpdatePageUpdate($this -> functionName, $this -> page);
 
-			}
-			catch(Exception $e)
-			{
-				$this->onExceptionAction($e);
+			} catch(Exception $e) {
+				$this -> onExceptionAction($e);
 			}
 		}
 	}
-}
 
+}
 ?>

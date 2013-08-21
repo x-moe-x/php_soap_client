@@ -1,37 +1,31 @@
 <?php
 
-require_once ROOT.'lib/soap/call/PlentySoapCall.abstract.php';
+require_once ROOT . 'lib/soap/call/PlentySoapCall.abstract.php';
 require_once 'Request_SearchOrders.class.php';
-require_once ROOT.'includes/DBLastUpdate.php';
+require_once ROOT . 'includes/DBLastUpdate.php';
 
+class SoapCall_SearchOrders extends PlentySoapCall {
 
-class SoapCall_SearchOrders extends PlentySoapCall
-{
-
-	private $page								=	0;
-	private $pages								=	-1;
-	private $startAtPage						=	0;
-	private $oPlentySoapRequest_SearchOrders	=	null;
+	private $page = 0;
+	private $pages = -1;
+	private $startAtPage = 0;
+	private $oPlentySoapRequest_SearchOrders = null;
 
 	/// db-function name to store corresponding last update timestamps
-	private $functionName						=	'SearchOrderExperiment';
+	private $functionName = 'SearchOrderExperiment';
 
-	public function __construct()
-	{
+	public function __construct() {
 		parent::__construct(__CLASS__);
 	}
 
-	public function execute()
-	{
-		$this->getLogger()->debug(__FUNCTION__);
+	public function execute() {
+		$this -> getLogger() -> debug(__FUNCTION__);
 
 		list($lastUpdate, $currentTime, $this -> startAtPage) = lastUpdateStart($this -> functionName);
 
-		if( $this->pages == -1 )
-		{
-			try
-			{
-				$oRequest_SearchOrders					=	new Request_SearchOrders();
+		if ($this -> pages == -1) {
+			try {
+				$oRequest_SearchOrders = new Request_SearchOrders();
 
 				$this -> oPlentySoapRequest_SearchOrders = $oRequest_SearchOrders -> getRequest($lastUpdate, $currentTime, $this -> startAtPage);
 
@@ -41,91 +35,77 @@ class SoapCall_SearchOrders extends PlentySoapCall
 
 				/*
 				 * do soap call
-				*/
-				$response		=	$this->getPlentySoap()->SearchOrders( $this->oPlentySoapRequest_SearchOrders );
+				 */
+				$response = $this -> getPlentySoap() -> SearchOrders($this -> oPlentySoapRequest_SearchOrders);
 
+				if (($response -> Success == true) && isset($response -> Orders -> item)) {
+					$ordersFound = count($response -> Orders -> item);
+					$pagesFound = $response -> Pages;
 
-				if( ($response->Success == true ) && isset($response->Orders->item))
-				{
-					$ordersFound	=	count($response->Orders->item);
-					$pagesFound		=	$response->Pages;
-
-					$this->getLogger()->debug(__FUNCTION__.' Request Success - orders found : '.$ordersFound .' / pages : '.$pagesFound );
+					$this -> getLogger() -> debug(__FUNCTION__ . ' Request Success - orders found : ' . $ordersFound . ' / pages : ' . $pagesFound);
 
 					// auswerten
-					$this->responseInterpretation( $response );
+					$this -> responseInterpretation($response);
 
-					if( $pagesFound > $this->page )
-					{
-						$this->page	 	=	$this->startAtPage + 1;
-						$this->pages 	=	$pagesFound;
+					if ($pagesFound > $this -> page) {
+						$this -> page = $this -> startAtPage + 1;
+						$this -> pages = $pagesFound;
 
 						lastUpdatePageUpdate($this -> functionName, $this -> page);
-						$this->executePages();
+						$this -> executePages();
 					}
 
-				} else if( ($response->Success == true ) && !isset($response->Orders->item))
-				{
-					$this->getLogger()->debug(__FUNCTION__.' Request Success - but no matching orders found');
+				} else if (($response -> Success == true) && !isset($response -> Orders -> item)) {
+					$this -> getLogger() -> debug(__FUNCTION__ . ' Request Success - but no matching orders found');
+				} else {
+					$this -> getLogger() -> debug(__FUNCTION__ . ' Request Error');
 				}
-				else
-				{
-					$this->getLogger()->debug(__FUNCTION__.' Request Error');
-				}
+			} catch(Exception $e) {
+				$this -> onExceptionAction($e);
 			}
-			catch(Exception $e)
-			{
-				$this->onExceptionAction($e);
-			}
-		}
-		else
-		{
-			$this->executePages();
+		} else {
+			$this -> executePages();
 		}
 
-		lastUpdateFinish($currentTime, $this->functionName);
+		lastUpdateFinish($currentTime, $this -> functionName);
 	}
 
-	public function executePages()
-	{
-		while( $this->pages > $this->page )
-		{
-			$this->oPlentySoapRequest_SearchOrders->Page = $this->page;
-			try
-			{
-				$response		=	$this->getPlentySoap()->SearchOrders( $this->oPlentySoapRequest_SearchOrders );
+	public function executePages() {
+		while ($this -> pages > $this -> page) {
+			$this -> oPlentySoapRequest_SearchOrders -> Page = $this -> page;
+			try {
+				$response = $this -> getPlentySoap() -> SearchOrders($this -> oPlentySoapRequest_SearchOrders);
 
-				if( $response->Success == true )
-				{
-					$ordersFound	=	count($response->Orders->item);
-					$this->getLogger()->debug(__FUNCTION__.' Request Success - orders found : '.$ordersFound .' / page : '.$this->page );
+				if ($response -> Success == true) {
+					$ordersFound = count($response -> Orders -> item);
+					$this -> getLogger() -> debug(__FUNCTION__ . ' Request Success - orders found : ' . $ordersFound . ' / page : ' . $this -> page);
 
 					// auswerten
-					$this->responseInterpretation( $response );
+					$this -> responseInterpretation($response);
 				}
 
-				$this->page++;
-				lastUpdatePageUpdate($this->functionName, $this->page);
+				$this -> page++;
+				lastUpdatePageUpdate($this -> functionName, $this -> page);
 
-			}
-			catch(Exception $e)
-			{
-				$this->onExceptionAction($e);
+			} catch(Exception $e) {
+				$this -> onExceptionAction($e);
 			}
 		}
 	}
 
-	private function processOrderHead($oOrderHead)
-	{
+	private function processOrderHead($oOrderHead) {
+		// @formatter:off
 		/* $this->getLogger()->info(__FUNCTION__.' : '
 				. 	' OrderID : '			.$oOrderHead->OrderID				.','
 				.	' ExternalOrderID : '	.$oOrderHead->ExternalOrderID		.','
 				.	' CustomerID : '		.$oOrderHead->CustomerID			.','
 				.	' TotalInvoice : '		.$oOrderHead->TotalInvoice
 		); */
+		// @formatter:on
 
-		// store OrderHeads into DB		
-		$query = 'REPLACE INTO `OrderHead` '.
+		// store OrderHeads into DB
+		$query = 'REPLACE INTO `OrderHead` ' .
+		// @formatter:off
 				DBUtils::buildInsert(
 						array(
 								'Currency'					=>	$oOrderHead->Currency,
@@ -170,26 +150,29 @@ class SoapCall_SearchOrders extends PlentySoapCall
 								'WarehouseID'				=>	$oOrderHead->WarehouseID
 						)
 				);
+                // @formatter:on
 
-		DBQuery::getInstance()->replace($query);
+		DBQuery::getInstance() -> replace($query);
 
 		// delete old OrderItems to prevent duplicate insertion
 
-		$query = 'DELETE FROM `OrderItem` WHERE `OrderID` = ' . $oOrderHead->OrderID;
-		DBQuery::getInstance()->delete($query);
+		$query = 'DELETE FROM `OrderItem` WHERE `OrderID` = ' . $oOrderHead -> OrderID;
+		DBQuery::getInstance() -> delete($query);
 	}
 
-	private function processOrderItem($oOrderItem, $oOrderID)
-	{
+	private function processOrderItem($oOrderItem, $oOrderID) {
+		// @formatter:off
 		/* $this->getLogger()->info(__FUNCTION__.' : '
 				. 	' OrderID : '			.$oOrderID	.','
 				.	' Item SKU : '			.$oOrderItem->SKU				.','
 				.	' Quantity : '			.$oOrderItem->Quantity			.','
 				.	' Price : '				.$oOrderItem->Price
 		); */
-		
+		// @formatter:on
+
 		// store OrderHeads into DB
-		$query = 'REPLACE INTO `OrderItem` '.
+		$query = 'REPLACE INTO `OrderItem` ' .
+		// @formatter:off
 				DBUtils::buildInsert(
 						array(
 								'BundleItemID'			=>	$oOrderItem->BundleItemID,
@@ -213,42 +196,33 @@ class SoapCall_SearchOrders extends PlentySoapCall
 								
 						)
 				);
-		
-		DBQuery::getInstance()->replace($query);
+                // @formatter:on
+
+		DBQuery::getInstance() -> replace($query);
 	}
 
-	private function processOrder($oOrder)
-	{
-		$this->processOrderHead($oOrder->OrderHead);
+	private function processOrder($oOrder) {
+		$this -> processOrderHead($oOrder -> OrderHead);
 
-		if( isset($oOrder->OrderItems->item) && is_array( $oOrder->OrderItems->item ) )
-		{
-			foreach( $oOrder->OrderItems->item AS $oitem)
-			{
-				$this->processOrderItem($oitem, $oOrder->OrderHead->OrderID);
+		if (isset($oOrder -> OrderItems -> item) && is_array($oOrder -> OrderItems -> item)) {
+			foreach ($oOrder->OrderItems->item AS $oitem) {
+				$this -> processOrderItem($oitem, $oOrder -> OrderHead -> OrderID);
 			}
-		}
-		else if( isset($oOrder->OrderItems->item) )
-		{
-			$this->processOrderItem($oOrder->OrderItems->item, $oOrder->OrderHead->OrderID);
+		} else if (isset($oOrder -> OrderItems -> item)) {
+			$this -> processOrderItem($oOrder -> OrderItems -> item, $oOrder -> OrderHead -> OrderID);
 		}
 	}
 
-	private function responseInterpretation($oPlentySoapResponse_SearchOrders)
-	{
-		if( is_array( $oPlentySoapResponse_SearchOrders->Orders->item ) )
-		{
-			foreach( $oPlentySoapResponse_SearchOrders->Orders->item AS $order)
-			{
-				$this->processOrder($order);
+	private function responseInterpretation($oPlentySoapResponse_SearchOrders) {
+		if (is_array($oPlentySoapResponse_SearchOrders -> Orders -> item)) {
+			foreach ($oPlentySoapResponse_SearchOrders->Orders->item AS $order) {
+				$this -> processOrder($order);
 			}
-		}
-		else
-		{
-			$this->processOrder($oPlentySoapResponse_SearchOrders->Orders->item, $AttributeValueSetIDs);
+		} else {
+			$this -> processOrder($oPlentySoapResponse_SearchOrders -> Orders -> item, $AttributeValueSetIDs);
 		}
 		// $this->getLogger()->debug(__FUNCTION__.' : done' );
 	}
-}
 
+}
 ?>

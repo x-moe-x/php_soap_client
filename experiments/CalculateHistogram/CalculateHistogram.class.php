@@ -38,7 +38,7 @@ class CalculateHistogram {
 			$index;
 			$quantities = explode(',', $currentArticle['quantities']);
 			$adjustedQuantity = $this -> getArticleAdjustedQuantity($quantities, $currentArticle['quantity'], $currentArticle['range'], $spikeTolerance, $minToleratedSpikes, $index);
-				$this -> getLogger() -> debug(__FUNCTION__ . ' : Article: ' . $currentArticle['ItemID'] . ', skipped ' . $index . '/' . count($quantities) . ' orders, total: ' . $currentArticle['quantity'] . ', adjusted: ' . $adjustedQuantity . ', difference: ' . ($currentArticle['quantity'] - $adjustedQuantity) . ', daily sale: ' . $adjustedQuantity / 90);
+			$this -> getLogger() -> debug(__FUNCTION__ . ' : Article: ' . $currentArticle['ItemID'] . ', skipped ' . $index . '/' . count($quantities) . ' orders, total: ' . $currentArticle['quantity'] . ', adjusted: ' . $adjustedQuantity . ', difference: ' . ($currentArticle['quantity'] - $adjustedQuantity) . ', daily sale: ' . $adjustedQuantity / 90);
 		}
 	}
 
