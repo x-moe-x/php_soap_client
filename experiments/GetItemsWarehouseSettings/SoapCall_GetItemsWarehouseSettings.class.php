@@ -9,21 +9,15 @@ class SoapCall_GetItemsWarehouseSettings extends PlentySoapCall {
 
 	private $oPlentySoapRequest_GetItemsWarehouseSettings = null;
 
+	private $oItemIDAttributeValueSetIDPairs = null;
+	private $oMaxPairs = -1;
+
+	private $oWarehouseID = 1;
+
+	private $MAX_PAIRS_PER_PAGE = 100;
+
 	public function __construct() {
 		parent::__construct(__CLASS__);
-	}
-
-	private function getSKUQuery() {
-		return 'SELECT
-				ItemsBase.ItemID,
-				CASE WHEN (AttributeValueSets.AttributeValueSetID IS null) THEN
-					"0"
-				ELSE
-					AttributeValueSets.AttributeValueSetID
-				END AttributeValueSetID
-				FROM ItemsBase
-				LEFT JOIN AttributeValueSets
-					ON ItemsBase.ItemID = AttributeValueSets.ItemID';
 	}
 
 	public function execute() {
@@ -31,24 +25,9 @@ class SoapCall_GetItemsWarehouseSettings extends PlentySoapCall {
 
 		try {
 
-			// get all ItemID-AttributeValueSetID pairs
-			$pairs = DBQuery::getInstance() -> select($this -> getSKUQuery());
-			$maxPairs = $pairs -> getNumRows();
-			$this -> getLogger() -> debug(__FUNCTION__ . ' itemid-avsi-pairs: ' . $maxPairs);
-
-			// for each 100 pairs get items warehouse settings
-			$requestSKUs = array();
-			for ($i = 0; $i < 100; ++$i) {
-				//TODO prevent exception to be thrown
-				if ($i > 7)
-					break;
-				$current = $pairs -> fetchAssoc();
-				$requestSKUs[] = Values2SKU($current['ItemID'], $current['AttributeValueSetID']);
-			}
-
 			$oRequest_GetItemsWarehouseSettings = new Request_GetItemsWarehouseSettings();
 
-			$this -> oPlentySoapRequest_GetItemsWarehouseSettings = $oRequest_GetItemsWarehouseSettings -> getRequest($requestSKUs, 1);
+				$this -> oPlentySoapRequest_GetItemsWarehouseSettings = $oRequest_GetItemsWarehouseSettings -> getRequest($this -> getSKUList(0), $this -> oWarehouseID);
 
 			/*
 			 * do soap call
@@ -82,6 +61,45 @@ class SoapCall_GetItemsWarehouseSettings extends PlentySoapCall {
 		} catch(Exception $e) {
 			$this -> onExceptionAction($e);
 		}
+	}
+
+	private function getPairQuery() {
+		return 'SELECT
+                ItemsBase.ItemID,
+                CASE WHEN (AttributeValueSets.AttributeValueSetID IS null) THEN
+                    "0"
+                ELSE
+                    AttributeValueSets.AttributeValueSetID
+                END AttributeValueSetID
+                FROM ItemsBase
+                LEFT JOIN AttributeValueSets
+                    ON ItemsBase.ItemID = AttributeValueSets.ItemID';
+	}
+
+	private function initPairs() {
+		// get all ItemID-AttributeValueSetID pairs
+		$this -> oItemIDAttributeValueSetIDPairs = DBQuery::getInstance() -> select($this -> getPairQuery());
+		$this -> oMaxPairs = $this -> oItemIDAttributeValueSetIDPairs -> getNumRows();
+
+		$this -> getLogger() -> debug(__FUNCTION__ . ' itemid-avsi-pairs: ' . $this -> oMaxPairs);
+	}
+
+	private function getSKUList($startPage) {
+		$requestSKUs = array();
+		for ($i = $startPage * $this -> MAX_PAIRS_PER_PAGE; $i < min(($startPage + 1) * $this -> MAX_PAIRS_PER_PAGE, $this -> oMaxPairs); ++$i) {
+
+			$current = $this -> oItemIDAttributeValueSetIDPairs -> fetchAssoc();
+
+			// TODO workaround for plenty bug on ticket 135428
+			// check if no article variant is beeing processed ...
+			if ($current['AttributeValueSetID'] == 0)
+				// ... then store
+				$requestSKUs[] = Values2SKU($current['ItemID'], $current['AttributeValueSetID']);
+			else
+				// ... otherwise skip
+				;
+		}
+		return $requestSKUs;
 	}
 
 	private function processWarehouseSetting($oWarehouseSetting) {
