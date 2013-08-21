@@ -7,6 +7,9 @@ require_once ROOT . 'includes/SKUHelper.php';
 
 class SoapCall_GetItemsWarehouseSettings extends PlentySoapCall {
 
+	private $page = 0;
+	private $pages = -1;
+	private $startAtPage = 0;
 	private $oPlentySoapRequest_GetItemsWarehouseSettings = null;
 
 	private $oItemIDAttributeValueSetIDPairs = null;
@@ -23,43 +26,82 @@ class SoapCall_GetItemsWarehouseSettings extends PlentySoapCall {
 	public function execute() {
 		$this -> getLogger() -> debug(__FUNCTION__);
 
-		try {
+		if ($this -> pages == -1)
+			try {
+				$this -> initPairs();
 
-			$oRequest_GetItemsWarehouseSettings = new Request_GetItemsWarehouseSettings();
+				$oRequest_GetItemsWarehouseSettings = new Request_GetItemsWarehouseSettings();
 
 				$this -> oPlentySoapRequest_GetItemsWarehouseSettings = $oRequest_GetItemsWarehouseSettings -> getRequest($this -> getSKUList(0), $this -> oWarehouseID);
 
-			/*
-			 * do soap call
-			 */
-			$response = $this -> getPlentySoap() -> GetItemsWarehouseSettings($this -> oPlentySoapRequest_GetItemsWarehouseSettings);
+				/*
+				 * do soap call
+				 */
+				$response = $this -> getPlentySoap() -> GetItemsWarehouseSettings($this -> oPlentySoapRequest_GetItemsWarehouseSettings);
 
-			if (($response -> Success == true) && isset($response -> ItemList)) {
+				if (($response -> Success == true) && isset($response -> ItemList)) {
 
-				$this -> getLogger() -> debug(__FUNCTION__ . ' Request Success, ' . count($response -> ItemList -> item) . ' warehouse settings found');
+					$pagesFound = ceil($this -> oMaxPairs / $this -> MAX_PAIRS_PER_PAGE);
 
-				// process response
-				$this -> responseInterpretation($response);
-			} else if (($response -> Success == true) && !isset($response -> ItemList)) {
-				$this -> getLogger() -> debug(__FUNCTION__ . ' Request Success but no items available');
-			} else {
-				if (isset($response -> ResponseMessages -> item) && is_array($response -> ResponseMessages -> item)) {
-					$errorString = '';
-					foreach ($response -> ResponseMessages -> item as $message) {
-						if (isset($message -> ErrorMessages -> item) && is_array($message -> ErrorMessages -> item)) {
-							foreach ($message -> ErrorMessages -> item as $errorMessage) {
-								$errorString .= $errorMessage -> Key . ': ' . $errorMessage -> Value;
-								$errorString .= ', ';
+					$this -> getLogger() -> debug(__FUNCTION__ . ' Request Success, ' . count($response -> ItemList -> item) . ' warehouse settings found, ' . $pagesFound . ' pages');
+
+					// process response
+					$this -> responseInterpretation($response);
+
+					if ($pagesFound > $this -> page) {
+						$this -> page = $this -> startAtPage + 1;
+						$this -> pages = $pagesFound;
+
+						$this -> executePages();
+					}
+				} else if (($response -> Success == true) && !isset($response -> ItemList)) {
+					$this -> getLogger() -> debug(__FUNCTION__ . ' Request Success but no items available');
+				} else {
+					if (isset($response -> ResponseMessages -> item) && is_array($response -> ResponseMessages -> item)) {
+						$errorString = '';
+						foreach ($response -> ResponseMessages -> item as $message) {
+							if (isset($message -> ErrorMessages -> item) && is_array($message -> ErrorMessages -> item)) {
+								foreach ($message -> ErrorMessages -> item as $errorMessage) {
+									$errorString .= $errorMessage -> Key . ': ' . $errorMessage -> Value;
+									$errorString .= ', ';
+								}
 							}
 						}
+						$this -> getLogger() -> debug(__FUNCTION__ . ' Request Error: ' . ($errorString != '' ? $errorString : 'unable to retreive error messages'));
+					} else {
+						$this -> getLogger() -> debug(__FUNCTION__ . ' Request Error');
 					}
-					$this -> getLogger() -> debug(__FUNCTION__ . ' Request Error: ' . ($errorString != '' ? $errorString : 'unable to retreive error messages'));
-				} else {
-					$this -> getLogger() -> debug(__FUNCTION__ . ' Request Error');
 				}
+			} catch(Exception $e) {
+				$this -> onExceptionAction($e);
 			}
-		} catch(Exception $e) {
-			$this -> onExceptionAction($e);
+		else {
+			$this -> executePages();
+		}
+	}
+
+	private function executePages() {
+		while ($this -> pages > $this -> page) {
+			$oRequest_GetItemsWarehouseSettings = new Request_GetItemsWarehouseSettings();
+
+			$this -> oPlentySoapRequest_GetItemsWarehouseSettings = $oRequest_GetItemsWarehouseSettings -> getRequest($this -> getSKUList($this -> page), $this -> oWarehouseID);
+
+			try {
+				$response = $this -> getPlentySoap() -> GetItemsWarehouseSettings($this -> oPlentySoapRequest_GetItemsWarehouseSettings);
+
+				if (($response -> Success == true) && isset($response -> ItemList)) {
+
+					$this -> getLogger() -> debug(__FUNCTION__ . ' Request Success, ' . count($response -> ItemList -> item) . ' warehouse settings found, page: ' . $this -> page);
+
+					// process response
+					$this -> responseInterpretation($response);
+				}
+
+				$this -> page++;
+
+			} catch(Exception $e) {
+				$this -> onExceptionAction($e);
+			}
 		}
 	}
 
