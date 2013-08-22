@@ -101,9 +101,11 @@ function getConfig() {
 	for ($i = 0; $i < $resultConfigQuery -> getNumRows(); ++$i) {
 		$configRow = $resultConfigQuery -> fetchAssoc();
 		if ($configRow['ConfigKey'] == 'SpikeTolerance' || $configRow['ConfigKey'] == 'StandardDeviationFactor')
-			$result[$configRow['ConfigKey']] = floatval($configRow['ConfigValue']);
+			$result[$configRow['ConfigKey']]['Value'] = floatval($configRow['ConfigValue']);
 		else
-			$result[$configRow['ConfigKey']] = intval($configRow['ConfigValue']);
+			$result[$configRow['ConfigKey']]['Value'] = intval($configRow['ConfigValue']);
+
+		$result[$configRow['ConfigKey']]['Active'] = intval($configRow['Active']);
 	}
 	return $result;
 }

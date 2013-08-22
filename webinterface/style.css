@@ -20,10 +20,15 @@
 	width: 300px;
 }
 
+#variableManipulation label.disabled {
+	color:#aaaaaa;
+	text-decoration: line-through;
+}
+
 #variableManipulation label.variableUnit {
 	display: inline-block;
 	width: auto;
-	color:#aaaaaa
+	color:#aaaaaa;
 }
 
 #warehouseSelection {

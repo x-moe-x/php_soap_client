@@ -14,24 +14,24 @@
 		<div>
 			<ul id='variableManipulation'>
 				<li>
-					<label for='calculationTimeSingleWeighted'> Zeitraum zur Berechnung (einfach gewichtet): </label>
-					<input id='calculationTimeSingleWeighted' value='{$config.CalculationTimeSingleWeighted}'/>
-					<label class="variableUnit" for='calculationTimeSingleWeighted'>Tage</label>
+					<label {if $config.CalculationTimeSingleWeighted.Active == 0}class='disabled'{/if} for='calculationTimeSingleWeighted'> Zeitraum zur Berechnung (einfach gewichtet): </label>
+					<input id='calculationTimeSingleWeighted' value='{$config.CalculationTimeSingleWeighted.Value}' {if $config.CalculationTimeSingleWeighted.Active == 0}disabled{/if}/>
+					<label class='variableUnit' for='calculationTimeSingleWeighted'>Tage</label>
 				<li>
-					<label for='calcualtionTimeDoubleWeighted'> Zeitraum zur Berechnung (doppelt gewichtet): </label>
-					<input id='calcualtionTimeDoubleWeighted' value='{$config.CalcualtionTimeDoubleWeighted}'/>
-					<label class="variableUnit" for='calcualtionTimeDoubleWeighted'>Tage</label>
+					<label {if $config.CalcualtionTimeDoubleWeighted.Active == 0}class='disabled'{/if} for='calcualtionTimeDoubleWeighted'> Zeitraum zur Berechnung (doppelt gewichtet): </label>
+					<input id='calcualtionTimeDoubleWeighted' value='{$config.CalcualtionTimeDoubleWeighted.Value}' {if $config.CalcualtionTimeDoubleWeighted.Active == 0}disabled{/if}/>
+					<label class='variableUnit' for='calcualtionTimeDoubleWeighted'>Tage</label>
 				<li>
-					<label for='standardDeviationFactor'> Faktor Standardabweichung: </label>
-					<input id='standardDeviationFactor' value='{$config.StandardDeviationFactor}'/>
+					<label {if $config.StandardDeviationFactor.Active == 0}class='disabled'{/if} for='standardDeviationFactor'> Faktor Standardabweichung: </label>
+					<input id='standardDeviationFactor' value='{$config.StandardDeviationFactor.Value}' {if $config.StandardDeviationFactor.Active == 0}disabled{/if}/>
 				<li>
-					<label for='minimumToleratedSpikes'> Mindestanzahl Spitzen: </label>
-					<input id='minimumToleratedSpikes' value='{$config.MinimumToleratedSpikes}'/>
-					<label class="variableUnit" for='minimumToleratedSpikes'>Stück</label>
+					<label {if $config.MinimumToleratedSpikes.Active == 0}class='disabled'{/if} for='minimumToleratedSpikes'> Mindestanzahl Spitzen: </label>
+					<input id='minimumToleratedSpikes' value='{$config.MinimumToleratedSpikes.Value}' {if $config.MinimumToleratedSpikes.Active == 0}disabled{/if}/>
+					<label class='variableUnit' for='minimumToleratedSpikes'>Stück</label>
 				<li>
-					<label for='spikeTolerance'> Spitzentoleranz: </label>
-					<input id='spikeTolerance' value='{$config.SpikeTolerance}' />
-					<label class="variableUnit" for='spikeTolerance'>%</label>
+					<label {if $config.SpikeTolerance.Active == 0}class='disabled'{/if} for='spikeTolerance'> Spitzentoleranz: </label>
+					<input id='spikeTolerance' value='{$config.SpikeTolerance.Value}'  {if $config.SpikeTolerance.Active == 0}disabled{/if}/>
+					<label class='variableUnit' for='spikeTolerance'>%</label>
 			</ul>
 			<select id='warehouseSelection'>
 				<option>Lagerort auswählen</option>
