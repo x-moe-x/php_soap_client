@@ -25,24 +25,51 @@ class CalculateHistogram {
 		$currentTime = 1367359199;
 		//	30.04.2013, 23:59:59
 
-		$spikeTolerance = 0.3;
-		$minToleratedSpikes = 3;
+		$config = $this -> getConfig();
+
+		$spikeTolerance = $config[SpikeTolerance]['Value'];
+		$minToleratedSpikes = $config[MinimumToleratedSpikes]['Value'];
 
 		// retreive latest orders from db
-		$query = $this -> getIntervallQuery($currentTime, 90, 3);
+		$query = $this -> getIntervallQuery($currentTime, $config[CalculationTimeSingleWeighted]['Value'], $config[StandardDeviationFactor]['Value']);
 
 		$articleResult = DBQuery::getInstance() -> select($query);
 
 		// for every article do:
 		while ($currentArticle = $articleResult -> fetchAssoc()) {
 
-			list($ItemID,$PriceID,$AttributeValueSetID) = SKU2Values($currentArticle['SKU']);
+			list($ItemID, $PriceID, $AttributeValueSetID) = SKU2Values($currentArticle['SKU']);
 
 			$index;
 			$quantities = explode(',', $currentArticle['quantities']);
 			$adjustedQuantity = $this -> getArticleAdjustedQuantity($quantities, $currentArticle['quantity'], $currentArticle['range'], $spikeTolerance, $minToleratedSpikes, $index);
-			$this -> getLogger() -> debug(__FUNCTION__ . ' : Article: ' . $ItemID . ', Set: '. $AttributeValueSetID . ', skipped ' . $index . '/' . count($quantities) . ' orders, total: ' . $currentArticle['quantity'] . ', adjusted: ' . $adjustedQuantity . ', difference: ' . ($currentArticle['quantity'] - $adjustedQuantity) . ', daily sale: ' . $adjustedQuantity / 90);
+			$this -> getLogger() -> debug(__FUNCTION__ . ' : Article: ' . $ItemID . ', Set: ' . $AttributeValueSetID . ', skipped ' . $index . '/' . count($quantities) . ' orders, total: ' . $currentArticle['quantity'] . ', adjusted: ' . $adjustedQuantity . ', difference: ' . ($currentArticle['quantity'] - $adjustedQuantity) . ', daily sale: ' . $adjustedQuantity / 90);
 		}
+	}
+
+	private function getConfig() {
+		$query = 'SELECT
+                * FROM `MetaConfig`
+                WHERE
+                    `ConfigKey` = "CalculationTimeSingleWeighted" OR
+                    `ConfigKey` = "CalcualtionTimeDoubleWeighted" OR
+                    `ConfigKey` = "MinimumToleratedSpikes" OR
+                    `ConfigKey` = "SpikeTolerance" OR
+                    `ConfigKey` = "StandardDeviationFactor"';
+		$resultConfigQuery = DBQuery::getInstance() -> select($query);
+
+		$result = array();
+		//TODO add validity check!
+		for ($i = 0; $i < $resultConfigQuery -> getNumRows(); ++$i) {
+			$configRow = $resultConfigQuery -> fetchAssoc();
+			if ($configRow['ConfigKey'] == 'SpikeTolerance' || $configRow['ConfigKey'] == 'StandardDeviationFactor')
+				$result[$configRow['ConfigKey']]['Value'] = floatval($configRow['ConfigValue']);
+			else
+				$result[$configRow['ConfigKey']]['Value'] = intval($configRow['ConfigValue']);
+
+			$result[$configRow['ConfigKey']]['Active'] = intval($configRow['Active']);
+		}
+		return $result;
 	}
 
 	private function getArticleAdjustedQuantity($quantities, $quantity, $range, $spikeTolerance, $minToleratedSpikes, &$index) {
