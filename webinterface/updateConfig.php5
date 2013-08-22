@@ -22,7 +22,8 @@ if (isset($_POST['key']) && isset($_POST['value'])) {
 	}
 
 	//TODO add validity checks!
-	$query = 'REPLACE INTO `MetaConfig` ' . DBUtils::buildInsert(array('ConfigKey' => ucfirst($_POST['key']), 'ConfigValue' => $parsedValue));
+	//TODO check for active
+	$query = 'REPLACE INTO `MetaConfig` ' . DBUtils::buildInsert(array('ConfigKey' => ucfirst($_POST['key']), 'ConfigValue' => $parsedValue, 'Active' => 1));
 	DBQuery::getInstance() -> replace($query);
 	ob_end_clean();
 } else {

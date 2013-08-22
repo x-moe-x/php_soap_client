@@ -35,12 +35,12 @@ $.fn.updateConfig = function() {
 	}
 
 	return this;
-}
+};
 
 $(document).ready(function() {
 
 	var integerInputfields = $('#calculationTimeSingleWeighted, #calcualtionTimeDoubleWeighted, #minimumToleratedSpikes');
-	var floatInputFields = $('#standardDeviationFaktor, #spikeTolerance');
+	var floatInputFields = $('#standardDeviationFactor, #spikeTolerance');
 
 	integerInputfields.change(function() {
 		$(this).checkIntval();
