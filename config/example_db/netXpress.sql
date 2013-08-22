@@ -198,3 +198,13 @@ CREATE TABLE `soap_db`.`ItemsBase` (
 	UNIQUE KEY `unique_key` (`ItemNo`, `EAN1`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+DROP TABLE `soap_db`.`CalculatedDailyNeeds`;
+
+CREATE TABLE `soap_db`.`CalculatedDailyNeeds` (
+	`ItemID` int(11) NOT NULL,
+	`AttributeValueSetID` int(11) NOT NULL,
+	`DailyNeed` decimal(8,2) DEFAULT NULL,
+	`LastUpdate`int(11) DEFAULT NULL,
+	PRIMARY KEY (`ItemID`, `AttributeValueSetID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
