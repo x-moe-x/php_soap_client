@@ -13,7 +13,15 @@
             <a href='?pagenum={$pagenum-1}&pagerows={$pagerows}'>←</a>
             {/if}
         <li class='paginatePagenum'>
-            {$pagenum}
+			<select onchange="window.location.href = '?pagenum=' + this.options[this.selectedIndex].value + '&pagerows={$pagerows}'">
+        		{for $page=1 to $last}
+        		{if $page==$pagenum}
+        		<option selected>Seite {$page}</option>
+        		{else}
+        		<option value='{$page}'>Seite {$page}</option>
+        		{/if}
+        		{/for}
+        	</select>
         <li class='paginateNext'>
             {if $pagenum == $last}
             →

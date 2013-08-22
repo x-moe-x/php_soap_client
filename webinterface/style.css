@@ -101,7 +101,7 @@
 }
 
 .paginationLinks li {
-	display: inline-block;
+	display: inline;
 	list-style-type: none;
 	margin-right: 1em;
 	font-size: 3ex;
