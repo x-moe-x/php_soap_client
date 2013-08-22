@@ -129,17 +129,8 @@ class SoapCall_GetItemsWarehouseSettings extends PlentySoapCall {
 	private function getSKUList($startPage) {
 		$requestSKUs = array();
 		for ($i = $startPage * $this -> MAX_PAIRS_PER_PAGE; $i < min(($startPage + 1) * $this -> MAX_PAIRS_PER_PAGE, $this -> oMaxPairs); ++$i) {
-
 			$current = $this -> oItemIDAttributeValueSetIDPairs -> fetchAssoc();
-
-			// TODO workaround for plenty bug on ticket 135428
-			// check if no article variant is beeing processed ...
-			if ($current['AttributeValueSetID'] == 0)
-				// ... then store
-				$requestSKUs[] = Values2SKU($current['ItemID'], $current['AttributeValueSetID']);
-			else
-				// ... otherwise skip
-				;
+			$requestSKUs[] = Values2SKU($current['ItemID'], $current['AttributeValueSetID']);
 		}
 		return $requestSKUs;
 	}
