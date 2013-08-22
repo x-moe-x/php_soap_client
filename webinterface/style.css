@@ -79,6 +79,10 @@
 	background-color: #fff;
 }
 
+#resultTable .right {
+	text-align: right;
+}
+
 #resultTable th {
 	font-weight: normal;
 	border: 1px solid black;

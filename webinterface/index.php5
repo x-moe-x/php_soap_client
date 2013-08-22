@@ -13,6 +13,7 @@ function getQuery() {
 				ItemsBase.ItemNo,
 				ItemsBase.Name,
 				ItemsBase.Marking1ID,
+				CalculatedDailyNeeds.DailyNeed,
 				CASE WHEN (AttributeValueSets.AttributeValueSetID IS null) THEN
 					"0"
 				ELSE
@@ -25,7 +26,14 @@ function getQuery() {
 				END AttributeValueSetName
 				FROM ItemsBase
 				LEFT JOIN AttributeValueSets
-					ON ItemsBase.ItemID = AttributeValueSets.ItemID';
+					ON ItemsBase.ItemID = AttributeValueSets.ItemID
+                LEFT JOIN CalculatedDailyNeeds
+                    ON ItemsBase.ItemID = CalculatedDailyNeeds.ItemID
+                    AND CASE WHEN (AttributeValueSets.AttributeValueSetID IS null) THEN
+                        "0"
+                    ELSE
+                        AttributeValueSets.AttributeValueSetID
+                    END = CalculatedDailyNeeds.AttributeValueSetID';
 }
 
 function getMaxRows() {
@@ -56,11 +64,13 @@ function processPage(DBQueryResult $resultPage) {
 			$preparedRow[] = $row['Name'] . ', ' . $row['AttributeValueSetName'];
 		}
 
+        $dailyNeed = floatval($row['DailyNeed']);
+
 		// average need (per month)
-		$preparedRow[] = null;
+		$preparedRow[] = $dailyNeed == 0 ? '' : $dailyNeed * 30;
 
 		// average need (per day)
-		$preparedRow[] = null;
+		$preparedRow[] = $dailyNeed == 0 ? '' : $dailyNeed;
 
 		// mark
 		$preparedRow[] = $row['Marking1ID'];

@@ -59,6 +59,7 @@
 
 				{else}
 				{if $smarty.foreach.cols.index == 4} <td class="markingColumn marking{$col}">●
+				{elseif ($smarty.foreach.cols.index == 2)||($smarty.foreach.cols.index == 3)} <td class='right'>{$col}
 				{else} <td>{$col}
 				{/if}
 				{/if}
