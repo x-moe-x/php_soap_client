@@ -40,21 +40,7 @@ class CalculateHistogram {
 
 		// for every article do:
 		while ($currentArticle = $articleResult -> fetchAssoc()) {
-
-			list($ItemID, $PriceID, $AttributeValueSetID) = SKU2Values($currentArticle['SKU']);
-
-			$skippedIndex;
-			$quantities = explode(',', $currentArticle['quantities']);
-			$adjustedQuantity = $this -> getArticleAdjustedQuantity($quantities, $currentArticle['quantity'], $currentArticle['range'], $skippedIndex);
-			// @formatter:off
-			$this -> getLogger() -> info(__FUNCTION__ . ' : Article: ' .         $ItemID .
-			                                             ', Set: ' .             $AttributeValueSetID .
-			                                             ', skipped ' .          $skippedIndex . '/' . count($quantities) .
-			                                             ', orders, total: ' .   $currentArticle['quantity'] .
-			                                             ', adjusted: ' .        $adjustedQuantity .
-			                                             ', difference: ' .      ($currentArticle['quantity'] - $adjustedQuantity) .
-			                                             ', daily sale: ' .      $adjustedQuantity / 90);
-                                                             // @formatter:on
+			$this -> processArticle($currentArticle);
 		}
 	}
 
@@ -82,6 +68,37 @@ class CalculateHistogram {
 		}
 		return $result;
 	}
+
+    private function processArticle($currentArticle) {
+        list($ItemID, $PriceID, $AttributeValueSetID) = SKU2Values($currentArticle['SKU']);
+
+        $skippedIndex;
+        $quantities = explode(',', $currentArticle['quantities']);
+        $adjustedQuantity = $this -> getArticleAdjustedQuantity($quantities, $currentArticle['quantity'], $currentArticle['range'], $skippedIndex);
+
+        // @formatter:off
+            $this -> getLogger() -> info(__FUNCTION__ . ' : Article: ' .         $ItemID .
+                                                         ', Set: ' .             $AttributeValueSetID .
+                                                         ', skipped ' .          $skippedIndex . '/' . count($quantities) .
+                                                         ', orders, total: ' .   $currentArticle['quantity'] .
+                                                         ', adjusted: ' .        $adjustedQuantity .
+                                                         ', difference: ' .      ($currentArticle['quantity'] - $adjustedQuantity) .
+                                                         ', daily sale: ' .      $adjustedQuantity / 90);
+
+        // store results to db
+        $query = 'REPLACE INTO `CalculatedDailyNeeds` ' .
+            DBUtils::buildInsert(
+                array(
+                    'ItemID'                =>  $ItemID,
+                    'AttributeValueSetID'   =>  $AttributeValueSetID,
+                    'DailyNeed'             =>  $adjustedQuantity / 90,
+                    'LastUpdate'            =>  $this->currentTime
+                )
+            );
+        // @formatter:on
+
+        DBQuery::getInstance()->replace($query);
+    }
 
 	private function getArticleAdjustedQuantity($quantities, $quantity, $range, &$index) {
 
