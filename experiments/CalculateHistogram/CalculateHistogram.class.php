@@ -15,35 +15,46 @@ class CalculateHistogram {
 	 */
 	private $identifier4Logger = '';
 
+	private $config = null;
+
+	private $currentTime = null;
+
 	public function __construct() {
 		$this -> identifier4Logger = __CLASS__;
+	}
+
+	public function init() {
+		$this -> currentTime = 1367359199;
+		//  30.04.2013, 23:59:59
+
+		$this -> config = $this -> getConfig();
 	}
 
 	public function execute() {
 		$this -> getLogger() -> debug(__FUNCTION__ . ' : CalculateHistogram');
 
-		$currentTime = 1367359199;
-		//	30.04.2013, 23:59:59
-
-		$config = $this -> getConfig();
-
-		$spikeTolerance = $config[SpikeTolerance]['Value'];
-		$minToleratedSpikes = $config[MinimumToleratedSpikes]['Value'];
+		$this -> init();
 
 		// retreive latest orders from db
-		$query = $this -> getIntervallQuery($currentTime, $config[CalculationTimeSingleWeighted]['Value'], $config[StandardDeviationFactor]['Value']);
-
-		$articleResult = DBQuery::getInstance() -> select($query);
+		$articleResult = DBQuery::getInstance() -> select($this -> getIntervallQuery());
 
 		// for every article do:
 		while ($currentArticle = $articleResult -> fetchAssoc()) {
 
 			list($ItemID, $PriceID, $AttributeValueSetID) = SKU2Values($currentArticle['SKU']);
 
-			$index;
+			$skippedIndex;
 			$quantities = explode(',', $currentArticle['quantities']);
-			$adjustedQuantity = $this -> getArticleAdjustedQuantity($quantities, $currentArticle['quantity'], $currentArticle['range'], $spikeTolerance, $minToleratedSpikes, $index);
-			$this -> getLogger() -> debug(__FUNCTION__ . ' : Article: ' . $ItemID . ', Set: ' . $AttributeValueSetID . ', skipped ' . $index . '/' . count($quantities) . ' orders, total: ' . $currentArticle['quantity'] . ', adjusted: ' . $adjustedQuantity . ', difference: ' . ($currentArticle['quantity'] - $adjustedQuantity) . ', daily sale: ' . $adjustedQuantity / 90);
+			$adjustedQuantity = $this -> getArticleAdjustedQuantity($quantities, $currentArticle['quantity'], $currentArticle['range'], $skippedIndex);
+			// @formatter:off
+			$this -> getLogger() -> info(__FUNCTION__ . ' : Article: ' .         $ItemID .
+			                                             ', Set: ' .             $AttributeValueSetID .
+			                                             ', skipped ' .          $skippedIndex . '/' . count($quantities) .
+			                                             ', orders, total: ' .   $currentArticle['quantity'] .
+			                                             ', adjusted: ' .        $adjustedQuantity .
+			                                             ', difference: ' .      ($currentArticle['quantity'] - $adjustedQuantity) .
+			                                             ', daily sale: ' .      $adjustedQuantity / 90);
+                                                             // @formatter:on
 		}
 	}
 
@@ -72,7 +83,10 @@ class CalculateHistogram {
 		return $result;
 	}
 
-	private function getArticleAdjustedQuantity($quantities, $quantity, $range, $spikeTolerance, $minToleratedSpikes, &$index) {
+	private function getArticleAdjustedQuantity($quantities, $quantity, $range, &$index) {
+
+		$spikeTolerance = $this -> config[SpikeTolerance]['Value'];
+		$minToleratedSpikes = $this -> config[MinimumToleratedSpikes]['Value'];
 
 		// check quantities in descending order
 		for ($index = 0; $index < count($quantities); ++$index) {
@@ -111,7 +125,11 @@ class CalculateHistogram {
 		return $quantity;
 	}
 
-	private function getIntervallQuery($startTimestamp, $daysBack, $rangeConfidenceMultiplyer) {
+	private function getIntervallQuery() {
+		$startTimestamp = $this -> currentTime;
+		$daysBack = $this -> config[CalculationTimeSingleWeighted]['Value'];
+		$rangeConfidenceMultiplyer = $this -> config[StandardDeviationFactor]['Value'];
+
 		return '
 			SELECT
 				OrderItem.ItemID,
