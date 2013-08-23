@@ -7,13 +7,15 @@ require_once ROOT . 'lib/db/DBQuery.class.php';
 require ('smarty/libs/Smarty.class.php');
 $smarty = new Smarty();
 
-function getQuery() {
+function getQuery($warehouseID) {
 	return 'SELECT
 				ItemsBase.ItemID,
 				ItemsBase.ItemNo,
 				ItemsBase.Name,
 				ItemsBase.Marking1ID,
 				CalculatedDailyNeeds.DailyNeed,
+				ItemsWarehouseSettings.ReorderLevel,
+				ItemsWarehouseSettings.StockTurnover,
 				CASE WHEN (AttributeValueSets.AttributeValueSetID IS null) THEN
 					"0"
 				ELSE
@@ -33,15 +35,24 @@ function getQuery() {
                         "0"
                     ELSE
                         AttributeValueSets.AttributeValueSetID
-                    END = CalculatedDailyNeeds.AttributeValueSetID';
+                    END = CalculatedDailyNeeds.AttributeValueSetID
+                LEFT JOIN ItemsWarehouseSettings
+                    ON ItemsBase.ItemID = ItemsWarehouseSettings.ItemID
+                    AND CASE WHEN (AttributeValueSets.AttributeValueSetID IS null) THEN
+                        "0"
+                    ELSE
+                        AttributeValueSets.AttributeValueSetID
+                    END = ItemsWarehouseSettings.AttributeValueSetID
+	              WHERE
+	                  ItemsWarehouseSettings.WarehouseID = ' . $warehouseID;
 }
 
 function getMaxRows() {
-	return DBQuery::getInstance() -> select(getQuery()) -> getNumRows();
+	return DBQuery::getInstance() -> select(getQuery(1)) -> getNumRows();
 }
 
 function getPageResult($pageNum, $pageRows) {
-	$query = getQuery() . '
+	$query = getQuery(1) . '
 				LIMIT ' . ($pageNum - 1) * $pageRows . ',' . $pageRows;
 
 	$result = DBQuery::getInstance() -> select($query);
@@ -64,7 +75,9 @@ function processPage(DBQueryResult $resultPage) {
 			$preparedRow[] = $row['Name'] . ', ' . $row['AttributeValueSetName'];
 		}
 
-        $dailyNeed = floatval($row['DailyNeed']);
+		$dailyNeed = floatval($row['DailyNeed']);
+		$reorderLevel = intval($row['ReorderLevel']);
+		$stockTurnover = intval($row['StockTurnover']);
 
 		// average need (per month)
 		$preparedRow[] = $dailyNeed == 0 ? '' : $dailyNeed * 30;
@@ -76,7 +89,7 @@ function processPage(DBQueryResult $resultPage) {
 		$preparedRow[] = $row['Marking1ID'];
 
 		// suggested reorder level (old reorder level)
-		$preparedRow[] = null;
+		$preparedRow[] = $stockTurnover == 0 ? 'keine Lagerreichweite konfiguriert!' : ceil($stockTurnover * $dailyNeed) . ' (' . $reorderLevel . ')';
 
 		// minimum purchase / order suggestion (current order suggestion)
 		$preparedRow[] = null;
@@ -144,7 +157,7 @@ if (!(isset($_GET['pagerows']))) {
 	$pagerows = ($_GET['pagerows'] > 50 ? 50 : $_GET['pagerows']);
 }
 
-$page = getPageResult($pagenum, $pagerows);
+$page = getPageResult($pagenum, $pagerows, 1);
 
 $smarty -> setTemplateDir('smarty/templates');
 $smarty -> setCompileDir('smarty/templates_c');

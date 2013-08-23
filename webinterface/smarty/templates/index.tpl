@@ -33,10 +33,10 @@
 					<input id='spikeTolerance' value='{$config.SpikeTolerance.Value}'  {if $config.SpikeTolerance.Active == 0}disabled{/if}/>
 					<label class='variableUnit' for='spikeTolerance'>%</label>
 			</ul>
-			<select id='warehouseSelection'>
+			<select id='warehouseSelection' disabled>
 				<option>Lagerort auswählen</option>
 				{foreach from=$warehouseList item=warehouse}
-				<option value='{$warehouse.id}'>{$warehouse.name}</option>
+				<option value='{$warehouse.id}' {if $warehouse.id == 1}selected{/if}>{$warehouse.name}</option>
 				{/foreach}
 			</select>
 		</div>
@@ -59,7 +59,7 @@
 
 				{else}
 				{if $smarty.foreach.cols.index == 4} <td class="markingColumn marking{$col}">●
-				{elseif ($smarty.foreach.cols.index == 2)||($smarty.foreach.cols.index == 3)} <td class='right'>{$col}
+				{elseif ($smarty.foreach.cols.index == 2)||($smarty.foreach.cols.index == 3)||($smarty.foreach.cols.index == 5)} <td class='right'>{$col}
 				{else} <td>{$col}
 				{/if}
 				{/if}
