@@ -85,8 +85,8 @@ class CalculateHistogram {
 
 	private function getArticleAdjustedQuantity($quantities, $quantity, $range, &$index) {
 
-		$spikeTolerance = $this -> config[SpikeTolerance]['Value'];
-		$minToleratedSpikes = $this -> config[MinimumToleratedSpikes]['Value'];
+		$spikeTolerance = $this -> config['SpikeTolerance']['Value'];
+		$minToleratedSpikes = $this -> config['MinimumToleratedSpikes']['Value'];
 
 		// check quantities in descending order
 		for ($index = 0; $index < count($quantities); ++$index) {
@@ -127,8 +127,8 @@ class CalculateHistogram {
 
 	private function getIntervallQuery() {
 		$startTimestamp = $this -> currentTime;
-		$daysBack = $this -> config[CalculationTimeSingleWeighted]['Value'];
-		$rangeConfidenceMultiplyer = $this -> config[StandardDeviationFactor]['Value'];
+		$daysBack = $this -> config['CalculationTimeSingleWeighted']['Value'];
+		$rangeConfidenceMultiplyer = $this -> config['StandardDeviationFactor']['Value'];
 
 		return '
 			SELECT
