@@ -24,8 +24,8 @@ class CalculateHistogram {
 	}
 
 	public function init() {
-		$this -> currentTime = 1367359199;
-		//  30.04.2013, 23:59:59
+		$this -> currentTime = time();
+		//  30.04.2013, 23:59:59 = 1367359199;
 
 		$this -> config = $this -> getConfig();
 	}
