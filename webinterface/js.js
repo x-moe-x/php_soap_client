@@ -26,8 +26,18 @@ $.fn.updateConfig = function() {
 			key : $(this).attr('id'),
 			value : $(this).val()
 		};
+
 		console.log("trying to send data", data);
+
+		var element = $(this);
+
+		// disable field during post
+		element.prop('disabled',true);
+
 		$.post('updateConfig.php5', data, function(result) {
+
+			// re-enable field after post
+			element.prop('disabled',false);
 			if (result != "") {
 				alert(result);
 			}
