@@ -49,6 +49,13 @@ $.fn.updateConfig = function() {
 
 $(document).ready(function() {
 
+	$('#initCalculation').click(function() {
+		$('body').addClass('loading');
+		$.get('executeCalculation.php5', function() {
+			$('body').removeClass("loading");
+		});
+	});
+
 	var integerInputfields = $('#calculationTimeSingleWeighted, #calcualtionTimeDoubleWeighted, #minimumToleratedSpikes');
 	var floatInputFields = $('#standardDeviationFactor, #spikeTolerance');
 

@@ -39,6 +39,7 @@
 				<option value='{$warehouse.id}' {if $warehouse.id == 1}selected{/if}>{$warehouse.name}</option>
 				{/foreach}
 			</select>
+			<input id='initCalculation' type='button' value='Kalkulation manuell auslösen' />
 		</div>
 		{include file="pagination.tpl"}
 		<div id='filterSelection'>
@@ -67,5 +68,6 @@
 				{/foreach}
 		</table>
 		{include file="pagination.tpl"}
+		<div class="modal"></div>
 	</body>
 </html>
