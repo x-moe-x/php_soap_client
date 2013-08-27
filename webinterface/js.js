@@ -150,6 +150,9 @@ $(document).ready(function() {
 				});
 			}
 		}],
+		onSuccess : function() {
+			$('#resultTable').parent().css('height', $('#resultTable').outerHeight());
+		},
 		sortname : "ItemID",
 		sortorder : "asc",
 		usepager : true,
