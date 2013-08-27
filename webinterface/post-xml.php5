@@ -39,6 +39,13 @@ function getMaxRows($query) {
 	return DBQuery::getInstance() -> select($query) -> getNumRows();
 }
 
+function getTextLike($columName, $value){
+	return $columName.' LIKE "%'.$value.'%" ';
+}
+function getIntLike($columName, $value){
+	return $columName.' = "'.$value.'" ';
+}
+
 $select_basic = '				SELECT
 					ItemsBase.ItemID,
 					ItemsBase.Name,
@@ -82,11 +89,33 @@ $from_advanced = $from_basic . '
                     END = CalculatedDailyNeeds.AttributeValueSetID';
 					
 $where = '
-				WHERE ItemsWarehouseSettings.WarehouseID = ' . $warehouseID. ' ';
+				WHERE
+					ItemsWarehouseSettings.WarehouseID = ' . $warehouseID. ' ';
 
-if ($query && $qtype)
-	$where .= '
-				AND '.$qtype.' LIKE "%'.$query.'%" ';
+if ($query && $qtype){
+	if (strpos($query,',') !== false){
+		$queries = explode(',',str_replace(' ', '', $query));
+
+		$where .= '
+				AND (';
+		for ($i = 0; $i < count($queries);$i++){
+			if ($i != 0){
+				$where .= '
+				OR';
+			} {
+				$where .= '
+					'.($qtype == 'ItemsBase.ItemID' ? getIntLike($qtype,$queries[$i]) : getTextLike($qtype,$queries[$i]));
+			}
+		}
+		$where .= '
+				)';
+
+	} else {
+		$where .= '
+				AND
+					'.($qtype == 'ItemsBase.ItemID' ? getIntLike($qtype,$query) : getTextLike($qtype,$query));
+	}
+}
 
 $sort = '
 				ORDER BY ' . $sortname . ' ' . $sortorder;
