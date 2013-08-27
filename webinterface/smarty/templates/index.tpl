@@ -4,8 +4,10 @@
 		<meta charset='utf-8'>
 		<title>Net-Xpress, Plenty-Soap GUI</title>
 		<link rel='stylesheet' type='text/css' href='style.css'/>
-		<script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
-		<script src="js.js"></script>
+		<link rel='stylesheet' type='text/css' href='flexigrid.pack.css'/>
+		<script src='http://code.jquery.com/jquery-1.8.3.min.js'></script>
+		<script src='flexigrid.pack.js'></script>
+		<script src='js.js'></script>
 	</head>
 	<body>
 		<div id='errorMessages'>
@@ -39,35 +41,11 @@
 				<option value='{$warehouse.id}' {if $warehouse.id == 1}selected{/if}>{$warehouse.name}</option>
 				{/foreach}
 			</select>
-			<input id='initCalculation' type='button' value='Kalkulation manuell auslösen' />
 		</div>
-		{include file="pagination.tpl"}
 		<div id='filterSelection'>
 			Filter: Alle anzeigen
 		</div>
-		<table id='resultTable'>
-			{foreach from=$rows item=row name=rows}
-			{if $smarty.foreach.rows.index == 0}
-			<tr>
-				{elseif $smarty.foreach.rows.index is even}
-			<tr class='articleTableEven'>
-				{else}
-			<tr class='articleTableOdd'>
-				{/if}
-				{foreach from=$row item=col name=cols}
-				{if $smarty.foreach.rows.index == 0}
-				<th>{$col}
-
-				{else}
-				{if $smarty.foreach.cols.index == 4} <td class="markingColumn marking{$col}">●
-				{elseif ($smarty.foreach.cols.index == 2)||($smarty.foreach.cols.index == 3)||($smarty.foreach.cols.index == 5)} <td class='right'>{$col}
-				{else} <td>{$col}
-				{/if}
-				{/if}
-				{/foreach}
-				{/foreach}
-		</table>
-		{include file="pagination.tpl"}
+		<table id='resultTable' style='display:none'></table>
 		<div class="modal"></div>
 	</body>
 </html>

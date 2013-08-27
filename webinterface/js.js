@@ -49,13 +49,6 @@ $.fn.updateConfig = function() {
 
 $(document).ready(function() {
 
-	$('#initCalculation').click(function() {
-		$('body').addClass('loading');
-		$.get('executeCalculation.php5', function() {
-			$('body').removeClass("loading");
-		});
-	});
-
 	var integerInputfields = $('#calculationTimeSingleWeighted, #calcualtionTimeDoubleWeighted, #minimumToleratedSpikes');
 	var floatInputFields = $('#standardDeviationFactor, #spikeTolerance');
 
@@ -76,5 +69,98 @@ $(document).ready(function() {
 			$(this).val("");
 		else
 			$(this).select();
+	});
+
+	$('#resultTable').flexigrid({
+		url : 'post-xml.php5',
+		dataType : 'xml',
+		colModel : [{
+			display : 'Item ID',
+			name : 'ItemID',
+			width : 40,
+			sortable : true,
+			align : 'center'
+		}, {
+			display : 'Name',
+			name : 'Name',
+			width : 180,
+			sortable : true,
+			align : 'left'
+		}, {
+			display : 'durchschnittlicher Bedarf (Monat)',
+			name : 'MonthlyNeed',
+			width : 120,
+			sortable : true,
+			align : 'right'
+		}, {
+			display : 'durchschnittlicher Bedarf (Tag)',
+			name : 'DailyNeed',
+			width : 130,
+			sortable : true,
+			align : 'right'
+		}, {
+			display : 'Markierung',
+			name : 'Marking',
+			width : 80,
+			sortable : true,
+			align : 'center'
+		}, {
+			display : 'Empfehlung Meldebestand (Meldebestand alt)',
+			name : 'ItemID',
+			width : 80,
+			sortable : false,
+			align : 'right'
+		}, {
+			display : 'Mindesabnahme / Bestellvorschlag (Bestellvorschlag aktuell)',
+			name : 'min_purchase_order_suggestion',
+			width : 80,
+			sortable : false,
+			align : 'right',
+			hide : true
+		}, {
+			display : 'Änderung',
+			name : 'change',
+			width : 80,
+			sortable : false,
+			align : 'right',
+			hide : true
+		}, {
+			display : 'Status Meldebestand',
+			name : 'status_reorder_level',
+			width : 80,
+			sortable : false,
+			align : 'right',
+			hide : true
+		}, {
+			display : 'Datum',
+			name : 'Date',
+			width : 120,
+			sortable : true,
+			align : 'right'
+		}],
+		buttons : [{
+			name : 'Kalkulation manuell auslösen',
+			bclass : 'gear',
+			onpress : function() {
+				var currentGrid = $('#resultTable');
+				$('body').addClass('loading');
+				$.get('executeCalculation.php5', function() {
+					$('body').removeClass("loading");
+					currentGrid.flexReload();
+				});
+			}
+		}],
+		sortname : "ItemID",
+		sortorder : "asc",
+		usepager : true,
+		singleSelect : true,
+		title : 'Artikel',
+		useRp : true,
+		rp : 15,
+		showTableToggleBtn : false,
+		pagetext : 'Seite',
+		outof : 'von',
+		pagestat : 'Zeige {from} bis {to} von {total} Artikeln',
+		procmsg : 'Bitte warten...'
 	});
 });
