@@ -1,10 +1,177 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
-"http://www.w3.org/TR/html4/strict.dtd">
-<html>
-	<head>
-		<title>test</title>
-	</head>
-	<body>
+<?php
+ob_start();	// prevent verbose functions from tainting output
 
-	</body>
-</html>
+require_once realpath(dirname(__FILE__) . '/../') . '/config/basic.inc.php';
+require_once ROOT . 'lib/db/DBQuery.class.php';
+
+require ('smarty/libs/Smarty.class.php');
+$smarty = new Smarty();
+
+function getQuery($warehouseID) {
+	return 'SELECT
+				ItemsBase.ItemID,
+				ItemsBase.ItemNo,
+				ItemsBase.Name,
+				ItemsBase.Marking1ID,
+				CalculatedDailyNeeds.DailyNeed,
+				ItemsWarehouseSettings.ReorderLevel,
+				ItemsWarehouseSettings.StockTurnover,
+				CASE WHEN (AttributeValueSets.AttributeValueSetID IS null) THEN
+					"0"
+				ELSE
+					AttributeValueSets.AttributeValueSetID
+				END AttributeValueSetID,
+				CASE WHEN (AttributeValueSets.AttributeValueSetName IS null) THEN
+					""
+				ELSE
+					AttributeValueSets.AttributeValueSetName
+				END AttributeValueSetName
+				FROM ItemsBase
+				LEFT JOIN AttributeValueSets
+					ON ItemsBase.ItemID = AttributeValueSets.ItemID
+                LEFT JOIN CalculatedDailyNeeds
+                    ON ItemsBase.ItemID = CalculatedDailyNeeds.ItemID
+                    AND CASE WHEN (AttributeValueSets.AttributeValueSetID IS null) THEN
+                        "0"
+                    ELSE
+                        AttributeValueSets.AttributeValueSetID
+                    END = CalculatedDailyNeeds.AttributeValueSetID
+                LEFT JOIN ItemsWarehouseSettings
+                    ON ItemsBase.ItemID = ItemsWarehouseSettings.ItemID
+                    AND CASE WHEN (AttributeValueSets.AttributeValueSetID IS null) THEN
+                        "0"
+                    ELSE
+                        AttributeValueSets.AttributeValueSetID
+                    END = ItemsWarehouseSettings.AttributeValueSetID
+	              WHERE
+	                  ItemsWarehouseSettings.WarehouseID = ' . $warehouseID;
+}
+
+function getMaxRows() {
+	return DBQuery::getInstance() -> select(getQuery(1)) -> getNumRows();
+}
+
+function getPageResult($pageNum, $pageRows) {
+	$query = getQuery(1) . '
+				LIMIT ' . ($pageNum - 1) * $pageRows . ',' . $pageRows;
+
+	$result = DBQuery::getInstance() -> select($query);
+	return $result;
+}
+
+function processPage(DBQueryResult $resultPage) {
+	$result = array( array("Art.ID", "Name", "durchschnittlicher Bedarf (Monat)", "durchschnittlicher Bedarf (Tag)", "Markierung", "Empfehlung Meldebestand (Meldebestand alt)", "Mindesabnahme / Bestellvorschlag (Bestellvorschlag aktuell)", "Änderung", "Status Meldebestand", "Datum"));
+	for ($i = 0; $i < $resultPage -> getNumRows(); ++$i) {
+		$row = $resultPage -> fetchAssoc();
+		$preparedRow = array();
+
+		// item id
+		$preparedRow[] = $row['ItemID'];
+
+		// name (& avsn)
+		if (intval($row['AttributeValueSetID']) == 0) {
+			$preparedRow[] = $row['Name'];
+		} else {
+			$preparedRow[] = $row['Name'] . ', ' . $row['AttributeValueSetName'];
+		}
+
+		$dailyNeed = floatval($row['DailyNeed']);
+		$reorderLevel = intval($row['ReorderLevel']);
+		$stockTurnover = intval($row['StockTurnover']);
+
+		// average need (per month)
+		$preparedRow[] = $dailyNeed == 0 ? '' : $dailyNeed * 30;
+
+		// average need (per day)
+		$preparedRow[] = $dailyNeed == 0 ? '' : $dailyNeed;
+
+		// mark
+		$preparedRow[] = $row['Marking1ID'];
+
+		// suggested reorder level (old reorder level)
+		$preparedRow[] = $stockTurnover == 0 ? 'keine Lagerreichweite konfiguriert!' : ceil($stockTurnover * $dailyNeed) . ' (' . $reorderLevel . ')';
+
+		// minimum purchase / order suggestion (current order suggestion)
+		$preparedRow[] = null;
+
+		// change
+		$preparedRow[] = null;
+
+		// status reorder level
+		$preparedRow[] = null;
+
+		// date
+		$preparedRow[] = null;
+
+		$result[] = $preparedRow;
+	}
+	return $result;
+}
+
+function getConfig() {
+	$query = 'SELECT
+				* FROM `MetaConfig`
+				WHERE
+					`ConfigKey` = "CalculationTimeSingleWeighted" OR
+					`ConfigKey` = "CalcualtionTimeDoubleWeighted" OR
+					`ConfigKey` = "MinimumToleratedSpikes" OR
+					`ConfigKey` = "SpikeTolerance" OR
+					`ConfigKey` = "StandardDeviationFactor"';
+	$resultConfigQuery = DBQuery::getInstance() -> select($query);
+
+	$result = array();
+	//TODO add validity check!
+	for ($i = 0; $i < $resultConfigQuery -> getNumRows(); ++$i) {
+		$configRow = $resultConfigQuery -> fetchAssoc();
+		if ($configRow['ConfigKey'] == 'SpikeTolerance' || $configRow['ConfigKey'] == 'StandardDeviationFactor')
+			$result[$configRow['ConfigKey']]['Value'] = floatval($configRow['ConfigValue']);
+		else
+			$result[$configRow['ConfigKey']]['Value'] = intval($configRow['ConfigValue']);
+
+		$result[$configRow['ConfigKey']]['Active'] = intval($configRow['Active']);
+	}
+	return $result;
+}
+
+function getWarehouseList() {
+	$query = 'SELECT * FROM `WarehouseList`';
+	$resultWarehouseList = DBQuery::getInstance() -> select($query);
+
+	$result = array();
+	for ($i = 0; $i < $resultWarehouseList -> getNumRows(); ++$i) {
+		$warehouse = $resultWarehouseList -> fetchAssoc();
+		$result[] = array('id' => $warehouse['WarehouseID'], 'name' => $warehouse['Name']);
+	}
+	return $result;
+}
+
+if (!(isset($_GET['pagenum']))) {
+	$pagenum = 1;
+} else {
+	$pagenum = $_GET['pagenum'];
+}
+
+if (!(isset($_GET['pagerows']))) {
+	$pagerows = 10;
+} else {
+	$pagerows = ($_GET['pagerows'] > 50 ? 50 : $_GET['pagerows']);
+}
+
+$page = getPageResult($pagenum, $pagerows, 1);
+
+$smarty -> setTemplateDir('smarty/templates');
+$smarty -> setCompileDir('smarty/templates_c');
+$smarty -> setCacheDir('smarty/cache');
+$smarty -> setConfigDir('smarty/configs');
+
+$smarty -> assign('pagination', $pagination);
+
+$smarty -> assign('pagenum', $pagenum);
+$smarty -> assign('pagerows', $pagerows);
+$smarty -> assign('last', ceil(getMaxRows() / $pagerows));
+$smarty -> assign('rows', processPage($page));
+$smarty -> assign('warehouseList', getWarehouseList());
+$smarty -> assign('config', getConfig());
+$smarty -> assign('debug', ob_get_clean());	// make function output available if needed
+$smarty -> display('index.tpl');
+?>

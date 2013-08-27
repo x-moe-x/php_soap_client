@@ -21,6 +21,17 @@ class CalculateHistogram {
 	public function execute() {
 		$this -> getLogger() -> debug(__FUNCTION__ . ' : CalculateHistogram');
 
+		// 1. get current time
+		// 2. get vars from db
+		
+		// 3. execute query for single weighted timespan
+		// 4. execute query for double weighted timespan
+		
+		// 5. tie them together
+		
+		// 6. store daily sale to db
+
+
 		$currentTime = 1367359199;
 		//	30.04.2013, 23:59:59
 
