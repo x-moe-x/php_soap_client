@@ -153,6 +153,14 @@ $(document).ready(function() {
 		onSuccess : function() {
 			$('#resultTable').parent().css('height', $('#resultTable').outerHeight());
 		},
+		searchitems : [{
+			display : 'ItemID',
+			name : 'ItemID'
+		}, {
+			display : 'Name',
+			name : 'Name',
+			isdefault : true
+		}],
 		sortname : "ItemID",
 		sortorder : "asc",
 		usepager : true,

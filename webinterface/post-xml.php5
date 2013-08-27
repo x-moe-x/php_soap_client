@@ -7,6 +7,14 @@ $query = isset($_POST['query']) ? $_POST['query'] : false;
 $qtype = isset($_POST['qtype']) ? $_POST['qtype'] : false;
 $warehouseID = isset($_POST['warehouseID']) ? $_POST['warehouseID'] : 1;
 
+switch ($qtype) {
+	case 'ItemID':
+		$qtype = 'ItemsBase.ItemID';
+		break;
+	default:
+		break;
+}
+
 switch ($sortname) {
 	case 'Date':
 		$sortname = 'LastUpdate';
@@ -33,6 +41,7 @@ function getMaxRows($query) {
 
 $select_basic = '				SELECT
 					ItemsBase.ItemID,
+					ItemsBase.Name,
 					CASE WHEN (AttributeValueSets.AttributeValueSetID IS null) THEN
 						"0"
 					ELSE
@@ -41,7 +50,6 @@ $select_basic = '				SELECT
 					
 $select_advanced = $select_basic . ',
 					ItemsBase.ItemNo,
-					ItemsBase.Name,
 					ItemsBase.Marking1ID,
 					CalculatedDailyNeeds.DailyNeed,
 					CalculatedDailyNeeds.LastUpdate,
@@ -75,6 +83,10 @@ $from_advanced = $from_basic . '
 					
 $where = '
 				WHERE ItemsWarehouseSettings.WarehouseID = ' . $warehouseID. ' ';
+
+if ($query && $qtype)
+	$where .= '
+				AND '.$qtype.' LIKE "%'.$query.'%" ';
 
 $sort = '
 				ORDER BY ' . $sortname . ' ' . $sortorder;
