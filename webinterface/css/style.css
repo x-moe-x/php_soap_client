@@ -1,0 +1,121 @@
+* {
+	font-family: Arial;
+	font-size: 10pt;
+}
+
+#variableManipulation li {
+	list-style-type: none;
+	margin-bottom: 2px;
+}
+
+#variableManipulation input {
+	width: 90px;
+	text-align: right;
+	padding-right: 5px;
+}
+
+#variableManipulation label {
+	display: inline-block;
+	width: 300px;
+}
+
+#variableManipulation label.disabled {
+	color: #aaaaaa;
+	text-decoration: line-through;
+}
+
+#variableManipulation label.variableUnit {
+	display: inline-block;
+	width: auto;
+	color: #aaaaaa;
+}
+
+#warehouseSelection {
+}
+
+#errorMessages {
+	background-color: #00ff00;
+}
+
+.modal {
+	display: none;
+	position: fixed;
+	z-index: 1000;
+	top: 0;
+	left: 0;
+	height: 100%;
+	width: 100%;
+	background: rgba( 255, 255, 255, .8 ) url('http://i.stack.imgur.com/FhHRx.gif') 50% 50% no-repeat;
+}
+
+body.loading {
+	overflow: hidden;
+}
+
+body.loading .modal {
+	display: block;
+}
+
+#filterSelection {
+	float: left;
+}
+
+#filterSelection > form {
+	display: inline;
+}
+
+#filterSelection > form > div {
+	display: inline-block;
+}
+
+#filterSelection input {
+	visibility: hidden;
+}
+
+#filterSelection label {
+	width: 16px;
+	height: 16px;
+	display: inline-block;
+	opacity: 0.3;
+}
+
+#filterSelection label:hover {
+	opacity: 0.8;
+}
+
+#filterSelection input[type=checkbox]:checked + label {
+	opacity: 1;
+}
+
+#markingID_4 > label {
+	background: url("../images/marking1d_4.png") no-repeat scroll center center transparent;
+}
+
+#markingID_9 > label {
+	background: url("../images/marking1d_9.png") no-repeat scroll center center transparent;
+}
+
+#markingID_16 > label {
+	background: url("../images/marking1d_16.png") no-repeat scroll center center transparent;
+}
+
+#markingID_20 > label {
+	background: url("../images/marking1d_20.png") no-repeat scroll center center transparent;
+}
+
+.markingIDCell_20 {
+	background: url("../images/marking1d_20.png") no-repeat scroll center center transparent;
+}
+.markingIDCell_16 {
+	background: url("../images/marking1d_16.png") no-repeat scroll center center transparent;
+}
+.markingIDCell_9 {
+	background: url("../images/marking1d_9.png") no-repeat scroll center center transparent;
+}
+.markingIDCell_4 {
+	background: url("../images/marking1d_4.png") no-repeat scroll center center transparent;
+}
+
+.flexigrid div.fbutton .gear {
+	background: url("../images/database_gear.png") no-repeat scroll left center transparent;
+}

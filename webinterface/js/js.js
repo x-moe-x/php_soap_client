@@ -151,7 +151,29 @@ $(document).ready(function() {
 			}
 		}],
 		onSuccess : function() {
+			// adjust table height
 			$('#resultTable').parent().css('height', $('#resultTable').outerHeight());
+			
+			// adjust classes for markingid column:
+			$('#resultTable td[abbr="Marking"]').each(function(){
+				
+				var markingDiv = $(this).find('div');
+				
+				// get id ...
+				var id = parseInt($(markingDiv).html());
+				
+				if ($.inArray(id,[4,9,16,20]) > -1){
+					// set class ...
+					$(markingDiv).addClass('markingIDCell_' + id);
+
+					// ... and clear cell afterwards
+					$(markingDiv).html('&nbsp;');
+				} else if (id == 0) {
+					$(markingDiv).html('keine');
+				} else {
+					$(markingDiv).html('FEHLER!');
+				}
+			});
 		},
 		searchitems : [{
 			display : 'ItemID',
@@ -174,4 +196,36 @@ $(document).ready(function() {
 		pagestat : 'Zeige {from} bis {to} von {total} Artikeln',
 		procmsg : 'Bitte warten...'
 	});
+	
+	appendFilterSelection();
 });
+
+function appendFilterSelection(){
+	var filterSelection = new Array(4,9,16,20);
+	
+	var chkBxDiv = document.createElement('div');
+	chkBxDiv.className = 'fButton';
+	chkBxDiv.id = 'filterSelection';
+	$(chkBxDiv).append('<span>Filter:</span>');
+	
+	var tForm = document.createElement('form');
+	$(chkBxDiv).append(tForm);
+	
+	for (i=0; i< filterSelection.length;i++){
+		var id = filterSelection[i];
+		var div = document.createElement('div');
+		div.id = 'markingID_' + id;
+		var box = document.createElement('input');
+		var label = document.createElement('label');
+				
+		box.type = 'checkbox';
+		box.id = 'markingID_' + id + '_field';
+		label.htmlFor = box.id;
+			
+		$(div).append(box);
+		$(div).append(label);
+		$(tForm).append(div);
+	}
+	
+	$('.tDiv2').append(chkBxDiv);
+}

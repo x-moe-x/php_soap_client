@@ -3,11 +3,11 @@
 	<head>
 		<meta charset='utf-8'>
 		<title>Net-Xpress, Plenty-Soap GUI</title>
-		<link rel='stylesheet' type='text/css' href='style.css'/>
-		<link rel='stylesheet' type='text/css' href='flexigrid.pack.css'/>
+		<link rel='stylesheet' type='text/css' href='css/style.css'/>
+		<link rel='stylesheet' type='text/css' href='css/flexigrid.pack.css'/>
 		<script src='http://code.jquery.com/jquery-1.8.3.min.js'></script>
-		<script src='flexigrid.pack.js'></script>
-		<script src='js.js'></script>
+		<script src='js/flexigrid.pack.js'></script>
+		<script src='js/js.js'></script>
 	</head>
 	<body>
 		<div id='errorMessages'>
@@ -41,9 +41,6 @@
 				<option value='{$warehouse.id}' {if $warehouse.id == 1}selected{/if}>{$warehouse.name}</option>
 				{/foreach}
 			</select>
-		</div>
-		<div id='filterSelection'>
-			Filter: Alle anzeigen
 		</div>
 		<table id='resultTable' style='display:none'></table>
 		<div class="modal"></div>
