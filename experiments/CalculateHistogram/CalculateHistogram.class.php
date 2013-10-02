@@ -2,6 +2,7 @@
 
 require_once ROOT . 'lib/db/DBQuery.class.php';
 require_once ROOT . 'lib/db/DBQueryResult.class.php';
+require_once ROOT . 'includes/SKUHelper.php';
 
 /**
  * @author x-moe-x
@@ -14,46 +15,95 @@ class CalculateHistogram {
 	 */
 	private $identifier4Logger = '';
 
+	private $config = null;
+
+	private $currentTime = null;
+
 	public function __construct() {
 		$this -> identifier4Logger = __CLASS__;
+	}
+
+	public function init() {
+		$this -> currentTime = time();
+		//  30.04.2013, 23:59:59 = 1367359199;
+
+		$this -> config = $this -> getConfig();
 	}
 
 	public function execute() {
 		$this -> getLogger() -> debug(__FUNCTION__ . ' : CalculateHistogram');
 
-		// 1. get current time
-		// 2. get vars from db
-		
-		// 3. execute query for single weighted timespan
-		// 4. execute query for double weighted timespan
-		
-		// 5. tie them together
-		
-		// 6. store daily sale to db
-
-
-		$currentTime = 1367359199;
-		//	30.04.2013, 23:59:59
-
-		$spikeTolerance = 0.3;
-		$minToleratedSpikes = 3;
+		$this -> init();
 
 		// retreive latest orders from db
-		$query = $this -> getIntervallQuery($currentTime, 90, 3);
-
-		$articleResult = DBQuery::getInstance() -> select($query);
+		$articleResult = DBQuery::getInstance() -> select($this -> getIntervallQuery());
 
 		// for every article do:
 		while ($currentArticle = $articleResult -> fetchAssoc()) {
-
-			$index;
-			$quantities = explode(',', $currentArticle['quantities']);
-			$adjustedQuantity = $this -> getArticleAdjustedQuantity($quantities, $currentArticle['quantity'], $currentArticle['range'], $spikeTolerance, $minToleratedSpikes, $index);
-			$this -> getLogger() -> debug(__FUNCTION__ . ' : Article: ' . $currentArticle['ItemID'] . ', skipped ' . $index . '/' . count($quantities) . ' orders, total: ' . $currentArticle['quantity'] . ', adjusted: ' . $adjustedQuantity . ', difference: ' . ($currentArticle['quantity'] - $adjustedQuantity) . ', daily sale: ' . $adjustedQuantity / 90);
+			$this -> processArticle($currentArticle);
 		}
 	}
 
-	private function getArticleAdjustedQuantity($quantities, $quantity, $range, $spikeTolerance, $minToleratedSpikes, &$index) {
+	private function getConfig() {
+		$query = 'SELECT
+                * FROM `MetaConfig`
+                WHERE
+                    `ConfigKey` = "CalculationTimeSingleWeighted" OR
+                    `ConfigKey` = "CalcualtionTimeDoubleWeighted" OR
+                    `ConfigKey` = "MinimumToleratedSpikes" OR
+                    `ConfigKey` = "SpikeTolerance" OR
+                    `ConfigKey` = "StandardDeviationFactor"';
+		$resultConfigQuery = DBQuery::getInstance() -> select($query);
+
+		$result = array();
+		//TODO add validity check!
+		for ($i = 0; $i < $resultConfigQuery -> getNumRows(); ++$i) {
+			$configRow = $resultConfigQuery -> fetchAssoc();
+			if ($configRow['ConfigKey'] == 'SpikeTolerance' || $configRow['ConfigKey'] == 'StandardDeviationFactor')
+				$result[$configRow['ConfigKey']]['Value'] = floatval($configRow['ConfigValue']);
+			else
+				$result[$configRow['ConfigKey']]['Value'] = intval($configRow['ConfigValue']);
+
+			$result[$configRow['ConfigKey']]['Active'] = intval($configRow['Active']);
+		}
+		return $result;
+	}
+
+    private function processArticle($currentArticle) {
+        list($ItemID, $PriceID, $AttributeValueSetID) = SKU2Values($currentArticle['SKU']);
+
+        $skippedIndex;
+        $quantities = explode(',', $currentArticle['quantities']);
+        $adjustedQuantity = $this -> getArticleAdjustedQuantity($quantities, $currentArticle['quantity'], $currentArticle['range'], $skippedIndex);
+
+        // @formatter:off
+            $this -> getLogger() -> info(__FUNCTION__ . ' : Article: ' .         $ItemID .
+                                                         ', Set: ' .             $AttributeValueSetID .
+                                                         ', skipped ' .          $skippedIndex . '/' . count($quantities) .
+                                                         ', orders, total: ' .   $currentArticle['quantity'] .
+                                                         ', adjusted: ' .        $adjustedQuantity .
+                                                         ', difference: ' .      ($currentArticle['quantity'] - $adjustedQuantity) .
+                                                         ', daily sale: ' .      $adjustedQuantity / 90);
+
+        // store results to db
+        $query = 'REPLACE INTO `CalculatedDailyNeeds` ' .
+            DBUtils::buildInsert(
+                array(
+                    'ItemID'                =>  $ItemID,
+                    'AttributeValueSetID'   =>  $AttributeValueSetID,
+                    'DailyNeed'             =>  $adjustedQuantity / 90,
+                    'LastUpdate'            =>  $this->currentTime
+                )
+            );
+        // @formatter:on
+
+        DBQuery::getInstance()->replace($query);
+    }
+
+	private function getArticleAdjustedQuantity($quantities, $quantity, $range, &$index) {
+
+		$spikeTolerance = $this -> config['SpikeTolerance']['Value'];
+		$minToleratedSpikes = $this -> config['MinimumToleratedSpikes']['Value'];
 
 		// check quantities in descending order
 		for ($index = 0; $index < count($quantities); ++$index) {
@@ -92,10 +142,15 @@ class CalculateHistogram {
 		return $quantity;
 	}
 
-	private function getIntervallQuery($startTimestamp, $daysBack, $rangeConfidenceMultiplyer) {
+	private function getIntervallQuery() {
+		$startTimestamp = $this -> currentTime;
+		$daysBack = $this -> config['CalculationTimeSingleWeighted']['Value'];
+		$rangeConfidenceMultiplyer = $this -> config['StandardDeviationFactor']['Value'];
+
 		return '
 			SELECT
 				OrderItem.ItemID,
+				OrderItem.SKU,
 				SUM(CAST(OrderItem.Quantity AS SIGNED)) AS `quantity`,
 				AVG(`quantity`) + STDDEV(`quantity`) * ' . $rangeConfidenceMultiplyer . ' AS `range`,
 				CAST(GROUP_CONCAT(IF(OrderItem.Quantity > 0 ,CAST(OrderItem.Quantity AS SIGNED),NULL) ORDER BY OrderItem.Quantity DESC SEPARATOR ",") AS CHAR) AS `quantities`,
@@ -106,7 +161,7 @@ class CalculateHistogram {
 				OrderType = "order" AND
 				ItemsBase.Marking1ID IN (9,12,16,20) /* yellow, red, green, black */
 			GROUP BY
-				OrderItem.ItemID
+				OrderItem.SKU
 			ORDER BY
 				ItemID
 				';
