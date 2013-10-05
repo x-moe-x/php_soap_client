@@ -60,6 +60,8 @@ $select_advanced = $select_basic . ',
 					ItemsBase.Marking1ID,
 					CalculatedDailyNeeds.DailyNeed,
 					CalculatedDailyNeeds.LastUpdate,
+					CalculatedDailyNeeds.Quantities,
+					CalculatedDailyNeeds.Skipped,
 					ItemsWarehouseSettings.ReorderLevel,
 					ItemsWarehouseSettings.StockTurnover,
 					CASE WHEN (AttributeValueSets.AttributeValueSetName IS null) THEN
@@ -149,10 +151,12 @@ foreach($rows AS $row){
 	$reorderLevel = intval($row['ReorderLevel']);
 	$stockTurnover = intval($row['StockTurnover']);
 	
-	$name_string = intval($row['AttributeValueSetID']) == 0 ? $row['Name']:$row['Name'] . ', '.$row['AttributeValueSetName'];
+
+	$name_string = intval($row['AttributeValueSetID']) == 0 ? $row['Name'] : $row['Name'] . ', ' . $row['AttributeValueSetName'];
 	$dailyNeed_string = $dailyNeed == 0 ? '' : $dailyNeed;
 	$monthlyNeed_string = $monthlyNeed == 0 ? '' : $monthlyNeed;
 	$stockTurnover_string = $stockTurnover == 0 ? 'keine Lagerreichweite konfiguriert!' : ceil($stockTurnover * $dailyNeed) . ' (' . $reorderLevel . ')';
+	$rawData_string = $row['Skipped'] . ':' . $row['Quantities'];
 	$date_string = date('d.m.y, H:i:s', $row['LastUpdate']);
 	
 	$xml .= '<row id="'.$row['ItemID']. '-0-'.$row['AttributeValueSetID'].'">'.PHP_EOL;
@@ -165,7 +169,8 @@ foreach($rows AS $row){
 	$xml .= '<cell><![CDATA[]]>1</cell>'.PHP_EOL;
 	$xml .= '<cell><![CDATA[]]>1</cell>'.PHP_EOL;
 	$xml .= '<cell><![CDATA[]]>1</cell>'.PHP_EOL;
-	$xml .= '<cell><![CDATA['.$date_string.']]></cell>'.PHP_EOL;
+	$xml .= '<cell><![CDATA[' . $date_string . ']]></cell>' . PHP_EOL;
+	$xml .= '<cell><![CDATA[]]>' . $rawData_string . '</cell>' . PHP_EOL;
 	/*	$xml .= "<cell><![CDATA[".utf8_encode($row['name'])."]]></cell>";
 	//$xml .= "<cell><![CDATA[".print_r($_POST,true)."]]></cell>";
 	$xml .= "<cell><![CDATA[".utf8_encode($row['printable_name'])."]]></cell>";

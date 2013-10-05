@@ -137,6 +137,12 @@ $(document).ready(function() {
 			width : 120,
 			sortable : true,
 			align : 'right'
+		}, {
+			display : 'Rohdaten',
+			name : 'RawData',
+			width : 120,
+			sortable : false,
+			align : 'left'
 		}],
 		buttons : [{
 			name : 'Kalkulation manuell auslösen',
