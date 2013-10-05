@@ -156,7 +156,7 @@ foreach($rows AS $row){
 	$dailyNeed_string = $dailyNeed == 0 ? '' : $dailyNeed;
 	$monthlyNeed_string = $monthlyNeed == 0 ? '' : $monthlyNeed;
 	$stockTurnover_string = $stockTurnover == 0 ? 'keine Lagerreichweite konfiguriert!' : ceil($stockTurnover * $dailyNeed) . ' (' . $reorderLevel . ')';
-	$rawData_string = $row['Skipped'] . ':' . $row['Quantities'];
+	$rawData_string = isset($row['Quantities']) ? $row['Skipped'] . ':' . $row['Quantities'] : null;
 	$date_string = date('d.m.y, H:i:s', $row['LastUpdate']);
 	
 	$xml .= '<row id="'.$row['ItemID']. '-0-'.$row['AttributeValueSetID'].'">'.PHP_EOL;
