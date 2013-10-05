@@ -249,5 +249,7 @@ CREATE TABLE `soap_db`.`CalculatedDailyNeeds` (
 	`AttributeValueSetID` int(11) NOT NULL,
 	`DailyNeed` decimal(8,2) DEFAULT NULL,
 	`LastUpdate`int(11) DEFAULT NULL,
+	`Skipped` int(11) DEFAULT NULL,
+	`Quantities` TEXT COLLATE utf8_unicode_ci,
 	PRIMARY KEY (`ItemID`, `AttributeValueSetID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
