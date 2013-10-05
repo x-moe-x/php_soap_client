@@ -92,7 +92,9 @@ class CalculateHistogram {
                     'ItemID'                =>  $ItemID,
                     'AttributeValueSetID'   =>  $AttributeValueSetID,
                     'DailyNeed'             =>  $adjustedQuantity / 90,
-                    'LastUpdate'            =>  $this->currentTime
+                    'LastUpdate'            =>  $this->currentTime,
+                    'Quantities'             =>  $currentArticle['quantities'],
+                    'Skipped'               =>  $skippedIndex
                 )
             );
         // @formatter:on
