@@ -1,5 +1,5 @@
-$.fn.checkIntval = function() {
-	var val = parseInt(this.val().replace(',', '.'));
+$.fn.checkIntval = function() {'use strict';
+	var val = parseInt(this.val().replace(',', '.'), 10);
 	if (isNaN(val)) {
 		this.val('not a number');
 	} else {
@@ -9,8 +9,8 @@ $.fn.checkIntval = function() {
 	return this;
 };
 
-$.fn.checkFloatval = function() {
-	var val = parseFloat(this.val().replace(',', '.'));
+$.fn.checkFloatval = function() {'use strict';
+	var val = parseFloat(this.val().replace(',', '.'), 10);
 	if (isNaN(val)) {
 		this.val('not a number');
 	} else {
@@ -20,25 +20,26 @@ $.fn.checkFloatval = function() {
 	return this;
 };
 
-$.fn.updateConfig = function() {
+$.fn.updateConfig = function() {'use strict';
+	var data, element;
+
 	if (!isNaN($(this).val())) {
-		var data = {
+		data = {
 			key : $(this).attr('id'),
 			value : $(this).val()
 		};
+		element = $(this);
 
 		console.log("trying to send data", data);
 
-		var element = $(this);
-
 		// disable field during post
-		element.prop('disabled',true);
+		element.prop('disabled', true);
 
 		$.post('updateConfig.php5', data, function(result) {
 
 			// re-enable field after post
-			element.prop('disabled',false);
-			if (result != "") {
+			element.prop('disabled', false);
+			if (result !== '') {
 				alert(result);
 			}
 		});
@@ -47,10 +48,11 @@ $.fn.updateConfig = function() {
 	return this;
 };
 
-$(document).ready(function() {
+$(document).ready(function() {'use strict';
+	var integerInputfields, floatInputFields;
 
-	var integerInputfields = $('#calculationTimeSingleWeighted, #calcualtionTimeDoubleWeighted, #minimumToleratedSpikes');
-	var floatInputFields = $('#standardDeviationFactor, #spikeTolerance');
+	integerInputfields = $('#calculationTimeSingleWeighted, #calcualtionTimeDoubleWeighted, #minimumToleratedSpikes');
+	floatInputFields = $('#standardDeviationFactor, #spikeTolerance');
 
 	integerInputfields.change(function() {
 		$(this).checkIntval();
@@ -65,10 +67,11 @@ $(document).ready(function() {
 	integerInputfields.add(floatInputFields).mouseup(function(e) {
 		e.preventDefault();
 	}).focus(function() {
-		if (isNaN($(this).val()))
+		if (isNaN($(this).val())) {
 			$(this).val("");
-		else
+		} else {
 			$(this).select();
+		}
 	});
 
 	$('#resultTable').flexigrid({
@@ -155,36 +158,43 @@ $(document).ready(function() {
 					currentGrid.flexReload();
 				});
 			}
+		}, {
+			name : 'Filter',
+			bclass : 'filter'
 		}],
 		onSuccess : function(g) {
+			var rawDataTotalSumMaxSize, colNames;
 
-			var rawDataTotalSumMaxSize = 0
-			var colNames = [];
+			rawDataTotalSumMaxSize = 0;
+			colNames = [];
 
-			$('th div', g.hDiv).each(function(){
+			$('th div', g.hDiv).each(function() {
 				colNames.push($(this).text());
 			});
 
 			$('tbody tr td', g.bDiv).each(function(index, value) {
-				var newCell = $(this).find('div');
-				var colName = colNames[index % colNames.length];
+				var newCell, colName, rawData, dataTokens, skipped, data, totalSum, dataString, i, id;
+
+				newCell = $(this).find('div');
+				colName = colNames[index % colNames.length];
 
 				// visualize rawdata
-				if (colName == 'Rohdaten') {
-					var rawData = $(this).text();
-					if (rawData != '&nbsp;') {
-						var dataTokens = rawData.split(':')
-						if (dataTokens.length == 2) {
-							var skipped = parseInt(dataTokens[0]);
-							var data = dataTokens[1].split(',');
-							var totalSum = 0;
-							var dataString = skipped > 0 ? '<ul class="skipped">' : '<ul class="counted">';
+				if (colName === 'Rohdaten') {
+					rawData = $(this).text();
+					if (rawData !== '&nbsp;') {
+						dataTokens = rawData.split(':');
+						if (dataTokens.length === 2) {
+							skipped = parseInt(dataTokens[0], 10);
+							data = dataTokens[1].split(',');
+							totalSum = 0;
+							dataString = skipped > 0 ? '<ul class="skipped">' : '<ul class="counted">';
 
-							for ( i = 0; i < data.length; i++) {
+							for ( i = 0; i < data.length; i += 1) {
 								dataString += '<li>' + data[i] + '</li>';
-								if (i + 1 == skipped)
+								if (i + 1 === skipped) {
 									dataString += '</ul><ul class="counted">';
-								totalSum += parseInt(data[i]);
+								}
+								totalSum += parseInt(data[i], 10);
 							}
 						} else {
 							console.log('rawdata has wrong format!');
@@ -192,13 +202,14 @@ $(document).ready(function() {
 
 						$(newCell).html('<span class="totalSum">' + totalSum + ' = </span>' + dataString + '</ul>');
 
-						if ($('.totalSum', newCell).outerWidth() > rawDataTotalSumMaxSize)
+						if ($('.totalSum', newCell).outerWidth() > rawDataTotalSumMaxSize) {
 							rawDataTotalSumMaxSize = $('.totalSum', newCell).outerWidth();
+						}
 					}
-				// adjust marking to display colors instead numbers
-				} else if (colName == 'Markierung') {
+					// adjust marking to display colors instead numbers
+				} else if (colName === 'Markierung') {
 					// get id ...
-					var id = parseInt($(newCell).html());
+					id = parseInt($(newCell).html(), 10);
 
 					if ($.inArray(id, [4, 9, 16, 20]) > -1) {
 						// set class ...
@@ -206,7 +217,7 @@ $(document).ready(function() {
 
 						// ... and clear cell afterwards
 						$(newCell).html('&nbsp;');
-					} else if (id == 0) {
+					} else if (id === 0) {
 						$(newCell).html('keine');
 					} else {
 						$(newCell).html('FEHLER!');
@@ -243,36 +254,39 @@ $(document).ready(function() {
 		pagestat : 'Zeige {from} bis {to} von {total} Artikeln',
 		procmsg : 'Bitte warten...'
 	});
-	
+
 	appendFilterSelection();
 });
 
-function appendFilterSelection(){
-	var filterSelection = new Array(4,9,16,20);
-	
-	var chkBxDiv = document.createElement('div');
+function appendFilterSelection() {'use strict';
+	var filterSelection, chkBxDiv, tForm;
+
+	filterSelection = [4, 9, 16, 20];
+	chkBxDiv = document.createElement('div');
+
 	chkBxDiv.className = 'fButton';
 	chkBxDiv.id = 'filterSelection';
 	$(chkBxDiv).append('<span>Filter:</span>');
-	
-	var tForm = document.createElement('form');
+
+	tForm = document.createElement('form');
 	$(chkBxDiv).append(tForm);
-	
-	for (i=0; i< filterSelection.length;i++){
-		var id = filterSelection[i];
-		var div = document.createElement('div');
-		div.id = 'markingID_' + id;
-		var box = document.createElement('input');
-		var label = document.createElement('label');
-				
+
+	$(filterSelection).each(function(index, value) {
+		var div, box, label;
+
+		div = document.createElement('div');
+		box = document.createElement('input');
+		label = document.createElement('label');
+
+		div.id = 'markingID_' + value;
 		box.type = 'checkbox';
-		box.id = 'markingID_' + id + '_field';
+		box.id = 'markingID_' + value + '_field';
 		label.htmlFor = box.id;
-			
+
 		$(div).append(box);
 		$(div).append(label);
 		$(tForm).append(div);
-	}
-	
+	});
+
 	$('.tDiv2').append(chkBxDiv);
 }
