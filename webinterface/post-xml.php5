@@ -162,6 +162,7 @@ foreach($rows AS $row){
 	$xml .= '<row id="'.$row['ItemID']. '-0-'.$row['AttributeValueSetID'].'">'.PHP_EOL;
 	$xml .= '<cell><![CDATA['.$row['ItemID'].']]></cell>'.PHP_EOL;
 	$xml .= '<cell><![CDATA['.$name_string.']]></cell>'.PHP_EOL;
+	$xml .= '<cell><![CDATA[]]>' . $rawData_string . '</cell>' . PHP_EOL;
 	$xml .= '<cell><![CDATA['.$monthlyNeed_string.']]></cell>'.PHP_EOL;
 	$xml .= '<cell><![CDATA['.$dailyNeed_string.']]></cell>'.PHP_EOL;
 	$xml .= '<cell><![CDATA['.$row['Marking1ID'].']]></cell>'.PHP_EOL;
@@ -170,7 +171,6 @@ foreach($rows AS $row){
 	$xml .= '<cell><![CDATA[]]>1</cell>'.PHP_EOL;
 	$xml .= '<cell><![CDATA[]]>1</cell>'.PHP_EOL;
 	$xml .= '<cell><![CDATA[' . $date_string . ']]></cell>' . PHP_EOL;
-	$xml .= '<cell><![CDATA[]]>' . $rawData_string . '</cell>' . PHP_EOL;
 	/*	$xml .= "<cell><![CDATA[".utf8_encode($row['name'])."]]></cell>";
 	//$xml .= "<cell><![CDATA[".print_r($_POST,true)."]]></cell>";
 	$xml .= "<cell><![CDATA[".utf8_encode($row['printable_name'])."]]></cell>";

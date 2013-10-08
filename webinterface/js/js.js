@@ -90,6 +90,12 @@ $(document).ready(function() {'use strict';
 			sortable : true,
 			align : 'left'
 		}, {
+			display : 'Rohdaten',
+			name : 'RawData',
+			width : 120,
+			sortable : false,
+			align : 'left'
+		}, {
 			display : 'Ø Bedarf / Monat',
 			name : 'MonthlyNeed',
 			width : 120,
@@ -140,12 +146,6 @@ $(document).ready(function() {'use strict';
 			width : 120,
 			sortable : true,
 			align : 'right'
-		}, {
-			display : 'Rohdaten',
-			name : 'RawData',
-			width : 120,
-			sortable : false,
-			align : 'left'
 		}],
 		buttons : [{
 			name : 'Kalkulation manuell auslösen',
