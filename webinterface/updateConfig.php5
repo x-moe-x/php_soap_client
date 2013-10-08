@@ -7,13 +7,13 @@ require_once ROOT . 'lib/db/DBQuery.class.php';
 $integerKeys = array('calculationTimeSingleWeighted', 'calcualtionTimeDoubleWeighted', 'minimumToleratedSpikes');
 $floatKeys = array('standardDeviationFactor', 'spikeTolerance');
 
-$parsedValue = null;
-
 if (isset($_POST['key']) && isset($_POST['value'])) {
 	if (in_array($_POST['key'], $integerKeys)) {
 		$parsedValue = intval($_POST['value']);
 	} else if (in_array($_POST['key'], $floatKeys)) {
 		$parsedValue = floatval($_POST['value']);
+		if ($_POST['key'] === 'spikeTolerance')
+			$parsedValue /= 100.0;
 	} else {
 		// wrong value
 		ob_end_clean();

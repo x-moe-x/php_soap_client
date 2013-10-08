@@ -90,13 +90,13 @@ $(document).ready(function() {'use strict';
 			sortable : true,
 			align : 'left'
 		}, {
-			display : 'durchschnittlicher Bedarf (Monat)',
+			display : 'Ø Bedarf / Monat',
 			name : 'MonthlyNeed',
 			width : 120,
 			sortable : true,
 			align : 'right'
 		}, {
-			display : 'durchschnittlicher Bedarf (Tag)',
+			display : 'Ø Bedarf / Tag',
 			name : 'DailyNeed',
 			width : 130,
 			sortable : true,
@@ -158,9 +158,6 @@ $(document).ready(function() {'use strict';
 					currentGrid.flexReload();
 				});
 			}
-		}, {
-			name : 'Filter',
-			bclass : 'filter'
 		}],
 		onSuccess : function(g) {
 			var rawDataTotalSumMaxSize, colNames;

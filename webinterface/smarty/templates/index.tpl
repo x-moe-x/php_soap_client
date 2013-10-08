@@ -32,7 +32,7 @@
 					<label class='variableUnit' for='minimumToleratedSpikes'>Stück</label>
 				<li>
 					<label {if $config.SpikeTolerance.Active == 0}class='disabled'{/if} for='spikeTolerance'> Spitzentoleranz: </label>
-					<input id='spikeTolerance' value='{$config.SpikeTolerance.Value}'  {if $config.SpikeTolerance.Active == 0}disabled{/if}/>
+					<input id='spikeTolerance' value='{$config.SpikeTolerance.Value * 100}'  {if $config.SpikeTolerance.Active == 0}disabled{/if}/>
 					<label class='variableUnit' for='spikeTolerance'>%</label>
 			</ul>
 			<select id='warehouseSelection' disabled>
