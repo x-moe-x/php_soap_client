@@ -156,30 +156,71 @@ $(document).ready(function() {
 				});
 			}
 		}],
-		onSuccess : function() {
-			// adjust table height
-			$('#resultTable').parent().css('height', $('#resultTable').outerHeight());
-			
-			// adjust classes for markingid column:
-			$('#resultTable td[abbr="Marking"]').each(function(){
-				
-				var markingDiv = $(this).find('div');
-				
-				// get id ...
-				var id = parseInt($(markingDiv).html());
-				
-				if ($.inArray(id,[4,9,16,20]) > -1){
-					// set class ...
-					$(markingDiv).addClass('markingIDCell_' + id);
+		onSuccess : function(g) {
 
-					// ... and clear cell afterwards
-					$(markingDiv).html('&nbsp;');
-				} else if (id == 0) {
-					$(markingDiv).html('keine');
-				} else {
-					$(markingDiv).html('FEHLER!');
+			var rawDataTotalSumMaxSize = 0
+			var colNames = [];
+
+			$('th div', g.hDiv).each(function(){
+				colNames.push($(this).text());
+			});
+
+			$('tbody tr td', g.bDiv).each(function(index, value) {
+				var newCell = $(this).find('div');
+				var colName = colNames[index % colNames.length];
+
+				// visualize rawdata
+				if (colName == 'Rohdaten') {
+					var rawData = $(this).text();
+					if (rawData != '&nbsp;') {
+						var dataTokens = rawData.split(':')
+						if (dataTokens.length == 2) {
+							var skipped = dataTokens[0];
+							var data = dataTokens[1].split(',');
+							var totalSum = 0;
+							var dataString = skipped > 0 ? '<ul class="skipped">' : '<ul class="counted">';
+
+							for ( i = 0; i < data.length; i++) {
+								dataString += '<li>' + data[i] + '</li>';
+								if ((i == skipped) && (i > 0))
+									dataString += '</ul><ul class="counted">';
+								totalSum += parseInt(data[i]);
+							}
+						} else {
+							console.log('rawdata has wrong format!');
+						}
+
+						$(newCell).html('<span class="totalSum">' + totalSum + ' = </span>' + dataString + '</ul>');
+
+						if ($('.totalSum', newCell).outerWidth() > rawDataTotalSumMaxSize)
+							rawDataTotalSumMaxSize = $('.totalSum', newCell).outerWidth();
+					}
+				// adjust marking to display colors instead numbers
+				} else if (colName == 'Markierung') {
+					// get id ...
+					var id = parseInt($(newCell).html());
+
+					if ($.inArray(id, [4, 9, 16, 20]) > -1) {
+						// set class ...
+						$(newCell).addClass('markingIDCell_' + id);
+
+						// ... and clear cell afterwards
+						$(newCell).html('&nbsp;');
+					} else if (id == 0) {
+						$(newCell).html('keine');
+					} else {
+						$(newCell).html('FEHLER!');
+					}
 				}
 			});
+
+			// adjust width of totalsum fields in rawdata to the same size
+			$('.totalSum', g.bDiv).each(function() {
+				$(this).outerWidth(rawDataTotalSumMaxSize);
+			});
+
+			// adjust table height
+			$('#resultTable').parent().css('height', $('#resultTable').outerHeight());
 		},
 		searchitems : [{
 			display : 'ItemID',

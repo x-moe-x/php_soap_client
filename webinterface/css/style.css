@@ -119,3 +119,37 @@ body.loading .modal {
 .flexigrid div.fbutton .gear {
 	background: url("../images/database_gear.png") no-repeat scroll left center transparent;
 }
+
+.flexigrid ul {
+	display: inline;
+	padding: 0;
+}
+
+.flexigrid li {
+	list-style-type: none;
+	display: inline;
+	margin-right: 1px;
+}
+
+.flexigrid li:after {
+	content: ',';
+	color: black;
+}
+
+.flexigrid ul.counted li:last-child:after {
+	content: '';
+}
+
+.flexigrid .totalSum {
+	display: inline-block;
+	text-align: right;
+	margin-right: 5px;
+}
+
+.skipped {
+	color: red;
+}
+
+.counted {
+	color: green;
+}
