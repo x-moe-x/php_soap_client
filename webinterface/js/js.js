@@ -175,14 +175,14 @@ $(document).ready(function() {
 					if (rawData != '&nbsp;') {
 						var dataTokens = rawData.split(':')
 						if (dataTokens.length == 2) {
-							var skipped = dataTokens[0];
+							var skipped = parseInt(dataTokens[0]);
 							var data = dataTokens[1].split(',');
 							var totalSum = 0;
 							var dataString = skipped > 0 ? '<ul class="skipped">' : '<ul class="counted">';
 
 							for ( i = 0; i < data.length; i++) {
 								dataString += '<li>' + data[i] + '</li>';
-								if ((i == skipped) && (i > 0))
+								if (i + 1 == skipped)
 									dataString += '</ul><ul class="counted">';
 								totalSum += parseInt(data[i]);
 							}
