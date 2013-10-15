@@ -293,5 +293,5 @@ $(document).ready(function() {'use strict';
 		procmsg : 'Bitte warten...'
 	});
 
-	appendFilterSelection();
+	// appendFilterSelection();
 });

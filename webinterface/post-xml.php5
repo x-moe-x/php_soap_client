@@ -162,8 +162,8 @@ foreach($rows AS $row){
 	$monthlyNeed_string = $monthlyNeed == 0 ? '' : $monthlyNeed;
 	//$stockTurnover_string = $stockTurnover == 0 ? 'keine Lagerreichweite konfiguriert!' : ceil($stockTurnover * $dailyNeed) . ' (' . $reorderLevel . ')';
 	$reorderLevel_string = ceil($supplierDeliveryTime * $dailyNeed)	 . ' (' . $reorderLevel . ')';
-	$orderSuggestion_string = $stockTurnover == 0 ? 'keine Lagerreichweite konfiguriert!' : ceil(($stockTurnover + $supplierDeliveryTime) * $dailyNeed) . ' (???)';
-	$maxStockSuggestion_string = $stockTurnover == 0 ? 'keine Lagerreichweite konfiguriert!' : ceil(($stockTurnover + $supplierDeliveryTime) * $dailyNeed) * 2;
+	$orderSuggestion_string = $stockTurnover == 0 ? 'keine Lagerreichweite konfiguriert!' : ceil($stockTurnover * $dailyNeed) . ' (???)';
+	$maxStockSuggestion_string = $stockTurnover == 0 ? 'keine Lagerreichweite konfiguriert!' : ceil($stockTurnover  * $dailyNeed) * 2;
 	$rawData_string = isset($row['Quantities']) ? $row['Skipped'] . ':' . $row['Quantities'] : null;
 	$date_string = date('d.m.y, H:i:s', $row['LastUpdate']);
 	
