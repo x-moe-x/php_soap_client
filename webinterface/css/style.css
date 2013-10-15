@@ -56,34 +56,31 @@ body.loading .modal {
 	display: block;
 }
 
-#filterSelection {
+.filter {
 	float: left;
 }
 
-#filterSelection > form {
-	display: inline;
-}
-
-#filterSelection > form > div {
+.filter > div {
 	display: inline-block;
+	float: right !important;
 }
 
-#filterSelection input {
+.filter input {
 	visibility: hidden;
 }
 
-#filterSelection label {
+.filter label {
 	width: 16px;
 	height: 16px;
 	display: inline-block;
 	opacity: 0.3;
 }
 
-#filterSelection label:hover {
+.filter label:hover {
 	opacity: 0.8;
 }
 
-#filterSelection input[type=checkbox]:checked + label {
+.filter input[type=checkbox]:checked + label {
 	opacity: 1;
 }
 

@@ -30,8 +30,6 @@ $.fn.updateConfig = function() {'use strict';
 		};
 		element = $(this);
 
-		console.log("trying to send data", data);
-
 		// disable field during post
 		element.prop('disabled', true);
 
@@ -192,6 +190,11 @@ $(document).ready(function() {'use strict';
 					currentGrid.flexReload();
 				});
 			}
+		}, {
+			separator : true
+		}, {
+			name : 'Filter',
+			bclass : 'filter'
 		}],
 		onSuccess : function(g) {
 			var rawDataTotalSumMaxSize, colModel, status;
@@ -200,6 +203,7 @@ $(document).ready(function() {'use strict';
 			colModel = this.colModel;
 			status = this.params.status;
 
+			// post-processing of cells
 			$('tbody tr td', g.bDiv).each(function(index) {
 				var newCell, colName, dataTokens, skipped, data, totalSum, dataString, id;
 
@@ -246,6 +250,16 @@ $(document).ready(function() {'use strict';
 				}
 			});
 
+			// append filter selection
+			$('.filter', g.tDiv).append(function() {
+				var filterSelection = '';
+
+				$.each(status, function(index, value) {
+					filterSelection += '<div id="markingID_' + value + '"><input type="checkbox" id="markingID_' + value + '_field"></input><label for="markingID_' + value + '_field"></label></div>';
+				});
+				return filterSelection;
+			});
+
 			// adjust width of totalsum fields in rawdata to the same size
 			$('.totalSum', g.bDiv).each(function() {
 				$(this).outerWidth(rawDataTotalSumMaxSize);
@@ -279,5 +293,5 @@ $(document).ready(function() {'use strict';
 		procmsg : 'Bitte warten...'
 	});
 
-	appendFilterSelection();
+	// appendFilterSelection();
 });
