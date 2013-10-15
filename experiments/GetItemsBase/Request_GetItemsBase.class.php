@@ -37,7 +37,7 @@ class Request_GetItemsBase {
 
 		$oPlentySoapRequest_GetItemsBase -> GetItemProperties = false;
 
-		$oPlentySoapRequest_GetItemsBase -> GetItemSuppliers = false;
+		$oPlentySoapRequest_GetItemsBase -> GetItemSuppliers = true;
 
 		$oPlentySoapRequest_GetItemsBase -> GetLongDescription = false;
 
