@@ -48,6 +48,40 @@ $.fn.updateConfig = function() {'use strict';
 	return this;
 };
 
+function appendFilterSelection() {'use strict';
+	var filterSelection, chkBxDiv, tForm;
+
+	filterSelection = [4, 9, 16, 20];
+	chkBxDiv = document.createElement('div');
+
+	chkBxDiv.className = 'fButton';
+	chkBxDiv.id = 'filterSelection';
+	$(chkBxDiv).append('<span>Filter:</span>');
+
+	tForm = document.createElement('form');
+	$(chkBxDiv).append(tForm);
+
+	$(filterSelection).each(function(index, value) {
+		var div, box, label;
+
+		div = document.createElement('div');
+		box = document.createElement('input');
+		label = document.createElement('label');
+
+		div.id = 'markingID_' + value;
+		box.type = 'checkbox';
+		box.id = 'markingID_' + value + '_field';
+		label.htmlFor = box.id;
+
+		$(div).append(box);
+		$(div).append(label);
+		$(tForm).append(div);
+	});
+
+	$('.tDiv2').append(chkBxDiv);
+}
+
+
 $(document).ready(function() {'use strict';
 	var integerInputfields, floatInputFields;
 
@@ -160,55 +194,45 @@ $(document).ready(function() {'use strict';
 			}
 		}],
 		onSuccess : function(g) {
-			var rawDataTotalSumMaxSize, colNames;
+			var rawDataTotalSumMaxSize, colModel, status;
 
 			rawDataTotalSumMaxSize = 0;
-			colNames = [];
+			colModel = this.colModel;
+			status = this.params.status;
 
-			$('th div', g.hDiv).each(function() {
-				colNames.push($(this).text());
-			});
-
-			$('tbody tr td', g.bDiv).each(function(index, value) {
-				var newCell, colName, rawData, dataTokens, skipped, data, totalSum, dataString, i, id;
+			$('tbody tr td', g.bDiv).each(function(index) {
+				var newCell, colName, dataTokens, skipped, data, totalSum, dataString, id;
 
 				newCell = $(this).find('div');
-				colName = colNames[index % colNames.length];
+				colName = colModel[index % colModel.length].name;
 
 				// visualize rawdata
-				if (colName === 'Rohdaten') {
-					rawData = $(this).text();
-					if (rawData !== '&nbsp;') {
-						dataTokens = rawData.split(':');
-						if (dataTokens.length === 2) {
-							skipped = parseInt(dataTokens[0], 10);
-							data = dataTokens[1].split(',');
-							totalSum = 0;
-							dataString = skipped > 0 ? '<ul class="skipped">' : '<ul class="counted">';
+				if (colName === 'RawData') {
+					dataTokens = $(this).text().split(':');
+					if (dataTokens.length === 2) {
+						skipped = parseInt(dataTokens[0], 10);
+						data = dataTokens[1].split(',');
+						totalSum = 0;
+						dataString = skipped > 0 ? '<ul class="skipped">' : '<ul class="counted">';
 
-							for ( i = 0; i < data.length; i += 1) {
-								dataString += '<li>' + data[i] + '</li>';
-								if (i + 1 === skipped) {
-									dataString += '</ul><ul class="counted">';
-								}
-								totalSum += parseInt(data[i], 10);
+						$.each(data, function(index, value) {
+							dataString += '<li>' + value + '</li>';
+							if (index + 1 === skipped) {
+								dataString += '</ul><ul class="counted">';
 							}
-						} else {
-							console.log('rawdata has wrong format!');
-						}
+							totalSum += parseInt(value, 10);
+						});
 
 						$(newCell).html('<span class="totalSum">' + totalSum + ' = </span>' + dataString + '</ul>');
 
-						if ($('.totalSum', newCell).outerWidth() > rawDataTotalSumMaxSize) {
-							rawDataTotalSumMaxSize = $('.totalSum', newCell).outerWidth();
-						}
+						rawDataTotalSumMaxSize = Math.max($('.totalSum', newCell).outerWidth(), rawDataTotalSumMaxSize);
 					}
 					// adjust marking to display colors instead numbers
-				} else if (colName === 'Markierung') {
+				} else if (colName === 'Marking') {
 					// get id ...
 					id = parseInt($(newCell).html(), 10);
 
-					if ($.inArray(id, [4, 9, 16, 20]) > -1) {
+					if ($.inArray(id, status) > -1) {
 						// set class ...
 						$(newCell).addClass('markingIDCell_' + id);
 
@@ -238,6 +262,9 @@ $(document).ready(function() {'use strict';
 			name : 'Name',
 			isdefault : true
 		}],
+		params : {
+			status : [4, 9, 16, 20]
+		},
 		sortname : "ItemID",
 		sortorder : "asc",
 		usepager : true,
@@ -254,36 +281,3 @@ $(document).ready(function() {'use strict';
 
 	appendFilterSelection();
 });
-
-function appendFilterSelection() {'use strict';
-	var filterSelection, chkBxDiv, tForm;
-
-	filterSelection = [4, 9, 16, 20];
-	chkBxDiv = document.createElement('div');
-
-	chkBxDiv.className = 'fButton';
-	chkBxDiv.id = 'filterSelection';
-	$(chkBxDiv).append('<span>Filter:</span>');
-
-	tForm = document.createElement('form');
-	$(chkBxDiv).append(tForm);
-
-	$(filterSelection).each(function(index, value) {
-		var div, box, label;
-
-		div = document.createElement('div');
-		box = document.createElement('input');
-		label = document.createElement('label');
-
-		div.id = 'markingID_' + value;
-		box.type = 'checkbox';
-		box.id = 'markingID_' + value + '_field';
-		label.htmlFor = box.id;
-
-		$(div).append(box);
-		$(div).append(label);
-		$(tForm).append(div);
-	});
-
-	$('.tDiv2').append(chkBxDiv);
-}
