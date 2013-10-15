@@ -46,40 +46,6 @@ $.fn.updateConfig = function() {'use strict';
 	return this;
 };
 
-function appendFilterSelection() {'use strict';
-	var filterSelection, chkBxDiv, tForm;
-
-	filterSelection = [4, 9, 16, 20];
-	chkBxDiv = document.createElement('div');
-
-	chkBxDiv.className = 'fButton';
-	chkBxDiv.id = 'filterSelection';
-	$(chkBxDiv).append('<span>Filter:</span>');
-
-	tForm = document.createElement('form');
-	$(chkBxDiv).append(tForm);
-
-	$(filterSelection).each(function(index, value) {
-		var div, box, label;
-
-		div = document.createElement('div');
-		box = document.createElement('input');
-		label = document.createElement('label');
-
-		div.id = 'markingID_' + value;
-		box.type = 'checkbox';
-		box.id = 'markingID_' + value + '_field';
-		label.htmlFor = box.id;
-
-		$(div).append(box);
-		$(div).append(label);
-		$(tForm).append(div);
-	});
-
-	$('.tDiv2').append(chkBxDiv);
-}
-
-
 $(document).ready(function() {'use strict';
 	var integerInputfields, floatInputFields;
 
@@ -183,11 +149,10 @@ $(document).ready(function() {'use strict';
 			name : 'Kalkulation manuell auslösen',
 			bclass : 'gear',
 			onpress : function() {
-				var currentGrid = $('#resultTable');
 				$('body').addClass('loading');
 				$.get('executeCalculation.php5', function() {
 					$('body').removeClass("loading");
-					currentGrid.flexReload();
+					$('#resultTable').flexReload();
 				});
 			}
 		}, {
@@ -250,15 +215,38 @@ $(document).ready(function() {'use strict';
 				}
 			});
 
-			// append filter selection
-			$('.filter', g.tDiv).append(function() {
-				var filterSelection = '';
+			if ($('.filter input', g.tDiv).length === 0) {
 
-				$.each(status, function(index, value) {
-					filterSelection += '<div id="markingID_' + value + '"><input type="checkbox" id="markingID_' + value + '_field"></input><label for="markingID_' + value + '_field"></label></div>';
+				// append filter selection
+				$('.filter', g.tDiv).append(function() {
+					var filterSelection = '';
+
+					$.each(status, function(index, value) {
+						filterSelection += '<div id="markingID_' + value + '"><input type="checkbox" id="markingID_' + value + '_field"></input><label for="markingID_' + value + '_field"></label></div>';
+					});
+
+					// filterSelection += '<div>alle</div><div>keine</div>';
+
+					return filterSelection;
 				});
-				return filterSelection;
-			});
+
+				$('.filter input[type=checkbox]', g.tDiv).change(function() {
+					// collect all data
+					var data = [];
+
+					$.each(status, function(index, value) {
+						data.push({
+							id : value,
+							checked : $('.filter #markingID_' + value + '_field').is(':checked')
+						});
+					});
+
+					// update query
+					$.post('#', data, function() {
+						$('#resultTable').flexReload();
+					});
+				});
+			}
 
 			// adjust width of totalsum fields in rawdata to the same size
 			$('.totalSum', g.bDiv).each(function() {
@@ -292,6 +280,4 @@ $(document).ready(function() {'use strict';
 		pagestat : 'Zeige {from} bis {to} von {total} Artikeln',
 		procmsg : 'Bitte warten...'
 	});
-
-	// appendFilterSelection();
 });

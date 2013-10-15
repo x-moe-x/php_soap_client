@@ -34,7 +34,7 @@
 }
 
 #errorMessages {
-	background-color: #00ff00;
+	background-color: #00e0d0;
 }
 
 .modal {
@@ -62,7 +62,7 @@ body.loading .modal {
 
 .filter > div {
 	display: inline-block;
-	float: right !important;
+	float: none !important;
 }
 
 .filter input {
