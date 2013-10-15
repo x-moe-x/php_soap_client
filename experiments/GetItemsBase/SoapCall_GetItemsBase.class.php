@@ -84,6 +84,29 @@ class SoapCall_GetItemsBase extends PlentySoapCall {
 		$this -> getLogger() -> debug(__FUNCTION__ . ' : done');
 	}
 
+	private function processItemSupplierRecord($oItemID, $oItemSupplier)
+	{
+		// $this -> getLogger() -> info(__FUNCTION__ . ' : ' . ' ItemSupplier : ' . $oItemSupplier -> SupplierID);
+
+		// store supplier record to DB
+		$query = 'REPLACE INTO `ItemSuppliers` ' .
+		// @formatter:off
+			DBUtils::buildInsert(
+				array(
+					'ItemID'					=> $oItemID,
+					'SupplierID'				=> $oItemSupplier->SupplierID,
+					'SupplierItemID'			=> $oItemSupplier->SupplierItemID,
+					'SupplierItemPrice'			=> $oItemSupplier->SupplierItemPrice,
+					'SupplierMinimumPurchase'	=> $oItemSupplier->SupplierMinimumPurchase,
+					'SupplierDeliveryTime'		=> $oItemSupplier->SupplierDeliveryTime,
+					'LastUpdate'				=> $oItemSupplier->LastUpdate
+				)
+			);
+			// @formatter:on
+
+		DBQuery::getInstance() -> replace($query);
+	}
+
 	private function processAttributeValueSet($oItemID, $oAttributeValueSet) {
 		$this -> getLogger() -> info(__FUNCTION__ . ' : ' . ' AttributeValueSetID : ' . $oAttributeValueSet -> AttributeValueSetID . ',' . ' AttributeValueSetName : ' . $oAttributeValueSet -> AttributeValueSetName);
 
@@ -164,7 +187,7 @@ class SoapCall_GetItemsBase extends PlentySoapCall {
 								'ItemID'					=> $oItemsBase->ItemID,
 								'ItemNo'					=> $oItemsBase->ItemNo,
 							/*	'ItemProperties'			=> $oItemsBase->ItemProperties,	ignored since not part of the request	*/
-							/*	'ItemSuppliers'				=> $oItemsBase->ItemSuppliers,	ignored since not part of the request	*/
+							/*	'ItemSuppliers'				=> $oItemsBase->ItemSuppliers,	skipped here and stored to seperate table	*/
 							/*	'ItemURL'					=> $oItemsBase->ItemURL,	ignored since not part of the request	*/
 								'LastUpdate'				=> $oItemsBase->LastUpdate,
 								'Marking1ID'				=> $oItemsBase->Marking1ID,
@@ -212,6 +235,18 @@ class SoapCall_GetItemsBase extends PlentySoapCall {
 				}
 			} else {
 				$this -> processAttributeValueSet($oItemsBase -> ItemID, $oItemsBase -> AttributeValueSets -> item);
+			}
+		}
+
+		// process ItemSuppliers
+		if (isset($oItemsBase -> ItemSuppliers))
+		{
+			if (is_array($oItemsBase -> ItemSuppliers -> item)) {
+				foreach ($oItemsBase -> ItemSuppliers -> item as $itemSupplierRecord) {
+					$this -> processItemSupplierRecord($oItemsBase -> ItemID, $itemSupplierRecord);
+				}
+			} else {
+				$this -> processItemSupplierRecord($oItemsBase -> ItemID, $oItemsBase -> ItemSuppliers -> item);
 			}
 		}
 	}
