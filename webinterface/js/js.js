@@ -84,13 +84,13 @@ $(document).ready(function() {'use strict';
 		},{
 			display : 'Artikel Nr',
 			name : 'ItemNo',
-			width : 40,
+			width : 80,
 			sortable : true,
 			align : 'center'
 		}, {
 			display : 'Name',
 			name : 'Name',
-			width : 180,
+			width : 500,
 			sortable : true,
 			align : 'left'
 		}, {
@@ -102,45 +102,45 @@ $(document).ready(function() {'use strict';
 		}, {
 			display : 'Ø Bedarf / Monat',
 			name : 'MonthlyNeed',
-			width : 120,
+			width : 60,
 			sortable : true,
 			align : 'right'
 		}, {
 			display : 'Ø Bedarf / Tag',
 			name : 'DailyNeed',
-			width : 130,
+			width : 60,
 			sortable : true,
 			align : 'right'
 		}, {
 			display : 'Markierung',
 			name : 'Marking',
-			width : 80,
+			width : 60,
 			sortable : true,
 			align : 'center'
 		}, {
-			display : 'Empfehlung Meldebestand (Meldebestand alt)',
+			display : 'Empf. Meldebest. (Meldebest. alt)',
 			name : 'reorder_level_suggestion',
-			width : 80,
+			width : 60,
 			sortable : false,
 			align : 'right'
 		}, {
-			display : 'Mindesabnahme / Bestellvorschlag (Bestellvorschlag aktuell)',
+			display : 'Mindesabn. / Best.-vorschlag (Best.-vorschlag akt.)',
 			name : 'min_purchase_order_suggestion',
-			width : 80,
+			width : 60,
 			sortable : false,
 			align : 'right',
 			hide : false
 		}, {
-			display : 'Empfehlung Maximalbestand',
+			display : 'Empf. Max.best.',
 			name : 'max_stock_suggestion',
 			width : 80,
 			sortable : false,
 			align : 'right',
 			hide : false
 		}, {
-			display : 'Verpackungseinheit',
+			display : 'VPE',
 			name : 'vpe',
-			width : 80,
+			width : 40,
 			sortable : false,
 			align : 'right',
 			hide : false
@@ -161,7 +161,7 @@ $(document).ready(function() {'use strict';
 		}, {
 			display : 'Datum',
 			name : 'Date',
-			width : 120,
+			width : 100,
 			sortable : true,
 			align : 'right'
 		}],
