@@ -81,6 +81,12 @@ $(document).ready(function() {'use strict';
 			width : 40,
 			sortable : true,
 			align : 'center'
+		},{
+			display : 'Artikel Nr',
+			name : 'ItemNo',
+			width : 40,
+			sortable : true,
+			align : 'center'
 		}, {
 			display : 'Name',
 			name : 'Name',
@@ -113,7 +119,7 @@ $(document).ready(function() {'use strict';
 			align : 'center'
 		}, {
 			display : 'Empfehlung Meldebestand (Meldebestand alt)',
-			name : 'ItemID',
+			name : 'reorder_level_suggestion',
 			width : 80,
 			sortable : false,
 			align : 'right'
@@ -123,7 +129,21 @@ $(document).ready(function() {'use strict';
 			width : 80,
 			sortable : false,
 			align : 'right',
-			hide : true
+			hide : false
+		}, {
+			display : 'Empfehlung Maximalbestand',
+			name : 'max_stock_suggestion',
+			width : 80,
+			sortable : false,
+			align : 'right',
+			hide : false
+		}, {
+			display : 'Verpackungseinheit',
+			name : 'vpe',
+			width : 80,
+			sortable : false,
+			align : 'right',
+			hide : false
 		}, {
 			display : 'Änderung',
 			name : 'change',

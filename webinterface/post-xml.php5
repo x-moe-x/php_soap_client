@@ -58,12 +58,14 @@ $select_basic = '				SELECT
 $select_advanced = $select_basic . ',
 					ItemsBase.ItemNo,
 					ItemsBase.Marking1ID,
+					ItemsBase.Free4 AS VPE,
 					CalculatedDailyNeeds.DailyNeed,
 					CalculatedDailyNeeds.LastUpdate,
 					CalculatedDailyNeeds.Quantities,
 					CalculatedDailyNeeds.Skipped,
 					ItemsWarehouseSettings.ReorderLevel,
 					ItemsWarehouseSettings.StockTurnover,
+					ItemSuppliers.SupplierDeliveryTime,
 					CASE WHEN (AttributeValueSets.AttributeValueSetName IS null) THEN
 						""
 					ELSE
@@ -88,7 +90,9 @@ $from_advanced = $from_basic . '
                         "0"
                     ELSE
                         AttributeValueSets.AttributeValueSetID
-                    END = CalculatedDailyNeeds.AttributeValueSetID';
+                    END = CalculatedDailyNeeds.AttributeValueSetID
+                LEFT JOIN ItemSuppliers
+                	ON ItemsBase.ItemID = ItemSuppliers.ItemID';
 					
 $where = '
 				WHERE
@@ -150,24 +154,31 @@ foreach($rows AS $row){
 	$monthlyNeed = $dailyNeed * 30;
 	$reorderLevel = intval($row['ReorderLevel']);
 	$stockTurnover = intval($row['StockTurnover']);
+	$supplierDeliveryTime = intval($row['SupplierDeliveryTime']);
 	
 
 	$name_string = intval($row['AttributeValueSetID']) == 0 ? $row['Name'] : $row['Name'] . ', ' . $row['AttributeValueSetName'];
 	$dailyNeed_string = $dailyNeed == 0 ? '' : $dailyNeed;
 	$monthlyNeed_string = $monthlyNeed == 0 ? '' : $monthlyNeed;
-	$stockTurnover_string = $stockTurnover == 0 ? 'keine Lagerreichweite konfiguriert!' : ceil($stockTurnover * $dailyNeed) . ' (' . $reorderLevel . ')';
+	//$stockTurnover_string = $stockTurnover == 0 ? 'keine Lagerreichweite konfiguriert!' : ceil($stockTurnover * $dailyNeed) . ' (' . $reorderLevel . ')';
+	$reorderLevel_string = ceil($supplierDeliveryTime * $dailyNeed)	 . ' (' . $reorderLevel . ')';
+	$orderSuggestion_string = $stockTurnover == 0 ? 'keine Lagerreichweite konfiguriert!' : ceil($stockTurnover * $dailyNeed) . ' (???)';
+	$maxStockSuggestion_string = $stockTurnover == 0 ? 'keine Lagerreichweite konfiguriert!' : ceil($stockTurnover  * $dailyNeed) * 2;
 	$rawData_string = isset($row['Quantities']) ? $row['Skipped'] . ':' . $row['Quantities'] : null;
 	$date_string = date('d.m.y, H:i:s', $row['LastUpdate']);
 	
 	$xml .= '<row id="'.$row['ItemID']. '-0-'.$row['AttributeValueSetID'].'">'.PHP_EOL;
 	$xml .= '<cell><![CDATA['.$row['ItemID'].']]></cell>'.PHP_EOL;
+	$xml .= '<cell><![CDATA['.$row['ItemNo'].']]></cell>'.PHP_EOL;
 	$xml .= '<cell><![CDATA['.$name_string.']]></cell>'.PHP_EOL;
 	$xml .= '<cell><![CDATA[]]>' . $rawData_string . '</cell>' . PHP_EOL;
 	$xml .= '<cell><![CDATA['.$monthlyNeed_string.']]></cell>'.PHP_EOL;
 	$xml .= '<cell><![CDATA['.$dailyNeed_string.']]></cell>'.PHP_EOL;
 	$xml .= '<cell><![CDATA['.$row['Marking1ID'].']]></cell>'.PHP_EOL;
-	$xml .= '<cell><![CDATA['.$stockTurnover_string.']]></cell>'.PHP_EOL;
-	$xml .= '<cell><![CDATA[]]>1</cell>'.PHP_EOL;
+	$xml .= '<cell><![CDATA['.$reorderLevel_string.']]></cell>'.PHP_EOL;
+	$xml .= '<cell><![CDATA[]]>'.$orderSuggestion_string.'</cell>'.PHP_EOL;
+	$xml .= '<cell><![CDATA[]]>'.$maxStockSuggestion_string.'</cell>'.PHP_EOL;
+	$xml .= '<cell><![CDATA[]]>'.$row['VPE'].'</cell>'.PHP_EOL;
 	$xml .= '<cell><![CDATA[]]>1</cell>'.PHP_EOL;
 	$xml .= '<cell><![CDATA[]]>1</cell>'.PHP_EOL;
 	$xml .= '<cell><![CDATA[' . $date_string . ']]></cell>' . PHP_EOL;
