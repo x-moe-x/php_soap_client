@@ -129,7 +129,7 @@ CREATE TABLE `soap_db`.`ItemsBase` (
 	 * `Texts`int(11) DEFAULT NULL,
 	 *
 	 */
-	 `Name` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	 `Name` TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
 	 `Name2` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
 	 `Name3` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
 	 `Keywords` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
