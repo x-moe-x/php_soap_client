@@ -279,6 +279,9 @@ $(document).ready(function() {'use strict';
 		searchitems : [{
 			display : 'ItemID',
 			name : 'ItemID'
+		},{
+			display : 'Artikel Nr',
+			name : 'ItemNo'
 		}, {
 			display : 'Name',
 			name : 'Name',
