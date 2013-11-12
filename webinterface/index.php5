@@ -11,9 +11,10 @@ function getConfig() {
 	$query = 'SELECT
 				* FROM `MetaConfig`
 				WHERE
-					`ConfigKey` = "CalculationTimeSingleWeighted" OR
-					`ConfigKey` = "CalcualtionTimeDoubleWeighted" OR
-					`ConfigKey` = "MinimumToleratedSpikes" OR
+					`ConfigKey` = "CalculationTimeA" OR
+					`ConfigKey` = "CalcualtionTimeB" OR
+					`ConfigKey` = "MinimumToleratedSpikesA" OR
+					`ConfigKey` = "MinimumToleratedSpikesB" OR
 					`ConfigKey` = "SpikeTolerance" OR
 					`ConfigKey` = "StandardDeviationFactor"';
 	$resultConfigQuery = DBQuery::getInstance() -> select($query);

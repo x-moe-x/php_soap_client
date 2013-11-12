@@ -3,9 +3,21 @@
 	font-size: 10pt;
 }
 
+#variableManipulation {
+	width: 50%
+}
+
+#variableManipulation ul {
+	width: 360px;
+}
+
 #variableManipulation li {
 	list-style-type: none;
 	margin-bottom: 2px;
+}
+
+#variableManipulation h2 {
+	text-align: center;
 }
 
 #variableManipulation input {
@@ -16,7 +28,7 @@
 
 #variableManipulation label {
 	display: inline-block;
-	width: 300px;
+	width: 200px;
 }
 
 #variableManipulation label.disabled {
@@ -30,7 +42,29 @@
 	color: #aaaaaa;
 }
 
+#globalManipulation {
+	margin-left: auto;
+	margin-right: auto;
+}
+
+#firstPeriodManipulation{
+	float: left;
+	border: 1px solid #ccc;
+	border-radius: 5px;
+}
+
+#secondPeriodManipulation{
+	float: right;
+	border: 1px solid #ccc;
+	border-radius: 5px;
+}
+
+.clear {
+	clear: both;
+}
+
 #warehouseSelection {
+	margin-top: 1em;
 }
 
 #errorMessages {
@@ -111,6 +145,10 @@ body.loading .modal {
 }
 .markingIDCell_4 {
 	background: url("../images/marking1d_4.png") no-repeat scroll center center transparent;
+}
+
+.flexigrid {
+	clear: both;
 }
 
 .flexigrid div.fbutton .gear {
