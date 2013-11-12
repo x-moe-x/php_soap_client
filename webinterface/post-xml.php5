@@ -96,7 +96,8 @@ $from_advanced = $from_basic . '
 					
 $where = '
 				WHERE
-					ItemsWarehouseSettings.WarehouseID = ' . $warehouseID. ' ';
+					(ItemsWarehouseSettings.WarehouseID = ' . $warehouseID. ' OR
+					 ItemsBase.MainWarehouseID = ' . $warehouseID. ') ';
 
 if ($query && $qtype){
 	if (strpos($query,',') !== false){
