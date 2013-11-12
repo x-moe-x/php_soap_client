@@ -238,6 +238,10 @@ class SoapCall_GetItemsBase extends PlentySoapCall {
 			}
 		}
 
+		// delete old entrys from AttributeValueSets to prevent unrecognized deletes
+		$query = 'DELETE FROM `ItemSuppliers` WHERE `ItemID` = ' . $oItemsBase -> ItemID;
+		DBQuery::getInstance() -> delete($query);
+
 		// process ItemSuppliers
 		if (isset($oItemsBase -> ItemSuppliers))
 		{
