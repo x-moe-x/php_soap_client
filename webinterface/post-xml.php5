@@ -156,15 +156,18 @@ foreach($rows AS $row){
 	$reorderLevel = intval($row['ReorderLevel']);
 	$stockTurnover = intval($row['StockTurnover']);
 	$supplierDeliveryTime = intval($row['SupplierDeliveryTime']);
-	
+	$vpe = intval($row['VPE']);
+	$vpe = $vpe == 0 ? 1: $vpe;
+	$orderSuggestion = ceil($stockTurnover * $dailyNeed);
+	$orderSuggestion = $orderSuggestion % $vpe == 0 ? $orderSuggestion : $orderSuggestion + $vpe - $orderSuggestion % $vpe;
 
 	$name_string = intval($row['AttributeValueSetID']) == 0 ? $row['Name'] : $row['Name'] . ', ' . $row['AttributeValueSetName'];
 	$dailyNeed_string = $dailyNeed == 0 ? '' : $dailyNeed;
 	$monthlyNeed_string = $monthlyNeed == 0 ? '' : $monthlyNeed;
 	//$stockTurnover_string = $stockTurnover == 0 ? 'keine Lagerreichweite konfiguriert!' : ceil($stockTurnover * $dailyNeed) . ' (' . $reorderLevel . ')';
 	$reorderLevel_string = ceil($supplierDeliveryTime * $dailyNeed)	 . ' (' . $reorderLevel . ')';
-	$orderSuggestion_string = $stockTurnover == 0 ? 'keine Lagerreichweite konfiguriert!' : ceil($stockTurnover * $dailyNeed) . ' (???)';
-	$maxStockSuggestion_string = $stockTurnover == 0 ? 'keine Lagerreichweite konfiguriert!' : ceil($stockTurnover  * $dailyNeed) * 2;
+	$orderSuggestion_string = $stockTurnover == 0 ? 'keine Lagerreichweite konfiguriert!' : $orderSuggestion . ' (???)';
+	$maxStockSuggestion_string = $stockTurnover == 0 ? 'keine Lagerreichweite konfiguriert!' : $orderSuggestion * 2;
 	$rawData_string = isset($row['Quantities']) ? $row['Skipped'] . ':' . $row['Quantities'] : null;
 	$date_string = date('d.m.y, H:i:s', $row['LastUpdate']);
 	
@@ -179,7 +182,7 @@ foreach($rows AS $row){
 	$xml .= '<cell><![CDATA['.$reorderLevel_string.']]></cell>'.PHP_EOL;
 	$xml .= '<cell><![CDATA[]]>'.$orderSuggestion_string.'</cell>'.PHP_EOL;
 	$xml .= '<cell><![CDATA[]]>'.$maxStockSuggestion_string.'</cell>'.PHP_EOL;
-	$xml .= '<cell><![CDATA[]]>'.$row['VPE'].'</cell>'.PHP_EOL;
+	$xml .= '<cell><![CDATA[]]>'.$vpe.'</cell>'.PHP_EOL;
 	$xml .= '<cell><![CDATA[]]>1</cell>'.PHP_EOL;
 	$xml .= '<cell><![CDATA[]]>1</cell>'.PHP_EOL;
 	$xml .= '<cell><![CDATA[' . $date_string . ']]></cell>' . PHP_EOL;
