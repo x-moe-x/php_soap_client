@@ -199,7 +199,8 @@ class SoapCall_GetItemsBase extends PlentySoapCall {
 								'ProducerID'				=> $oItemsBase->ProducerID,
 								'ProducingCountryID'		=> $oItemsBase->ProducingCountryID,
 								'Published'					=> $oItemsBase->Published,
-							/*	'Stock'						=> $oItemsBase->Stock,	currently considered irrelevant	*/
+							/*	'Stock'						=> $oItemsBase->Stock,	currently considered irrelevant, except MainWarehouseID	*/
+								'MainWarehouseID'			=> $oItemsBase->Stock->MainWarehouseID,
 								'StorageLocation'			=> $oItemsBase->StorageLocation,
 							/*	'Texts'						=> $oItemsBase->Texts,	replaced with it's subitems	*/
 								'Keywords'					=> $oItemsBase->Texts->Keywords,

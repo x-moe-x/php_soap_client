@@ -169,6 +169,7 @@ CREATE TABLE `soap_db`.`ItemsBase` (
 	`ProducingCountryID`int(11) DEFAULT NULL,
 	`Published`int(11) DEFAULT NULL,
 	`Stock`int(11) DEFAULT NULL,
+	`MainWarehouseID`int(11) DEFAULT NULL,
 	`StorageLocation`int(11) DEFAULT NULL,
 	`Type`int(11) DEFAULT NULL,
 	`VATInternalID`int(11) DEFAULT NULL,
