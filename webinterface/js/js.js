@@ -274,7 +274,7 @@ $(document).ready(function() {'use strict';
 			});
 
 			// adjust table height
-			$('#resultTable').parent().css('height', $('#resultTable').outerHeight());
+			// $('#resultTable').parent().css('height', $('#resultTable').outerHeight());
 		},
 		searchitems : [{
 			display : 'ItemID',
