@@ -48,9 +48,10 @@ class CalculateHistogram {
 		$query = 'SELECT
                 * FROM `MetaConfig`
                 WHERE
-                    `ConfigKey` = "CalculationTimeSingleWeighted" OR
-                    `ConfigKey` = "CalcualtionTimeDoubleWeighted" OR
-                    `ConfigKey` = "MinimumToleratedSpikes" OR
+                    `ConfigKey` = "CalculationTimeA" OR
+                    `ConfigKey` = "CalcualtionTimeB" OR
+                    `ConfigKey` = "MinimumToleratedSpikesA" OR
+                    `ConfigKey` = "MinimumToleratedSpikesB" OR
                     `ConfigKey` = "SpikeTolerance" OR
                     `ConfigKey` = "StandardDeviationFactor"';
 		$resultConfigQuery = DBQuery::getInstance() -> select($query);
@@ -93,8 +94,8 @@ class CalculateHistogram {
                     'AttributeValueSetID'   =>  $AttributeValueSetID,
                     'DailyNeed'             =>  $adjustedQuantity / 90,
                     'LastUpdate'            =>  $this->currentTime,
-                    'Quantities'             =>  $currentArticle['quantities'],
-                    'Skipped'               =>  $skippedIndex
+                    'QuantitiesA'             =>  $currentArticle['quantities'],
+                    'SkippedA'               =>  $skippedIndex
                 )
             );
         // @formatter:on
@@ -105,7 +106,7 @@ class CalculateHistogram {
 	private function getArticleAdjustedQuantity($quantities, $quantity, $range, &$index) {
 
 		$spikeTolerance = $this -> config['SpikeTolerance']['Value'];
-		$minToleratedSpikes = $this -> config['MinimumToleratedSpikes']['Value'];
+		$minToleratedSpikes = $this -> config['MinimumToleratedSpikesA']['Value'];
 
 		// check quantities in descending order
 		for ($index = 0; $index < count($quantities); ++$index) {
@@ -146,7 +147,7 @@ class CalculateHistogram {
 
 	private function getIntervallQuery() {
 		$startTimestamp = $this -> currentTime;
-		$daysBack = $this -> config['CalculationTimeSingleWeighted']['Value'];
+		$daysBack = $this -> config['CalculationTimeA']['Value'];
 		$rangeConfidenceMultiplyer = $this -> config['StandardDeviationFactor']['Value'];
 
 		return '
