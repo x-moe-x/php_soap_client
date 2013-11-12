@@ -61,8 +61,10 @@ $select_advanced = $select_basic . ',
 					ItemsBase.Free4 AS VPE,
 					CalculatedDailyNeeds.DailyNeed,
 					CalculatedDailyNeeds.LastUpdate,
-					CalculatedDailyNeeds.Quantities,
-					CalculatedDailyNeeds.Skipped,
+					CalculatedDailyNeeds.QuantitiesA,
+					CalculatedDailyNeeds.SkippedA,
+					CalculatedDailyNeeds.QuantitiesB,
+					CalculatedDailyNeeds.SkippedB,
 					ItemsWarehouseSettings.ReorderLevel,
 					ItemsWarehouseSettings.StockTurnover,
 					ItemSuppliers.SupplierDeliveryTime,
@@ -169,14 +171,16 @@ foreach($rows AS $row){
 	$reorderLevel_string = 	 $supplierDeliveryTime == 0 ? "keine Lieferzeit konfiguriert" : $proposedReorderLevel . ' (' . $reorderLevel . ')';
 	$orderSuggestion_string = $stockTurnover == 0 ? 'keine Lagerreichweite konfiguriert!' : $orderSuggestion . ' (???)';
 	$maxStockSuggestion_string = $stockTurnover == 0 ? 'keine Lagerreichweite konfiguriert!' : $orderSuggestion * 2;
-	$rawData_string = isset($row['Quantities']) ? $row['Skipped'] . ':' . $row['Quantities'] : null;
+	$rawDataA_string = isset($row['QuantitiesA']) ? $row['SkippedA'] . ':' . $row['QuantitiesA'] : null;
+	$rawDataB_string = isset($row['QuantitiesB']) ? $row['SkippedB'] . ':' . $row['QuantitiesB'] : null;
 	$date_string = date('d.m.y, H:i:s', $row['LastUpdate']);
 	
 	$xml .= '<row id="'.$row['ItemID']. '-0-'.$row['AttributeValueSetID'].'">'.PHP_EOL;
 	$xml .= '<cell><![CDATA['.$row['ItemID'].']]></cell>'.PHP_EOL;
 	$xml .= '<cell><![CDATA['.$row['ItemNo'].']]></cell>'.PHP_EOL;
 	$xml .= '<cell><![CDATA['.$name_string.']]></cell>'.PHP_EOL;
-	$xml .= '<cell><![CDATA[]]>' . $rawData_string . '</cell>' . PHP_EOL;
+	$xml .= '<cell><![CDATA[]]>' . $rawDataA_string . '</cell>' . PHP_EOL;
+	$xml .= '<cell><![CDATA[]]>' . $rawDataB_string . '</cell>' . PHP_EOL;
 	$xml .= '<cell><![CDATA['.$monthlyNeed_string.']]></cell>'.PHP_EOL;
 	$xml .= '<cell><![CDATA['.$dailyNeed_string.']]></cell>'.PHP_EOL;
 	$xml .= '<cell><![CDATA['.$row['Marking1ID'].']]></cell>'.PHP_EOL;
