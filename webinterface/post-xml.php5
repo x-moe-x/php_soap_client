@@ -158,6 +158,7 @@ foreach($rows AS $row){
 	$supplierDeliveryTime = intval($row['SupplierDeliveryTime']);
 	$vpe = intval($row['VPE']);
 	$vpe = $vpe == 0 ? 1: $vpe;
+	$proposedReorderLevel = ceil($supplierDeliveryTime * $dailyNeed);
 	$orderSuggestion = ceil($stockTurnover * $dailyNeed);
 	$orderSuggestion = $orderSuggestion % $vpe == 0 ? $orderSuggestion : $orderSuggestion + $vpe - $orderSuggestion % $vpe;
 
@@ -165,7 +166,7 @@ foreach($rows AS $row){
 	$dailyNeed_string = $dailyNeed == 0 ? '' : $dailyNeed;
 	$monthlyNeed_string = $monthlyNeed == 0 ? '' : $monthlyNeed;
 	//$stockTurnover_string = $stockTurnover == 0 ? 'keine Lagerreichweite konfiguriert!' : ceil($stockTurnover * $dailyNeed) . ' (' . $reorderLevel . ')';
-	$reorderLevel_string = ceil($supplierDeliveryTime * $dailyNeed)	 . ' (' . $reorderLevel . ')';
+	$reorderLevel_string = 	 $supplierDeliveryTime == 0 ? "keine Lieferzeit konfiguriert" : $proposedReorderLevel . ' (' . $reorderLevel . ')';
 	$orderSuggestion_string = $stockTurnover == 0 ? 'keine Lagerreichweite konfiguriert!' : $orderSuggestion . ' (???)';
 	$maxStockSuggestion_string = $stockTurnover == 0 ? 'keine Lagerreichweite konfiguriert!' : $orderSuggestion * 2;
 	$rawData_string = isset($row['Quantities']) ? $row['Skipped'] . ':' . $row['Quantities'] : null;
