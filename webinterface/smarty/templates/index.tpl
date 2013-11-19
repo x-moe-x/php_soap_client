@@ -14,6 +14,7 @@
 			{$debug}
 		</div>
 		<div id='variableManipulation'>
+			<h2>Konfiguration</h2>
 			<ul id='globalManipulation'>
 				<li>
 					<label {if $config.SpikeTolerance.Active == 0}class='disabled'{/if} for='spikeTolerance'> Spitzentoleranz: </label>
