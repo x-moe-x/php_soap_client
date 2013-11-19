@@ -3,6 +3,7 @@
 require_once ROOT . 'lib/db/DBQuery.class.php';
 require_once ROOT . 'lib/db/DBQueryResult.class.php';
 require_once ROOT . 'includes/SKUHelper.php';
+require_once ROOT . 'includes/GetConfig.php';
 
 /**
  * @author x-moe-x
@@ -27,7 +28,7 @@ class CalculateHistogram {
 		$this -> currentTime = time();
 		//  30.04.2013, 23:59:59 = 1367359199;
 
-		$this -> config = $this -> getConfig();
+		$this -> config = getConfig();
 	}
 
 	public function execute() {
@@ -44,33 +45,7 @@ class CalculateHistogram {
 		}
 	}
 
-	private function getConfig() {
-		$query = 'SELECT
-                * FROM `MetaConfig`
-                WHERE
-                    `ConfigKey` = "CalculationTimeA" OR
-                    `ConfigKey` = "CalcualtionTimeB" OR
-                    `ConfigKey` = "MinimumToleratedSpikesA" OR
-                    `ConfigKey` = "MinimumToleratedSpikesB" OR
-                    `ConfigKey` = "SpikeTolerance" OR
-                    `ConfigKey` = "StandardDeviationFactor"';
-		$resultConfigQuery = DBQuery::getInstance() -> select($query);
-
-		$result = array();
-		//TODO add validity check!
-		for ($i = 0; $i < $resultConfigQuery -> getNumRows(); ++$i) {
-			$configRow = $resultConfigQuery -> fetchAssoc();
-			if ($configRow['ConfigKey'] == 'SpikeTolerance' || $configRow['ConfigKey'] == 'StandardDeviationFactor')
-				$result[$configRow['ConfigKey']]['Value'] = floatval($configRow['ConfigValue']);
-			else
-				$result[$configRow['ConfigKey']]['Value'] = intval($configRow['ConfigValue']);
-
-			$result[$configRow['ConfigKey']]['Active'] = intval($configRow['Active']);
-		}
-		return $result;
-	}
-
-    private function processArticle($currentArticle) {
+	private function processArticle($currentArticle) {
         list($ItemID, $PriceID, $AttributeValueSetID) = SKU2Values($currentArticle['SKU']);
 
         $skippedIndex;
