@@ -36,8 +36,9 @@ class CalculateHistogram {
 
 		$this -> init();
 
-		// retreive latest orders from db for calculation time a
+		// retrieve latest orders from db for calculation time a
 		$articleResultA = DBQuery::getInstance() -> select($this -> getIntervallQuery($this -> config['CalculationTimeA']['Value']));
+		$this -> getLogger() -> info(__FUNCTION__ . ' : retrieved ' . $articleResultA -> getNumRows() . ' article variants for calculation time a');
 
 		// clear pending db before start
 		DBQuery::getInstance() -> truncate('TRUNCATE TABLE PendingCalculation');
@@ -49,12 +50,45 @@ class CalculateHistogram {
 
 		// retreive latest orders from db for calculation time b
 		$articleResultB = DBQuery::getInstance() -> select($this -> getIntervallQuery($this -> config['CalculationTimeB']['Value']));
-
-		// for every article do:
+		$this -> getLogger() -> info(__FUNCTION__ . ' : retrieved ' . $articleResultB -> getNumRows() . ' article variants for calculation time b');
+		// for every article in calculation time b do:
 		// combine a and b and store to db
 		while ($currentArticle = $articleResultB -> fetchAssoc()) {
 			$this -> processArticle($currentArticle, false);
 		}
+
+		// for all articles NOT in calculation time b but still in pending do:
+		$this -> processPendingArticles();
+	}
+
+	private function processPendingArticles() {
+		// get remaining articles from pending:
+		$pendingResult = DBQuery::getInstance() -> select('SELECT * FROM `PendingCalculation`');
+		$this -> getLogger() -> info(__FUNCTION__ . ' : retrieved ' . $pendingResult -> getNumRows() . ' article variants from pending, being not in calculation time b');
+
+		while ($pendingData = $pendingResult -> fetchAssoc()) {
+			// store results to db
+			// @formatter:off
+	        $query = 'REPLACE INTO `CalculatedDailyNeeds` ' .
+	            DBUtils::buildInsert(
+	                array(
+	                    'ItemID'                =>  $pendingData['ItemID'],
+	                    'AttributeValueSetID'   =>  $pendingData['AttributeValueSetID'],
+	                    'DailyNeed'             =>  $pendingData['DailyNeed']/2,
+	                    'LastUpdate'            =>  $this->currentTime,
+	                    'QuantitiesA'           =>  $pendingData['Quantities'],
+	                    'SkippedA'              =>  $pendingData['Skipped'],
+	                    'QuantitiesB'           =>  0,
+	                    'SkippedB'              =>  0
+	                )
+	            );
+			// @formatter:on
+
+			DBQuery::getInstance() -> replace($query);
+		}
+
+		// delete obsolete pending data
+		DBQuery::getInstance() -> truncate('TRUNCATE TABLE PendingCalculation');
 	}
 
 	private function processArticle($currentArticle, $storeToPending) {
@@ -64,16 +98,6 @@ class CalculateHistogram {
 		$quantities = explode(',', $currentArticle['quantities']);
 		$minToleratedSpikes = $this -> config['MinimumToleratedSpikes' . ($storeToPending ? 'A' : 'B')]['Value'];
 		$adjustedQuantity = $this -> getArticleAdjustedQuantity($quantities, $currentArticle['quantity'], $currentArticle['range'], $minToleratedSpikes, $skippedIndex);
-
-		// @formatter:off
-        $this -> getLogger() -> info(__FUNCTION__ .' : Article: ' .         $ItemID .
-                                                         ', Set: ' .             $AttributeValueSetID .
-                                                         ', skipped ' .          $skippedIndex . '/' . count($quantities) .
-                                                         ', orders, total: ' .   $currentArticle['quantity'] .
-                                                         ', adjusted: ' .        $adjustedQuantity .
-                                                         ', difference: ' .      ($currentArticle['quantity'] - $adjustedQuantity) .
-                                                         ', daily sale: ' .      $adjustedQuantity / 90);
-		// @formatter:on
 
 		if ($storeToPending) {
 			// store results to pending db
@@ -130,6 +154,8 @@ class CalculateHistogram {
 			// @formatter:on
 
 			DBQuery::getInstance() -> replace($queryB);
+
+			DBQuery::getInstance() -> delete('DELETE FROM `PendingCalculation` WHERE `ItemID` = ' . $ItemID . ' AND	`AttributeValueSetID` =	' . $AttributeValueSetID);
 		}
 	}
 
