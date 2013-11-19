@@ -130,6 +130,10 @@ body.loading .modal {
 	background: url("../images/marking1d_9.png") no-repeat scroll center center transparent;
 }
 
+#markingID_12 > label {
+	background: url("../images/marking1d_12.png") no-repeat scroll center center transparent;
+}
+
 #markingID_16 > label {
 	background: url("../images/marking1d_16.png") no-repeat scroll center center transparent;
 }
@@ -146,6 +150,10 @@ body.loading .modal {
 }
 .markingIDCell_9 {
 	background: url("../images/marking1d_9.png") no-repeat scroll center center transparent;
+}
+
+.markingIDCell_12 {
+	background: url("../images/marking1d_12.png") no-repeat scroll center center transparent;
 }
 .markingIDCell_4 {
 	background: url("../images/marking1d_4.png") no-repeat scroll center center transparent;

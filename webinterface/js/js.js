@@ -294,7 +294,7 @@ $(document).ready(function() {'use strict';
 			isdefault : true
 		}],
 		params : {
-			status : [4, 9, 16, 20]
+			status : [4, 9, 12, 16, 20]
 		},
 		sortname : "ItemID",
 		sortorder : "asc",
