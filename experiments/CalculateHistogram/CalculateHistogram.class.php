@@ -48,7 +48,7 @@ class CalculateHistogram {
 		}
 
 		// retreive latest orders from db for calculation time b
-		$articleResultB = DBQuery::getInstance() -> select($this -> getIntervallQuery($this -> config['CalculationTimeA']['Value']));
+		$articleResultB = DBQuery::getInstance() -> select($this -> getIntervallQuery($this -> config['CalculationTimeB']['Value']));
 
 		// for every article do:
 		// combine a and b and store to db
@@ -121,10 +121,10 @@ class CalculateHistogram {
 	                    'AttributeValueSetID'   =>  $AttributeValueSetID,
 	                    'DailyNeed'             =>  (($adjustedQuantity / 90) + $pendingData['DailyNeed'])/2,
 	                    'LastUpdate'            =>  $this->currentTime,
-	                    'QuantitiesA'           =>  $currentArticle['quantities'],
-	                    'SkippedA'              =>  $skippedIndex,
-	                    'QuantitiesB'           =>  $pendingData['Quantities'],
-	                    'SkippedB'              =>  $pendingData['Skipped']
+	                    'QuantitiesA'           =>  $pendingData['Quantities'],
+	                    'SkippedA'              =>  $pendingData['Skipped'],
+	                    'QuantitiesB'           =>  $currentArticle['quantities'],
+	                    'SkippedB'              =>  $skippedIndex
 	                )
 	            );
 			// @formatter:on

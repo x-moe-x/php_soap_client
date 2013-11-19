@@ -4,7 +4,7 @@ ob_start();
 require_once realpath(dirname(__FILE__) . '/../') . '/config/basic.inc.php';
 require_once ROOT . 'lib/db/DBQuery.class.php';
 
-$integerKeys = array('calculationTimeA', 'calcualtionTimeB', 'minimumToleratedSpikesA', 'minimumToleratedSpikesB');
+$integerKeys = array('calculationTimeA', 'calculationTimeB', 'minimumToleratedSpikesA', 'minimumToleratedSpikesB');
 $floatKeys = array('standardDeviationFactor', 'spikeTolerance');
 
 if (isset($_POST['key']) && isset($_POST['value'])) {

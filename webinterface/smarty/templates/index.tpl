@@ -42,9 +42,9 @@
 				<h2>Zeitraum B (momentan inaktiv!)</h2>
 				<ul>
 					<li>
-						<label {if $config.CalcualtionTimeB.Active == 0}class='disabled'{/if} for='calcualtionTimeB'> Berechnungszeitraum: </label>
-						<input id='calcualtionTimeB' value='{$config.CalcualtionTimeB.Value}' {if $config.CalcualtionTimeB.Active == 0}disabled{/if}/>
-						<label class='variableUnit' for='calcualtionTimeB'>Tage</label>
+						<label {if $config.CalculationTimeB.Active == 0}class='disabled'{/if} for='calculationTimeB'> Berechnungszeitraum: </label>
+						<input id='calculationTimeB' value='{$config.CalculationTimeB.Value}' {if $config.CalculationTimeB.Active == 0}disabled{/if}/>
+						<label class='variableUnit' for='calculationTimeB'>Tage</label>
 					<li>
 						<label {if $config.MinimumToleratedSpikesB.Active == 0}class='disabled'{/if} for='minimumToleratedSpikesB'> Mindestanzahl Spitzen: </label>
 						<input id='minimumToleratedSpikesB' value='{$config.MinimumToleratedSpikesB.Value}' {if $config.MinimumToleratedSpikesB.Active == 0}disabled{/if}/>
