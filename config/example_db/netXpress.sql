@@ -257,6 +257,17 @@ CREATE TABLE `soap_db`.`CalculatedDailyNeeds` (
 	PRIMARY KEY (`ItemID`, `AttributeValueSetID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+DROP TABLE `soap_db`.`PendingCalculation`;
+
+CREATE TABLE `soap_db`.`PendingCalculation` (
+	`ItemID` int(11) NOT NULL,
+	`AttributeValueSetID` int(11) NOT NULL,
+	`DailyNeed` decimal(8,2) DEFAULT NULL,
+	`Skipped` int(11) DEFAULT NULL,
+	`Quantities` TEXT COLLATE utf8_unicode_ci,
+	PRIMARY KEY (`ItemID`, `AttributeValueSetID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 DROP TABLE `soap_db`.`ItemSuppliers`;
 
 CREATE TABLE `soap_db`.`ItemSuppliers` (
