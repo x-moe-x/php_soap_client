@@ -37,7 +37,7 @@ class CalculateHistogram {
 		$this -> init();
 
 		// retreive latest orders from db
-		$articleResult = DBQuery::getInstance() -> select($this -> getIntervallQuery());
+		$articleResult = DBQuery::getInstance() -> select($this -> getIntervallQuery($this -> config['CalculationTimeA']['Value']));
 
 		// for every article do:
 		while ($currentArticle = $articleResult -> fetchAssoc()) {
@@ -120,9 +120,8 @@ class CalculateHistogram {
 		return $quantity;
 	}
 
-	private function getIntervallQuery() {
+	private function getIntervallQuery($daysBack) {
 		$startTimestamp = $this -> currentTime;
-		$daysBack = $this -> config['CalculationTimeA']['Value'];
 		$rangeConfidenceMultiplyer = $this -> config['StandardDeviationFactor']['Value'];
 
 		return '
@@ -132,7 +131,11 @@ class CalculateHistogram {
 				SUM(CAST(OrderItem.Quantity AS SIGNED)) AS `quantity`,
 				AVG(`quantity`) + STDDEV(`quantity`) * ' . $rangeConfidenceMultiplyer . ' AS `range`,
 				CAST(GROUP_CONCAT(IF(OrderItem.Quantity > 0 ,CAST(OrderItem.Quantity AS SIGNED),NULL) ORDER BY OrderItem.Quantity DESC SEPARATOR ",") AS CHAR) AS `quantities`,
-				ItemsBase.Marking1ID FROM OrderItem LEFT JOIN (OrderHead, ItemsBase) ON (OrderHead.OrderID = OrderItem.OrderID AND OrderItem.ItemID = ItemsBase.ItemID)
+				ItemsBase.Marking1ID
+			FROM
+				OrderItem
+			LEFT JOIN
+				(OrderHead, ItemsBase) ON (OrderHead.OrderID = OrderItem.OrderID AND OrderItem.ItemID = ItemsBase.ItemID)
 			WHERE
 				(OrderHead.OrderTimestamp BETWEEN ' . $startTimestamp . '-(86400*' . $daysBack . ') AND ' . $startTimestamp . ') AND
 				(OrderHead.OrderStatus < 8 OR OrderHead.OrderStatus >= 9) AND
