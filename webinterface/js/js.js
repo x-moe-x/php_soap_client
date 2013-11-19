@@ -202,7 +202,7 @@ $(document).ready(function() {'use strict';
 				colName = colModel[index % colModel.length].name;
 
 				// visualize rawdata
-				if (colName === 'RawDataA') {
+				if ((colName === 'RawDataA') || (colName === 'RawDataB')) {
 					dataTokens = $(this).text().split(':');
 					if (dataTokens.length === 2) {
 						skipped = parseInt(dataTokens[0], 10);

@@ -39,7 +39,7 @@
 				</ul>
 			</div>
 			<div id='secondPeriodManipulation'>
-				<h2>Zeitraum B (momentan inaktiv!)</h2>
+				<h2>Zeitraum B</h2>
 				<ul>
 					<li>
 						<label {if $config.CalculationTimeB.Active == 0}class='disabled'{/if} for='calculationTimeB'> Berechnungszeitraum: </label>
