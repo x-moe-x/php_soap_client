@@ -13,28 +13,45 @@
 		<div id='errorMessages'>
 			{$debug}
 		</div>
-		<div>
-			<ul id='variableManipulation'>
-				<li>
-					<label {if $config.CalculationTimeSingleWeighted.Active == 0}class='disabled'{/if} for='calculationTimeSingleWeighted'> Zeitraum zur Berechnung (einfach gewichtet): </label>
-					<input id='calculationTimeSingleWeighted' value='{$config.CalculationTimeSingleWeighted.Value}' {if $config.CalculationTimeSingleWeighted.Active == 0}disabled{/if}/>
-					<label class='variableUnit' for='calculationTimeSingleWeighted'>Tage</label>
-				<li>
-					<label {if $config.CalcualtionTimeDoubleWeighted.Active == 0}class='disabled'{/if} for='calcualtionTimeDoubleWeighted'> Zeitraum zur Berechnung (doppelt gewichtet): </label>
-					<input id='calcualtionTimeDoubleWeighted' value='{$config.CalcualtionTimeDoubleWeighted.Value}' {if $config.CalcualtionTimeDoubleWeighted.Active == 0}disabled{/if}/>
-					<label class='variableUnit' for='calcualtionTimeDoubleWeighted'>Tage</label>
-				<li>
-					<label {if $config.StandardDeviationFactor.Active == 0}class='disabled'{/if} for='standardDeviationFactor'> Faktor Standardabweichung: </label>
-					<input id='standardDeviationFactor' value='{$config.StandardDeviationFactor.Value}' {if $config.StandardDeviationFactor.Active == 0}disabled{/if}/>
-				<li>
-					<label {if $config.MinimumToleratedSpikes.Active == 0}class='disabled'{/if} for='minimumToleratedSpikes'> Mindestanzahl Spitzen: </label>
-					<input id='minimumToleratedSpikes' value='{$config.MinimumToleratedSpikes.Value}' {if $config.MinimumToleratedSpikes.Active == 0}disabled{/if}/>
-					<label class='variableUnit' for='minimumToleratedSpikes'>Stück</label>
+		<div id='variableManipulation'>
+			<h2>Konfiguration</h2>
+			<ul id='globalManipulation'>
 				<li>
 					<label {if $config.SpikeTolerance.Active == 0}class='disabled'{/if} for='spikeTolerance'> Spitzentoleranz: </label>
 					<input id='spikeTolerance' value='{$config.SpikeTolerance.Value * 100}'  {if $config.SpikeTolerance.Active == 0}disabled{/if}/>
 					<label class='variableUnit' for='spikeTolerance'>%</label>
+				<li>
+					<label {if $config.StandardDeviationFactor.Active == 0}class='disabled'{/if} for='standardDeviationFactor'> Faktor Standardabweichung: </label>
+					<input id='standardDeviationFactor' value='{$config.StandardDeviationFactor.Value}' {if $config.StandardDeviationFactor.Active == 0}disabled{/if}/>
+
 			</ul>
+			<div id='firstPeriodManipulation'>
+				<h2>Zeitraum A</h2>
+				<ul>
+					<li>
+						<label {if $config.CalculationTimeA.Active == 0}class='disabled'{/if} for='calculationTimeA'> Berechnungszeitraum: </label>
+						<input id='calculationTimeA' value='{$config.CalculationTimeA.Value}' {if $config.CalculationTimeA.Active == 0}disabled{/if}/>
+						<label class='variableUnit' for='calculationTimeA'>Tage</label>
+					<li>
+						<label {if $config.MinimumToleratedSpikesA.Active == 0}class='disabled'{/if} for='minimumToleratedSpikesA'> Mindestanzahl Spitzen: </label>
+						<input id='minimumToleratedSpikesA' value='{$config.MinimumToleratedSpikesA.Value}' {if $config.MinimumToleratedSpikesA.Active == 0}disabled{/if}/>
+						<label class='variableUnit' for='minimumToleratedSpikesA'>Stück</label>
+				</ul>
+			</div>
+			<div id='secondPeriodManipulation'>
+				<h2>Zeitraum B</h2>
+				<ul>
+					<li>
+						<label {if $config.CalculationTimeB.Active == 0}class='disabled'{/if} for='calculationTimeB'> Berechnungszeitraum: </label>
+						<input id='calculationTimeB' value='{$config.CalculationTimeB.Value}' {if $config.CalculationTimeB.Active == 0}disabled{/if}/>
+						<label class='variableUnit' for='calculationTimeB'>Tage</label>
+					<li>
+						<label {if $config.MinimumToleratedSpikesB.Active == 0}class='disabled'{/if} for='minimumToleratedSpikesB'> Mindestanzahl Spitzen: </label>
+						<input id='minimumToleratedSpikesB' value='{$config.MinimumToleratedSpikesB.Value}' {if $config.MinimumToleratedSpikesB.Active == 0}disabled{/if}/>
+						<label class='variableUnit' for='minimumToleratedSpikesB'>Stück</label>
+				</ul>
+			</div>
+			<div class='clear'></div>
 			<select id='warehouseSelection' disabled>
 				<option>Lagerort auswählen</option>
 				{foreach from=$warehouseList item=warehouse}

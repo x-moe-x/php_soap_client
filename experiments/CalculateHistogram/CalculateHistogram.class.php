@@ -3,6 +3,7 @@
 require_once ROOT . 'lib/db/DBQuery.class.php';
 require_once ROOT . 'lib/db/DBQueryResult.class.php';
 require_once ROOT . 'includes/SKUHelper.php';
+require_once ROOT . 'includes/GetConfig.php';
 
 /**
  * @author x-moe-x
@@ -27,7 +28,7 @@ class CalculateHistogram {
 		$this -> currentTime = time();
 		//  30.04.2013, 23:59:59 = 1367359199;
 
-		$this -> config = $this -> getConfig();
+		$this -> config = getConfig();
 	}
 
 	public function execute() {
@@ -35,77 +36,132 @@ class CalculateHistogram {
 
 		$this -> init();
 
-		// retreive latest orders from db
-		$articleResult = DBQuery::getInstance() -> select($this -> getIntervallQuery());
+		// retrieve latest orders from db for calculation time a
+		$articleResultA = DBQuery::getInstance() -> select($this -> getIntervallQuery($this -> config['CalculationTimeA']['Value']));
+		$this -> getLogger() -> info(__FUNCTION__ . ' : retrieved ' . $articleResultA -> getNumRows() . ' article variants for calculation time a');
 
-		// for every article do:
-		while ($currentArticle = $articleResult -> fetchAssoc()) {
-			$this -> processArticle($currentArticle);
+		// clear pending db before start
+		DBQuery::getInstance() -> truncate('TRUNCATE TABLE PendingCalculation');
+
+		// store data to pending db
+		while ($currentArticle = $articleResultA -> fetchAssoc()) {
+			$this -> processArticle($currentArticle, true);
+		}
+
+		// retreive latest orders from db for calculation time b
+		$articleResultB = DBQuery::getInstance() -> select($this -> getIntervallQuery($this -> config['CalculationTimeB']['Value']));
+		$this -> getLogger() -> info(__FUNCTION__ . ' : retrieved ' . $articleResultB -> getNumRows() . ' article variants for calculation time b');
+		// for every article in calculation time b do:
+		// combine a and b and store to db
+		while ($currentArticle = $articleResultB -> fetchAssoc()) {
+			$this -> processArticle($currentArticle, false);
+		}
+
+		// for all articles NOT in calculation time b but still in pending do:
+		$this -> processPendingArticles();
+	}
+
+	private function processPendingArticles() {
+		// get remaining articles from pending:
+		$pendingResult = DBQuery::getInstance() -> select('SELECT * FROM `PendingCalculation`');
+		$this -> getLogger() -> info(__FUNCTION__ . ' : retrieved ' . $pendingResult -> getNumRows() . ' article variants from pending, being not in calculation time b');
+
+		while ($pendingData = $pendingResult -> fetchAssoc()) {
+			// store results to db
+			// @formatter:off
+	        $query = 'REPLACE INTO `CalculatedDailyNeeds` ' .
+	            DBUtils::buildInsert(
+	                array(
+	                    'ItemID'                =>  $pendingData['ItemID'],
+	                    'AttributeValueSetID'   =>  $pendingData['AttributeValueSetID'],
+	                    'DailyNeed'             =>  $pendingData['DailyNeed']/2,
+	                    'LastUpdate'            =>  $this->currentTime,
+	                    'QuantitiesA'           =>  $pendingData['Quantities'],
+	                    'SkippedA'              =>  $pendingData['Skipped'],
+	                    'QuantitiesB'           =>  0,
+	                    'SkippedB'              =>  0
+	                )
+	            );
+			// @formatter:on
+
+			DBQuery::getInstance() -> replace($query);
+		}
+
+		// delete obsolete pending data
+		DBQuery::getInstance() -> truncate('TRUNCATE TABLE PendingCalculation');
+	}
+
+	private function processArticle($currentArticle, $storeToPending) {
+		list($ItemID, $PriceID, $AttributeValueSetID) = SKU2Values($currentArticle['SKU']);
+
+		$skippedIndex;
+		$quantities = explode(',', $currentArticle['quantities']);
+		$minToleratedSpikes = $this -> config['MinimumToleratedSpikes' . ($storeToPending ? 'A' : 'B')]['Value'];
+		$adjustedQuantity = $this -> getArticleAdjustedQuantity($quantities, $currentArticle['quantity'], $currentArticle['range'], $minToleratedSpikes, $skippedIndex);
+
+		if ($storeToPending) {
+			// store results to pending db
+
+			// @formatter:off
+			$query = 'REPLACE INTO`PendingCalculation` ' . 
+				DBUtils::buildInsert(array(
+					'ItemID' => $ItemID,
+					'AttributeValueSetID' => $AttributeValueSetID,
+					'DailyNeed' => $adjustedQuantity / 90,
+					'Quantities' => $currentArticle['quantities'],
+					'Skipped' => $skippedIndex
+				)
+			);
+			// @formatter:on
+
+			DBQuery::getInstance() -> replace($query);
+		} else {
+			// get data from pending db
+
+			// @formatter:off
+			$queryA = 'SELECT
+							DailyNeed, Quantities, Skipped
+						FROM
+							`PendingCalculation`
+						WHERE
+							`ItemID` = ' . $ItemID . ' AND
+							`AttributeValueSetID` =	' . $AttributeValueSetID;
+			// @formatter:on
+
+			$pendingResult = DBQuery::getInstance() -> select($queryA);
+
+			// sanity check:
+			if ($pendingResult -> getNumRows() != 1)
+				throw new RuntimeException('Missformed pending data for ItemID:' . $ItemID . ' AVSI:' . $AttributeValueSetID . ' numRows:' . $pendingResult -> getNumRows());
+
+			$pendingData = $pendingResult -> fetchAssoc();
+
+			// store results to db
+			// @formatter:off
+	        $queryB = 'REPLACE INTO `CalculatedDailyNeeds` ' .
+	            DBUtils::buildInsert(
+	                array(
+	                    'ItemID'                =>  $ItemID,
+	                    'AttributeValueSetID'   =>  $AttributeValueSetID,
+	                    'DailyNeed'             =>  (($adjustedQuantity / 90) + $pendingData['DailyNeed'])/2,
+	                    'LastUpdate'            =>  $this->currentTime,
+	                    'QuantitiesA'           =>  $pendingData['Quantities'],
+	                    'SkippedA'              =>  $pendingData['Skipped'],
+	                    'QuantitiesB'           =>  $currentArticle['quantities'],
+	                    'SkippedB'              =>  $skippedIndex
+	                )
+	            );
+			// @formatter:on
+
+			DBQuery::getInstance() -> replace($queryB);
+
+			DBQuery::getInstance() -> delete('DELETE FROM `PendingCalculation` WHERE `ItemID` = ' . $ItemID . ' AND	`AttributeValueSetID` =	' . $AttributeValueSetID);
 		}
 	}
 
-	private function getConfig() {
-		$query = 'SELECT
-                * FROM `MetaConfig`
-                WHERE
-                    `ConfigKey` = "CalculationTimeSingleWeighted" OR
-                    `ConfigKey` = "CalcualtionTimeDoubleWeighted" OR
-                    `ConfigKey` = "MinimumToleratedSpikes" OR
-                    `ConfigKey` = "SpikeTolerance" OR
-                    `ConfigKey` = "StandardDeviationFactor"';
-		$resultConfigQuery = DBQuery::getInstance() -> select($query);
-
-		$result = array();
-		//TODO add validity check!
-		for ($i = 0; $i < $resultConfigQuery -> getNumRows(); ++$i) {
-			$configRow = $resultConfigQuery -> fetchAssoc();
-			if ($configRow['ConfigKey'] == 'SpikeTolerance' || $configRow['ConfigKey'] == 'StandardDeviationFactor')
-				$result[$configRow['ConfigKey']]['Value'] = floatval($configRow['ConfigValue']);
-			else
-				$result[$configRow['ConfigKey']]['Value'] = intval($configRow['ConfigValue']);
-
-			$result[$configRow['ConfigKey']]['Active'] = intval($configRow['Active']);
-		}
-		return $result;
-	}
-
-    private function processArticle($currentArticle) {
-        list($ItemID, $PriceID, $AttributeValueSetID) = SKU2Values($currentArticle['SKU']);
-
-        $skippedIndex;
-        $quantities = explode(',', $currentArticle['quantities']);
-        $adjustedQuantity = $this -> getArticleAdjustedQuantity($quantities, $currentArticle['quantity'], $currentArticle['range'], $skippedIndex);
-
-        // @formatter:off
-            $this -> getLogger() -> info(__FUNCTION__ . ' : Article: ' .         $ItemID .
-                                                         ', Set: ' .             $AttributeValueSetID .
-                                                         ', skipped ' .          $skippedIndex . '/' . count($quantities) .
-                                                         ', orders, total: ' .   $currentArticle['quantity'] .
-                                                         ', adjusted: ' .        $adjustedQuantity .
-                                                         ', difference: ' .      ($currentArticle['quantity'] - $adjustedQuantity) .
-                                                         ', daily sale: ' .      $adjustedQuantity / 90);
-
-        // store results to db
-        $query = 'REPLACE INTO `CalculatedDailyNeeds` ' .
-            DBUtils::buildInsert(
-                array(
-                    'ItemID'                =>  $ItemID,
-                    'AttributeValueSetID'   =>  $AttributeValueSetID,
-                    'DailyNeed'             =>  $adjustedQuantity / 90,
-                    'LastUpdate'            =>  $this->currentTime,
-                    'Quantities'             =>  $currentArticle['quantities'],
-                    'Skipped'               =>  $skippedIndex
-                )
-            );
-        // @formatter:on
-
-        DBQuery::getInstance()->replace($query);
-    }
-
-	private function getArticleAdjustedQuantity($quantities, $quantity, $range, &$index) {
+	private function getArticleAdjustedQuantity($quantities, $quantity, $range, $minToleratedSpikes, &$index) {
 
 		$spikeTolerance = $this -> config['SpikeTolerance']['Value'];
-		$minToleratedSpikes = $this -> config['MinimumToleratedSpikes']['Value'];
 
 		// check quantities in descending order
 		for ($index = 0; $index < count($quantities); ++$index) {
@@ -144,11 +200,11 @@ class CalculateHistogram {
 		return $quantity;
 	}
 
-	private function getIntervallQuery() {
+	private function getIntervallQuery($daysBack) {
 		$startTimestamp = $this -> currentTime;
-		$daysBack = $this -> config['CalculationTimeSingleWeighted']['Value'];
 		$rangeConfidenceMultiplyer = $this -> config['StandardDeviationFactor']['Value'];
 
+		// @formatter:off
 		return '
 			SELECT
 				OrderItem.ItemID,
@@ -156,7 +212,11 @@ class CalculateHistogram {
 				SUM(CAST(OrderItem.Quantity AS SIGNED)) AS `quantity`,
 				AVG(`quantity`) + STDDEV(`quantity`) * ' . $rangeConfidenceMultiplyer . ' AS `range`,
 				CAST(GROUP_CONCAT(IF(OrderItem.Quantity > 0 ,CAST(OrderItem.Quantity AS SIGNED),NULL) ORDER BY OrderItem.Quantity DESC SEPARATOR ",") AS CHAR) AS `quantities`,
-				ItemsBase.Marking1ID FROM OrderItem LEFT JOIN (OrderHead, ItemsBase) ON (OrderHead.OrderID = OrderItem.OrderID AND OrderItem.ItemID = ItemsBase.ItemID)
+				ItemsBase.Marking1ID
+			FROM
+				OrderItem
+			LEFT JOIN
+				(OrderHead, ItemsBase) ON (OrderHead.OrderID = OrderItem.OrderID AND OrderItem.ItemID = ItemsBase.ItemID)
 			WHERE
 				(OrderHead.OrderTimestamp BETWEEN ' . $startTimestamp . '-(86400*' . $daysBack . ') AND ' . $startTimestamp . ') AND
 				(OrderHead.OrderStatus < 8 OR OrderHead.OrderStatus >= 9) AND
@@ -167,6 +227,7 @@ class CalculateHistogram {
 			ORDER BY
 				ItemID
 				';
+		// @formatter:on
 	}
 
 	/**

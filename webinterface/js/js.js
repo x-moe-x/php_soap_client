@@ -49,7 +49,7 @@ $.fn.updateConfig = function() {'use strict';
 $(document).ready(function() {'use strict';
 	var integerInputfields, floatInputFields;
 
-	integerInputfields = $('#calculationTimeSingleWeighted, #calcualtionTimeDoubleWeighted, #minimumToleratedSpikes');
+	integerInputfields = $('#calculationTimeA, #calculationTimeB, #minimumToleratedSpikesA, #minimumToleratedSpikesB');
 	floatInputFields = $('#standardDeviationFactor, #spikeTolerance');
 
 	integerInputfields.change(function() {
@@ -94,8 +94,14 @@ $(document).ready(function() {'use strict';
 			sortable : true,
 			align : 'left'
 		}, {
-			display : 'Rohdaten',
-			name : 'RawData',
+			display : 'Rohdaten A',
+			name : 'RawDataA',
+			width : 120,
+			sortable : false,
+			align : 'left'
+		}, {
+			display : 'Rohdaten B',
+			name : 'RawDataB',
 			width : 120,
 			sortable : false,
 			align : 'left'
@@ -196,7 +202,7 @@ $(document).ready(function() {'use strict';
 				colName = colModel[index % colModel.length].name;
 
 				// visualize rawdata
-				if (colName === 'RawData') {
+				if ((colName === 'RawDataA') || (colName === 'RawDataB')) {
 					dataTokens = $(this).text().split(':');
 					if (dataTokens.length === 2) {
 						skipped = parseInt(dataTokens[0], 10);
