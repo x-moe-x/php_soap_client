@@ -33,14 +33,17 @@ $.fn.updateConfig = function() {'use strict';
 		// disable field during post
 		element.prop('disabled', true);
 
-		$.post('updateConfig.php5', data, function(result) {
+		$.post('updateConfig.php5', data, function(newConfig) {
 
 			// re-enable field after post
 			element.prop('disabled', false);
-			if (result !== '') {
-				alert(result);
+			if (newConfig.Message !== null) {
+				$('#errorMessages').append('<p>' + newConfig.Message + '</p>');
+				if (newConfig.Value !== null) {
+					$(element).val(newConfig.Value);
+				}
 			}
-		});
+		}, 'json');
 	}
 
 	return this;
@@ -81,7 +84,7 @@ $(document).ready(function() {'use strict';
 			width : 40,
 			sortable : true,
 			align : 'center'
-		},{
+		}, {
 			display : 'Artikel Nr',
 			name : 'ItemNo',
 			width : 80,
@@ -285,7 +288,7 @@ $(document).ready(function() {'use strict';
 		searchitems : [{
 			display : 'ItemID',
 			name : 'ItemID'
-		},{
+		}, {
 			display : 'Artikel Nr',
 			name : 'ItemNo'
 		}, {
