@@ -124,22 +124,22 @@ $(document).ready(function() {'use strict';
 			sortable : true,
 			align : 'center'
 		}, {
-			display : 'Empf. Meldebest. (Meldebest. alt)',
+			display : 'Meldebest.<br>(neu / alt)',
 			name : 'reorder_level_suggestion',
 			width : 60,
 			sortable : false,
 			align : 'right'
 		}, {
-			display : 'Mindesabn. / Best.-vorschlag (Best.-vorschlag akt.)',
-			name : 'min_purchase_order_suggestion',
-			width : 60,
+			display : 'Max.best.<br>(neu / alt)',
+			name : 'max_stock_suggestion',
+			width : 80,
 			sortable : false,
 			align : 'right',
 			hide : false
 		}, {
-			display : 'Empf. Max.best.',
-			name : 'max_stock_suggestion',
-			width : 80,
+			display : 'Mindesabn.<br>(neu / alt)',
+			name : 'min_purchase_order_suggestion',
+			width : 60,
 			sortable : false,
 			align : 'right',
 			hide : false

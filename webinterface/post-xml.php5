@@ -8,25 +8,24 @@ $qtype = isset($_POST['qtype']) ? $_POST['qtype'] : false;
 $warehouseID = isset($_POST['warehouseID']) ? $_POST['warehouseID'] : 1;
 
 switch ($qtype) {
-	case 'ItemID':
+	case 'ItemID' :
 		$qtype = 'ItemsBase.ItemID';
 		break;
-	default:
+	default :
 		break;
 }
 
 switch ($sortname) {
-	case 'Date':
+	case 'Date' :
 		$sortname = 'LastUpdate';
 		break;
-	case 'MonthlyNeed':
+	case 'MonthlyNeed' :
 		$sortname = 'DailyNeed';
 		break;
-	case 'Marking':
+	case 'Marking' :
 		$sortname = 'Marking1ID';
 		break;
-	default:
-		
+	default :
 		break;
 }
 
@@ -34,16 +33,16 @@ ob_start();
 require_once realpath(dirname(__FILE__) . '/../') . '/config/basic.inc.php';
 require_once ROOT . 'lib/db/DBQuery.class.php';
 
-
 function getMaxRows($query) {
 	return DBQuery::getInstance() -> select($query) -> getNumRows();
 }
 
-function getTextLike($columName, $value){
-	return $columName.' LIKE "%'.$value.'%" ';
+function getTextLike($columName, $value) {
+	return $columName . ' LIKE "%' . $value . '%" ';
 }
-function getIntLike($columName, $value){
-	return $columName.' = "'.$value.'" ';
+
+function getIntLike($columName, $value) {
+	return $columName . ' = "' . $value . '" ';
 }
 
 $select_basic = '				SELECT
@@ -54,7 +53,7 @@ $select_basic = '				SELECT
 					ELSE
 						AttributeValueSets.AttributeValueSetID
 					END AttributeValueSetID';
-					
+
 $select_advanced = $select_basic . ',
 					ItemsBase.ItemNo,
 					ItemsBase.Marking1ID,
@@ -67,13 +66,15 @@ $select_advanced = $select_basic . ',
 					CalculatedDailyNeeds.SkippedB,
 					ItemsWarehouseSettings.ReorderLevel,
 					ItemsWarehouseSettings.StockTurnover,
+					ItemsWarehouseSettings.MaximumStock,
 					ItemSuppliers.SupplierDeliveryTime,
+					ItemSuppliers.SupplierMinimumPurchase,
 					CASE WHEN (AttributeValueSets.AttributeValueSetName IS null) THEN
 						""
 					ELSE
 						AttributeValueSets.AttributeValueSetName
 					END AttributeValueSetName';
-					
+
 $from_basic = '	FROM ItemsBase
 				LEFT JOIN AttributeValueSets
 					ON ItemsBase.ItemID = AttributeValueSets.ItemID
@@ -84,7 +85,7 @@ $from_basic = '	FROM ItemsBase
                     ELSE
                         AttributeValueSets.AttributeValueSetID
                     END = ItemsWarehouseSettings.AttributeValueSetID';
-					
+
 $from_advanced = $from_basic . '
 				LEFT JOIN CalculatedDailyNeeds
                     ON ItemsBase.ItemID = CalculatedDailyNeeds.ItemID
@@ -95,25 +96,25 @@ $from_advanced = $from_basic . '
                     END = CalculatedDailyNeeds.AttributeValueSetID
                 LEFT JOIN ItemSuppliers
                 	ON ItemsBase.ItemID = ItemSuppliers.ItemID';
-					
+
 $where = '
 				WHERE
-					(ItemsWarehouseSettings.WarehouseID = ' . $warehouseID. ' OR
-					 ItemsBase.MainWarehouseID = ' . $warehouseID. ') ';
+					(ItemsWarehouseSettings.WarehouseID = ' . $warehouseID . ' OR
+					 ItemsBase.MainWarehouseID = ' . $warehouseID . ') ';
 
-if ($query && $qtype){
-	if (strpos($query,',') !== false){
-		$queries = explode(',',str_replace(' ', '', $query));
+if ($query && $qtype) {
+	if (strpos($query, ',') !== false) {
+		$queries = explode(',', str_replace(' ', '', $query));
 
 		$where .= '
 				AND (';
-		for ($i = 0; $i < count($queries);$i++){
-			if ($i != 0){
+		for ($i = 0; $i < count($queries); $i++) {
+			if ($i != 0) {
 				$where .= '
 				OR';
 			} {
 				$where .= '
-					'.($qtype == 'ItemsBase.ItemID' ? getIntLike($qtype,$queries[$i]) : getTextLike($qtype,$queries[$i]));
+					' . ($qtype == 'ItemsBase.ItemID' ? getIntLike($qtype, $queries[$i]) : getTextLike($qtype, $queries[$i]));
 			}
 		}
 		$where .= '
@@ -122,21 +123,21 @@ if ($query && $qtype){
 	} else {
 		$where .= '
 				AND
-					'.($qtype == 'ItemsBase.ItemID' ? getIntLike($qtype,$query) : getTextLike($qtype,$query));
+					' . ($qtype == 'ItemsBase.ItemID' ? getIntLike($qtype, $query) : getTextLike($qtype, $query));
 	}
 }
 
 $sort = '
 				ORDER BY ' . $sortname . ' ' . $sortorder;
 
-$start = (($page-1) * $rp);
+$start = (($page - 1) * $rp);
 
 $limit = '
 				LIMIT ' . $start . ', ' . $rp;
 
 $sql = $select_advanced . $from_advanced . $where . $sort . $limit;
 
-$result = DBQuery::getInstance()->select($sql);
+$result = DBQuery::getInstance() -> select($sql);
 
 $total = getMaxRows($select_basic . $from_basic . $where);
 
@@ -148,18 +149,18 @@ while ($row = $result -> fetchAssoc()) {
 ob_end_clean();
 
 header('Content-type: text/xml');
-$xml = '<?xml version="1.0" encoding="utf-8"?>'.PHP_EOL;
-$xml .= '<rows>'.PHP_EOL;
-$xml .= '<page>'.$page.'</page>'.PHP_EOL;
-$xml .= '<total>'.$total.'</total>'.PHP_EOL;
-foreach($rows AS $row){
+$xml = '<?xml version="1.0" encoding="utf-8"?>' . PHP_EOL;
+$xml .= '<rows>' . PHP_EOL;
+$xml .= '<page>' . $page . '</page>' . PHP_EOL;
+$xml .= '<total>' . $total . '</total>' . PHP_EOL;
+foreach ($rows AS $row) {
 	$dailyNeed = floatval($row['DailyNeed']);
 	$monthlyNeed = $dailyNeed * 30;
 	$reorderLevel = intval($row['ReorderLevel']);
 	$stockTurnover = intval($row['StockTurnover']);
 	$supplierDeliveryTime = intval($row['SupplierDeliveryTime']);
 	$vpe = intval($row['VPE']);
-	$vpe = $vpe == 0 ? 1: $vpe;
+	$vpe = $vpe == 0 ? 1 : $vpe;
 	$proposedReorderLevel = ceil($supplierDeliveryTime * $dailyNeed);
 	$orderSuggestion = ceil($stockTurnover * $dailyNeed);
 	$orderSuggestion = $orderSuggestion % $vpe == 0 ? $orderSuggestion : $orderSuggestion + $vpe - $orderSuggestion % $vpe;
@@ -168,34 +169,29 @@ foreach($rows AS $row){
 	$dailyNeed_string = $dailyNeed == 0 ? '' : $dailyNeed;
 	$monthlyNeed_string = $monthlyNeed == 0 ? '' : $monthlyNeed;
 	//$stockTurnover_string = $stockTurnover == 0 ? 'keine Lagerreichweite konfiguriert!' : ceil($stockTurnover * $dailyNeed) . ' (' . $reorderLevel . ')';
-	$reorderLevel_string = 	 $supplierDeliveryTime == 0 ? "keine Lieferzeit konfiguriert" : $proposedReorderLevel . ' (' . $reorderLevel . ')';
-	$orderSuggestion_string = $stockTurnover == 0 ? 'keine Lagerreichweite konfiguriert!' : $orderSuggestion . ' (???)';
-	$maxStockSuggestion_string = $stockTurnover == 0 ? 'keine Lagerreichweite konfiguriert!' : $orderSuggestion * 2;
+	$reorderLevel_string = $supplierDeliveryTime == 0 ? "keine Lieferzeit konfiguriert" : $proposedReorderLevel . ' / ' . $reorderLevel;
+	$orderSuggestion_string = $stockTurnover == 0 ? 'keine Lagerreichweite konfiguriert!' : $orderSuggestion . ' / ' . $row['SupplierMinimumPurchase'];
+	$maxStockSuggestion_string = $stockTurnover == 0 ? 'keine Lagerreichweite konfiguriert!' : $orderSuggestion * 2 . ' / ' . $row['MaximumStock'];
 	$rawDataA_string = isset($row['QuantitiesA']) ? $row['SkippedA'] . ':' . $row['QuantitiesA'] : null;
 	$rawDataB_string = isset($row['QuantitiesB']) ? $row['SkippedB'] . ':' . $row['QuantitiesB'] : null;
 	$date_string = date('d.m.y, H:i:s', $row['LastUpdate']);
-	
-	$xml .= '<row id="'.$row['ItemID']. '-0-'.$row['AttributeValueSetID'].'">'.PHP_EOL;
-	$xml .= '<cell><![CDATA['.$row['ItemID'].']]></cell>'.PHP_EOL;
-	$xml .= '<cell><![CDATA['.$row['ItemNo'].']]></cell>'.PHP_EOL;
-	$xml .= '<cell><![CDATA['.$name_string.']]></cell>'.PHP_EOL;
+
+	$xml .= '<row id="' . $row['ItemID'] . '-0-' . $row['AttributeValueSetID'] . '">' . PHP_EOL;
+	$xml .= '<cell><![CDATA[' . $row['ItemID'] . ']]></cell>' . PHP_EOL;
+	$xml .= '<cell><![CDATA[' . $row['ItemNo'] . ']]></cell>' . PHP_EOL;
+	$xml .= '<cell><![CDATA[' . $name_string . ']]></cell>' . PHP_EOL;
 	$xml .= '<cell><![CDATA[]]>' . $rawDataA_string . '</cell>' . PHP_EOL;
 	$xml .= '<cell><![CDATA[]]>' . $rawDataB_string . '</cell>' . PHP_EOL;
-	$xml .= '<cell><![CDATA['.$monthlyNeed_string.']]></cell>'.PHP_EOL;
-	$xml .= '<cell><![CDATA['.$dailyNeed_string.']]></cell>'.PHP_EOL;
-	$xml .= '<cell><![CDATA['.$row['Marking1ID'].']]></cell>'.PHP_EOL;
-	$xml .= '<cell><![CDATA['.$reorderLevel_string.']]></cell>'.PHP_EOL;
-	$xml .= '<cell><![CDATA[]]>'.$orderSuggestion_string.'</cell>'.PHP_EOL;
-	$xml .= '<cell><![CDATA[]]>'.$maxStockSuggestion_string.'</cell>'.PHP_EOL;
-	$xml .= '<cell><![CDATA[]]>'.$vpe.'</cell>'.PHP_EOL;
-	$xml .= '<cell><![CDATA[]]>1</cell>'.PHP_EOL;
-	$xml .= '<cell><![CDATA[]]>1</cell>'.PHP_EOL;
+	$xml .= '<cell><![CDATA[' . $monthlyNeed_string . ']]></cell>' . PHP_EOL;
+	$xml .= '<cell><![CDATA[' . $dailyNeed_string . ']]></cell>' . PHP_EOL;
+	$xml .= '<cell><![CDATA[' . $row['Marking1ID'] . ']]></cell>' . PHP_EOL;
+	$xml .= '<cell><![CDATA[' . $reorderLevel_string . ']]></cell>' . PHP_EOL;
+	$xml .= '<cell><![CDATA[]]>' . $maxStockSuggestion_string . '</cell>' . PHP_EOL;
+	$xml .= '<cell><![CDATA[]]>' . $orderSuggestion_string . '</cell>' . PHP_EOL;
+	$xml .= '<cell><![CDATA[]]>' . $vpe . '</cell>' . PHP_EOL;
+	$xml .= '<cell><![CDATA[]]>1</cell>' . PHP_EOL;
+	$xml .= '<cell><![CDATA[]]>1</cell>' . PHP_EOL;
 	$xml .= '<cell><![CDATA[' . $date_string . ']]></cell>' . PHP_EOL;
-	/*	$xml .= "<cell><![CDATA[".utf8_encode($row['name'])."]]></cell>";
-	//$xml .= "<cell><![CDATA[".print_r($_POST,true)."]]></cell>";
-	$xml .= "<cell><![CDATA[".utf8_encode($row['printable_name'])."]]></cell>";
-	$xml .= "<cell><![CDATA[".utf8_encode($row['iso3'])."]]></cell>";
-	$xml .= "<cell><![CDATA[".utf8_encode($row['numcode'])."]]></cell>";*/
 	$xml .= '</row>';
 }
 
