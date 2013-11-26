@@ -141,19 +141,12 @@ $result = DBQuery::getInstance() -> select($sql);
 
 $total = getMaxRows($select_basic . $from_basic . $where);
 
-$rows = array();
-
-while ($row = $result -> fetchAssoc()) {
-	$rows[] = $row;
-}
-ob_end_clean();
-
 header('Content-type: text/xml');
 $xml = '<?xml version="1.0" encoding="utf-8"?>' . PHP_EOL;
 $xml .= '<rows>' . PHP_EOL;
 $xml .= '<page>' . $page . '</page>' . PHP_EOL;
 $xml .= '<total>' . $total . '</total>' . PHP_EOL;
-foreach ($rows AS $row) {
+while ($row = $result -> fetchAssoc()) {
 	$dailyNeed = floatval($row['DailyNeed']);
 	$monthlyNeed = $dailyNeed * 30;
 	$reorderLevel = intval($row['ReorderLevel']);
@@ -194,6 +187,7 @@ foreach ($rows AS $row) {
 	$xml .= '<cell><![CDATA[' . $date_string . ']]></cell>' . PHP_EOL;
 	$xml .= '</row>';
 }
+ob_end_clean();
 
 $xml .= '</rows>';
 echo $xml;
