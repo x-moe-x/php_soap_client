@@ -5,7 +5,7 @@
  * @return array of config keys mapped on config values
  */
 function getConfig() {
-	$intValues = array('CalculationTimeA', 'CalculationTimeB', 'MinimumToleratedSpikesA', 'MinimumToleratedSpikesB');
+	$intValues = array('CalculationTimeA', 'CalculationTimeB', 'MinimumToleratedSpikesA', 'MinimumToleratedSpikesB', 'MinimumOrdersA', 'MinimumOrdersB');
 	$floatValues = array('SpikeTolerance', 'StandardDeviationFactor');
 
 	$query = 'SELECT
