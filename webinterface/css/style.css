@@ -4,7 +4,7 @@
 }
 
 #variableManipulation {
-	width: 50%;
+	width: 800px;
 	border: 1px solid #ccc;
 	border-radius: 5px;
 	padding: 10px;
@@ -25,14 +25,14 @@
 }
 
 #variableManipulation input {
-	width: 90px;
+	width: 50px;
 	text-align: right;
 	padding-right: 5px;
 }
 
 #variableManipulation label {
 	display: inline-block;
-	width: 200px;
+	width: 175px;
 }
 
 #variableManipulation label.disabled {
@@ -44,6 +44,10 @@
 	display: inline-block;
 	width: auto;
 	color: #aaaaaa;
+}
+
+#variableManipulation > div > ul {
+	padding-left: 10px;
 }
 
 #globalManipulation {

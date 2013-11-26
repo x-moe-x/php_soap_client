@@ -23,7 +23,6 @@
 				<li>
 					<label {if $config.StandardDeviationFactor.Active == 0}class='disabled'{/if} for='standardDeviationFactor'> Faktor Standardabweichung: </label>
 					<input id='standardDeviationFactor' value='{$config.StandardDeviationFactor.Value}' {if $config.StandardDeviationFactor.Active == 0}disabled{/if}/>
-
 			</ul>
 			<div id='firstPeriodManipulation'>
 				<h2>Zeitraum A</h2>
@@ -35,7 +34,7 @@
 					<li>
 						<label {if $config.MinimumToleratedSpikesA.Active == 0}class='disabled'{/if} for='minimumToleratedSpikesA'> Mindestanzahl Spitzen: </label>
 						<input id='minimumToleratedSpikesA' value='{$config.MinimumToleratedSpikesA.Value}' {if $config.MinimumToleratedSpikesA.Active == 0}disabled{/if}/>
-						<label class='variableUnit' for='minimumToleratedSpikesA'>Stück</label>
+						<label class='variableUnit' for='minimumToleratedSpikesA'>Spitzen</label>
 				</ul>
 			</div>
 			<div id='secondPeriodManipulation'>
@@ -48,7 +47,7 @@
 					<li>
 						<label {if $config.MinimumToleratedSpikesB.Active == 0}class='disabled'{/if} for='minimumToleratedSpikesB'> Mindestanzahl Spitzen: </label>
 						<input id='minimumToleratedSpikesB' value='{$config.MinimumToleratedSpikesB.Value}' {if $config.MinimumToleratedSpikesB.Active == 0}disabled{/if}/>
-						<label class='variableUnit' for='minimumToleratedSpikesB'>Stück</label>
+						<label class='variableUnit' for='minimumToleratedSpikesB'>Spitzen</label>
 				</ul>
 			</div>
 			<div class='clear'></div>
