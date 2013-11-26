@@ -35,6 +35,10 @@
 						<label {if $config.MinimumToleratedSpikesA.Active == 0}class='disabled'{/if} for='minimumToleratedSpikesA'> Mindestanzahl Spitzen: </label>
 						<input id='minimumToleratedSpikesA' value='{$config.MinimumToleratedSpikesA.Value}' {if $config.MinimumToleratedSpikesA.Active == 0}disabled{/if}/>
 						<label class='variableUnit' for='minimumToleratedSpikesA'>Spitzen</label>
+					<li>
+						<label {if $config.MinimumOrdersA.Active == 0}class='disabled'{/if} for='minimumOrdersA'> Mindestanzahl Bestellungen: </label>
+						<input id='minimumOrdersA' value='{$config.MinimumOrdersA.Value}' {if $config.MinimumOrdersA.Active == 0}disabled{/if}/>
+						<label class='variableUnit' for='minimumOrdersA'>Bestellungen</label>
 				</ul>
 			</div>
 			<div id='secondPeriodManipulation'>
@@ -48,6 +52,10 @@
 						<label {if $config.MinimumToleratedSpikesB.Active == 0}class='disabled'{/if} for='minimumToleratedSpikesB'> Mindestanzahl Spitzen: </label>
 						<input id='minimumToleratedSpikesB' value='{$config.MinimumToleratedSpikesB.Value}' {if $config.MinimumToleratedSpikesB.Active == 0}disabled{/if}/>
 						<label class='variableUnit' for='minimumToleratedSpikesB'>Spitzen</label>
+					<li>
+						<label {if $config.MinimumOrdersB.Active == 0}class='disabled'{/if} for='minimumOrdersB'> Mindestanzahl Bestellungen: </label>
+						<input id='minimumOrdersB' value='{$config.MinimumOrdersB.Value}' {if $config.MinimumOrdersB.Active == 0}disabled{/if}/>
+						<label class='variableUnit' for='minimumOrdersB'>Bestellungen</label>
 				</ul>
 			</div>
 			<div class='clear'></div>
