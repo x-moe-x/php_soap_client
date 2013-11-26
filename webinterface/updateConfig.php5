@@ -5,7 +5,7 @@ require_once realpath(dirname(__FILE__) . '/../') . '/config/basic.inc.php';
 require_once ROOT . 'lib/db/DBQuery.class.php';
 require_once ROOT . 'includes/GetConfig.php';
 
-$integerKeys = array('calculationTimeA', 'calculationTimeB', 'minimumToleratedSpikesA', 'minimumToleratedSpikesB');
+$integerKeys = array('calculationTimeA', 'calculationTimeB', 'minimumToleratedSpikesA', 'minimumToleratedSpikesB', 'minimumOrdersA', 'minimumOrdersB');
 $floatKeys = array('standardDeviationFactor', 'spikeTolerance');
 $config = getConfig();
 $key = $_POST['key'];
