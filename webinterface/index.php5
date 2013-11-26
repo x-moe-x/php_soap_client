@@ -33,6 +33,8 @@ function checkItemSupplierConfiguration() {
 		on
 			ItemsBase.ItemID = ItemSuppliers.ItemID OR
 			ItemSuppliers.ItemID = null
+		where
+			ItemsBase.Marking1ID != 4
 		group by
 			ItemsBase.ItemID
 		having
