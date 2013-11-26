@@ -107,7 +107,7 @@ class CalculateHistogram {
 				DBUtils::buildInsert(array(
 					'ItemID' => $ItemID,
 					'AttributeValueSetID' => $AttributeValueSetID,
-					'DailyNeed' => $adjustedQuantity / 90,
+					'DailyNeed' => $adjustedQuantity / $this -> config['CalculationTimeA']['Value'],
 					'Quantities' => $currentArticle['quantities'],
 					'Skipped' => $skippedIndex
 				)
@@ -143,7 +143,7 @@ class CalculateHistogram {
 	                array(
 	                    'ItemID'                =>  $ItemID,
 	                    'AttributeValueSetID'   =>  $AttributeValueSetID,
-	                    'DailyNeed'             =>  (($adjustedQuantity / 90) + $pendingData['DailyNeed'])/2,
+	                    'DailyNeed'             =>  (($adjustedQuantity / $this -> config['CalculationTimeB']['Value']) + $pendingData['DailyNeed'])/2,
 	                    'LastUpdate'            =>  $this->currentTime,
 	                    'QuantitiesA'           =>  $pendingData['Quantities'],
 	                    'SkippedA'              =>  $pendingData['Skipped'],
