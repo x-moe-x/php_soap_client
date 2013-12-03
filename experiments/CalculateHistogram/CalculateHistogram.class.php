@@ -32,6 +32,12 @@ class CalculateHistogram {
 
 		// set group_concat_max_len to reasonable value to prevent cropping of article quantities list
 		DBQuery::getInstance() -> Set('SET SESSION group_concat_max_len = 4096');
+
+		// clear pending db before start
+		DBQuery::getInstance() -> truncate('TRUNCATE TABLE PendingCalculation');
+
+		// clear dailyneed db before start so there's no old leftover
+		DBQuery::getInstance() -> truncate('TRUNCATE TABLE CalculatedDailyNeeds');
 	}
 
 	public function execute() {
@@ -42,9 +48,6 @@ class CalculateHistogram {
 		// retrieve latest orders from db for calculation time a
 		$articleResultA = DBQuery::getInstance() -> select($this -> getIntervallQuery($this -> config['CalculationTimeA']['Value']));
 		$this -> getLogger() -> info(__FUNCTION__ . ' : retrieved ' . $articleResultA -> getNumRows() . ' article variants for calculation time a');
-
-		// clear pending db before start
-		DBQuery::getInstance() -> truncate('TRUNCATE TABLE PendingCalculation');
 
 		// store data to pending db
 		while ($currentArticle = $articleResultA -> fetchAssoc()) {
