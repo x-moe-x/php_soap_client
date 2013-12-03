@@ -96,11 +96,13 @@ $from_advanced = $from_basic . '
                     END = CalculatedDailyNeeds.AttributeValueSetID
                 LEFT JOIN ItemSuppliers
                 	ON ItemsBase.ItemID = ItemSuppliers.ItemID';
-
+/*
 $where = '
 				WHERE
 					(ItemsWarehouseSettings.WarehouseID = ' . $warehouseID . ' OR
-					 ItemsBase.MainWarehouseID = ' . $warehouseID . ') ';
+					 ItemsBase.MainWarehouseID = ' . $warehouseID . ') ';*/
+$where = '
+				WHERE 1';
 
 if ($query && $qtype) {
 	if (strpos($query, ',') !== false) {
