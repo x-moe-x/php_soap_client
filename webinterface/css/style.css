@@ -187,6 +187,11 @@ body.loading .modal {
 	color: black;
 }
 
+.flexigrid li:last-child:after {
+	content: '';
+	color: black;
+}
+
 .flexigrid ul.counted li:last-child:after {
 	content: '';
 }

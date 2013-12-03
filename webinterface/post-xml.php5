@@ -165,9 +165,9 @@ while ($row = $result -> fetchAssoc()) {
 	$reorderLevel_string = $supplierDeliveryTime == 0 ? "keine Lieferzeit konfiguriert" : $proposedReorderLevel . ' / ' . $reorderLevel;
 	$orderSuggestion_string = $stockTurnover == 0 ? 'keine Lagerreichweite konfiguriert!' : $orderSuggestion . ' / ' . $row['SupplierMinimumPurchase'];
 	$maxStockSuggestion_string = $stockTurnover == 0 ? 'keine Lagerreichweite konfiguriert!' : $orderSuggestion * 2 . ' / ' . $row['MaximumStock'];
-	$rawDataA_string = isset($row['QuantitiesA']) ? $row['SkippedA'] . ':' . $row['QuantitiesA'] : null;
-	$rawDataB_string = isset($row['QuantitiesB']) ? $row['SkippedB'] . ':' . $row['QuantitiesB'] : null;
 	$date_string = date('d.m.y, H:i:s', $row['LastUpdate']);
+	$rawDataA_string = isset($row['QuantitiesA']) && $row['QuantitiesA'] !== '0' ? $row['SkippedA'] . ':' . $row['QuantitiesA'] : null;
+	$rawDataB_string = isset($row['QuantitiesB']) && $row['QuantitiesB'] !== '0' ? $row['SkippedB'] . ':' . $row['QuantitiesB'] : null;
 
 	$xml .= '<row id="' . $row['ItemID'] . '-0-' . $row['AttributeValueSetID'] . '">' . PHP_EOL;
 	$xml .= '<cell><![CDATA[' . $row['ItemID'] . ']]></cell>' . PHP_EOL;
