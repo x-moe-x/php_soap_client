@@ -192,7 +192,7 @@ $(document).ready(function() {'use strict';
 			bclass : 'filter'
 		}],
 		onSuccess : function(g) {
-			var rawDataTotalSumMaxSize, colModel, status;
+			var rawDataTotalSumMaxSize, colModel, status, style;
 
 			rawDataTotalSumMaxSize = 0;
 			colModel = this.colModel;
@@ -221,15 +221,12 @@ $(document).ready(function() {'use strict';
 
 								// prepare output
 								totalSum = 0;
-								dataString = skipped > 0 ? '<ul class="skipped">' : '<ul class="counted">';
+								dataString = '<ul>';
 
 								// for each of the pre-order-quantities ...
 								$.each(data, function(index, value) {
 									// ... add it's value to the prepared output
-									dataString += '<li>' + value + '</li>';
-									if (index + 1 === skipped) {
-										dataString += '</ul><ul class="counted">';
-									}
+									dataString += '<li class="' + (index < skipped ? 'skipped' : 'counted') + '">' + value + '</li>';
 									totalSum += parseInt(value, 10);
 								});
 
@@ -296,9 +293,8 @@ $(document).ready(function() {'use strict';
 			}
 
 			// adjust width of totalsum fields in rawdata to the same size
-			$('.totalSum', g.bDiv).each(function() {
-				$(this).outerWidth(rawDataTotalSumMaxSize);
-			});
+			style = $('<style>.totalSum { width: ' + rawDataTotalSumMaxSize + 'px; }</style>');
+			$('html > head').append(style);
 
 			// adjust table height
 			// $('#resultTable').parent().css('height', $('#resultTable').outerHeight());
