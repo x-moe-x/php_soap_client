@@ -100,7 +100,8 @@ class CalculateHistogram {
 		$skippedIndex;
 		$quantities = explode(',', $currentArticle['quantities']);
 		$minToleratedSpikes = $this -> config['MinimumToleratedSpikes' . ($storeToPending ? 'A' : 'B')]['Value'];
-		$adjustedQuantity = $this -> getArticleAdjustedQuantity($quantities, $currentArticle['quantity'], $currentArticle['range'], $minToleratedSpikes, $skippedIndex);
+		$minOrders = $this -> config['MinimumOrders' . ($storeToPending ? 'A' : 'B')]['Value'];
+		$adjustedQuantity = $this -> getArticleAdjustedQuantity($quantities, $currentArticle['quantity'], $currentArticle['range'], $minToleratedSpikes, $minOrders, $skippedIndex);
 
 		if ($storeToPending) {
 			// store results to pending db
@@ -162,11 +163,17 @@ class CalculateHistogram {
 		}
 	}
 
-	private function getArticleAdjustedQuantity($quantities, $quantity, $range, $minToleratedSpikes, &$index) {
+	private function getArticleAdjustedQuantity($quantities, $quantity, $range, $minToleratedSpikes, $minOrders, &$index) {
 
 		$spikeTolerance = $this -> config['SpikeTolerance']['Value'];
 
-		// check quantities in descending order
+		// skip all orders if # of orders is below given minimum ...
+		if (count($quantities) < $minOrders) {
+			$index = count($quantities);
+			return 0;
+		}
+
+		// ... otherwise check quantities in descending order
 		for ($index = 0; $index < count($quantities); ++$index) {
 
 			// if we are already below the confidence range: stop the loop

@@ -52,7 +52,7 @@ $.fn.updateConfig = function() {'use strict';
 $(document).ready(function() {'use strict';
 	var integerInputfields, floatInputFields;
 
-	integerInputfields = $('#calculationTimeA, #calculationTimeB, #minimumToleratedSpikesA, #minimumToleratedSpikesB');
+	integerInputfields = $('#calculationTimeA, #calculationTimeB, #minimumToleratedSpikesA, #minimumToleratedSpikesB, #minimumOrdersA, #minimumOrdersB');
 	floatInputFields = $('#standardDeviationFactor, #spikeTolerance');
 
 	integerInputfields.change(function() {
