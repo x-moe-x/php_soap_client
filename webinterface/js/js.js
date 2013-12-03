@@ -179,10 +179,11 @@ $(document).ready(function() {'use strict';
 			bclass : 'gear',
 			onpress : function() {
 				$('body').addClass('loading');
-				$.get('executeCalculation.php5', function() {
+				$.get('executeCalculation.php5', function(result) {
 					$('body').removeClass("loading");
 					$('#resultTable').flexReload();
-				});
+					$('#errorMessages').append('<p> calculation took ' + result.executionTime + ' ' + result.executionTimeUnit + '</p>');
+				}, 'json');
 			}
 		}, {
 			separator : true
