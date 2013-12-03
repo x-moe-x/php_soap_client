@@ -199,48 +199,65 @@ $(document).ready(function() {'use strict';
 
 			// post-processing of cells
 			$('tbody tr td', g.bDiv).each(function(index) {
-				var newCell, colName, dataTokens, skipped, data, totalSum, dataString, id;
+				var newCell, colName;
 
 				newCell = $(this).find('div');
 				colName = colModel[index % colModel.length].name;
 
 				// visualize rawdata
-				if ((colName === 'RawDataA') || (colName === 'RawDataB')) {
-					dataTokens = $(this).text().split(':');
-					if (dataTokens.length === 2) {
-						skipped = parseInt(dataTokens[0], 10);
-						data = dataTokens[1].split(',');
-						totalSum = 0;
-						dataString = skipped > 0 ? '<ul class="skipped">' : '<ul class="counted">';
+				if ((colName === 'RawDataA') || (colName === 'RawDataB')) {( function() {
 
-						$.each(data, function(index, value) {
-							dataString += '<li>' + value + '</li>';
-							if (index + 1 === skipped) {
-								dataString += '</ul><ul class="counted">';
+							var dataTokens, skipped, data, totalSum, dataString;
+
+							dataTokens = $(newCell).text().split(':');
+							if (dataTokens.length === 2) {
+
+								// extract # of skipped orders
+								skipped = parseInt(dataTokens[0], 10);
+
+								// extract per-order-quantities
+								data = dataTokens[1].split(',');
+
+								// prepare output
+								totalSum = 0;
+								dataString = skipped > 0 ? '<ul class="skipped">' : '<ul class="counted">';
+
+								// for each of the pre-order-quantities ...
+								$.each(data, function(index, value) {
+									// ... add it's value to the prepared output
+									dataString += '<li>' + value + '</li>';
+									if (index + 1 === skipped) {
+										dataString += '</ul><ul class="counted">';
+									}
+									totalSum += parseInt(value, 10);
+								});
+
+								$(newCell).html('<span class="totalSum">' + totalSum + ' = </span>' + dataString + '</ul>');
+
+								rawDataTotalSumMaxSize = Math.max($('.totalSum', newCell).outerWidth(), rawDataTotalSumMaxSize);
 							}
-							totalSum += parseInt(value, 10);
-						});
 
-						$(newCell).html('<span class="totalSum">' + totalSum + ' = </span>' + dataString + '</ul>');
+						}());
 
-						rawDataTotalSumMaxSize = Math.max($('.totalSum', newCell).outerWidth(), rawDataTotalSumMaxSize);
-					}
 					// adjust marking to display colors instead numbers
-				} else if (colName === 'Marking') {
-					// get id ...
-					id = parseInt($(newCell).html(), 10);
+				} else if (colName === 'Marking') {( function() {
+							var id;
 
-					if ($.inArray(id, status) > -1) {
-						// set class ...
-						$(newCell).addClass('markingIDCell_' + id);
+							// get id ...
+							id = parseInt($(newCell).html(), 10);
 
-						// ... and clear cell afterwards
-						$(newCell).html('&nbsp;');
-					} else if (id === 0) {
-						$(newCell).html('keine');
-					} else {
-						$(newCell).html('FEHLER!');
-					}
+							if ($.inArray(id, status) > -1) {
+								// set class ...
+								$(newCell).addClass('markingIDCell_' + id);
+
+								// ... and clear cell afterwards
+								$(newCell).html('&nbsp;');
+							} else if (id === 0) {
+								$(newCell).html('keine');
+							} else {
+								$(newCell).html('FEHLER!');
+							}
+						}());
 				}
 			});
 
