@@ -209,3 +209,7 @@ body.loading .modal {
 .counted {
 	color: green;
 }
+
+.totalSum {
+	min-width: 3em;
+}

@@ -192,9 +192,8 @@ $(document).ready(function() {'use strict';
 			bclass : 'filter'
 		}],
 		onSuccess : function(g) {
-			var rawDataTotalSumMaxSize, colModel, status, style;
+			var colModel, status;
 
-			rawDataTotalSumMaxSize = 0;
 			colModel = this.colModel;
 			status = this.params.status;
 
@@ -231,8 +230,6 @@ $(document).ready(function() {'use strict';
 								});
 
 								$(newCell).html('<span class="totalSum">' + totalSum + ' = </span>' + dataString + '</ul>');
-
-								rawDataTotalSumMaxSize = Math.max($('.totalSum', newCell).outerWidth(), rawDataTotalSumMaxSize);
 							}
 
 						}());
@@ -291,13 +288,6 @@ $(document).ready(function() {'use strict';
 					});
 				});
 			}
-
-			// adjust width of totalsum fields in rawdata to the same size
-			style = $('<style>.totalSum { width: ' + rawDataTotalSumMaxSize + 'px; }</style>');
-			$('html > head').append(style);
-
-			// adjust table height
-			// $('#resultTable').parent().css('height', $('#resultTable').outerHeight());
 		},
 		searchitems : [{
 			display : 'ItemID',
