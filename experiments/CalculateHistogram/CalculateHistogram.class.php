@@ -29,6 +29,9 @@ class CalculateHistogram {
 		//  30.04.2013, 23:59:59 = 1367359199;
 
 		$this -> config = getConfig();
+
+		// set group_concat_max_len to reasonable value to prevent cropping of article quantities list
+		DBQuery::getInstance() -> Set('SET SESSION group_concat_max_len = 4096');
 	}
 
 	public function execute() {
