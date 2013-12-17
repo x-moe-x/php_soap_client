@@ -58,6 +58,7 @@ $select_advanced = $select_basic . ',
 					ItemsBase.ItemNo,
 					ItemsBase.Marking1ID,
 					ItemsBase.Free4 AS VPE,
+					ItemsBase.BundleType,
 					CalculatedDailyNeeds.DailyNeed,
 					CalculatedDailyNeeds.LastUpdate,
 					CalculatedDailyNeeds.QuantitiesA,
@@ -159,8 +160,9 @@ while ($row = $result -> fetchAssoc()) {
 	$proposedReorderLevel = ceil($supplierDeliveryTime * $dailyNeed);
 	$orderSuggestion = ceil($stockTurnover * $dailyNeed);
 	$orderSuggestion = $orderSuggestion % $vpe == 0 ? $orderSuggestion : $orderSuggestion + $vpe - $orderSuggestion % $vpe;
+	$name_string = $row['BundleType'] === 'bundle' ? '[Bundle] ':'';
 
-	$name_string = intval($row['AttributeValueSetID']) == 0 ? $row['Name'] : $row['Name'] . ', ' . $row['AttributeValueSetName'];
+	$name_string .= intval($row['AttributeValueSetID']) == 0 ? $row['Name'] : $row['Name'] . ', ' . $row['AttributeValueSetName'];
 	$dailyNeed_string = $dailyNeed == 0 ? '' : $dailyNeed;
 	$monthlyNeed_string = $monthlyNeed == 0 ? '' : $monthlyNeed;
 	//$stockTurnover_string = $stockTurnover == 0 ? 'keine Lagerreichweite konfiguriert!' : ceil($stockTurnover * $dailyNeed) . ' (' . $reorderLevel . ')';
