@@ -1,4 +1,28 @@
 <?php
+
+class Config {
+
+	function set($key, $value) {
+		// if key db ...
+		// ... then set given value
+		// ... otherwise throw exception
+	}
+
+	function set($key, $value, $active){
+		set($key, $value);
+		// set active-status
+	}
+
+	function get($key) {
+		// if key in db ...
+		// ... then check if key is active ...
+		// ... ... then return value
+		// ... ... otherwise return 'inactive'-constant
+		// ... otherwise throw exception
+	}
+
+}
+
 /**
  * extract config values form database
  *
