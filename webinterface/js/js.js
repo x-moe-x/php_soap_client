@@ -310,11 +310,18 @@ $(document).ready(function() {'use strict';
 		title : 'Artikel',
 		useRp : true,
 		rp : 20,
-		rpOptions: [10, 20, 30, 50, 100, 200],
+		rpOptions : [10, 20, 30, 50, 100, 200],
 		showTableToggleBtn : false,
 		pagetext : 'Seite',
 		outof : 'von',
 		pagestat : 'Zeige {from} bis {to} von {total} Artikeln',
 		procmsg : 'Bitte warten...'
 	});
+	( function() {
+			var configDiv = $('#variableManipulation');
+			$(configDiv).hide();
+			$('#toggleConfig').click(function() {
+				$(configDiv).toggle('blind', 500);
+			});
+		}());
 });

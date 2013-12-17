@@ -3,7 +3,7 @@
 	font-size: 10pt;
 }
 
-#variableManipulation {
+#config {
 	width: 800px;
 	border: 1px solid #ccc;
 	border-radius: 5px;
@@ -13,6 +13,10 @@
 
 #variableManipulation ul {
 	width: 360px;
+}
+
+#variableManipulation strong {
+	margin-left: 10px;
 }
 
 #variableManipulation li {
