@@ -167,6 +167,22 @@ body.loading .modal {
 	background: url("../images/marking1d_4.png") no-repeat scroll center center transparent;
 }
 
+.writePermission {
+	color: green;
+}
+
+.noSuggestion {
+
+}
+
+.writePermissionError {
+	color: red;
+}
+
+.noWritePermission {
+	color: blue;
+}
+
 .flexigrid {
 	clear: both;
 }
