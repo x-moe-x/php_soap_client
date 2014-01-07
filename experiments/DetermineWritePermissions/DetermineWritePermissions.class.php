@@ -53,7 +53,7 @@ class DetermineWritePermissions {
 	}
 
 	public function execute() {
-		$this -> getLogger() -> debug(__FUNCTION__ . ' : Determine write permissions');
+		$this -> getLogger() -> debug(__FUNCTION__ . ' : Determine write permissions ...');
 		$dbResult = DBQuery::getInstance() -> select($this -> getQuery());
 
 		$result = array();
@@ -74,6 +74,7 @@ class DetermineWritePermissions {
 			$query = 'REPLACE INTO `WritePermissions` '	. DBUtils::buildInsert($currentResult);
 			DBQuery::getInstance()->replace($query);
 		}
+		$this -> getLogger() -> debug(__FUNCTION__ . ' : ... done');
 	}
 
 	/**
