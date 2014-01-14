@@ -72,7 +72,7 @@ class Config {
 		$config = Config::getAll();
 
 		// if key in db ...
-		if (in_array($key, $config)) {
+		if (isset($config[$key])) {
 			// ... then check if key is active ...
 			if ($config[$key]['Active'] === 1) {
 				// ... ... then return value
