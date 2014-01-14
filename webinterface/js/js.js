@@ -259,7 +259,7 @@ $(document).ready(function() {'use strict';
 							dataTokens = $(newCell).text().split(':');
 							if (dataTokens.length === 2) {
 								if (dataTokens[0] === 'e') {
-									suggestionClass = 'noWritePermission';
+									suggestionClass = 'writePermissionError';
 								} else {
 									suggestionClass = 'noSuggestion';
 								}
