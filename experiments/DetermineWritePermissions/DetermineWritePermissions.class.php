@@ -29,6 +29,11 @@ class DetermineWritePermissions {
 				ELSE
 					AttributeValueSets.AttributeValueSetID
 				END AttributeValueSetID,
+				CASE WHEN (ItemsWarehouseSettings.StockTurnover IS null) THEN
+					"0"
+				ELSE
+					ItemsWarehouseSettings.StockTurnover
+				END StockTurnover,
 				CASE WHEN (ItemsWarehouseSettings.ReorderLevel IS null) THEN
 					"0"
 				ELSE
@@ -77,7 +82,7 @@ class DetermineWritePermissions {
 			}
 
 			// write permission given, but error ...
-			if ((intval($current['WritePermission']) == 1) && intval($row['SupplierDeliveryTime']) <= 0 ){
+			if ((intval($current['WritePermission']) == 1) && ((intval($row['SupplierDeliveryTime']) <= 0) || (intval($row['StockTurnover']) <= 0))) {
 				// ... then unset write permission and set error
 				$current['WritePermission'] = 0;
 				$current['Error'] = 1;
