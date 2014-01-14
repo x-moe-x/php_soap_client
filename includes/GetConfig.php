@@ -1,5 +1,6 @@
 <?php
 require_once ROOT . 'lib/log/Logger.class.php';
+require_once ROOT . 'lib/db/DBQuery.class.php';
 
 class Config {
 
