@@ -263,6 +263,7 @@ CREATE TABLE `soap_db`.`WritePermissions` (
 	`ItemID` int(11) NOT NULL,
 	`AttributeValueSetID` int(11) NOT NULL,
 	`WritePermission` tinyint(1) DEFAULT 0,
+	`Error` tinyint(1) DEFAULT 0,
 	PRIMARY KEY (`ItemID`, `AttributeValueSetID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 

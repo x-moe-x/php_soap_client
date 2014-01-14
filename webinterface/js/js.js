@@ -253,21 +253,28 @@ $(document).ready(function() {'use strict';
 								$(newCell).html('FEHLER!');
 							}
 						}());
+					// adjust suggestions to visualize permissions and errors
 				} else if ((colName === 'reorder_level_suggestion') || (colName === 'max_stock_suggestion') || (colName === 'min_purchase_order_suggestion')) {( function() {
 							var dataTokens, suggestionClass;
 							dataTokens = $(newCell).text().split(':');
 							if (dataTokens.length === 2) {
-								$(newCell).html(dataTokens[1]);
+								if (dataTokens[0] === 'e') {
+									suggestionClass = 'noWritePermission';
+								} else {
+									suggestionClass = 'noSuggestion';
+								}
+								$(newCell).html('<span class="' + suggestionClass + '">' + dataTokens[1] + '</span>');
 							} else if (dataTokens.length === 3) {
-								if (dataTokens[0] === 'w'){
+								if (dataTokens[0] === 'w') {
 									suggestionClass = 'writePermission';
-								} else if (dataTokens[0] === 'x'){
-									if (dataTokens[1] === dataTokens[2]){
+								} else if (dataTokens[0] === 'x') {
+									if (dataTokens[1] === dataTokens[2]) {
 										suggestionClass = 'noSuggestion';
 									} else {
 										suggestionClass = 'noWritePermission';
 									}
 								} else {
+									// dataTokens[0] === 'e' or anything else
 									suggestionClass = 'writePermissionError';
 								}
 								$(newCell).html('<span class="' + suggestionClass + '">' + dataTokens[1] + '</span> / ' + dataTokens[2]);

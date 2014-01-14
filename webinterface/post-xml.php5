@@ -71,6 +71,7 @@ $select_advanced = $select_basic . ',
 					ItemSuppliers.SupplierDeliveryTime,
 					ItemSuppliers.SupplierMinimumPurchase,
 					WritePermissions.WritePermission,
+					WritePermissions.Error,
 					CASE WHEN (AttributeValueSets.AttributeValueSetName IS null) THEN
 						""
 					ELSE
@@ -173,14 +174,13 @@ while ($row = $result -> fetchAssoc()) {
 	$name_string .= intval($row['AttributeValueSetID']) == 0 ? $row['Name'] : $row['Name'] . ', ' . $row['AttributeValueSetName'];
 	$dailyNeed_string = $dailyNeed == 0 ? '' : $dailyNeed;
 	$monthlyNeed_string = $monthlyNeed == 0 ? '' : $monthlyNeed;
-	//$stockTurnover_string = $stockTurnover == 0 ? 'keine Lagerreichweite konfiguriert!' : ceil($stockTurnover * $dailyNeed) . ' (' . $reorderLevel . ')';
 	$reorderLevel_string = $supplierDeliveryTime == 0 ? "keine Lieferzeit konfiguriert" : $proposedReorderLevel . ':' . $reorderLevel;
 	$orderSuggestion_string = $stockTurnover == 0 ? 'keine Lagerreichweite konfiguriert!' : $orderSuggestion . ':' . $row['SupplierMinimumPurchase'];
 	$maxStockSuggestion_string = $stockTurnover == 0 ? 'keine Lagerreichweite konfiguriert!' : $orderSuggestion * 2 . ':' . $row['MaximumStock'];
 	$rawDataA_string = isset($row['QuantitiesA']) && $row['QuantitiesA'] !== '0' ? $row['SkippedA'] . ':' . $row['QuantitiesA'] : null;
 	$rawDataB_string = isset($row['QuantitiesB']) && $row['QuantitiesB'] !== '0' ? $row['SkippedB'] . ':' . $row['QuantitiesB'] : null;
 	$date_string = isset($row['LastUpdate']) ? date('d.m.y, H:i:s', $row['LastUpdate']) : null;
-	$write_permission_prefix = intval($row['WritePermission']) === 1 ? 'w' : 'x';
+	$write_permission_prefix = intval($row['WritePermission']) === 1 ? 'w' : (intval($row['Error']) === 1 ? 'e' : 'x');
 
 	$xml .= '<row id="' . $row['ItemID'] . '-0-' . $row['AttributeValueSetID'] . '">' . PHP_EOL;
 	$xml .= '<cell><![CDATA[' . $row['ItemID'] . ']]></cell>' . PHP_EOL;
