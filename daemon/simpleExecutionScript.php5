@@ -14,4 +14,7 @@ NetXpressSoapExperimentLoader::getInstance()->run(array('','GetItemsWarehouseSet
 // calculate daily need
 NetXpressSoapExperimentLoader::getInstance()->run(array('','CalculateHistogram','CalculateHistogram'));
 
+// determine write permissions
+NetXpressSoapExperimentLoader::getInstance()->run(array('','DetermineWritePermissions','DetermineWritePermissions'));
+
 ?>
