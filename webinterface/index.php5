@@ -56,7 +56,7 @@ $smarty -> setCacheDir('smarty/cache');
 $smarty -> setConfigDir('smarty/configs');
 
 $smarty -> assign('warehouseList', getWarehouseList());
-$smarty -> assign('config', getConfig());
+$smarty -> assign('config', Config::getAll());
 $smarty -> assign('debug', ob_get_clean() . checkItemSupplierConfiguration());
 // make function output available if needed
 $smarty -> display('index.tpl');

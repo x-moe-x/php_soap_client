@@ -109,7 +109,9 @@ DROP TABLE `soap_db`.`MetaConfig`;
 CREATE TABLE `soap_db`.`MetaConfig` (
 	`ConfigKey` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
 	`ConfigValue` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
-	`Active` TINYINT( 1 ) NOT NULL DEFAULT '1',
+	`ConfigType` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`LastUpdate` int(11) DEFAULT NULL,
+	`Active` TINYINT( 1 ) NOT NULL DEFAULT '0',
 	PRIMARY KEY (`ConfigKey`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 

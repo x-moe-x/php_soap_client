@@ -2,48 +2,49 @@
 ob_start();
 
 require_once realpath(dirname(__FILE__) . '/../') . '/config/basic.inc.php';
-require_once ROOT . 'lib/db/DBQuery.class.php';
 require_once ROOT . 'includes/GetConfig.php';
 
-$integerKeys = array('calculationTimeA', 'calculationTimeB', 'minimumToleratedSpikesA', 'minimumToleratedSpikesB', 'minimumOrdersA', 'minimumOrdersB');
-$floatKeys = array('standardDeviationFactor', 'spikeTolerance');
-$config = getConfig();
-$key = $_POST['key'];
-$ucfirstKey = ucfirst($key);
-$preJSON = array('Message' => null, 'Value' => null);
+$result = array('Message' => null, 'Value' => null);
 
-if (isset($_POST['key']) && isset($_POST['value'])) {
-	if (in_array($key, $integerKeys)) {
-		$parsedValue = intval($_POST['value']);
-	} else if (in_array($_POST['key'], $floatKeys)) {
-		$parsedValue = floatval($_POST['value']);
-		if ($key === 'spikeTolerance')
-			$parsedValue /= 100.0;
-	} else {
-		// wrong value
-		$preJSON['Message'] = 'wrong key: ' . $key;
-	}
+if (isset($_POST['key']) && isset($_POST['value' ])) {
+	$key = ucfirst($_POST['key']);
+	$newValue = $_POST['value'];
+	try {
+		$oldValue = Config::get($key);
+		// throws exception on fail
 
-	if (!isset($config[$ucfirstKey])) {
-		$preJSON['Message'] = 'wrong key: ' . $ucfirstKey;
-	} else if ($config[$ucfirstKey]['Active'] !== 1) {
-		$preJSON['Message'] = 'tried to modify inactive key: ' . $ucfirstKey;
-	} else if ((($ucfirstKey === 'CalculationTimeA') && ($parsedValue < $config['CalculationTimeB']['Value'])) || (($ucfirstKey === 'CalculationTimeB') && ($config['CalculationTimeA']['Value'] < $parsedValue))) {
-		if ($ucfirstKey === 'CalculationTimeA')
-			$preJSON['Value'] = $config['CalculationTimeA']['Value'];
-		else 
-			$preJSON['Value'] = $config['CalculationTimeB']['Value'];
-		$preJSON['Message'] = 'calculation time a < calculation time b';
-	} else {
-		$query = 'REPLACE INTO `MetaConfig` ' . DBUtils::buildInsert(array('ConfigKey' => $ucfirstKey, 'ConfigValue' => $parsedValue, 'Active' => 1));
-		$preJSON['Value'] = $parsedValue;
-		DBQuery::getInstance() -> replace($query);
+		// if key is active ...
+		if ($oldValue !== 'inactive') {
+			// ... then proceed
+
+			if ($key === 'SpikeTolerance') {
+				// try to convert from percentage value to float ...
+				$setResult = Config::set($key, floatval($newValue) / 100);
+			} else if ((($key === 'CalculationTimeA') && (intval($newValue) < $oldValue)) || (($key === 'CalculationTimeB') && ($oldValue < intval($newValue)))) {
+				// prevent calculation time a beeing smaller than calculation time b
+				if ($key === 'CalculationTimeA') {
+					$result['Value'] = $oldValue;
+				} else {
+					$result['Value'] = $oldValue;
+				}
+				$result['Message'] = 'calculation time a < calculation time b';
+			} else {
+				// try to apply normal case scenario ...
+				$setResult = Config::set($key, $newValue);
+			}
+		} else {
+			// ... otherwise report failure
+			$result['Message'] = 'Key ' . $key . ' is inactive and value ' . $newValue . ' is not applied';
+		}
+	} catch (Exception $e) {
+		// report unresolved key
+		$result['Message'] = $e -> getMessage();
 	}
 } else {
-	$preJSON['Message'] = 'unsufficient arguments';
+	$result['Message'] = 'insufficient arguments';
 }
 ob_end_clean();
 
 // generate json
-echo json_encode($preJSON);
+echo json_encode($result);
 ?>
