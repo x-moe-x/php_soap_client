@@ -67,12 +67,18 @@
 				<div class='clear'>
 					<!-- -->
 				</div>
-				<select id='warehouseSelection' disabled>
-					<option>Lagerort auswählen</option>
-					{foreach from=$warehouseList item=warehouse}
-					<option value='{$warehouse.id}' {if $warehouse.id == 1}selected{/if}>{$warehouse.name}</option>
-					{/foreach}
-				</select>
+				<div id='switches'>
+					<label for='calculationActive'>Kalkulation: </label>
+					<select id='calculationActive' {if $config.CalculationActive.Active == 0}disabled{/if}>
+						<option {if $config.CalculationActive.Value != 0}selected{/if} value='1'>On</option>
+						<option {if $config.CalculationActive.Value == 0}selected{/if} value='0'>Off</option>
+					</select>
+					<label for='writebackActive'>Rückschreiben: </label>
+					<select id='writebackActive' {if $config.WritebackActive.Active == 0}disabled{/if}>
+						<option {if $config.WritebackActive.Value != 0}selected{/if} value='1'>On</option>
+						<option {if $config.WritebackActive.Value == 0}selected{/if} value='0'>Off</option>
+					</select>
+				</div>
 			</div>
 		</div>
 		<table id='resultTable' style='display:none'>

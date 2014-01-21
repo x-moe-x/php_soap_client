@@ -55,6 +55,10 @@ $(document).ready(function() {'use strict';
 	integerInputfields = $('#calculationTimeA, #calculationTimeB, #minimumToleratedSpikesA, #minimumToleratedSpikesB, #minimumOrdersA, #minimumOrdersB');
 	floatInputFields = $('#standardDeviationFactor, #spikeTolerance');
 
+	$('#calculationActive, #writebackActive').change(function() {
+		$(this).updateConfig();
+	});
+
 	integerInputfields.change(function() {
 		$(this).checkIntval();
 		$(this).updateConfig();

@@ -11,6 +11,17 @@
 	margin: 1em 0;
 }
 
+#switches {
+	border: 1px solid #ccc;
+	border-radius: 5px;
+	margin-top: 1em;
+	padding: 1em;
+}
+
+#switches select {
+	margin-right: 4em;
+}
+
 #variableManipulation ul {
 	width: 360px;
 }
@@ -48,6 +59,10 @@
 	display: inline-block;
 	width: auto;
 	color: #aaaaaa;
+}
+
+#variableManipulation label[for="calculationActive"], #variableManipulation label[for="writebackActive"] {
+	width: auto;
 }
 
 #variableManipulation > div > ul {
