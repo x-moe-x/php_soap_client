@@ -46,7 +46,8 @@ class PlentyItemDataPushProducer extends PlentySoapCall
 			/*
 			 * do soap call
 			 */
-			$response	=	$this->getPlentySoap()->GetProducers();
+			$oPlentySoapRequest_GetProducers = new PlentySoapRequest_GetProducers();
+			$response	= $this->getPlentySoap()->GetProducers($oPlentySoapRequest_GetProducers);
 				
 			/*
 			 * check soap response
