@@ -97,7 +97,7 @@ class StoreToken
 			}
 			
 			$token[$soapUser] = array(
-					'inserted' 	=> 	time(),
+					'inserted' 	=> 	strtotime('today'),
 					'usertoken' => 	$soapToken,
 					'userId'	=> 	$soapUserId
 			);
@@ -141,7 +141,7 @@ class StoreToken
 			if(is_file($this->dest))
 			{
 				require $this->dest;
-				if(isset($token[$soapUser]) && $token[$soapUser]['inserted'] > (time()-86400)) // 24h
+				if(isset($token[$soapUser]) && $token[$soapUser]['inserted'] == strtotime('today')) // tokens are valid from 00:00 to 24:00
 				{
 					return array($token[$soapUser]['userId'], $token[$soapUser]['usertoken']);
 				}
