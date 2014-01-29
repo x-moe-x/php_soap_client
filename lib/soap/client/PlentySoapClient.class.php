@@ -96,7 +96,7 @@ class PlentySoapClient
 		 */
 		if( !strlen( $savedUserToken )  || !strlen( $savedUserId ) )
 		{
-			$this->getLogger()->debug(__FUNCTION__.' : saved token and userId no longer valide');
+			$this->getLogger()->debug(__FUNCTION__.' : saved token and userId no longer valid');
 
 			$this->doAuthentification();
 		}
