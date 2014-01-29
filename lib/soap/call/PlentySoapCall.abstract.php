@@ -76,7 +76,7 @@ abstract class PlentySoapCall
 		/*
 		 * check if token is valid
 		 */
-		if( $e->getMessage() === "Unauthorized Request - Invalide Token" )
+		if( $e->getMessage() === "Unauthorized Request - Invalid Token" )
 		{
 			/*
 			 * token is not valid
