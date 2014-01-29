@@ -28,7 +28,7 @@ class CalculateHistogram {
 		$this -> currentTime = time();
 		//  30.04.2013, 23:59:59 = 1367359199;
 
-		$this -> config = getConfig();
+		$this -> config = Config::getAll();
 
 		// set group_concat_max_len to reasonable value to prevent cropping of article quantities list
 		DBQuery::getInstance() -> Set('SET SESSION group_concat_max_len = 4096');
@@ -197,7 +197,7 @@ class CalculateHistogram {
 					// if at least one element is below spike tolerance range:
 					if ($spikes[$spikeIndex] < $spikes[0] * (1 - $spikeTolerance)) {
 
-						// sḱip normative spike and break off the loop to try the next one...
+						// skip normative spike and break off the loop to try the next one...
 						$quantity -= $quantities[$index];
 						$tolerateSpikes = false;
 						break;
