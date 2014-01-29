@@ -292,3 +292,12 @@ CREATE TABLE `soap_db`.`ItemSuppliers` (
 	`LastUpdate` int(11) DEFAULT NULL,
 	PRIMARY KEY (`ItemID`, `SupplierID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+DROP TABLE `soap_db`.`FailedOrderIDRange`;
+
+CREATE TABLE `soap_db`.`FailedOrderIDRange` (
+	`FromOrderID` int(11) NOT NULL,
+	`CountOrders` int(11) DEFAULT NULL,
+	`Reason` TEXT COLLATE utf8_unicode_ci,
+	PRIMARY KEY (`FromOrderID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
