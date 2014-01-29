@@ -4,12 +4,20 @@ require_once ROOT . 'lib/soap/call/PlentySoapCall.abstract.php';
 require_once 'Request_SearchOrders.class.php';
 require_once ROOT . 'includes/DBLastUpdate.php';
 
+/*
+ * there's a plenty bug when an order contains some non-utf-8 characters, soap will refuse to respond for the whole package of 25 orders
+ * in order to work unattended we will workaroud this bug. code regarding this workaround is marked with /* workaround */
+
 class SoapCall_SearchOrders extends PlentySoapCall {
 
 	private $page = 0;
 	private $pages = -1;
 	private $startAtPage = 0;
 	private $oPlentySoapRequest_SearchOrders = null;
+
+	/* workaround */
+	private $lastOrderID = -1;
+	private $caughtUTF8Error = false;
 
 	/// db-function name to store corresponding last update timestamps
 	private $functionName = 'SearchOrderExperiment';
@@ -70,6 +78,17 @@ class SoapCall_SearchOrders extends PlentySoapCall {
 		lastUpdateFinish($currentTime, $this -> functionName);
 	}
 
+	/* workaround */
+	private function proceedAfterUTF8Error() {
+		$this -> getLogger() -> debug(__FUNCTION__ . ' Caught UTF-8 Error on page : ' . $this -> page . ', last known working OrderID: ' . $this -> lastOrderID . ', skipping to next page');
+
+		// remember we caught an UTF8-Error ...
+		$this -> caughtUTF8Error = true;
+
+		// ... then skip to the next page
+		$this -> page++;
+	}
+
 	public function executePages() {
 		while ($this -> pages > $this -> page) {
 			$this -> oPlentySoapRequest_SearchOrders -> Page = $this -> page;
@@ -93,6 +112,16 @@ class SoapCall_SearchOrders extends PlentySoapCall {
 		}
 	}
 
+	public function onExceptionAction(Exception $e) {
+		/* workaround */
+		if (is_soap_fault($e) && $e -> faultcode === 'SOAP-ENV:Server') {
+			// assume it's an utf-8 error
+			$this -> proceedAfterUTF8Error();
+		} else {
+			parent::onExceptionAction($e);
+		}
+	}
+
 	private function processOrderHead($oOrderHead) {
 		// @formatter:off
 		/* $this->getLogger()->info(__FUNCTION__.' : '
@@ -102,6 +131,20 @@ class SoapCall_SearchOrders extends PlentySoapCall {
 				.	' TotalInvoice : '		.$oOrderHead->TotalInvoice
 		); */
 		// @formatter:on
+
+		/* workaround */
+		if ($this -> caughtUTF8Error) {
+			// store failed range to fail db ...
+			$query = 'REPLACE INTO `FailedOrderIDRange`' . DBUtils::buildInsert(array('FromOrderID' => $this -> lastOrderID + 1, 'CountOrders' => intval($oOrderHead -> OrderID) - ($this -> lastOrderID + 1), 'Reason' => 'UTF-8 error'));
+			DBQuery::getInstance() -> replace($query);
+
+			$this -> getLogger() -> debug(__FUNCTION__ . ' Stored failed OrderID-Range from ' . ($this -> lastOrderID + 1) . ' for ' . (intval($oOrderHead -> OrderID) - ($this -> lastOrderID + 1)) . ' orders, next working OrderID: ' . intval($oOrderHead -> OrderID));
+
+			// ... and carry on in normal mode
+			$this -> caughtUTF8Error = false;
+		}
+
+		$this -> lastOrderID = intval($oOrderHead -> OrderID);
 
 		// store OrderHeads into DB
 		$query = 'REPLACE INTO `OrderHead` ' .
