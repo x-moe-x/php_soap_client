@@ -20,6 +20,23 @@ function getWarehouseList() {
 	return $result;
 }
 
+function checkFailedOrders() {
+	$query = '
+        select
+            *
+        from
+            `FailedOrderIDRange`';
+	$failedOrderRanges = DBQuery::getInstance() -> select($query);
+	if ($failedOrderRanges -> getNumRows() != 0) {
+		$result = '<ul>';
+		while ($failedOrderRange = $failedOrderRanges -> fetchAssoc()) {
+			$result .= '<li>' . $failedOrderRange['Reason'] . ' appeared at ' . $failedOrderRange['FromOrderID'] . ' for the next ' . $failedOrderRange['CountOrders'] . ' orders</li>';
+		}
+		$result .= '</ul>';
+		return $result;
+	}
+}
+
 function checkItemSupplierConfiguration() {
 	$query = '
 		select
@@ -43,7 +60,7 @@ function checkItemSupplierConfiguration() {
 	if ($misformedItemSuppliers -> getNumRows() != 0) {
 		$result = '<ul>';
 		while ($misformedItemSupplier = $misformedItemSuppliers -> fetchAssoc()) {
-			$result .= '<li>ItemID: '.$misformedItemSupplier['ItemID']. ' - ' . $misformedItemSupplier['Name'] . ' has ' . $misformedItemSupplier['counted'] . ' suppliers configured!</li>';
+			$result .= '<li>ItemID: ' . $misformedItemSupplier['ItemID'] . ' - ' . $misformedItemSupplier['Name'] . ' has ' . $misformedItemSupplier['counted'] . ' suppliers configured!</li>';
 		}
 		$result .= '</ul>';
 		return $result;
@@ -57,7 +74,7 @@ $smarty -> setConfigDir('smarty/configs');
 
 $smarty -> assign('warehouseList', getWarehouseList());
 $smarty -> assign('config', Config::getAll());
-$smarty -> assign('debug', ob_get_clean() . checkItemSupplierConfiguration());
+$smarty -> assign('debug', ob_get_clean() . checkItemSupplierConfiguration() . checkFailedOrders());
 // make function output available if needed
 $smarty -> display('index.tpl');
 ?>
