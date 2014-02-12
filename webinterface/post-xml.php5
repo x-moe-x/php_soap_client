@@ -45,74 +45,68 @@ function getIntLike($columName, $value) {
 	return $columName . ' = "' . $value . '" ';
 }
 
-$select_basic = '				SELECT
-					ItemsBase.ItemID,
-					ItemsBase.Name,
-					CASE WHEN (AttributeValueSets.AttributeValueSetID IS null) THEN
-						"0"
-					ELSE
-						AttributeValueSets.AttributeValueSetID
-					END AttributeValueSetID';
+$select_basic = 'SELECT
+    ItemsBase.ItemID,
+	ItemsBase.Name,
+	CASE WHEN (AttributeValueSets.AttributeValueSetID IS null) THEN
+		"0"
+	ELSE
+		AttributeValueSets.AttributeValueSetID
+	END AttributeValueSetID' . PHP_EOL;
 
 $select_advanced = $select_basic . ',
-					ItemsBase.ItemNo,
-					ItemsBase.Marking1ID,
-					ItemsBase.Free4 AS VPE,
-					ItemsBase.BundleType,
-					CalculatedDailyNeeds.DailyNeed,
-					CalculatedDailyNeeds.LastUpdate,
-					CalculatedDailyNeeds.QuantitiesA,
-					CalculatedDailyNeeds.SkippedA,
-					CalculatedDailyNeeds.QuantitiesB,
-					CalculatedDailyNeeds.SkippedB,
-					ItemsWarehouseSettings.ReorderLevel,
-					ItemsWarehouseSettings.StockTurnover,
-					ItemsWarehouseSettings.MaximumStock,
-					ItemSuppliers.SupplierDeliveryTime,
-					ItemSuppliers.SupplierMinimumPurchase,
-					WritePermissions.WritePermission,
-					WritePermissions.Error,
-					CASE WHEN (AttributeValueSets.AttributeValueSetName IS null) THEN
-						""
-					ELSE
-						AttributeValueSets.AttributeValueSetName
-					END AttributeValueSetName';
+	ItemsBase.ItemNo,
+	ItemsBase.Marking1ID,
+	ItemsBase.Free4 AS VPE,
+	ItemsBase.BundleType,
+	CalculatedDailyNeeds.DailyNeed,
+	CalculatedDailyNeeds.LastUpdate,
+	CalculatedDailyNeeds.QuantitiesA,
+	CalculatedDailyNeeds.SkippedA,
+	CalculatedDailyNeeds.QuantitiesB,
+	CalculatedDailyNeeds.SkippedB,
+	ItemsWarehouseSettings.ReorderLevel,
+	ItemsWarehouseSettings.StockTurnover,
+	ItemsWarehouseSettings.MaximumStock,
+	ItemSuppliers.SupplierDeliveryTime,
+	ItemSuppliers.SupplierMinimumPurchase,
+	WritePermissions.WritePermission,
+	WritePermissions.Error,
+	CASE WHEN (AttributeValueSets.AttributeValueSetName IS null) THEN
+		""
+	ELSE
+		AttributeValueSets.AttributeValueSetName
+	END AttributeValueSetName' . PHP_EOL;
 
-$from_basic = '	FROM ItemsBase
-				LEFT JOIN AttributeValueSets
-					ON ItemsBase.ItemID = AttributeValueSets.ItemID
-				LEFT JOIN ItemsWarehouseSettings
-                    ON ItemsBase.ItemID = ItemsWarehouseSettings.ItemID
-                    AND CASE WHEN (AttributeValueSets.AttributeValueSetID IS null) THEN
-                        "0"
-                    ELSE
-                        AttributeValueSets.AttributeValueSetID
-                    END = ItemsWarehouseSettings.AttributeValueSetID';
+$from_basic = 'FROM ItemsBase
+LEFT JOIN AttributeValueSets
+	ON ItemsBase.ItemID = AttributeValueSets.ItemID
+LEFT JOIN ItemsWarehouseSettings
+    ON ItemsBase.ItemID = ItemsWarehouseSettings.ItemID
+    AND CASE WHEN (AttributeValueSets.AttributeValueSetID IS null) THEN
+        "0"
+    ELSE
+        AttributeValueSets.AttributeValueSetID
+    END = ItemsWarehouseSettings.AttributeValueSetID' . PHP_EOL;
 
-$from_advanced = $from_basic . '
-				LEFT JOIN CalculatedDailyNeeds
-                    ON ItemsBase.ItemID = CalculatedDailyNeeds.ItemID
-                    AND CASE WHEN (AttributeValueSets.AttributeValueSetID IS null) THEN
-                        "0"
-                    ELSE
-                        AttributeValueSets.AttributeValueSetID
-                    END = CalculatedDailyNeeds.AttributeValueSetID
-                LEFT JOIN ItemSuppliers
-					ON ItemsBase.ItemID = ItemSuppliers.ItemID
-                LEFT JOIN WritePermissions
-                    ON ItemsBase.ItemID = WritePermissions.ItemID
-                    AND CASE WHEN (AttributeValueSets.AttributeValueSetID IS null) THEN
-                        "0"
-                    ELSE
-                        AttributeValueSets.AttributeValueSetID
-                    END = WritePermissions.AttributeValueSetID';
-/*
- $where = '
- WHERE
- (ItemsWarehouseSettings.WarehouseID = ' . $warehouseID . ' OR
- ItemsBase.MainWarehouseID = ' . $warehouseID . ') ';*/
-$where = '
-				WHERE 1';
+$from_advanced = $from_basic . 'LEFT JOIN CalculatedDailyNeeds
+    ON ItemsBase.ItemID = CalculatedDailyNeeds.ItemID
+    AND CASE WHEN (AttributeValueSets.AttributeValueSetID IS null) THEN
+        "0"
+    ELSE
+        AttributeValueSets.AttributeValueSetID
+    END = CalculatedDailyNeeds.AttributeValueSetID
+LEFT JOIN ItemSuppliers
+	ON ItemsBase.ItemID = ItemSuppliers.ItemID
+LEFT JOIN WritePermissions
+    ON ItemsBase.ItemID = WritePermissions.ItemID
+    AND CASE WHEN (AttributeValueSets.AttributeValueSetID IS null) THEN
+        "0"
+    ELSE
+        AttributeValueSets.AttributeValueSetID
+    END = WritePermissions.AttributeValueSetID' . PHP_EOL;
+
+$where = 'WHERE 1' . PHP_EOL;
 
 if ($query && $qtype) {
 	if (strpos($query, ',') !== false) {
@@ -154,10 +148,7 @@ $result = DBQuery::getInstance() -> select($sql);
 $total = getMaxRows($select_basic . $from_basic . $where);
 
 header('Content-type: text/xml');
-$xml = '<?xml version="1.0" encoding="utf-8"?>' . PHP_EOL;
-$xml .= '<rows>' . PHP_EOL;
-$xml .= '<page>' . $page . '</page>' . PHP_EOL;
-$xml .= '<total>' . $total . '</total>' . PHP_EOL;
+$xml = "<?xml version='1.0' encoding='utf-8'?>\n<rows>\n\t<page>{$page}</page>\n\t<total>{$total}</total>\n";
 while ($row = $result -> fetchAssoc()) {
 	$dailyNeed = floatval($row['DailyNeed']);
 	$monthlyNeed = $dailyNeed * 30;
@@ -182,23 +173,23 @@ while ($row = $result -> fetchAssoc()) {
 	$date_string = isset($row['LastUpdate']) ? date('d.m.y, H:i:s', $row['LastUpdate']) : null;
 	$write_permission_prefix = intval($row['WritePermission']) === 1 ? 'w' : (intval($row['Error']) === 1 ? 'e' : 'x');
 
-	$xml .= '<row id="' . $row['ItemID'] . '-0-' . $row['AttributeValueSetID'] . '">' . PHP_EOL;
-	$xml .= '<cell><![CDATA[' . $row['ItemID'] . ']]></cell>' . PHP_EOL;
-	$xml .= '<cell><![CDATA[' . $row['ItemNo'] . ']]></cell>' . PHP_EOL;
-	$xml .= '<cell><![CDATA[' . $name_string . ']]></cell>' . PHP_EOL;
-	$xml .= '<cell><![CDATA[]]>' . $rawDataA_string . '</cell>' . PHP_EOL;
-	$xml .= '<cell><![CDATA[]]>' . $rawDataB_string . '</cell>' . PHP_EOL;
-	$xml .= '<cell><![CDATA[' . $monthlyNeed_string . ']]></cell>' . PHP_EOL;
-	$xml .= '<cell><![CDATA[' . $dailyNeed_string . ']]></cell>' . PHP_EOL;
-	$xml .= '<cell><![CDATA[' . $row['Marking1ID'] . ']]></cell>' . PHP_EOL;
-	$xml .= '<cell><![CDATA[' . $write_permission_prefix . ':' . $reorderLevel_string . ']]></cell>' . PHP_EOL;
-	$xml .= '<cell><![CDATA[]]>' . $write_permission_prefix . ':' . $maxStockSuggestion_string . '</cell>' . PHP_EOL;
-	$xml .= '<cell><![CDATA[]]>' . $write_permission_prefix . ':' . $orderSuggestion_string . '</cell>' . PHP_EOL;
-	$xml .= '<cell><![CDATA[]]>' . $vpe . '</cell>' . PHP_EOL;
-	$xml .= '<cell><![CDATA[]]>1</cell>' . PHP_EOL;
-	$xml .= '<cell><![CDATA[]]>1</cell>' . PHP_EOL;
-	$xml .= '<cell><![CDATA[' . $date_string . ']]></cell>' . PHP_EOL;
-	$xml .= '</row>';
+	$xml .= "\t<row id='{$row['ItemID']}-0-{$row['AttributeValueSetID']}'>
+        <cell><![CDATA[{$row['ItemID']}]]></cell>
+        <cell><![CDATA[{$row['ItemNo']}]]></cell>
+        <cell><![CDATA[{$name_string}]]></cell>
+        <cell><![CDATA[]]>{$rawDataA_string}</cell>
+        <cell><![CDATA[]]>{$rawDataB_string}</cell>
+        <cell><![CDATA[{$monthlyNeed_string}]]></cell>
+        <cell><![CDATA[{$dailyNeed_string}]]></cell>
+        <cell><![CDATA[{$row['Marking1ID']}]]></cell>
+        <cell><![CDATA[{$write_permission_prefix}:{$reorderLevel_string}]]></cell>
+        <cell><![CDATA[]]>{$write_permission_prefix}:{$maxStockSuggestion_string}</cell>
+        <cell><![CDATA[]]>{$write_permission_prefix}:{$orderSuggestion_string}</cell>
+        <cell><![CDATA[]]>{$vpe}</cell>
+        <cell><![CDATA[]]>1</cell>
+        <cell><![CDATA[]]>1</cell>
+        <cell><![CDATA[{$date_string}]]></cell>
+	</row>\n";
 }
 ob_end_clean();
 
