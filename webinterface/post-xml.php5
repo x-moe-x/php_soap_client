@@ -19,21 +19,19 @@ class StaticData {
 	public $vpe = -1;
 	public $reorderLevel = -1;
 	public $supplierMinimumPurchase = -1;
-	public $supplierDeliveryTime = -1;
 	public $maximumStock = -1;
 
-	public function __construct($sItemID, $sItemNo, $sName, $sAttributeValueSetID, $sAttributeValueSetName, $sMarking1ID, $sVpe, $sReorderLevel, $sSupplierMinimumPurchase, $sSupplierDeliveryTime, $sMaximumStock, $sBundleType) {
-		$this -> itemID = intval($sItemID);
-		$this -> itemNo = $sItemNo;
-		$this -> attributeValueSetID = intval($sAttributeValueSetID);
-		$this -> name = ($sBundleType === 'bundle' ? '[Bundle] ' : '') . ($this -> attributeValueSetID == 0 ? $sName : $sName . ', ' . $sAttributeValueSetName);
-		$this -> marking1ID = intval($sMarking1ID);
-		$this -> vpe = intval($sVpe);
+	public function __construct($row) {
+		$this -> itemID = intval($row['ItemID']);
+		$this -> itemNo = $row['ItemNo'];
+		$this -> attributeValueSetID = intval($row['AttributeValueSetID']);
+		$this -> name = ($row['BundleType'] === 'bundle' ? '[Bundle] ' : '') . ($this -> attributeValueSetID == 0 ? $row['Name'] : $row['Name'] . ', ' . $row['AttributeValueSetName']);
+		$this -> marking1ID = intval($row['Marking1ID']);
+		$this -> vpe = intval($row['VPE']);
 		$this -> vpe = $this -> vpe == 0 ? 1 : $this -> vpe;
-		$this -> reorderLevel = intval($sReorderLevel);
-		$this -> supplierMinimumPurchase = intval($sSupplierMinimumPurchase);
-		$this -> supplierMinimumPurchase = intval($sSupplierDeliveryTime);
-		$this -> maximumStock = intval($sMaximumStock);
+		$this -> reorderLevel = intval($row['ReorderLevel']);
+		$this -> supplierMinimumPurchase = intval($row['SupplierMinimumPurchase']);
+		$this -> maximumStock = intval($row['MaximumStock']);
 	}
 
 }
@@ -49,22 +47,25 @@ class DynamicData {
 	public $supplierMinimumPurchaseError = null;
 	public $rawDataA = null;
 	public $rawDataB = null;
+	public $writePermissionPrefix = null;
 
-	public function __construct($sDailyNeed, $sLastUpdate, $sValid, $sProposedReorderLevel, $sProposedSupplierMinimumPurchase, $sProposedMaximumStock, $sReorderLevelError, $sSupplierMinimumPurchaseError, $sQuantitiesA, $sQuantitiesB, $sSkippedA, $sSkippedB) {
-		$this -> dailyNeed = floatval($sDailyNeed);
-		$this -> lastUpdate = isset($sLastUpdate) ? date('d.m.y, H:i:s', $sLastUpdate) : null;
+	public function __construct($row) {
+		$this -> dailyNeed = floatval($row['DailyNeed']);
+		$this -> lastUpdate = isset($row['LastUpdate']) ? date('d.m.y, H:i:s', $row['LastUpdate']) : null;
 
-		$this -> rawDataA = isset($sQuantitiesA) && $sQuantitiesA !== '0' ? $sSkippedA . ':' . $sQuantitiesA : null;
-		$this -> rawDataB = isset($sQuantitiesB) && $sQuantitiesB !== '0' ? $sSkippedB . ':' . $sQuantitiesB : null;
+		$this -> rawDataA = isset($row['QuantitiesA']) && $row['QuantitiesA'] !== '0' ? $row['SkippedA'] . ':' . $row['QuantitiesA'] : null;
+		$this -> rawDataB = isset($row['QuantitiesB']) && $row['QuantitiesB'] !== '0' ? $row['SkippedB'] . ':' . $row['QuantitiesB'] : null;
 
-		$this -> valid = intval($sValid) === 1;
-		if ($this -> valid) {
-			$this -> proposedReorderLevel = intval($sProposedReorderLevel);
-			$this -> proposedSupplierMinimumPurchase = intval($sProposedSupplierMinimumPurchase);
-			$this -> proposedMaximumStock = intval($sProposedMaximumStock);
-		} else {
-			$this -> reorderLevelError = $sReorderLevelError;
-			$this -> supplierMinimumPurchaseError = $sSupplierMinimumPurchaseError;
+		$this -> valid = intval($row['Valid']) === 1;
+
+		$this -> proposedReorderLevel = isset($row['ProposedReorderLevel']) ? intval($row['ProposedReorderLevel']) : null;
+		$this -> proposedSupplierMinimumPurchase = isset($row['ProposedSupplierMinimumPurchase']) ? intval($row['ProposedSupplierMinimumPurchase']) : null;
+		$this -> proposedMaximumStock = isset($row['ProposedMaximumStock']) ? intval($row['ProposedMaximumStock']) : null;
+		$this -> writePermissionPrefix = (intval($row['WritePermission']) === 1) ? 'w' : (intval($row['WritePermissionError']) === 1 ? 'e' : 'x');
+
+		if (!$this -> valid) {
+			$this -> reorderLevelError = isset($row['ReorderLevelError']) ? $row['ReorderLevelError'] : null;
+			$this -> supplierMinimumPurchaseError = isset($row['SupplierMinimumPurchaseError']) ? $row['SupplierMinimumPurchaseError'] : null;
 		}
 	}
 
@@ -134,7 +135,7 @@ $select_advanced = $select_basic . ',
 	ItemSuppliers.SupplierDeliveryTime,
 	ItemSuppliers.SupplierMinimumPurchase,
 	WritePermissions.WritePermission,
-	WritePermissions.Error,
+	WritePermissions.Error AS WritePermissionError,
 	WriteBackSuggestion.Valid,
     WriteBackSuggestion.ReorderLevelError,
     WriteBackSuggestion.SupplierMinimumPurchaseError,
@@ -226,18 +227,25 @@ $total = getMaxRows($select_basic . $from_basic . $where);
 header('Content-type: text/xml');
 $xml = "<?xml version='1.0' encoding='utf-8'?>\n<rows>\n\t<page>{$page}</page>\n\t<total>{$total}</total>\n";
 while ($row = $result -> fetchAssoc()) {
-	$staticData = new StaticData($row['ItemID'], $row['ItemNo'], $row['Name'], $row['AttributeValueSetID'], $row['AttributeValueSetName'], $row['Marking1ID'], $row['VPE'], $row['ReorderLevel'], $row['StockTurnover'], $row['SupplierMinimumPurchase'], $row['SupplierDeliveryTime'], $row['MaximumStock'], $row['BundleType']);
-	$dynamicData = new DynamicData($row['DailyNeed'], $row['LastUpdate'], $row['Valid'], $row['ProposedReorderLevel'], $row['ProposedSupplierMinimumPurchase'], $row['ProposedMaximumStock'], $row['ReorderLevelError'], $row['SupplierMinimumPurchaseError'], $row['QuantitiesA'], $row['QuantitiesB'], $row['SkippedA'], $row['SkippedB']);
+	$staticData = new StaticData($row);
+	$dynamicData = new DynamicData($row);
 
 	$dailyNeed_string = abs($dynamicData -> dailyNeed) < 0.01 ? '' : number_format($dynamicData -> dailyNeed, 2);
 	$monthlyNeed_string = abs($dynamicData -> dailyNeed) < 0.01 ? '' : number_format($dynamicData -> dailyNeed * 30, 2);
 
 	if ($dynamicData -> valid) {
+		$reorderLevel_string = $dynamicData -> proposedReorderLevel . ':' . $staticData -> reorderLevel;
+		$supplierMinimumPurchase_string = $dynamicData -> proposedSupplierMinimumPurchase . ':' . $staticData -> supplierMinimumPurchase;
+		$maxStockSuggestion_string = $dynamicData -> proposedMaximumStock . ':' . $staticData -> maximumStock;
+	} else {
 		$reorderLevel_string = isset($dynamicData -> reorderLevelError) ? $dynamicData -> reorderLevelError : $dynamicData -> proposedReorderLevel . ':' . $staticData -> reorderLevel;
-		$supplierMinimumPurchase_string = isset($dynamicData -> supplierMinimumPurchaseError) ? $dynamicData -> supplierMinimumPurchaseError : $dynamicData -> proposedSupplierMinimumPurchase . ':' . $staticData -> supplierMinimumPurchase;
-		$maxStockSuggestion_string = isset($dynamicData -> supplierMinimumPurchaseError) ? $dynamicData -> supplierMinimumPurchaseError : $dynamicData -> proposedMaximumStock . ':' . $staticData -> maximumStock;
-
-		$write_permission_prefix = intval($row['WritePermission']) === 1 ? 'w' : (intval($row['Error']) === 1 ? 'e' : 'x');
+		if (isset($dynamicData -> supplierMinimumPurchaseError)) {
+			$supplierMinimumPurchase_string = $dynamicData -> supplierMinimumPurchaseError;
+			$maxStockSuggestion_string = $dynamicData -> supplierMinimumPurchaseError;
+		} else {
+			$supplierMinimumPurchase_string = $dynamicData -> proposedSupplierMinimumPurchase . ':' . $staticData -> supplierMinimumPurchase;
+			$maxStockSuggestion_string = $dynamicData -> proposedMaximumStock . ':' . $staticData -> maximumStock;
+		}
 	}
 
 	$xml .= "\t<row id='$staticData->itemID-0-$staticData->attributeValueSetID'>
@@ -249,12 +257,12 @@ while ($row = $result -> fetchAssoc()) {
         <cell><![CDATA[$monthlyNeed_string]]></cell>
         <cell><![CDATA[$dailyNeed_string]]></cell>
         <cell><![CDATA[$staticData->marking1ID]]></cell>
-        <cell><![CDATA[{$write_permission_prefix}:{$reorderLevel_string}]]></cell>
-        <cell><![CDATA[]]>{$write_permission_prefix}:{$maxStockSuggestion_string}</cell>
-        <cell><![CDATA[]]>{$write_permission_prefix}:{$supplierMinimumPurchase_string}</cell>
-        <cell><![CDATA[]]>$staticData->vpe</cell>
-        <cell><![CDATA[]]>1</cell>
-        <cell><![CDATA[]]>1</cell>
+        <cell><![CDATA[{$dynamicData->writePermissionPrefix}:{$reorderLevel_string}]]></cell>
+        <cell><![CDATA[{$dynamicData->writePermissionPrefix}:{$maxStockSuggestion_string}]]></cell>
+        <cell><![CDATA[{$dynamicData->writePermissionPrefix}:{$supplierMinimumPurchase_string}]]></cell>
+        <cell><![CDATA[$staticData->vpe]]></cell>
+        <cell><![CDATA[1]]></cell>
+        <cell><![CDATA[1]]></cell>
         <cell><![CDATA[$dynamicData->lastUpdate]]></cell>
 	</row>\n";
 }
