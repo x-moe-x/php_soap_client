@@ -36,7 +36,7 @@ class CalculateWriteBackData {
 			$reorderLevel = round($supplierDeliveryTime * $dailyNeed);
 			$vpe = intval($row['VPE']);
 			$vpe = $vpe == 0 ? 1 : $vpe;
-			$supplierMinimumPurchase = ceil($stockTurnover * $dailyNeed);
+			$supplierMinimumPurchase = round($stockTurnover * $dailyNeed);
 			$supplierMinimumPurchase = ($supplierMinimumPurchase % $vpe == 0) && ($supplierMinimumPurchase != 0) ? $supplierMinimumPurchase : $supplierMinimumPurchase + $vpe - $supplierMinimumPurchase % $vpe;
 			$current = array();
 
