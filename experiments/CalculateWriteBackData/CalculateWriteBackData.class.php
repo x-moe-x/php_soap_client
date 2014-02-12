@@ -19,16 +19,11 @@ class CalculateWriteBackData {
 		$this -> identifier4Logger = __CLASS__;
 	}
 
-	private function storeRow($current) {
-		$this -> getLogger() -> debug(__FUNCTION__ . ' : storing to db: ' . $current['ItemID']);
-		$query = 'REPLACE INTO `WriteBackSuggestion`' . DBUtils::buildInsert($current);
-		DBQuery::getInstance() -> replace($query);
-	}
-
 	public function execute() {
 		$this -> getLogger() -> debug(__FUNCTION__ . ' : Calculating write back data ...');
 		$dbResult = DBQuery::getInstance() -> select($this -> getQuery());
 
+		$data = array();
 		while ($row = $dbResult -> fetchAssoc()) {
 			$dailyNeed = floatval($row['DailyNeed']);
 			$supplierDeliveryTime = intval($row['SupplierDeliveryTime']);
@@ -36,7 +31,7 @@ class CalculateWriteBackData {
 			$reorderLevel = round($supplierDeliveryTime * $dailyNeed);
 			$vpe = intval($row['VPE']);
 			$vpe = $vpe == 0 ? 1 : $vpe;
-			$supplierMinimumPurchase = round($stockTurnover * $dailyNeed);
+			$supplierMinimumPurchase = ceil($stockTurnover * $dailyNeed);
 			$supplierMinimumPurchase = ($supplierMinimumPurchase % $vpe == 0) && ($supplierMinimumPurchase != 0) ? $supplierMinimumPurchase : $supplierMinimumPurchase + $vpe - $supplierMinimumPurchase % $vpe;
 			$current = array();
 
@@ -46,27 +41,34 @@ class CalculateWriteBackData {
 
 			if ($supplierDeliveryTime !== 0) {
 				$current['ReorderLevel'] = $reorderLevel;
+				$current['ReorderLevelError'] = 'NULL';
 			} else {
 				$current['Valid'] = 0;
-				$current['ReorderLevelError'] = 'keine Lieferzeit konfiguriert';
+				$current['ReorderLevel'] = 'NULL';
+				$current['ReorderLevelError'] = 'liefer';
 			}
 			if ($stockTurnover !== 0) {
 				$current['SupplierMinimumPurchase'] = $supplierMinimumPurchase;
 				$current['MaximumStock'] = 2 * $supplierMinimumPurchase;
+				$current['SupplierMinimumPurchaseError'] = 'NULL';
 			} else {
 				$current['Valid'] = 0;
-				$current['SupplierMinimumPurchaseError'] = 'keine Lagerreichweite konfiguriert';
+				$current['SupplierMinimumPurchase'] = 'NULL';
+				$current['MaximumStock'] = 'NULL';
+				$current['SupplierMinimumPurchaseError'] = 'lager';
 			}
-			$this -> storeRow($current);
+			$data[] = "('{$current['ItemID']}','{$current['AttributeValueSetID']}','{$current['Valid']}','{$current['ReorderLevel']}','{$current['SupplierMinimumPurchase']}','{$current['MaximumStock']}','{$current['ReorderLevelError']}','{$current['SupplierMinimumPurchaseError']}')";
 		}
+		$query = 'REPLACE INTO WriteBackSuggestion (ItemID,AttributeValueSetID,Valid,ReorderLevel,SupplierMinimumPurchase,MaximumStock,ReorderLevelError,SupplierMinimumPurchaseError) VALUES' . implode(',', $data);
+		DBQuery::getInstance() -> replace($query);
+
 		$this -> getLogger() -> debug(__FUNCTION__ . ' : ... done');
 	}
 
-
-    /**
-     *
-     * @return query for data necessary for calculation
-     */
+	/**
+	 *
+	 * @return query for data necessary for calculation
+	 */
 	private function getQuery() {
 		return 'SELECT
     ItemsBase.ItemID,
