@@ -269,6 +269,20 @@ CREATE TABLE `soap_db`.`WritePermissions` (
 	PRIMARY KEY (`ItemID`, `AttributeValueSetID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+DROP TABLE `soap_db`.`WriteBackSuggestion`;
+
+CREATE TABLE `soap_db`.`WriteBackSuggestion` (
+	`ItemID` int(11) NOT NULL,
+	`AttributeValueSetID` int(11) NOT NULL,
+	`ReorderLevel` int(11) DEFAULT 0,
+	`SupplierMinimumPurchase` int(11) DEFAULT 0,
+	`MaximumStock` int(11) DEFAULT 0,
+	`Valid` tinyint(1) DEFAULT 0,
+	`ReorderLevelError` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`SupplierMinimumPurchaseError` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	PRIMARY KEY (`ItemID`, `AttributeValueSetID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 DROP TABLE `soap_db`.`PendingCalculation`;
 
 CREATE TABLE `soap_db`.`PendingCalculation` (
