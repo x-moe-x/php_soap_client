@@ -1,6 +1,6 @@
 <?php
-+ini_set('display_errors', 1);
-+error_reporting(E_ALL);
+require_once realpath(dirname(__FILE__) . '/../') . '/config/basic.inc.php';
+require_once ROOT . 'includes/DuplicatesMapping.php';
 
 $page = isset($_POST['page']) ? $_POST['page'] : 1;
 $rp = isset($_POST['rp']) ? $_POST['rp'] : 10;
@@ -64,11 +64,10 @@ class DynamicData {
 		$this -> writePermissionPrefix = (intval($row['WritePermission']) === 1) ? 'w' : (intval($row['WritePermissionError']) === 1 ? 'e' : 'x');
 
 		if (!$this -> valid) {
-			$this -> reorderLevelError = isset($row['ReorderLevelError']) ? $row['ReorderLevelError'] : null;
-			$this -> supplierMinimumPurchaseError = isset($row['SupplierMinimumPurchaseError']) ? $row['SupplierMinimumPurchaseError'] : null;
+			$this -> reorderLevelError = isset($row['ReorderLevelError']) ? 'Lieferzeit nicht konfiguriert' : null;
+			$this -> supplierMinimumPurchaseError = isset($row['SupplierMinimumPurchaseError']) ? 'Lagerreichweite nicht konfiguriert' : null;
 		}
 	}
-
 }
 
 switch ($qtype) {
@@ -94,7 +93,6 @@ switch ($sortname) {
 }
 
 ob_start();
-require_once realpath(dirname(__FILE__) . '/../') . '/config/basic.inc.php';
 require_once ROOT . 'lib/db/DBQuery.class.php';
 
 function getMaxRows($query) {
