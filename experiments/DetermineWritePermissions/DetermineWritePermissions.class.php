@@ -81,8 +81,8 @@ class DetermineWritePermissions {
 				$current['WritePermission'] = 0;
 			}
 
-			// write permission given, but error ...
-			if ((intval($current['WritePermission']) == 1) && ((intval($row['SupplierDeliveryTime']) <= 0) || (intval($row['StockTurnover']) <= 0))) {
+			// write permission given, but error ... (like no supplier delivery time, no stock turnover, article variant)
+			if ((intval($current['WritePermission']) == 1) && ((intval($row['SupplierDeliveryTime']) <= 0) || (intval($row['StockTurnover']) <= 0)) || (intval($row['AttributeValueSetID']) !== 0)) {
 				// ... then unset write permission and set error
 				$current['WritePermission'] = 0;
 				$current['Error'] = 1;
