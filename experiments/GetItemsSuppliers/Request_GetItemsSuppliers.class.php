@@ -15,7 +15,13 @@ class Request_GetItemsSuppliers {
 	 * @param int $itemID
 	 */
 	public function addItemID($itemID) {
-		$this -> aItemIDs[] = $itemID;
+		if (count($this -> aItemIDs) < 50) {
+			$this -> aItemIDs[] = $itemID;
+		}
+	}
+
+	public function isFull() {
+		return count($this -> aItemIDs) === 50;
 	}
 
 	/**
