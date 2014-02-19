@@ -18,7 +18,7 @@ class DetermineWritePermissions {
 	public function __construct() {
 		$this -> identifier4Logger = __CLASS__;
 	}
-
+	
 	private function getQuery() {
 		return '
 			SELECT
@@ -90,12 +90,12 @@ class DetermineWritePermissions {
 				$current['Error'] = 0;
 			}
 
-			$result[] = $current;
+			$result[] = "('{$current['ItemID']}','{$current['AttributeValueSetID']}','{$current['WritePermission']}','{$current['Error']}')";
 		}
-		foreach ($result as $currentResult) {
-			$query = 'REPLACE INTO `WritePermissions` ' . DBUtils::buildInsert($currentResult);
-			DBQuery::getInstance() -> replace($query);
-		}
+
+		$query = 'REPLACE INTO `WritePermissions` (ItemID,AttributeValueSetID,WritePermission,Error) VALUES' . implode(',', $result);
+		DBQuery::getInstance() -> replace($query);
+
 		$this -> getLogger() -> debug(__FUNCTION__ . ' : ... done');
 	}
 
