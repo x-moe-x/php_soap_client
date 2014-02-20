@@ -289,11 +289,16 @@ DROP TABLE `soap_db`.`ItemSuppliers`;
 CREATE TABLE `soap_db`.`ItemSuppliers` (
 	`ItemID` int(11) NOT NULL,
 	`SupplierID` int(11) NOT NULL,
-	`SupplierItemID` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
-	`SupplierItemPrice` decimal(8,2) DEFAULT NULL,
-	`SupplierMinimumPurchase` int(11) DEFAULT NULL,
-	`SupplierDeliveryTime` int(11) DEFAULT NULL,
+	`ItemSupplierRowID` int(11) DEFAULT NULL,
+	`IsRebateAllowed` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`ItemSupplierPrice` decimal(8,2) DEFAULT NULL,
 	`LastUpdate` int(11) DEFAULT NULL,
+	`Priority` int(11) DEFAULT NULL,
+	`Rebate` decimal(8,2) DEFAULT NULL,
+	`SupplierDeliveryTime` int(11) DEFAULT NULL,
+	`SupplierItemNumber` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`SupplierMinimumPurchase` decimal(8,2) DEFAULT NULL,
+	`VPE` decimal(8,2) DEFAULT NULL,
 	PRIMARY KEY (`ItemID`, `SupplierID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 

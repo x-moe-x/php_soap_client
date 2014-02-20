@@ -5,12 +5,30 @@ require_once 'Request_GetItemsBase.class.php';
 require_once ROOT . 'includes/DBLastUpdate.php';
 
 class SoapCall_GetItemsBase extends PlentySoapCall {
+
+	/**
+	 * @var int
+	 */
 	private $page = 0;
+
+	/**
+	 * @var int
+	 */
 	private $pages = -1;
+
+	/**
+	 * @var int
+	 */
 	private $startAtPage = 0;
+
+	/**
+	 * @var PlentySoapRequest_GetItemsBase
+	 */
 	private $oPlentySoapRequest_GetItemsBase = null;
 
-	/// db-function name to store corresponding last update timestamps
+	/**
+	 * @var string /// db-function name to store corresponding last update timestamps
+	 */
 	private $functionName = 'GetItemsBase';
 
 	public function __construct() {
@@ -37,6 +55,7 @@ class SoapCall_GetItemsBase extends PlentySoapCall {
 				 * do soap call
 				 */
 				$response = $this -> getPlentySoap() -> GetItemsBase($this -> oPlentySoapRequest_GetItemsBase);
+				/*@var PlentySoapResponse_GetItemsBase $response*/
 
 				if (($response -> Success == true) && isset($response -> ItemsBase)) {
 					// request successful, processing data..
@@ -73,38 +92,41 @@ class SoapCall_GetItemsBase extends PlentySoapCall {
 		lastUpdateFinish($currentTime, $this -> functionName);
 	}
 
-	private function responseInterpretation($oPlentySoapResponse_GetItemsBase) {
+	/**
+	 * @param PlentySoapResponse_GetItemsBase $oPlentySoapResponse_GetItemsBase
+	 */
+	private function responseInterpretation(PlentySoapResponse_GetItemsBase $oPlentySoapResponse_GetItemsBase) {
 		if (is_array($oPlentySoapResponse_GetItemsBase -> ItemsBase -> item)) {
 			foreach ($oPlentySoapResponse_GetItemsBase->ItemsBase->item AS $itemsBase) {
 				$this -> processItemsBase($itemsBase);
 			}
 		} else {
-			$this -> processItemsBase($oPlentySoapResponse_GetItemsBase -> Orders -> item);
+			$this -> processItemsBase($oPlentySoapResponse_GetItemsBase -> ItemsBase -> item);
 		}
 		$this -> getLogger() -> debug(__FUNCTION__ . ' : done');
 	}
 
-	private function processItemSupplierRecord($oItemID, $oItemSupplier)
-	{
+	/**
+	 * @param int $oItemID
+	 * @param PlentySoapObject_ItemSupplier $oItemSupplier
+	 */
+	private function processItemSupplierRecord($oItemID, $oItemSupplier) {
 		// $this -> getLogger() -> info(__FUNCTION__ . ' : ' . ' ItemSupplier : ' . $oItemSupplier -> SupplierID);
 
 		// store supplier record to DB
-		$query = 'REPLACE INTO `ItemSuppliers` ' .
+		$query = 'INSERT INTO `ItemSuppliers` ' .
 		// @formatter:off
 			DBUtils::buildInsert(
 				array(
-					'ItemID'					=> $oItemID,
-					'SupplierID'				=> $oItemSupplier->SupplierID,
-					'SupplierItemID'			=> $oItemSupplier->SupplierItemID,
-					'SupplierItemPrice'			=> $oItemSupplier->SupplierItemPrice,
-					'SupplierMinimumPurchase'	=> $oItemSupplier->SupplierMinimumPurchase,
-					'SupplierDeliveryTime'		=> $oItemSupplier->SupplierDeliveryTime,
+				    'ItemID'                    => $oItemID,
+				    'SupplierID'                => $oItemSupplier->SupplierID,
+					'ItemSupplierPrice'			=> $oItemSupplier->SupplierItemPrice,
 					'LastUpdate'				=> $oItemSupplier->LastUpdate
 				)
-			);
+			) . 'ON DUPLICATE KEY UPDATE ItemSupplierPrice=VALUES(ItemSupplierPrice),LastUpdate=VALUES(LastUpdate);';
 			// @formatter:on
 
-		DBQuery::getInstance() -> replace($query);
+		DBQuery::getInstance() -> insert($query);
 	}
 
 	private function processAttributeValueSet($oItemID, $oAttributeValueSet) {
@@ -136,6 +158,9 @@ class SoapCall_GetItemsBase extends PlentySoapCall {
 		DBQuery::getInstance() -> replace($query);
 	}
 
+	/**
+	 * @param PlentySoapObject_ItemBase $oItemsBase
+	 */
 	private function processItemsBase($oItemsBase) {
 		$this -> getLogger() -> info(__FUNCTION__ . ' : ' . ' ItemID : ' . $oItemsBase -> ItemID . ',' . ' ItemNo : ' . $oItemsBase -> ItemNo . ',' . ' Name : ' . $oItemsBase -> Texts -> Name);
 
@@ -239,13 +264,9 @@ class SoapCall_GetItemsBase extends PlentySoapCall {
 			}
 		}
 
-		// delete old entrys from AttributeValueSets to prevent unrecognized deletes
-		$query = 'DELETE FROM `ItemSuppliers` WHERE `ItemID` = ' . $oItemsBase -> ItemID;
-		DBQuery::getInstance() -> delete($query);
-
 		// process ItemSuppliers
-		if (isset($oItemsBase -> ItemSuppliers))
-		{
+
+		if (isset($oItemsBase -> ItemSuppliers)) {
 			if (is_array($oItemsBase -> ItemSuppliers -> item)) {
 				foreach ($oItemsBase -> ItemSuppliers -> item as $itemSupplierRecord) {
 					$this -> processItemSupplierRecord($oItemsBase -> ItemID, $itemSupplierRecord);
