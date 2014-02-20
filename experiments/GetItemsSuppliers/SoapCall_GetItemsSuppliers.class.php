@@ -19,6 +19,11 @@ class SoapCall_GetItemsSuppliers extends PlentySoapCall {
 		$this -> storeData = array();
 	}
 
+	/**
+	 * overrides PlentySoapCall's execute() method
+	 *
+	 * @return void
+	 */
 	public function execute() {
 		try {
 			// get all possible ItemIDs
@@ -57,15 +62,22 @@ class SoapCall_GetItemsSuppliers extends PlentySoapCall {
 		}
 	}
 
+	/**
+	 * bulk insert/update retrieved data except ItemSupplierPrice and LastUpdate
+	 * this is a workaround for a plenty bug which prevents correct values of price and last update being sent
+	 *
+	 * @return void
+	 */
 	private function storeToDB() {
 		DBQuery::getInstance() -> insert('INSERT INTO `ItemSuppliers`' . DBUtils::buildMultipleInsert($this -> aStoreData) .
 		'ON DUPLICATE KEY UPDATE ItemSupplierRowID=VALUES(ItemSupplierRowID),IsRebateAllowed=VALUES(IsRebateAllowed),Priority=VALUES(Priority),Rebate=VALUES(Rebate),SupplierDeliveryTime=VALUES(SupplierDeliveryTime),SupplierItemNumber=VALUES(SupplierItemNumber),SupplierMinimumPurchase=VALUES(SupplierMinimumPurchase),VPE=VALUES(VPE)');
 	}
 
 	/**
-	 *
+	 * process whole PlentySoapResponse_GetItemsSuppliers record from plenty
 	 *
 	 * @param PlentySoapResponse_GetItemsSuppliers $oPlentySoapResponse_GetItemsSuppliers
+	 * @return void
 	 */
 	private function responseInterpretation(PlentySoapResponse_GetItemsSuppliers $oPlentySoapResponse_GetItemsSuppliers) {
 		if (is_array($oPlentySoapResponse_GetItemsSuppliers -> ItemsSuppliersList -> item)) {
@@ -85,12 +97,15 @@ class SoapCall_GetItemsSuppliers extends PlentySoapCall {
 	}
 
 	/**
-	 * @param $oPlentySoapObject_ItemsSuppliersList PlentySoapObject_ItemsSuppliersList
+	 * process PlentySoapObject_ItemsSuppliersList for a single itemID
+	 *
+	 * @param PlentySoapObject_ItemsSuppliersList $oPlentySoapObject_ItemsSuppliersList
+	 * @return void
 	 */
 	private function processSupplier($oPlentySoapObject_ItemsSuppliersList) {
 		if (is_array($oPlentySoapObject_ItemsSuppliersList -> ItemsSuppliers -> item)) {
 			foreach ($oPlentySoapObject_ItemsSuppliersList -> ItemsSuppliers -> item as $oPlentySoapObject_ItemsSuppliers) {
-				/* @var $oPlentySoapObject_ItemsSuppliers PlentySoapObject_ItemsSuppliers */
+				/* @var PlentySoapObject_ItemsSuppliers $oPlentySoapObject_ItemsSuppliers*/
 
 				// sanity check
 				if (!$oPlentySoapObject_ItemsSuppliersList -> ItemID === $oPlentySoapObject_ItemsSuppliers -> ItemID) {
