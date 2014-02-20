@@ -58,8 +58,8 @@ class SoapCall_GetItemsSuppliers extends PlentySoapCall {
 	}
 
 	private function storeToDB() {
-		// bulk replace
-		DBQuery::getInstance() -> replace('REPLACE INTO `ItemSuppliers`' . DBUtils::buildMultipleInsert($this -> aStoreData));
+		DBQuery::getInstance() -> insert('INSERT INTO `ItemSuppliers`' . DBUtils::buildMultipleInsert($this -> aStoreData) .
+		'ON DUPLICATE KEY UPDATE ItemSupplierRowID=VALUES(ItemSupplierRowID),IsRebateAllowed=VALUES(IsRebateAllowed),Priority=VALUES(Priority),Rebate=VALUES(Rebate),SupplierDeliveryTime=VALUES(SupplierDeliveryTime),SupplierItemNumber=VALUES(SupplierItemNumber),SupplierMinimumPurchase=VALUES(SupplierMinimumPurchase),VPE=VALUES(VPE)');
 	}
 
 	/**
