@@ -4,6 +4,7 @@ require_once ROOT . 'lib/soap/call/PlentySoapCall.abstract.php';
 require_once 'Request_GetItemsWarehouseSettings.class.php';
 require_once ROOT . 'includes/DBLastUpdate.php';
 require_once ROOT . 'includes/SKUHelper.php';
+require_once ROOT . 'includes/DBUtils2.class.php';
 
 class SoapCall_GetItemsWarehouseSettings extends PlentySoapCall {
 
@@ -94,7 +95,7 @@ ON
 	}
 
 	private function storeToDB() {
-		DBQuery::getInstance() -> insert('INSERT INTO `ItemsWarehouseSettings`' . DBUtils::buildMultipleInsert($this -> aStorData));
+		DBQuery::getInstance() -> insert('INSERT INTO `ItemsWarehouseSettings`' . DBUtils::buildMultipleInsert($this -> aStorData).'ON DUPLICATE KEY UPDATE' . DBUtils2::buildOnDuplicateKeyUpdateAll($this -> aStorData[0]));
 	}
 
 	private function processWarehouseSetting($oWarehouseSetting) {
