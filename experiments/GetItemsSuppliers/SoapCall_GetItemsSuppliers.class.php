@@ -5,7 +5,10 @@ require_once 'Request_GetItemsSuppliers.class.php';
 
 class SoapCall_GetItemsSuppliers extends PlentySoapCall {
 
-	private static $MAX_PAGES = 50;
+	/**
+	 * @var int
+	 */
+	public static $MAX_SUPPLIERS_PER_PAGES = 50;
 
 	/**
 	 * Used to prepare bulk insertion to db
@@ -16,7 +19,7 @@ class SoapCall_GetItemsSuppliers extends PlentySoapCall {
 
 	public function __construct() {
 		parent::__construct(__CLASS__);
-		$this -> storeData = array();
+		$this -> aStoreData = array();
 	}
 
 	/**
@@ -30,7 +33,7 @@ class SoapCall_GetItemsSuppliers extends PlentySoapCall {
 			$result = DBQuery::getInstance() -> select('Select ItemID FROM ItemsBase');
 
 			// for every 50 ItemIDs ...
-			for ($page = 0; $page < ceil($result -> getNumRows() / self::$MAX_PAGES); $page++) {
+			for ($page = 0; $page < ceil($result -> getNumRows() / self::$MAX_SUPPLIERS_PER_PAGES); $page++) {
 
 				// ... perpare a separate request ...
 				$oRequest_GetItemsSuppliers = new Request_GetItemsSuppliers();
@@ -41,7 +44,7 @@ class SoapCall_GetItemsSuppliers extends PlentySoapCall {
 				// ... then do soap call ...
 				$response = $this -> getPlentySoap() -> GetItemsSuppliers($oRequest_GetItemsSuppliers -> getRequest());
 
-				// if successful ...
+				// ... if successful ...
 				if ($response -> Success == true) {
 					$this -> getLogger() -> debug(__FUNCTION__ . ' Request Success');
 
@@ -69,8 +72,7 @@ class SoapCall_GetItemsSuppliers extends PlentySoapCall {
 	 * @return void
 	 */
 	private function storeToDB() {
-		DBQuery::getInstance() -> insert('INSERT INTO `ItemSuppliers`' . DBUtils::buildMultipleInsert($this -> aStoreData) .
-		'ON DUPLICATE KEY UPDATE ItemSupplierRowID=VALUES(ItemSupplierRowID),IsRebateAllowed=VALUES(IsRebateAllowed),Priority=VALUES(Priority),Rebate=VALUES(Rebate),SupplierDeliveryTime=VALUES(SupplierDeliveryTime),SupplierItemNumber=VALUES(SupplierItemNumber),SupplierMinimumPurchase=VALUES(SupplierMinimumPurchase),VPE=VALUES(VPE)');
+		DBQuery::getInstance() -> insert('INSERT INTO `ItemSuppliers`' . DBUtils::buildMultipleInsert($this -> aStoreData) . 'ON DUPLICATE KEY UPDATE ItemSupplierRowID=VALUES(ItemSupplierRowID),IsRebateAllowed=VALUES(IsRebateAllowed),Priority=VALUES(Priority),Rebate=VALUES(Rebate),SupplierDeliveryTime=VALUES(SupplierDeliveryTime),SupplierItemNumber=VALUES(SupplierItemNumber),SupplierMinimumPurchase=VALUES(SupplierMinimumPurchase),VPE=VALUES(VPE)');
 	}
 
 	/**
@@ -85,12 +87,12 @@ class SoapCall_GetItemsSuppliers extends PlentySoapCall {
 			$countRecords = count($oPlentySoapResponse_GetItemsSuppliers -> ItemsSuppliersList -> item);
 			$this -> getLogger() -> debug(__FUNCTION__ . " fetched $countRecords supplier records from ItemID: {$oPlentySoapResponse_GetItemsSuppliers -> ItemsSuppliersList -> item[0]->ItemID} to {$oPlentySoapResponse_GetItemsSuppliers -> ItemsSuppliersList -> item[$countRecords - 1]->ItemID}");
 
-			foreach ($oPlentySoapResponse_GetItemsSuppliers -> ItemsSuppliersList -> item AS $oPlentySoapObject_ItemsSuppliersList) {
+			foreach ($oPlentySoapResponse_GetItemsSuppliers -> ItemsSuppliersList -> item AS &$oPlentySoapObject_ItemsSuppliersList) {
 				$this -> processSupplier($oPlentySoapObject_ItemsSuppliersList);
 			}
 		} else {
 
-			$this -> getLogger() -> debug(__FUNCTION__ . " fetched supplier record from ItemID: {$oPlentySoapResponse_GetItemsSuppliers -> ItemsSuppliersList -> item -> ItemID}");
+			$this -> getLogger() -> debug(__FUNCTION__ . " fetched supplier record for ItemID: {$oPlentySoapResponse_GetItemsSuppliers -> ItemsSuppliersList -> item -> ItemID}");
 
 			$this -> processSupplier($oPlentySoapResponse_GetItemsSuppliers -> ItemsSuppliersList -> item);
 		}
