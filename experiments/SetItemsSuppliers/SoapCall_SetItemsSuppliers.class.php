@@ -89,7 +89,6 @@ class SoapCall_SetItemsSuppliers extends PlentySoapCall {
 
 				// ... otherwise log error and try next request
 				$this -> getLogger() -> debug(__FUNCTION__ . ' Request Error');
-				print_r($response);
 			}
 			$this -> getLogger() -> debug(__FUNCTION__ . ' ... done');
 		} catch(Exception $e) {
