@@ -33,6 +33,7 @@ class SoapCall_SetItemsSuppliers extends PlentySoapCall {
 	 * @return void
 	 */
 	public function execute() {
+		$this -> getLogger() -> debug(__FUNCTION__ . ' writing items suppliers data ...');
 		try {
 			// get all values for articles with write permission
 			$oDBResult = DBQuery::getInstance() -> select($this -> getWriteBackQuery());
@@ -90,6 +91,7 @@ class SoapCall_SetItemsSuppliers extends PlentySoapCall {
 				$this -> getLogger() -> debug(__FUNCTION__ . ' Request Error');
 				print_r($response);
 			}
+			$this -> getLogger() -> debug(__FUNCTION__ . ' ... done');
 		} catch(Exception $e) {
 			$this -> onExceptionAction($e);
 		}

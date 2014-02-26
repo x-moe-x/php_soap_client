@@ -21,7 +21,10 @@ if (Config::get('CalculationActive') === 1) {
 
 	// determine write permissions
 	NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'DetermineWritePermissions', 'DetermineWritePermissions'));
+
+	// write back items suppliers data
+	NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'SetItemsSuppliers'));
 } else {
-    Logger::instance('simpleExecutionScript')->debug('Calculation is inactive, skipping...');
+	Logger::instance('simpleExecutionScript') -> debug('Calculation is inactive, skipping...');
 }
 ?>
