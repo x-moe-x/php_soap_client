@@ -11,6 +11,7 @@ if (Config::get('CalculationActive') === 1) {
 	// update article db
 	NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'GetItemsBase'));
 	NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'GetItemsWarehouseSettings'));
+	NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'GetItemsSuppliers'));
 
 	// calculate daily need
 	NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'CalculateHistogram', 'CalculateHistogram'));

@@ -1,6 +1,5 @@
 <?php
 require_once realpath(dirname(__FILE__) . '/../') . '/config/basic.inc.php';
-require_once ROOT . 'includes/DuplicatesMapping.php';
 
 $page = isset($_POST['page']) ? $_POST['page'] : 1;
 $rp = isset($_POST['rp']) ? $_POST['rp'] : 10;
