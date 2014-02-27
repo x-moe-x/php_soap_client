@@ -19,5 +19,57 @@ class DBUtils2 {
 		return substr($out, 0, -1) . ' ';
 	}
 
+	/**
+	 * $arr = array(	1=> array('id=>1', 'name'=>'Daniel'),
+	 * 					2=> array('id=>2', 'name'=>'Sarah')
+	 * 				)
+	 *
+	 * will be transformed to
+	 *
+	 *  (id, name) VALUES
+	 *		  	("1", "Daniel"),
+	 *	  		("2", "Sarah") ON DUPLICATE KEYS UPDATE `id`=VALUES(`id`),`name`=VALUES(`name`),
+	 *
+	 *
+	 *
+	 * >> "INSERT INTO tablename" not included
+	 */
+	public static function buildMultipleInsertOnDuplikateKeyUpdate(array $array, $aUnquoteKeys = array()) {
+
+		$strRet = ' VALUES' . chr(10);
+		$strUpdate = ' ON DUPLICATE KEY UPDATE ';
+		$iCounter = 0;
+
+		$aKeys = null;
+
+		if ($array) {
+			foreach ($array as $iKey => $aValue) {
+				$iCounter++;
+				$f = $v = '';
+
+				if (!isset($aKeys)){
+					$aKeys = array_keys($aValue);
+					$strUpdate .= DBUtils2::buildOnDuplicateKeyUpdateAll($aValue);
+				}
+
+				foreach ($aKeys as $key) {
+					$f .= '`' . DBUtils::quoteSmart($key) . '`,';
+					if (in_array($key, $aUnquoteKeys) || strtoupper($aValue[$key]) == 'NULL' || strtoupper($aValue[$key]) == 'NOW()') {
+						$v .= $aValue[$key] . ',';
+					} elseif (!isset($aValue[$key])) {
+						$v .= 'NULL,';
+					} else {
+						$v .= '"' . DBUtils::quoteSmart($aValue[$key]) . '",';
+					}
+				}
+
+				$strRet .= ' (' . substr($v, 0, -1) . ')' . ($iCounter != sizeof($array) ? ', ' : '') . chr(10);
+
+			}
+
+		}
+		return ' (' . substr($f, 0, -1) . ') ' . $strRet . $strUpdate;
+	}
+
 }
 ?>
