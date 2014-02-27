@@ -16,11 +16,14 @@ class SoapCall_SetItemsWarehouseSettings extends PlentySoapCall {
 	 * @return void
 	 */
 	public function execute() {
+		$this -> getLogger() -> debug(__FUNCTION__ . ' writing items warehouse settings ...');
 		try {
-			
+
+			$this -> getLogger() -> debug(__FUNCTION__ . ' ... done');
 		} catch(Exception $e) {
 			$this -> onExceptionAction($e);
 		}
 	}
+
 }
 ?>
