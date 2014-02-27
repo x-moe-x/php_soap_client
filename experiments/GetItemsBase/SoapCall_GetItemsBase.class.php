@@ -27,7 +27,7 @@ class SoapCall_GetItemsBase extends PlentySoapCall {
 	private $oPlentySoapRequest_GetItemsBase = null;
 
 	/**
-	 * @var string /// db-function name to store corresponding last update timestamps
+	 * @var string db-function name to store corresponding last update timestamps
 	 */
 	private $functionName = 'GetItemsBase';
 
@@ -39,6 +39,8 @@ class SoapCall_GetItemsBase extends PlentySoapCall {
 		$this -> getLogger() -> debug(__FUNCTION__);
 
 		list($lastUpdate, $currentTime, $this -> startAtPage) = lastUpdateStart($this -> functionName);
+		/* @var $currentTime int */
+		/* @var $lastUpdate int */
 
 		if ($this -> pages == -1) {
 			try {
