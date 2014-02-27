@@ -108,29 +108,6 @@ class SoapCall_GetItemsBase extends PlentySoapCall {
 		$this -> getLogger() -> debug(__FUNCTION__ . ' : done');
 	}
 
-	/**
-	 * @param int $oItemID
-	 * @param PlentySoapObject_ItemSupplier $oItemSupplier
-	 */
-	private function processItemSupplierRecord($oItemID, $oItemSupplier) {
-		// $this -> getLogger() -> info(__FUNCTION__ . ' : ' . ' ItemSupplier : ' . $oItemSupplier -> SupplierID);
-
-		// store supplier record to DB
-		$query = 'INSERT INTO `ItemSuppliers` ' .
-		// @formatter:off
-			DBUtils::buildInsert(
-				array(
-				    'ItemID'                    => $oItemID,
-				    'SupplierID'                => $oItemSupplier->SupplierID,
-					'ItemSupplierPrice'			=> $oItemSupplier->SupplierItemPrice,
-					'LastUpdate'				=> $oItemSupplier->LastUpdate
-				)
-			) . 'ON DUPLICATE KEY UPDATE ItemSupplierPrice=VALUES(ItemSupplierPrice),LastUpdate=VALUES(LastUpdate);';
-			// @formatter:on
-
-		DBQuery::getInstance() -> insert($query);
-	}
-
 	private function processAttributeValueSet($oItemID, $oAttributeValueSet) {
 		$this -> getLogger() -> info(__FUNCTION__ . ' : ' . ' AttributeValueSetID : ' . $oAttributeValueSet -> AttributeValueSetID . ',' . ' AttributeValueSetName : ' . $oAttributeValueSet -> AttributeValueSetName);
 
@@ -263,18 +240,6 @@ class SoapCall_GetItemsBase extends PlentySoapCall {
 				}
 			} else {
 				$this -> processAttributeValueSet($oItemsBase -> ItemID, $oItemsBase -> AttributeValueSets -> item);
-			}
-		}
-
-		// process ItemSuppliers
-
-		if (isset($oItemsBase -> ItemSuppliers)) {
-			if (is_array($oItemsBase -> ItemSuppliers -> item)) {
-				foreach ($oItemsBase -> ItemSuppliers -> item as $itemSupplierRecord) {
-					$this -> processItemSupplierRecord($oItemsBase -> ItemID, $itemSupplierRecord);
-				}
-			} else {
-				$this -> processItemSupplierRecord($oItemsBase -> ItemID, $oItemsBase -> ItemSuppliers -> item);
 			}
 		}
 	}
