@@ -99,17 +99,33 @@ class SoapCall_SetItemsSuppliers extends PlentySoapCall {
 	 */
 	private function getWriteBackQuery() {
 		return 'SELECT
-	ItemSuppliers.*
+	ItemSuppliers.ItemID,
+	ItemSuppliers.SupplierID,
+	ItemSuppliers.ItemSupplierRowID,
+	ItemSuppliers.IsRebateAllowed,
+	ItemSuppliers.ItemSupplierPrice,
+	ItemSuppliers.LastUpdate,
+	ItemSuppliers.Priority,
+	ItemSuppliers.Rebate,
+	ItemSuppliers.SupplierDeliveryTime,
+	ItemSuppliers.SupplierItemNumber,
+	/* ItemSuppliers.SupplierMinimumPurchase, skipped, use suggestion instead */
+	ItemSuppliers.VPE,
+	WriteBackSuggestion.SupplierMinimumPurchase
 FROM
 	`ItemSuppliers`
 LEFT JOIN
 	`WritePermissions`
 ON
-	ItemSuppliers.ItemID = WritePermissions.ItemID
+	ItemSuppliers.ItemID = WritePermissions.ItemID AND WritePermissions.AttributeValueSetID = 0
+LEFT JOIN
+	`WriteBackSuggestion`
+ON
+	ItemSuppliers.ItemID = WriteBackSuggestion.ItemID AND WriteBackSuggestion.AttributeValueSetID = 0
 WHERE
-	WritePermissions.AttributeValueSetID = 0
+	WritePermissions.WritePermission = 1
 AND
-	WritePermissions.WritePermission = 1' . PHP_EOL;
+	WritePermissions.AttributeValueSetID = 0' . PHP_EOL;
 	}
 
 }
