@@ -13,7 +13,7 @@ class SoapCall_SetItemsSuppliers extends PlentySoapCall {
 	/**
 	 * @var array TODO remove after debuggun
 	 */
-	private $aDuplicateMappings = array(416 => 2048, 201 => 2049, 1 => 2050, 298 => 2051);
+	private $aDuplicateMappings = array(416 => 2048, 201 => 2049, 1 => 2050, 298 => 2051, 1919 =>2047);
 
 	/**
 	 * @var array
