@@ -1,5 +1,7 @@
 <?php
 
+require_once ROOT . 'includes/FillObjectFromArray.php';
+
 class Request_SetItemsSuppliers {
 
 	/**
@@ -43,10 +45,7 @@ class Request_SetItemsSuppliers {
 		foreach ($this -> aItemsSuppliers as &$aItemsSupplier) {/* @var $aItemsSupplier array */
 			$oPlentySoapObject_ItemsSuppliers = new PlentySoapObject_ItemsSuppliers();
 
-			$aObjectVars = get_object_vars($oPlentySoapObject_ItemsSuppliers);
-			foreach ($aObjectVars as $var => $oldValue) {
-				$oPlentySoapObject_ItemsSuppliers->$var = isset($aItemsSupplier[$var]) ? $aItemsSupplier[$var] : NULL; 
-			}
+			fillObjectFromArray($oPlentySoapObject_ItemsSuppliers, $aItemsSupplier);
 
 			$oPlentySoapRequest_SetItemsSuppliers -> ItemsSuppliers -> item[] = $oPlentySoapObject_ItemsSuppliers;
 		}
