@@ -1,5 +1,8 @@
 <?php
 
+require_once ROOT . 'includes/FillObjectFromArray.php';
+require_once ROOT . 'includes/SKUHelper.php';
+
 class Request_SetItemsWarehouseSettings {
 
 	/**
@@ -46,7 +49,7 @@ class Request_SetItemsWarehouseSettings {
 		foreach ($this->aItemsWarehouseSettings as $aItemsWarehouseSetting) {
 			$oPlentySoapObject_SetItemsWarehouseSettings = new PlentySoapObject_SetItemsWarehouseSettings();
 
-			fillObjectFromArray($oPlentySoapObject_SetItemsWarehouseSettings, $aItemsWarehouseSetting, array('WarehouseID' => $warehouse));
+			fillObjectFromArray($oPlentySoapObject_SetItemsWarehouseSettings, $aItemsWarehouseSetting, array('WarehouseID' => $warehouse, 'SKU' => Values2SKU($aItemsWarehouseSetting['ItemID'], $aItemsWarehouseSetting['AttributeValueSetID'])));
 			
 			$oPlentySoapRequest_SetItemsWarehouseSettings -> ItemsList -> item[] = $oPlentySoapObject_SetItemsWarehouseSettings;
 

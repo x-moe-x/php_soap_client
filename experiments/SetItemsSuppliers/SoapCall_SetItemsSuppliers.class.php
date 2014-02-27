@@ -83,8 +83,6 @@ class SoapCall_SetItemsSuppliers extends PlentySoapCall {
 			// ... if successful ...
 			if ($response -> Success == true) {
 				$this -> getLogger() -> debug(__FUNCTION__ . ' Request Success');
-
-				print_r($response);
 			} else {
 
 				// ... otherwise log error and try next request
