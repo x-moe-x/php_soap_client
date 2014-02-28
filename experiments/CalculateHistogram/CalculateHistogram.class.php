@@ -38,7 +38,6 @@ class CalculateHistogram {
 	}
 
 	public function execute() {
-		$this -> getLogger() -> debug(__FUNCTION__ . ' : CalculateHistogram');
 
 		$this -> init();
 
@@ -62,8 +61,6 @@ class CalculateHistogram {
 		}
 
 		$this -> storeToDB($articleData);
-
-		$this -> getLogger() -> debug(__FUNCTION__ . ' : ... done');
 	}
 
 	private function storeToDB($articleData) {

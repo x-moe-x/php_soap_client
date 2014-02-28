@@ -20,7 +20,7 @@ class CalculateWriteBackData {
 	}
 
 	public function execute() {
-		$this -> getLogger() -> debug(__FUNCTION__ . ' : Calculating write back data ...');
+		$this -> getLogger() -> debug(__FUNCTION__ . ' : Calculating write back data');
 		$dbResult = DBQuery::getInstance() -> select($this -> getQuery());
 
 		$data = array();
@@ -61,8 +61,6 @@ class CalculateWriteBackData {
 		}
 		$query = 'REPLACE INTO WriteBackSuggestion (ItemID,AttributeValueSetID,Valid,ReorderLevel,SupplierMinimumPurchase,MaximumStock,ReorderLevelError,SupplierMinimumPurchaseError) VALUES' . implode(',', $data);
 		DBQuery::getInstance() -> replace($query);
-
-		$this -> getLogger() -> debug(__FUNCTION__ . ' : ... done');
 	}
 
 	/**

@@ -51,9 +51,8 @@ class SoapCall_GetItemsWarehouseSettings extends PlentySoapCall {
 				// ... then do soap call ...
 				$oPlentySoapResponse_GetItemsWarehouseSettings = $this -> getPlentySoap() -> GetItemsWarehouseSettings($oRequest_GetItemsWarehouseSettings -> getRequest($this -> warehouseID));
 
-				// ... if successful ...
+				// ... if successfull ...
 				if (($oPlentySoapResponse_GetItemsWarehouseSettings -> Success == true)) {
-					$this -> getLogger() -> debug(__FUNCTION__ . ' Request Success');
 
 					// ... then process response
 					$this -> responseInterpretation($oPlentySoapResponse_GetItemsWarehouseSettings);
@@ -138,7 +137,6 @@ ON
 		} else {
 			$this -> getLogger() -> debug(__FUNCTION__ . ' fetched no warehouse setting records for current request');
 		}
-		$this -> getLogger() -> debug(__FUNCTION__ . ' done.');
 	}
 
 }

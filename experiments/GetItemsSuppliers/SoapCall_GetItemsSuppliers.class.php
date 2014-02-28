@@ -44,9 +44,8 @@ class SoapCall_GetItemsSuppliers extends PlentySoapCall {
 				// ... then do soap call ...
 				$response = $this -> getPlentySoap() -> GetItemsSuppliers($oRequest_GetItemsSuppliers -> getRequest());
 
-				// ... if successful ...
+				// ... if successfull ...
 				if ($response -> Success == true) {
-					$this -> getLogger() -> debug(__FUNCTION__ . ' Request Success');
 
 					// ... then process response
 					$this -> responseInterpretation($response);

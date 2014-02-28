@@ -61,7 +61,7 @@ class DetermineWritePermissions {
 	}
 
 	public function execute() {
-		$this -> getLogger() -> debug(__FUNCTION__ . ' : Determine write permissions ...');
+		$this -> getLogger() -> debug(__FUNCTION__ . ' : Determine write permissions');
 		$dbResult = DBQuery::getInstance() -> select($this -> getQuery());
 
 		// prepare result array
@@ -95,8 +95,6 @@ class DetermineWritePermissions {
 
 		$query = 'REPLACE INTO `WritePermissions` (ItemID,AttributeValueSetID,WritePermission,Error) VALUES' . implode(',', $result);
 		DBQuery::getInstance() -> replace($query);
-
-		$this -> getLogger() -> debug(__FUNCTION__ . ' : ... done');
 	}
 
 	/**

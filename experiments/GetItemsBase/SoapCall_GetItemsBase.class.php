@@ -50,8 +50,6 @@ class SoapCall_GetItemsBase extends PlentySoapCall {
 	}
 
 	public function execute() {
-		$this -> getLogger() -> debug(__FUNCTION__);
-
 		//list($lastUpdate, $currentTime, $this -> startAtPage) = lastUpdateStart($this -> functionName);
 
 		$lastUpdate = 0;
@@ -132,13 +130,13 @@ class SoapCall_GetItemsBase extends PlentySoapCall {
 		$countAttributeValueSets = count($this -> aProcessedAttributeValueSets);
 
 		if ($countItemsBases > 0) {
-			$this -> getLogger() -> debug(__FUNCTION__ . " : storing $countItemsBases items base records ...");
+			$this -> getLogger() -> info(__FUNCTION__ . " : storing $countItemsBases items base records ...");
 
 			DBQuery::getInstance() -> insert('INSERT INTO `ItemsBase`' . DBUtils2::buildMultipleInsertOnDuplikateKeyUpdate($this -> aProcessedItemsBases));
 		}
 
 		if ($countAttributeValueSets > 0) {
-			$this -> getLogger() -> debug(__FUNCTION__ . " : storing $countAttributeValueSets attribute value set records ...");
+			$this -> getLogger() -> info(__FUNCTION__ . " : storing $countAttributeValueSets attribute value set records ...");
 
 			DBQuery::getInstance() -> delete('DELETE FROM `AttributeValueSets` WHERE `ItemID` IN (\'' . implode('\',\'', array_keys($this -> aProcessedItemsBases)) . '\')');
 			DBQuery::getInstance() -> insert('INSERT INTO `AttributeValueSets`'.DBUtils2::buildMultipleInsertOnDuplikateKeyUpdate($this -> aProcessedAttributeValueSets));
