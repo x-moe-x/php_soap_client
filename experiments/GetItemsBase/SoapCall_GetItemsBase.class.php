@@ -37,11 +37,6 @@ class SoapCall_GetItemsBase extends PlentySoapCall {
 	 */
 	private $aProcessedAttributeValueSets;
 
-	/**
-	 * @var array
-	 */
-	private $aAVSMarkedForDeletion;
-
 	public function __construct() {
 		parent::__construct(__CLASS__);
 		$this -> aProcessedItemsBases = array();
@@ -50,11 +45,8 @@ class SoapCall_GetItemsBase extends PlentySoapCall {
 	}
 
 	public function execute() {
-		//list($lastUpdate, $currentTime, $this -> startAtPage) = lastUpdateStart($this -> functionName);
 
-		$lastUpdate = 0;
-		$currentTime = time();
-		$this -> startAtPage = 0;
+		list($lastUpdate, $currentTime, $this -> startAtPage) = lastUpdateStart(__CLASS__);
 
 		if ($this -> pages == -1) {
 			try {
@@ -105,7 +97,7 @@ class SoapCall_GetItemsBase extends PlentySoapCall {
 		}
 
 		$this -> storeToDB();
-		lastUpdateFinish($currentTime, $this -> functionName);
+		lastUpdateFinish($currentTime, __CLASS__);
 	}
 
 	/**
