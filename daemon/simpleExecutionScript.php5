@@ -16,6 +16,9 @@ if (Config::get('CalculationActive') === 1) {
 	// calculate daily need
 	NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'CalculateHistogram', 'CalculateHistogram'));
 
+	// calculate write back data
+	NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'CalculateWriteBackData', 'CalculateWriteBackData'));
+
 	// determine write permissions
 	NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'DetermineWritePermissions', 'DetermineWritePermissions'));
 } else {
