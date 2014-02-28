@@ -43,7 +43,7 @@ class SoapCall_GetItemsWarehouseSettings extends PlentySoapCall {
 			for ($page = 0, $maxPages = ceil($oDBResult -> getNumRows() / self::$MAX_SKU_PER_PAGE); $page < $maxPages; $page++) {/** @var int $page  */
 
 				// ... prepare a seperate request
-				$oRequest_GetItemsWarehouseSettings = new Request_GetItemsWarehouseSettings($Warehouse);
+				$oRequest_GetItemsWarehouseSettings = new Request_GetItemsWarehouseSettings($this->warehouseID);
 				while (!$oRequest_GetItemsWarehouseSettings -> isFull() && $current = $oDBResult -> fetchAssoc()) {
 					$oRequest_GetItemsWarehouseSettings -> addSKU($current['SKU']);
 				}

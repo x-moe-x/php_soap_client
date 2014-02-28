@@ -31,7 +31,7 @@ class Request_GetItemsWarehouseSettings {
 	}
 
 	/**
-	 * @param int $
+	 * @param int $warehouse
 	 * @return PlentySoapRequest_GetItemsWarehouseSettings
 	 */
 	public function getRequest($warehouse) {
