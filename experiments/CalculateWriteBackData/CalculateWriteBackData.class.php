@@ -3,6 +3,7 @@
 require_once ROOT . 'lib/db/DBQuery.class.php';
 require_once ROOT . 'lib/db/DBQueryResult.class.php';
 require_once ROOT . 'includes/SKUHelper.php';
+require_once ROOT . 'includes/DBUtils2.class.php';
 
 /**
  * @author x-moe-x
@@ -15,57 +16,89 @@ class CalculateWriteBackData {
 	 */
 	private $identifier4Logger = '';
 
+	/**
+	 * @var array
+	 */
+	private $aArticleData;
+
+	/**
+	 * @return CalculateWriteBackData
+	 */
 	public function __construct() {
 		$this -> identifier4Logger = __CLASS__;
-	}
-
-	public function execute() {
-		$this -> getLogger() -> debug(__FUNCTION__ . ' : Calculating write back data');
-		$dbResult = DBQuery::getInstance() -> select($this -> getQuery());
-
-		$data = array();
-		while ($row = $dbResult -> fetchAssoc()) {
-			$dailyNeed = floatval($row['DailyNeed']);
-			$supplierDeliveryTime = intval($row['SupplierDeliveryTime']);
-			$stockTurnover = intval($row['StockTurnover']);
-			$reorderLevel = round($supplierDeliveryTime * $dailyNeed);
-			$vpe = intval($row['VPE']);
-			$vpe = $vpe == 0 ? 1 : $vpe;
-			$supplierMinimumPurchase = ceil($stockTurnover * $dailyNeed);
-			$supplierMinimumPurchase = ($supplierMinimumPurchase % $vpe == 0) && ($supplierMinimumPurchase != 0) ? $supplierMinimumPurchase : $supplierMinimumPurchase + $vpe - $supplierMinimumPurchase % $vpe;
-			$current = array();
-
-			$current['ItemID'] = $row['ItemID'];
-			$current['AttributeValueSetID'] = $row['AttributeValueSetID'];
-			$current['Valid'] = 1;
-
-			if ($supplierDeliveryTime !== 0) {
-				$current['ReorderLevel'] = $reorderLevel;
-				$current['ReorderLevelError'] = 'NULL';
-			} else {
-				$current['Valid'] = 0;
-				$current['ReorderLevel'] = 'NULL';
-				$current['ReorderLevelError'] = 'liefer';
-			}
-			if ($stockTurnover !== 0) {
-				$current['SupplierMinimumPurchase'] = $supplierMinimumPurchase;
-				$current['MaximumStock'] = 2 * $supplierMinimumPurchase;
-				$current['SupplierMinimumPurchaseError'] = 'NULL';
-			} else {
-				$current['Valid'] = 0;
-				$current['SupplierMinimumPurchase'] = 'NULL';
-				$current['MaximumStock'] = 'NULL';
-				$current['SupplierMinimumPurchaseError'] = 'lager';
-			}
-			$data[] = "('{$current['ItemID']}','{$current['AttributeValueSetID']}','{$current['Valid']}','{$current['ReorderLevel']}','{$current['SupplierMinimumPurchase']}','{$current['MaximumStock']}','{$current['ReorderLevelError']}','{$current['SupplierMinimumPurchaseError']}')";
-		}
-		$query = 'REPLACE INTO WriteBackSuggestion (ItemID,AttributeValueSetID,Valid,ReorderLevel,SupplierMinimumPurchase,MaximumStock,ReorderLevelError,SupplierMinimumPurchaseError) VALUES' . implode(',', $data);
-		DBQuery::getInstance() -> replace($query);
+		$this -> aArticleData = array();
 	}
 
 	/**
+	 * calculate reorder level, minimum purchase and maximum stock suggestions for every article variant
 	 *
-	 * @return query for data necessary for calculation
+	 * @return void
+	 */
+	public function execute() {
+		$this -> getLogger() -> debug(__FUNCTION__ . ' : Calculating write back data');
+
+		$dbResult = DBQuery::getInstance() -> select($this -> getQuery());
+
+		// for every item variant ...
+		while ($aCurrentArticleVariant = $dbResult -> fetchAssoc()) {
+			$dailyNeed = floatval($aCurrentArticleVariant['DailyNeed']);
+			$supplierDeliveryTime = intval($aCurrentArticleVariant['SupplierDeliveryTime']);
+			$stockTurnover = intval($aCurrentArticleVariant['StockTurnover']);
+			$vpe = intval($aCurrentArticleVariant['VPE']);
+			$vpe = $vpe == 0 ? 1 : $vpe;
+			$supplierMinimumPurchase = ceil($stockTurnover * $dailyNeed);
+			$supplierMinimumPurchase = ($supplierMinimumPurchase % $vpe == 0) && ($supplierMinimumPurchase != 0) ? $supplierMinimumPurchase : $supplierMinimumPurchase + $vpe - $supplierMinimumPurchase % $vpe;
+
+			$aResult = array('ItemID' => $aCurrentArticleVariant['ItemID'], 'AttributeValueSetID' => $aCurrentArticleVariant['AttributeValueSetID'], 'Valid' => 1);
+
+			// if supplier delivery time given ...
+			if ($supplierDeliveryTime !== 0) {
+				// ... then calculate reorder level suggestion
+
+				$aResult['ReorderLevel'] = round($supplierDeliveryTime * $dailyNeed);
+				$aResult['ReorderLevelError'] = 'NULL';
+			} else {
+				// ... otherwise invalidate record
+
+				$aResult['Valid'] = 0;
+				$aResult['ReorderLevel'] = 'NULL';
+				$aResult['ReorderLevelError'] = 'liefer';
+			}
+
+			// if stock turnover given ...
+			if ($stockTurnover !== 0) {
+				// ... then calculate supplier minimum purchase and maximum stock
+
+				$aResult['SupplierMinimumPurchase'] = $supplierMinimumPurchase;
+				$aResult['MaximumStock'] = 2 * $supplierMinimumPurchase;
+				$aResult['SupplierMinimumPurchaseError'] = 'NULL';
+			} else {
+				// ... otherwise invalidate record
+
+				$aResult['Valid'] = 0;
+				$aResult['SupplierMinimumPurchase'] = 'NULL';
+				$aResult['MaximumStock'] = 'NULL';
+				$aResult['SupplierMinimumPurchaseError'] = 'lager';
+			}
+			$this -> aArticleData[] = $aResult;
+		}
+
+		$this->storeToDB();
+	}
+
+	/**
+	 * stores article data to db
+	 *
+	 * @return void
+	 */
+	private function storeToDB(){
+		DBQuery::getInstance() -> insert('INSERT INTO `WriteBackSuggestion`' . DBUtils2::buildMultipleInsertOnDuplikateKeyUpdate($this -> aArticleData));
+	}
+
+	/**
+	 * prepare query for data necessary for calculation
+	 *
+	 * @return string query
 	 */
 	private function getQuery() {
 		return 'SELECT
