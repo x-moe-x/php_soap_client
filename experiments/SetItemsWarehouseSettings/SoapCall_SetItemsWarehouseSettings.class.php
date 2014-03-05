@@ -54,23 +54,13 @@ class SoapCall_SetItemsWarehouseSettings extends PlentySoapCall {
 					$itemID = intval($current['ItemID']);
 					if (array_key_exists($itemID, $this -> aDuplicateMappings)) {
 
-						// prevent existing records from being overwritten
-						$current['ItemID'] = NULL;
+						// mask real article with duplicate
+						$current['ItemID'] = $this->aDuplicateMappings[$itemID];
 
-						// set incomplete data in the first place
 						$this -> aMappedItemWarehouseSettings[$itemID] = $current;
 					}
 				}
 
-				$oDBResult2 = DBQuery::getInstance() -> select('SELECT * FROM `ItemsWarehouseSettings` WHERE ItemID IN (\'' . implode('\',\'', $this -> aDuplicateMappings) . '\')');
-				$aFlippedMappings = array_flip($this -> aDuplicateMappings);
-				while ($current = $oDBResult2 -> fetchAssoc()) {
-					$itemID = intval($current['ItemID']);
-
-					if (array_key_exists($itemID, $aFlippedMappings) && array_key_exists($aFlippedMappings[$itemID], $this -> aMappedItemWarehouseSettings)) {
-						$this -> aMappedItemWarehouseSettings[$aFlippedMappings[$itemID]]['ItemID'] = $current['ItemID'];
-					}
-				}
 				foreach ($this->aMappedItemWarehouseSettings as $aItemWarehouseSetting){
 					$oRequest_SetItemsWarehouseSettings -> addItemsWarehouseSetting($aItemWarehouseSetting);
 				}
@@ -129,5 +119,5 @@ AND
 	WritePermissions.AttributeValueSetID = 0' . PHP_EOL;
 	}
 
-}x
+}
 ?>
