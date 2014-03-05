@@ -8,7 +8,7 @@ class Request_SearchOrders {
 		$oPlentySoapRequest_SearchOrders = new PlentySoapRequest_SearchOrders();
 
 		// @formatter:off
-		array(
+		fillObjectFromArray($oPlentySoapRequest_SearchOrders, array(
 			'Page' =>						$page,
 			'LastUpdateFrom' =>				$lastUpdate,
 			'LastUpdateTill' =>				$currentTime,
@@ -31,7 +31,7 @@ class Request_SearchOrders {
 			'OrderPaidTill' =>				null,
 			'ReferrerID' =>					null,
 			'OrderStatus' =>				null
-		);
+		));
 		// @formatter:on
 
 		return $oPlentySoapRequest_SearchOrders;

@@ -79,7 +79,7 @@ class SoapCall_GetItemsBase extends PlentySoapCall {
 						$this -> page = $this -> startAtPage + 1;
 						$this -> pages = $pagesFound;
 
-						lastUpdatePageUpdate($this -> functionName, $this -> page);
+						lastUpdatePageUpdate(__CLASS__, $this -> page);
 						$this -> executePages();
 
 					}

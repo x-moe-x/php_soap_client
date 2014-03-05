@@ -104,7 +104,7 @@ class SoapCall_SearchOrders extends PlentySoapCall {
 						$this -> page = $this -> startAtPage + 1;
 						$this -> pages = $pagesFound;
 
-						lastUpdatePageUpdate($this -> functionName, $this -> page);
+						lastUpdatePageUpdate(__CLASS__, $this -> page);
 						$this -> executePages();
 					}
 
@@ -174,7 +174,7 @@ class SoapCall_SearchOrders extends PlentySoapCall {
 				}
 
 				$this -> page++;
-				lastUpdatePageUpdate($this -> functionName, $this -> page);
+				lastUpdatePageUpdate(__CLASS__, $this -> page);
 
 			} catch(Exception $e) {
 				$this -> onExceptionAction($e);
