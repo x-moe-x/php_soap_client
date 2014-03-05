@@ -3,6 +3,7 @@
 require_once ROOT . 'lib/db/DBQuery.class.php';
 require_once ROOT . 'lib/db/DBQueryResult.class.php';
 require_once ROOT . 'includes/SKUHelper.php';
+require_once ROOT . 'includes/DBUtils2.class.php';
 
 /**
  * @author x-moe-x
@@ -15,10 +16,74 @@ class DetermineWritePermissions {
 	 */
 	private $identifier4Logger = '';
 
+	/**
+	 * @var array
+	 */
+	private $aArticleData;
+
+	/**
+	 * @return DetermineWritePermissions
+	 */
 	public function __construct() {
 		$this -> identifier4Logger = __CLASS__;
+		$this -> aArticleData = array();
 	}
-	
+
+	/**
+	 * calculate write permissions for every article variant
+	 *
+	 * @return void
+	 */
+	public function execute() {
+		$this -> getLogger() -> debug(__FUNCTION__ . ' : Determine write permissions');
+
+		$dbResult = DBQuery::getInstance() -> select($this -> getQuery());
+
+		// for every item variant ...
+		while ($aCurrentArticleVariant = $dbResult -> fetchAssoc()) {
+			// ... store ItemID, AVSID, Marking1ID and corresponding WritePermission
+			$aResult = array('ItemID' => $aCurrentArticleVariant['ItemID'], 'AttributeValueSetID' => $aCurrentArticleVariant['AttributeValueSetID']);
+
+			// if item variant has green marking or yellow marking with positive reorder level ...
+			if ((intval($aCurrentArticleVariant['Marking1ID']) == 16) || (intval($aCurrentArticleVariant['Marking1ID']) == 9) && (intval($aCurrentArticleVariant['ReorderLevel']) > 0)) {
+				// ... then it has write permission
+				$aResult['WritePermission'] = 1;
+			} else {
+				// ... otherwise not
+				$aResult['WritePermission'] = 0;
+			}
+
+			// if write permission given, but there's an error ... (like no supplier delivery time, no stock turnover or it's an article variant)
+			if ((intval($aResult['WritePermission']) == 1) && ((intval($aCurrentArticleVariant['SupplierDeliveryTime']) <= 0) || (intval($aCurrentArticleVariant['StockTurnover']) <= 0)) || (intval($aCurrentArticleVariant['AttributeValueSetID']) !== 0)) {
+				// ... then revoke write permission and set error
+				$aResult['WritePermission'] = 0;
+				$aResult['Error'] = 1;
+			} else {
+				// ... otherwise everything's ok
+				$aResult['Error'] = 0;
+			}
+
+			$this -> aArticleData[] = $aResult;
+		}
+
+		$this -> storeToDB();
+	}
+
+	/**
+	 * stores article data to db
+	 *
+	 * @return void
+	 */
+	private function storeToDB() {
+		DBQuery::getInstance() -> insert('INSERT INTO `WritePermissions`' . DBUtils2::buildMultipleInsertOnDuplikateKeyUpdate($this -> aArticleData));
+	}
+
+	/**
+	 *
+	 * prepare query for data necessary for calculation
+	 *
+	 * @return string query
+	 */
 	private function getQuery() {
 		return '
 			SELECT
@@ -58,43 +123,6 @@ class DetermineWritePermissions {
 					AttributeValueSets.AttributeValueSetID
                 END = ItemsWarehouseSettings.AttributeValueSetID
 			';
-	}
-
-	public function execute() {
-		$this -> getLogger() -> debug(__FUNCTION__ . ' : Determine write permissions');
-		$dbResult = DBQuery::getInstance() -> select($this -> getQuery());
-
-		// prepare result array
-		$result = array();
-
-		// for every item variant ...
-		while ($row = $dbResult -> fetchAssoc()) {
-			// ... store ItemID, AVSID, Marking1ID and corresponding WritePermission
-			$current = array();
-			$current['ItemID'] = $row['ItemID'];
-			$current['AttributeValueSetID'] = $row['AttributeValueSetID'];
-			if (intval($row['Marking1ID']) == 16) {// green
-				$current['WritePermission'] = 1;
-			} else if ((intval($row['Marking1ID']) == 9) && (intval($row['ReorderLevel']) > 0)) {// yellow and positive reorder level
-				$current['WritePermission'] = 1;
-			} else {
-				$current['WritePermission'] = 0;
-			}
-
-			// write permission given, but error ... (like no supplier delivery time, no stock turnover, article variant)
-			if ((intval($current['WritePermission']) == 1) && ((intval($row['SupplierDeliveryTime']) <= 0) || (intval($row['StockTurnover']) <= 0)) || (intval($row['AttributeValueSetID']) !== 0)) {
-				// ... then unset write permission and set error
-				$current['WritePermission'] = 0;
-				$current['Error'] = 1;
-			} else {
-				$current['Error'] = 0;
-			}
-
-			$result[] = "('{$current['ItemID']}','{$current['AttributeValueSetID']}','{$current['WritePermission']}','{$current['Error']}')";
-		}
-
-		$query = 'REPLACE INTO `WritePermissions` (ItemID,AttributeValueSetID,WritePermission,Error) VALUES' . implode(',', $result);
-		DBQuery::getInstance() -> replace($query);
 	}
 
 	/**
