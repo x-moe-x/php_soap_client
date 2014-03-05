@@ -119,9 +119,9 @@ class CalculateHistogram {
 					'LastUpdate' =>				$this -> currentTime,
 					'QuantitiesA' =>			$aCurrentArticle['quantities'],
 					'SkippedA' =>				$skippedIndex,
-					'QuantitiesB' =>			0,
-					'SkippedB' => 				0
-				);
+					'QuantitiesB' =>			'0',
+					'SkippedB' => 				'0'
+			);
 			// @formatter:on
 		} else {
 			// add data for calculation time B
@@ -136,15 +136,16 @@ class CalculateHistogram {
 				// ... otherwise create new one
 
 				// @formatter:off
-				array(
-					'ItemID' =>					$ItemID,
-					'AttributeValueSetID' =>	$AttributeValueSetID,
-					'DailyNeed' =>				($adjustedQuantity / $this -> aConfig['CalculationTimeB']['Value']) / 2,
-					'LastUpdate' =>				$this -> currentTime,
-					'QuantitiesA' =>			0,
-					'SkippedA' =>				0,
-					'QuantitiesB' =>			$aCurrentArticle['quantities'],
-					'SkippedB' =>				$skippedIndex
+				$this->aArticleData[$aCurrentArticle['SKU']] =
+					array(
+						'ItemID' =>					$ItemID,
+						'AttributeValueSetID' =>	$AttributeValueSetID,
+						'DailyNeed' =>				($adjustedQuantity / $this -> aConfig['CalculationTimeB']['Value']) / 2,
+						'LastUpdate' =>				$this -> currentTime,
+						'QuantitiesA' =>			'0',
+						'SkippedA' =>				'0',
+						'QuantitiesB' =>			$aCurrentArticle['quantities'],
+						'SkippedB' =>				$skippedIndex
 				);
 				// @formatter:on
 			}
@@ -152,7 +153,7 @@ class CalculateHistogram {
 	}
 
 	/**
-	 * compute an adjusted total quantity for given quantities (current article) wich is cleared of untolerated spikes
+	 * compute an adjusted total quantity for given quantities (current article) which is cleared of untolerated spikes
 	 *
 	 * @param array $aQuantities Array of quantities for current article to discard all spikes from
 	 * @param int $quantity total quantity of the current article
