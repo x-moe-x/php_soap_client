@@ -95,7 +95,7 @@ class SoapCall_SearchOrders extends PlentySoapCall {
 					$ordersFound = count($oPlentySoapResponse_SearchOrders -> Orders -> item);
 					$pagesFound = $oPlentySoapResponse_SearchOrders -> Pages;
 
-					$this -> getLogger() -> debug(__FUNCTION__ . ' Request Success - orders found : ' . $ordersFound . ' / pages : ' . $pagesFound);
+					//$this -> getLogger() -> debug(__FUNCTION__ . ' Request Success - orders found : ' . $ordersFound . ' / pages : ' . $pagesFound);
 
 					// auswerten
 					$this -> responseInterpretation($oPlentySoapResponse_SearchOrders);
@@ -130,20 +130,17 @@ class SoapCall_SearchOrders extends PlentySoapCall {
 		$countOrderItems = count($this -> aOrderItems);
 
 		if ($countOrderHeads > 0) {
-			$this -> getLogger() -> info(__FUNCTION__ . " : storing $countOrderHeads order head records ...");
+
+			$this -> getLogger() -> info(__FUNCTION__ . " : storing $countOrderHeads order head and $countOrderItems order item records. Progress: {$this -> page} / {$this -> pages}");
 
 			DBQuery::getInstance() -> insert('INSERT INTO `OrderHead`' . DBUtils2::buildMultipleInsertOnDuplikateKeyUpdate($this -> aOrderHeads));
 
 			// delete old OrderItems to prevent duplicate insertion
 			DBQuery::getInstance() -> delete('DELETE FROM `OrderItem` WHERE `OrderID` IN (\'' . implode('\',\'', array_keys($this -> aOrderHeads)) . '\')');
 
-			$this -> aOrderHeads = array();
-		}
-
-		if ($countOrderItems > 0) {
-			$this -> getLogger() -> info(__FUNCTION__ . " : storing $countOrderItems order item records ...");
 			DBQuery::getInstance() -> insert('INSERT INTO `OrderItem`' . DBUtils2::buildMultipleInsertOnDuplikateKeyUpdate($this -> aOrderItems));
 
+			$this -> aOrderHeads = array();
 			$this -> aOrderItems = array();
 		}
 	}
@@ -167,7 +164,7 @@ class SoapCall_SearchOrders extends PlentySoapCall {
 
 				if ($oPlentySoapResponse_SearchOrders -> Success == true) {
 					$ordersFound = count($oPlentySoapResponse_SearchOrders -> Orders -> item);
-					$this -> getLogger() -> debug(__FUNCTION__ . ' Request Success - orders found : ' . $ordersFound . ' / page : ' . $this -> page);
+					//$this -> getLogger() -> debug(__FUNCTION__ . ' Request Success - orders found : ' . $ordersFound . ' / page : ' . $this -> page);
 
 					// auswerten
 					$this -> responseInterpretation($oPlentySoapResponse_SearchOrders);
