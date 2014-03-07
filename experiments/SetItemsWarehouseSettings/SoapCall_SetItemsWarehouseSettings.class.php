@@ -4,21 +4,11 @@ require_once ROOT . 'lib/soap/call/PlentySoapCall.abstract.php';
 require_once 'Request_SetItemsWarehouseSettings.class.php';
 
 class SoapCall_SetItemsWarehouseSettings extends PlentySoapCall {
-	
+
 	/**
 	 * @var int
 	 */
-	public static $MAX_WAREHOUSE_SETTINGS_PER_PAGE = 100;
-
-	/**
-	 * @var array TODO remove after debugging
-	 */
-	private $aDuplicateMappings = array(416 => 2048, 201 => 2049, 1 => 2050, 298 => 2051, 1919 =>2047);
-
-	/**
-	 * @var array
-	 */
-	private $aMappedItemWarehouseSettings = array();
+	const MAX_WAREHOUSE_SETTINGS_PER_PAGE = 100;
 
 	/**
 	 * @var int
@@ -38,46 +28,30 @@ class SoapCall_SetItemsWarehouseSettings extends PlentySoapCall {
 	public function execute() {
 		$this -> getLogger() -> debug(__FUNCTION__ . ' writing items warehouse settings ...');
 		try {
-// get all values for articles with write permission
+			// get all values for articles with write permission
 			$oDBResult = DBQuery::getInstance() -> select($this -> getWriteBackQuery());
 
 			// for every 100 ItemIDs ...
-			for ($page = 0, $maxPage = ceil($oDBResult -> getNumRows() / self::$MAX_WAREHOUSE_SETTINGS_PER_PAGE); $page < $maxPage; $page++) {
+			for ($page = 0, $maxPage = ceil($oDBResult -> getNumRows() / self::MAX_WAREHOUSE_SETTINGS_PER_PAGE); $page < $maxPage; $page++) {
 
 				// ... prepare a separate request ...
 				$oRequest_SetItemsWarehouseSettings = new Request_SetItemsWarehouseSettings();
 
-				// TODO remove after debugging start
-
-				// filter for every article wich has a duplicate
-				while ($current = $oDBResult -> fetchAssoc()) {
-					$itemID = intval($current['ItemID']);
-					if (array_key_exists($itemID, $this -> aDuplicateMappings)) {
-
-						// mask real article with duplicate
-						$current['ItemID'] = $this->aDuplicateMappings[$itemID];
-
-						$this -> aMappedItemWarehouseSettings[$itemID] = $current;
-					}
+				while (!$oRequest_SetItemsWarehouseSettings -> isFull() && ($aCurrentItemsWarehoueSetting = $oDBResult -> fetchAssoc())) {
+					$oRequest_SetItemsWarehouseSettings -> addItemsWarehouseSetting($aCurrentItemsWarehoueSetting);
 				}
 
-				foreach ($this->aMappedItemWarehouseSettings as $aItemWarehouseSetting){
-					$oRequest_SetItemsWarehouseSettings -> addItemsWarehouseSetting($aItemWarehouseSetting);
+				// do soap call to plenty
+				$response = $this -> getPlentySoap() -> SetItemsWarehouseSettings($oRequest_SetItemsWarehouseSettings -> getRequest($this -> warehouseID));
+
+				// ... if successful ...
+				if ($response -> Success == true) {
+					$this -> getLogger() -> debug(__FUNCTION__ . ' Request Success');
+				} else {
+
+					// ... otherwise log error and try next request
+					$this -> getLogger() -> debug(__FUNCTION__ . ' Request Error');
 				}
-
-				// TODO remove after debugging end
-
-			}
-			// do soap call to plenty
-			$response = $this -> getPlentySoap() -> SetItemsWarehouseSettings($oRequest_SetItemsWarehouseSettings -> getRequest($this->warehouseID));
-
-			// ... if successful ...
-			if ($response -> Success == true) {
-				$this -> getLogger() -> debug(__FUNCTION__ . ' Request Success');
-			} else {
-
-				// ... otherwise log error and try next request
-				$this -> getLogger() -> debug(__FUNCTION__ . ' Request Error');
 			}
 			$this -> getLogger() -> debug(__FUNCTION__ . ' ... done');
 		} catch(Exception $e) {

@@ -15,7 +15,7 @@ class Request_SetItemsWarehouseSettings {
 	 * @return void
 	 */
 	public function addItemsWarehouseSetting(array $aWarehouseSetting) {
-		if (count($this -> aItemsWarehouseSettings) < SoapCall_SetItemsWarehouseSettings::$MAX_WAREHOUSE_SETTINGS_PER_PAGE) {
+		if (count($this -> aItemsWarehouseSettings) < SoapCall_SetItemsWarehouseSettings::MAX_WAREHOUSE_SETTINGS_PER_PAGE) {
 			$this -> aItemsWarehouseSettings[] = $aWarehouseSetting;
 		}
 	}
@@ -24,7 +24,7 @@ class Request_SetItemsWarehouseSettings {
 	 * @return boolean
 	 */
 	public function isFull() {
-		return count($this -> aItemsWarehouseSettings) === SoapCall_SetItemsWarehouseSettings::$MAX_WAREHOUSE_SETTINGS_PER_PAGE;
+		return count($this -> aItemsWarehouseSettings) === SoapCall_SetItemsWarehouseSettings::MAX_WAREHOUSE_SETTINGS_PER_PAGE;
 	}
 
 	/**

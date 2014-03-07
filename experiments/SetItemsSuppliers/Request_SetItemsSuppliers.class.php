@@ -21,7 +21,7 @@ class Request_SetItemsSuppliers {
 	 * @return void
 	 */
 	public function addItemsSupplier(array $aItemsSuppliers) {
-		if (count($this -> aItemsSuppliers) < SoapCall_SetItemsSuppliers::$MAX_SUPPLIERS_PER_PAGES) {
+		if (count($this -> aItemsSuppliers) < SoapCall_SetItemsSuppliers::MAX_SUPPLIERS_PER_PAGES) {
 			$this -> aItemsSuppliers[] = $aItemsSuppliers;
 		}
 	}
@@ -30,7 +30,7 @@ class Request_SetItemsSuppliers {
 	 * @return boolean
 	 */
 	public function isFull() {
-		return count($this -> aItemsSuppliers) === SoapCall_SetItemsSuppliers::$MAX_SUPPLIERS_PER_PAGES;
+		return count($this -> aItemsSuppliers) === SoapCall_SetItemsSuppliers::MAX_SUPPLIERS_PER_PAGES;
 	}
 
 	/**
