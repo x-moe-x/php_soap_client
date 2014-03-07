@@ -8,7 +8,7 @@ class SoapCall_GetItemsSuppliers extends PlentySoapCall {
 	/**
 	 * @var int
 	 */
-	public static $MAX_SUPPLIERS_PER_PAGES = 50;
+	const MAX_SUPPLIERS_PER_PAGES = 50;
 
 	/**
 	 * Used to prepare bulk insertion to db
@@ -19,7 +19,11 @@ class SoapCall_GetItemsSuppliers extends PlentySoapCall {
 
 	public function __construct() {
 		parent::__construct(__CLASS__);
+
 		$this -> aStoreData = array();
+
+		// clear ItemSuppliers db before start so there's no old leftover
+		DBQuery::getInstance() -> truncate('TRUNCATE TABLE ItemSuppliers');
 	}
 
 	/**
@@ -33,7 +37,7 @@ class SoapCall_GetItemsSuppliers extends PlentySoapCall {
 			$result = DBQuery::getInstance() -> select('Select ItemID FROM ItemsBase');
 
 			// for every 50 ItemIDs ...
-			for ($page = 0; $page < ceil($result -> getNumRows() / self::$MAX_SUPPLIERS_PER_PAGES); $page++) {
+			for ($page = 0; $page < ceil($result -> getNumRows() / self::MAX_SUPPLIERS_PER_PAGES); $page++) {
 
 				// ... perpare a separate request ...
 				$oRequest_GetItemsSuppliers = new Request_GetItemsSuppliers();
