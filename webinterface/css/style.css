@@ -119,15 +119,18 @@ body.loading .modal {
 
 .filter {
 	float: left;
+	height: 16px;
 }
 
 .filter > div {
 	display: inline-block;
 	float: none !important;
+	height: 16px;
 }
 
 .filter input {
 	visibility: hidden;
+	margin: 0;
 }
 
 .filter label {
@@ -135,6 +138,7 @@ body.loading .modal {
 	height: 16px;
 	display: inline-block;
 	opacity: 0.3;
+	margin-left: -1em;
 }
 
 .filter label:hover {

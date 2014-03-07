@@ -289,6 +289,13 @@ $(document).ready(function() {'use strict';
 			});
 
 			if ($('.filter input', g.tDiv).length === 0) {
+				// change formatting
+				$('.filter', g.tDiv).css({
+					'padding-left' : 0
+				});
+
+				// encapsulate existing stuff
+				$('.filter', g.tDiv).wrapInner('<span style="padding:0px"></span>');
 
 				// append filter selection
 				$('.filter', g.tDiv).append(function() {
@@ -297,8 +304,6 @@ $(document).ready(function() {'use strict';
 					$.each(status, function(index, value) {
 						filterSelection += '<div id="markingID_' + value + '"><input type="checkbox" id="markingID_' + value + '_field"></input><label for="markingID_' + value + '_field"></label></div>';
 					});
-
-					// filterSelection += '<div>alle</div><div>keine</div>';
 
 					return filterSelection;
 				});
@@ -350,8 +355,7 @@ $(document).ready(function() {'use strict';
 		outof : 'von',
 		pagestat : 'Zeige {from} bis {to} von {total} Artikeln',
 		procmsg : 'Bitte warten...'
-	});
-	( function() {
+	}); ( function() {
 			var configDiv = $('#variableManipulation');
 			$(configDiv).hide();
 			$('#toggleConfig').click(function() {
