@@ -23,8 +23,12 @@ if (Config::get('CalculationActive') === 1) {
 	NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'DetermineWritePermissions', 'DetermineWritePermissions'));
 
 	// write back data
-	NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'SetItemsSuppliers'));
-	NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'SetItemsWarehouseSettings'));
+	if (Config::get('WritebackActive') === 1) {
+		NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'SetItemsSuppliers'));
+		NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'SetItemsWarehouseSettings'));
+	} else {
+		Logger::instance('simpleExecutionScript') -> debug('Writeback is inactive, skipping...');
+	}
 } else {
 	Logger::instance('simpleExecutionScript') -> debug('Calculation is inactive, skipping...');
 }

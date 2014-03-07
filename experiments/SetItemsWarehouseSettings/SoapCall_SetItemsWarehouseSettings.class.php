@@ -46,14 +46,12 @@ class SoapCall_SetItemsWarehouseSettings extends PlentySoapCall {
 
 				// ... if successful ...
 				if ($response -> Success == true) {
-					$this -> getLogger() -> debug(__FUNCTION__ . ' Request Success');
 				} else {
 
 					// ... otherwise log error and try next request
 					$this -> getLogger() -> debug(__FUNCTION__ . ' Request Error');
 				}
 			}
-			$this -> getLogger() -> debug(__FUNCTION__ . ' ... done');
 		} catch(Exception $e) {
 			$this -> onExceptionAction($e);
 		}
