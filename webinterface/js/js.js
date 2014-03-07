@@ -196,10 +196,11 @@ $(document).ready(function() {'use strict';
 			bclass : 'filter'
 		}],
 		onSuccess : function(g) {
-			var colModel, status;
+			var colModel, status, params;
 
 			colModel = this.colModel;
 			status = this.status;
+			params = this.params;
 
 			// post-processing of cells
 			$('tbody tr td', g.bDiv).each(function(index) {
@@ -303,20 +304,20 @@ $(document).ready(function() {'use strict';
 				});
 
 				$('.filter input[type=checkbox]', g.tDiv).change(function() {
-					// collect all data
-					var data = [];
+					var filterMarking1D = [];
 
+					// collect all checked marking filters
 					$.each(status, function(index, value) {
-						data.push({
-							id : value,
-							checked : $('.filter #markingID_' + value + '_field').is(':checked')
-						});
+						if ($('.filter #markingID_' + value + '_field').is(':checked')) {
+							filterMarking1D.push(value);
+						}
 					});
 
-					// update query
-					$.post('#', data, function() {
-						$('#resultTable').flexReload();
-					});
+					// adjust params
+					params[0].value = filterMarking1D.join();
+
+					// update grid
+					g.populate();
 				});
 			}
 		},
@@ -332,6 +333,8 @@ $(document).ready(function() {'use strict';
 			isdefault : true
 		}],
 		params : [{
+			name : 'filterMarking1D',
+			value : ''
 		}],
 		status : [4, 9, 12, 16, 20],
 		sortname : "ItemID",

@@ -7,6 +7,8 @@ $sortname = isset($_POST['sortname']) ? $_POST['sortname'] : 'ItemID';
 $sortorder = isset($_POST['sortorder']) ? $_POST['sortorder'] : 'asc';
 $query = isset($_POST['query']) ? $_POST['query'] : false;
 $qtype = isset($_POST['qtype']) ? $_POST['qtype'] : false;
+$filterMarking1D = isset($_POST['filterMarking1D']) ? $_POST['filterMarking1D'] : false;
+
 $warehouseID = isset($_POST['warehouseID']) ? $_POST['warehouseID'] : 1;
 
 class StaticData {
@@ -205,6 +207,10 @@ if ($query && $qtype) {
 				AND
 					' . ($qtype == 'ItemsBase.ItemID' ? getIntLike($qtype, $query) : getTextLike($qtype, $query));
 	}
+}
+
+if ($filterMarking1D) {
+	$where .= " AND Marking1ID IN ($filterMarking1D)".PHP_EOL;
 }
 
 $sort = '
