@@ -199,7 +199,7 @@ $(document).ready(function() {'use strict';
 			var colModel, status;
 
 			colModel = this.colModel;
-			status = this.params.status;
+			status = this.status;
 
 			// post-processing of cells
 			$('tbody tr td', g.bDiv).each(function(index) {
@@ -331,9 +331,9 @@ $(document).ready(function() {'use strict';
 			name : 'Name',
 			isdefault : true
 		}],
-		params : {
-			status : [4, 9, 12, 16, 20]
-		},
+		params : [{
+		}],
+		status : [4, 9, 12, 16, 20],
 		sortname : "ItemID",
 		sortorder : "asc",
 		usepager : true,
