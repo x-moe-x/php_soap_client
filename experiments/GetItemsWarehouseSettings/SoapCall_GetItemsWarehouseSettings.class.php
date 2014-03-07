@@ -11,7 +11,7 @@ class SoapCall_GetItemsWarehouseSettings extends PlentySoapCall {
 	/**
 	 * @var int
 	 */
-	public static $MAX_SKU_PER_PAGE = 100;
+	const MAX_SKU_PER_PAGE = 100;
 
 	/**
 	 * @var array
@@ -40,7 +40,7 @@ class SoapCall_GetItemsWarehouseSettings extends PlentySoapCall {
 			$oDBResult = DBQuery::getInstance() -> select($this -> getSKUQuery());
 
 			// for every 100 SKUs ...
-			for ($page = 0, $maxPages = ceil($oDBResult -> getNumRows() / self::$MAX_SKU_PER_PAGE); $page < $maxPages; $page++) {/** @var int $page  */
+			for ($page = 0, $maxPages = ceil($oDBResult -> getNumRows() / self::MAX_SKU_PER_PAGE); $page < $maxPages; $page++) {/** @var int $page  */
 
 				// ... prepare a seperate request
 				$oRequest_GetItemsWarehouseSettings = new Request_GetItemsWarehouseSettings($this->warehouseID);

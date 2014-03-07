@@ -18,7 +18,7 @@ class Request_GetItemsSuppliers {
 	 * @param int $itemID
 	 */
 	public function addItemID($itemID) {
-		if (count($this -> aItemIDs) < SoapCall_GetItemsSuppliers::$MAX_SUPPLIERS_PER_PAGES) {
+		if (count($this -> aItemIDs) < SoapCall_GetItemsSuppliers::MAX_SUPPLIERS_PER_PAGES) {
 			$this -> aItemIDs[] = $itemID;
 		}
 	}
@@ -27,7 +27,7 @@ class Request_GetItemsSuppliers {
 	 * @return boolean
 	 */
 	public function isFull() {
-		return count($this -> aItemIDs) === SoapCall_GetItemsSuppliers::$MAX_SUPPLIERS_PER_PAGES;
+		return count($this -> aItemIDs) === SoapCall_GetItemsSuppliers::MAX_SUPPLIERS_PER_PAGES;
 	}
 
 	/**

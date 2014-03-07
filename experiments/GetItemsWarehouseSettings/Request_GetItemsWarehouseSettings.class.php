@@ -18,7 +18,7 @@ class Request_GetItemsWarehouseSettings {
 	 * @return void
 	 */
 	public function addSKU($sSKU) {
-		if (count($this -> aSKUList) < SoapCall_GetItemsWarehouseSettings::$MAX_SKU_PER_PAGE) {
+		if (count($this -> aSKUList) < SoapCall_GetItemsWarehouseSettings::MAX_SKU_PER_PAGE) {
 			$this -> aSKUList[] = $sSKU;
 		}
 	}
@@ -27,7 +27,7 @@ class Request_GetItemsWarehouseSettings {
 	 * @return boolean
 	 */
 	public function isFull(){
-		return count($this -> aSKUList) === SoapCall_GetItemsWarehouseSettings::$MAX_SKU_PER_PAGE;
+		return count($this -> aSKUList) === SoapCall_GetItemsWarehouseSettings::MAX_SKU_PER_PAGE;
 	}
 
 	/**
