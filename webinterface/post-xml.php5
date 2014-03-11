@@ -26,7 +26,16 @@ class StaticData {
 		$this -> itemID = intval($row['ItemID']);
 		$this -> itemNo = $row['ItemNo'];
 		$this -> attributeValueSetID = intval($row['AttributeValueSetID']);
-		$this -> name = ($row['BundleType'] === 'bundle' ? '[Bundle] ' : '') . ($this -> attributeValueSetID == 0 ? $row['Name'] : $row['Name'] . ', ' . $row['AttributeValueSetName']);
+		$sBundlePrefix = '';
+		switch ($row['BundleType']) {
+			case 'bundle' :
+				$sBundlePrefix .= '[Bundle] ';
+				break;
+			case 'bundle_item' :
+			$sBundlePrefix .= '[Bundle_Item] ';
+				break;
+		}
+		$this -> name = $sBundlePrefix . ($this -> attributeValueSetID == 0 ? $row['Name'] : $row['Name'] . ', ' . $row['AttributeValueSetName']);
 		$this -> marking1ID = intval($row['Marking1ID']);
 		$this -> vpe = intval($row['VPE']);
 		$this -> vpe = $this -> vpe == 0 ? 1 : $this -> vpe;
