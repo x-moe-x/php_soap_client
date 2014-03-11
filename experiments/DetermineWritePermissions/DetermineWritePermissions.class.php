@@ -58,8 +58,8 @@ class DetermineWritePermissions {
 				$aResult['WritePermission'] = 0;
 			}
 
-			// if write permission given, but there's an error ... (like no supplier delivery time, no stock turnover or it's an article variant)
-			if ((intval($aResult['WritePermission']) == 1) && (!in_array($aCurrentArticleVariant['ItemID'], self::$aExclusiveItemIDs) || (intval($aCurrentArticleVariant['SupplierDeliveryTime']) <= 0) || (intval($aCurrentArticleVariant['StockTurnover']) <= 0)) || (intval($aCurrentArticleVariant['AttributeValueSetID']) !== 0)) {
+			// if write permission given, but there's an error ... (like no supplier delivery time, no stock turnover or it's a malformed article variant (SupplierMinimumPurchase != 0))
+			if ((intval($aResult['WritePermission']) == 1) && ((intval($aCurrentArticleVariant['SupplierDeliveryTime']) <= 0) || (intval($aCurrentArticleVariant['StockTurnover']) <= 0)) || ((intval($aCurrentArticleVariant['AttributeValueSetID']) !== 0) && ((intval($aCurrentArticleVariant['SupplierMinimumPurchase']) !== 0)))) {
 				// ... then revoke write permission and set error
 				$aResult['WritePermission'] = 0;
 				$aResult['Error'] = 1;
@@ -109,7 +109,8 @@ class DetermineWritePermissions {
 				ELSE
 					ItemsWarehouseSettings.ReorderLevel
 				END ReorderLevel,
-				ItemSuppliers.SupplierDeliveryTime
+				ItemSuppliers.SupplierDeliveryTime,
+				ItemSuppliers.SupplierMinimumPurchase
 			FROM
 				ItemsBase
 			LEFT JOIN

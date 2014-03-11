@@ -20,6 +20,34 @@ function getWarehouseList() {
 	return $result;
 }
 
+function checkBadVariants() {
+	$query = 'SELECT
+	ItemsBase.ItemID,
+	ItemSuppliers.SupplierMinimumPurchase
+FROM
+	ItemsBase
+LEFT JOIN AttributeValueSets
+	ON ItemsBase.ItemID = AttributeValueSets.ItemID
+LEFT JOIN ItemSuppliers
+	ON ItemsBase.ItemID = ItemSuppliers.ItemID
+WHERE
+	ItemSuppliers.SupplierMinimumPurchase != 0
+AND
+	AttributeValueSets.ItemID != 0
+GROUP BY
+	ItemsBase.ItemID
+';
+
+	$badVariants = DBQuery::getInstance() -> select($query);
+	if ($badVariants -> getNumRows() != 0) {
+		$result = '<ul>';
+		while ($badVariant = $badVariants -> fetchAssoc()) {
+			$result .= "<li>ItemdID:{$badVariant['ItemID']} has misformed SupplierMinimumPurchase ≠ 0</li>";
+		}
+		return $result;
+	}
+}
+
 function checkFailedOrders() {
 	$query = '
         select
@@ -74,7 +102,7 @@ $smarty -> setConfigDir('smarty/configs');
 
 $smarty -> assign('warehouseList', getWarehouseList());
 $smarty -> assign('config', Config::getAll());
-$smarty -> assign('debug', ob_get_clean() . checkItemSupplierConfiguration() . checkFailedOrders());
+$smarty -> assign('debug', ob_get_clean() . checkItemSupplierConfiguration() . checkFailedOrders(). checkBadVariants());
 // make function output available if needed
 $smarty -> display('index.tpl');
 ?>

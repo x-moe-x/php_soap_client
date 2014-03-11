@@ -36,13 +36,14 @@ class Request_SetItemsWarehouseSettings {
 
 	/**
 	 * @param int $warehouse
+	 * @param bool $variants
 	 * @return PlentySoapRequest_SetItemsWarehouseSettings
 	 */
-	public function getRequest($warehouse) {
+	public function getRequest($warehouse, $variants) {
 		$oPlentySoapRequest_SetItemsWarehouseSettings = new PlentySoapRequest_SetItemsWarehouseSettings();
 
 		$oPlentySoapRequest_SetItemsWarehouseSettings -> ItemsList = new ArrayOfPlentysoapobject_setitemswarehousesettings();
-		$oPlentySoapRequest_SetItemsWarehouseSettings -> VariantSettings = FALSE;
+		$oPlentySoapRequest_SetItemsWarehouseSettings -> VariantSettings = $variants;
 
 		$oPlentySoapRequest_SetItemsWarehouseSettings -> ItemsList -> item = array();
 

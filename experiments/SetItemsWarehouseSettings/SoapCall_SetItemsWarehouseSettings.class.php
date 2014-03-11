@@ -28,39 +28,53 @@ class SoapCall_SetItemsWarehouseSettings extends PlentySoapCall {
 	public function execute() {
 		$this -> getLogger() -> debug(__FUNCTION__ . ' writing items warehouse settings ...');
 		try {
-			// get all values for articles with write permission
-			$oDBResult = DBQuery::getInstance() -> select($this -> getWriteBackQuery());
+			// set all non-variant items' warehousesettings
+			$this -> setItemsWarehouseSettigns(false);
 
-			// for every 100 ItemIDs ...
-			for ($page = 0, $maxPage = ceil($oDBResult -> getNumRows() / self::MAX_WAREHOUSE_SETTINGS_PER_PAGE); $page < $maxPage; $page++) {
-
-				// ... prepare a separate request ...
-				$oRequest_SetItemsWarehouseSettings = new Request_SetItemsWarehouseSettings();
-
-				while (!$oRequest_SetItemsWarehouseSettings -> isFull() && ($aCurrentItemsWarehoueSetting = $oDBResult -> fetchAssoc())) {
-					$oRequest_SetItemsWarehouseSettings -> addItemsWarehouseSetting($aCurrentItemsWarehoueSetting);
-				}
-
-				// do soap call to plenty
-				$response = $this -> getPlentySoap() -> SetItemsWarehouseSettings($oRequest_SetItemsWarehouseSettings -> getRequest($this -> warehouseID));
-
-				// ... if successful ...
-				if ($response -> Success == true) {
-				} else {
-
-					// ... otherwise log error and try next request
-					$this -> getLogger() -> debug(__FUNCTION__ . ' Request Error');
-				}
-			}
+			// set all variant items' warehousesettings
+			$this -> setItemsWarehouseSettigns(true);
 		} catch(Exception $e) {
 			$this -> onExceptionAction($e);
 		}
 	}
 
 	/**
+	 * @param bool $variants true if (only) variants are to be processes, false if (only) non-variants
+	 * @return void
+	 */
+	private function setItemsWarehouseSettigns($variants) {
+		// get all values for articles with write permission
+		$oDBResult = DBQuery::getInstance() -> select($this -> getWriteBackQuery($variants));
+
+		// for every 100 ItemIDs ...
+		for ($page = 0, $maxPage = ceil($oDBResult -> getNumRows() / self::MAX_WAREHOUSE_SETTINGS_PER_PAGE); $page < $maxPage; $page++) {
+
+			// ... prepare a separate request ...
+			$oRequest_SetItemsWarehouseSettings = new Request_SetItemsWarehouseSettings();
+
+			while (!$oRequest_SetItemsWarehouseSettings -> isFull() && ($aCurrentItemsWarehoueSetting = $oDBResult -> fetchAssoc())) {
+				$oRequest_SetItemsWarehouseSettings -> addItemsWarehouseSetting($aCurrentItemsWarehoueSetting);
+			}
+
+			// do soap call to plenty
+			$response = $this -> getPlentySoap() -> SetItemsWarehouseSettings($oRequest_SetItemsWarehouseSettings -> getRequest($this -> warehouseID, $variants));
+
+			// ... if successful ...
+			if ($response -> Success == true) {
+			} else {
+
+				// ... otherwise log error and try next request
+				$this -> getLogger() -> debug(__FUNCTION__ . ' Request Error');
+			}
+		}
+	}
+
+	/**
+	 *
+	 * @param bool $variants
 	 * @return string
 	 */
-	private function getWriteBackQuery() {
+	private function getWriteBackQuery($variants) {
 		return 'SELECT
 	ItemsWarehouseSettings.ItemID,
 	ItemsWarehouseSettings.AttributeValueSetID,
@@ -88,7 +102,7 @@ ON
 WHERE
 	WritePermissions.WritePermission = 1
 AND
-	WritePermissions.AttributeValueSetID = 0' . PHP_EOL;
+	ItemsWarehouseSettings.AttributeValueSetID ' . ($variants ? '!=' : '=') . ' 0' . PHP_EOL;
 	}
 
 }

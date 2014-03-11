@@ -69,7 +69,12 @@ class CalculateWriteBackData {
 			if ($stockTurnover !== 0) {
 				// ... then calculate supplier minimum purchase and maximum stock
 
-				$aResult['SupplierMinimumPurchase'] = $supplierMinimumPurchase;
+				// ... but skip SupplierMinimumPurchase for article variants
+				if (intval($aCurrentArticleVariant['AttributeValueSetID']) === 0) {
+					$aResult['SupplierMinimumPurchase'] = $supplierMinimumPurchase;
+				} else {
+					$aResult['SupplierMinimumPurchase'] = 0;
+				}
 				$aResult['MaximumStock'] = 2 * $supplierMinimumPurchase;
 				$aResult['SupplierMinimumPurchaseError'] = 'NULL';
 			} else {
