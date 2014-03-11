@@ -158,20 +158,6 @@ $(document).ready(function() {'use strict';
 			align : 'right',
 			hide : false
 		}, {
-			display : 'Änderung',
-			name : 'change',
-			width : 80,
-			sortable : false,
-			align : 'right',
-			hide : true
-		}, {
-			display : 'Status Meldebestand',
-			name : 'status_reorder_level',
-			width : 80,
-			sortable : false,
-			align : 'right',
-			hide : true
-		}, {
 			display : 'Datum',
 			name : 'Date',
 			width : 100,
@@ -348,6 +334,7 @@ $(document).ready(function() {'use strict';
 		singleSelect : true,
 		title : 'Artikel',
 		useRp : true,
+		height : 500,
 		rp : 20,
 		rpOptions : [10, 20, 30, 50, 100, 200],
 		showTableToggleBtn : false,

@@ -188,6 +188,7 @@ body.loading .modal {
 
 .writePermission {
 	color: green;
+	font-weight: bolder
 }
 
 .noSuggestion {
@@ -196,10 +197,12 @@ body.loading .modal {
 
 .writePermissionError {
 	color: red;
+	font-weight: bolder
 }
 
 .noWritePermission {
 	color: blue;
+	font-weight: bolder
 }
 
 .flexigrid {

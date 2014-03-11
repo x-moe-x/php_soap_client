@@ -13,8 +13,8 @@
 .flexigrid div.nDiv td.ndcol2{border-left:1px solid #fff;padding-right:10px}
 .flexigrid div.nDiv tr:hover td.ndcol1,.flexigrid div.nDiv tr.ndcolover td.ndcol1{border-right:1px solid #d2e3ec}
 .flexigrid div.nDiv tr:hover td.ndcol2,.flexigrid div.nDiv tr.ndcolover td.ndcol2{border-left:1px solid #eef8ff}
-.flexigrid div.nBtn{position:absolute;height:24px;width:14px;z-index:900;background:#fafafa url(../images/fhbg.gif) repeat-x bottom;border:0 solid #ccc;border-left:1px solid #ccc;top:0;left:0;margin-top:1px;cursor:pointer;display:none}
-.flexigrid div.nBtn div{height:24px;width:12px;border-left:1px solid #fff;float:left;background:url(../images/ddn.png) no-repeat center}
+.flexigrid div.nBtn{position:absolute;height:40px;width:14px;z-index:900;background:#fafafa url(../images/fhbg.gif) repeat-x bottom;border:0 solid #ccc;border-left:1px solid #ccc;top:0;left:0;margin-top:1px;cursor:pointer;display:none}
+.flexigrid div.nBtn div{height:40px;width:12px;border-left:1px solid #fff;float:left;background:url(../images/ddn.png) no-repeat center}
 .flexigrid div.nBtn.srtd{background:url(../images/wbg.gif) repeat-x 0 -1px}
 .flexigrid div.mDiv{background:url(../images/wbg.gif) repeat-x top;border:1px solid #ccc;border-bottom:0;border-top:0;font-weight:700;display:block;overflow:hidden;white-space:nowrap;position:relative}
 .flexigrid div.mDiv div{white-space:nowrap;padding:6px}
@@ -50,7 +50,7 @@
 /* common cell properties*/{text-align:left;border-right:1px solid #ddd;border-left:1px solid #fff;overflow:hidden;vertical-align:top!important;padding-left:0;padding-right:0}
 .flexigrid div.hDiv th div,.flexigrid div.bDiv td div,div.colCopy div
 /* common inner cell properties*/{border-left:0 solid #fff;padding:5px}
-.flexigrid div.hDivBox th div{font-size:0.8em}
+.flexigrid div.hDivBox th div{font-size:0.8em;height:30px}
 .flexigrid div.hDiv th,div.colCopy{font-weight:400;height:24px;cursor:default;/*white-space:nowrap*/;overflow:hidden}
 div.colCopy{font-family:Arial, Helvetica, sans-serif;font-size:11px;background:#fafafa url(../images/fhbg.gif) repeat-x bottom;border:1px solid #ccc;border-bottom:0;overflow:hidden}
 .flexigrid div.hDiv th.sorted{background:url(../images/wbg.gif) repeat-x 0 -1px;border-bottom:0 solid #ccc}

@@ -273,8 +273,6 @@ while ($row = $result -> fetchAssoc()) {
         <cell><![CDATA[{$dynamicData->writePermissionPrefix}:{$maxStockSuggestion_string}]]></cell>
         <cell><![CDATA[{$dynamicData->writePermissionPrefix}:{$supplierMinimumPurchase_string}]]></cell>
         <cell><![CDATA[$staticData->vpe]]></cell>
-        <cell><![CDATA[1]]></cell>
-        <cell><![CDATA[1]]></cell>
         <cell><![CDATA[$dynamicData->lastUpdate]]></cell>
 	</row>\n";
 }
