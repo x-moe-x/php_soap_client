@@ -49,8 +49,8 @@ class DetermineWritePermissions {
 			// ... store ItemID, AVSID, Marking1ID and corresponding WritePermission
 			$aResult = array('ItemID' => $aCurrentArticleVariant['ItemID'], 'AttributeValueSetID' => $aCurrentArticleVariant['AttributeValueSetID']);
 
-			// if item variant has green marking or yellow marking with positive reorder level ...
-			if ((intval($aCurrentArticleVariant['Marking1ID']) == 16) || (intval($aCurrentArticleVariant['Marking1ID']) == 9) && (intval($aCurrentArticleVariant['ReorderLevel']) > 0)) {
+			// if item variant has black/green marking or yellow marking with positive reorder level ...
+			if ((intval($aCurrentArticleVariant['Marking1ID']) == 16) ||(intval($aCurrentArticleVariant['Marking1ID']) == 20) || (intval($aCurrentArticleVariant['Marking1ID']) == 9) && (intval($aCurrentArticleVariant['ReorderLevel']) > 0)) {
 				// ... then it has write permission
 				$aResult['WritePermission'] = 1;
 			} else {
