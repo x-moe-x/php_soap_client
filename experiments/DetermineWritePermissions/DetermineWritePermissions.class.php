@@ -49,8 +49,8 @@ class DetermineWritePermissions {
 			// ... store ItemID, AVSID, Marking1ID and corresponding WritePermission
 			$aResult = array('ItemID' => $aCurrentArticleVariant['ItemID'], 'AttributeValueSetID' => $aCurrentArticleVariant['AttributeValueSetID']);
 
-			// if item variant has black/green marking or yellow marking with positive reorder level ...
-			if ((intval($aCurrentArticleVariant['Marking1ID']) == 16) ||(intval($aCurrentArticleVariant['Marking1ID']) == 20) || (intval($aCurrentArticleVariant['Marking1ID']) == 9) && (intval($aCurrentArticleVariant['ReorderLevel']) > 0)) {
+			// if item variant is no bundle and has black/green marking or yellow marking with positive reorder level ...
+			if (($aCurrentArticleVariant['BundleType'] !== 'bundle') && ((intval($aCurrentArticleVariant['Marking1ID']) == 16) || (intval($aCurrentArticleVariant['Marking1ID']) == 20) || (intval($aCurrentArticleVariant['Marking1ID']) == 9) && (intval($aCurrentArticleVariant['ReorderLevel']) > 0))) {
 				// ... then it has write permission
 				$aResult['WritePermission'] = 1;
 			} else {
@@ -58,7 +58,7 @@ class DetermineWritePermissions {
 				$aResult['WritePermission'] = 0;
 			}
 
-			// if write permission given, but there's an error ... (like no supplier delivery time, no stock turnover or it's a malformed article variant (SupplierMinimumPurchase != 0))
+			// if write permission given, but there's an error ... (like no supplier delivery time, no stock turnover, or it's a malformed article variant (SupplierMinimumPurchase != 0) or a bundle article)
 			if ((intval($aResult['WritePermission']) == 1) && ((intval($aCurrentArticleVariant['SupplierDeliveryTime']) <= 0) || (intval($aCurrentArticleVariant['StockTurnover']) <= 0)) || ((intval($aCurrentArticleVariant['AttributeValueSetID']) !== 0) && ((intval($aCurrentArticleVariant['SupplierMinimumPurchase']) !== 0)))) {
 				// ... then revoke write permission and set error
 				$aResult['WritePermission'] = 0;
@@ -94,6 +94,7 @@ class DetermineWritePermissions {
 			SELECT
 				ItemsBase.ItemID,
 				ItemsBase.Marking1ID,
+				ItemsBase.BundleType,
 				CASE WHEN (AttributeValueSets.AttributeValueSetID IS null) THEN
 					"0"
 				ELSE
