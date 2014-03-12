@@ -26,16 +26,7 @@ class StaticData {
 		$this -> itemID = intval($row['ItemID']);
 		$this -> itemNo = $row['ItemNo'];
 		$this -> attributeValueSetID = intval($row['AttributeValueSetID']);
-		$sBundlePrefix = '';
-		switch ($row['BundleType']) {
-			case 'bundle' :
-				$sBundlePrefix .= '[Bundle] ';
-				break;
-			case 'bundle_item' :
-			$sBundlePrefix .= '[Bundle_Item] ';
-				break;
-		}
-		$this -> name = $sBundlePrefix . ($this -> attributeValueSetID == 0 ? $row['Name'] : $row['Name'] . ', ' . $row['AttributeValueSetName']);
+		$this -> name = $row['Name'];
 		$this -> marking1ID = intval($row['Marking1ID']);
 		$this -> vpe = intval($row['VPE']);
 		$this -> vpe = $this -> vpe == 0 ? 1 : $this -> vpe;
@@ -78,11 +69,25 @@ class DynamicData {
 			$this -> supplierMinimumPurchaseError = isset($row['SupplierMinimumPurchaseError']) ? 'Lagerreichweite nicht konfiguriert' : null;
 		}
 	}
+
 }
 
 switch ($qtype) {
 	case 'ItemID' :
 		$qtype = 'ItemsBase.ItemID';
+		break;
+	case 'Name' :
+		$qtype = '	CONCAT(CASE WHEN (ItemsBase.BundleType = "bundle") THEN
+			"[Bundle] "
+		WHEN (ItemsBase.BundleType = "bundle_item") THEN
+			"[Bundle item] "
+		ELSE
+			""
+		END, ItemsBase.Name, CASE WHEN (AttributeValueSets.AttributeValueSetID IS NOT null) THEN
+			CONCAT(", ", AttributeValueSets.AttributeValueSetName)
+		ELSE
+			""
+	END)';
 		break;
 	default :
 		break;
@@ -97,6 +102,9 @@ switch ($sortname) {
 		break;
 	case 'Marking' :
 		$sortname = 'Marking1ID';
+		break;
+	case 'Name' :
+		$sortname = 'SortName';
 		break;
 	default :
 		break;
@@ -119,7 +127,6 @@ function getIntLike($columName, $value) {
 
 $select_basic = 'SELECT
     ItemsBase.ItemID,
-	ItemsBase.Name,
 	CASE WHEN (AttributeValueSets.AttributeValueSetID IS null) THEN
 		"0"
 	ELSE
@@ -127,6 +134,18 @@ $select_basic = 'SELECT
 	END AttributeValueSetID' . PHP_EOL;
 
 $select_advanced = $select_basic . ',
+	CONCAT(CASE WHEN (ItemsBase.BundleType = "bundle") THEN
+			"[Bundle] "
+		WHEN (ItemsBase.BundleType = "bundle_item") THEN
+			"[Bundle Artikel] "
+		ELSE
+			""
+		END, ItemsBase.Name, CASE WHEN (AttributeValueSets.AttributeValueSetID IS NOT null) THEN
+			CONCAT(", ", AttributeValueSets.AttributeValueSetName)
+		ELSE
+			""
+	END) AS Name,
+	ItemsBase.Name AS SortName,
 	ItemsBase.ItemNo,
 	ItemsBase.Marking1ID,
 	ItemsBase.Free4 AS VPE,
@@ -149,12 +168,7 @@ $select_advanced = $select_basic . ',
     WriteBackSuggestion.SupplierMinimumPurchaseError,
     WriteBackSuggestion.ReorderLevel AS ProposedReorderLevel,
     WriteBackSuggestion.SupplierMinimumPurchase AS ProposedSupplierMinimumPurchase,
-    WriteBackSuggestion.MaximumStock  AS ProposedMaximumStock,
-	CASE WHEN (AttributeValueSets.AttributeValueSetName IS null) THEN
-		""
-	ELSE
-		AttributeValueSets.AttributeValueSetName
-	END AttributeValueSetName' . PHP_EOL;
+    WriteBackSuggestion.MaximumStock  AS ProposedMaximumStock' . PHP_EOL;
 
 $from_basic = 'FROM ItemsBase
 LEFT JOIN AttributeValueSets
@@ -219,7 +233,7 @@ if ($query && $qtype) {
 }
 
 if ($filterMarking1D) {
-	$where .= " AND Marking1ID IN ($filterMarking1D)".PHP_EOL;
+	$where .= " AND Marking1ID IN ($filterMarking1D)" . PHP_EOL;
 }
 
 $sort = '
