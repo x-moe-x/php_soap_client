@@ -381,7 +381,7 @@ $(document).ready(function() {'use strict';
 		sortorder : "asc",
 		usepager : true,
 		singleSelect : true,
-		title : 'Artikel',
+		title : 'Bestandsautomatik',
 		useRp : true,
 		height : 500,
 		rp : 20,
@@ -392,9 +392,9 @@ $(document).ready(function() {'use strict';
 		pagestat : 'Zeige {from} bis {to} von {total} Artikeln',
 		procmsg : 'Bitte warten...'
 	}); ( function() {
-			var configDiv = $('#variableManipulation');
+			var configDiv = $('#fade');
 			$(configDiv).hide();
-			$('#toggleConfig').click(function() {
+			$('#toggleConfig').button().click(function() {
 				$(configDiv).toggle('blind', 500);
 			});
 		}());

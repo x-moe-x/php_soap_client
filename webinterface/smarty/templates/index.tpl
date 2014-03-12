@@ -15,59 +15,67 @@
 		<div id='errorMessages'>
 			{$debug}
 		</div>
-		<div id='config'>
-			<strong>Konfiguration</strong>
+		<div id='dialog'>
+			<p>
+				<span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20% 0;"></span>
+				<span id='dialogText'></span>
+			</p>
+		</div>
+		<div id='config' class='box'>
+			<strong>Konfiguration
 			<button id='toggleConfig'>
 				+
-			</button>
-			<div id='variableManipulation'>
-				<ul id='globalManipulation'>
-					<li>
-						<label {if $config.SpikeTolerance.Active == 0}class='disabled'{/if} for='spikeTolerance'> Spitzentoleranz: </label>
-						<input id='spikeTolerance' value='{$config.SpikeTolerance.Value * 100}'  {if $config.SpikeTolerance.Active == 0}disabled{/if}/>
-						<label class='variableUnit' for='spikeTolerance'>%</label>
-					<li>
-						<label {if $config.StandardDeviationFactor.Active == 0}class='disabled'{/if} for='standardDeviationFactor'> Faktor Standardabweichung: </label>
-						<input id='standardDeviationFactor' value='{$config.StandardDeviationFactor.Value}' {if $config.StandardDeviationFactor.Active == 0}disabled{/if}/>
-				</ul>
-				<div id='firstPeriodManipulation'>
-					<strong>Zeitraum A</strong>
-					<ul>
+			</button></strong>
+
+			<div id='fade'>
+				<div id='variableManipulation'>
+					<ul id='globalManipulation'>
 						<li>
-							<label {if $config.CalculationTimeA.Active == 0}class='disabled'{/if} for='calculationTimeA'> Berechnungszeitraum: </label>
-							<input id='calculationTimeA' value='{$config.CalculationTimeA.Value}' {if $config.CalculationTimeA.Active == 0}disabled{/if}/>
-							<label class='variableUnit' for='calculationTimeA'>Tage</label>
+							<label {if $config.SpikeTolerance.Active == 0}class='disabled'{/if} for='spikeTolerance'> Spitzentoleranz: </label>
+							<input id='spikeTolerance' value='{$config.SpikeTolerance.Value * 100}'  {if $config.SpikeTolerance.Active == 0}disabled{/if}/>
+							<label class='variableUnit' for='spikeTolerance'>%</label>
 						<li>
-							<label {if $config.MinimumToleratedSpikesA.Active == 0}class='disabled'{/if} for='minimumToleratedSpikesA'> Mindestanzahl Spitzen: </label>
-							<input id='minimumToleratedSpikesA' value='{$config.MinimumToleratedSpikesA.Value}' {if $config.MinimumToleratedSpikesA.Active == 0}disabled{/if}/>
-							<label class='variableUnit' for='minimumToleratedSpikesA'>Spitzen</label>
-						<li>
-							<label {if $config.MinimumOrdersA.Active == 0}class='disabled'{/if} for='minimumOrdersA'> Mindestanzahl Bestellungen: </label>
-							<input id='minimumOrdersA' value='{$config.MinimumOrdersA.Value}' {if $config.MinimumOrdersA.Active == 0}disabled{/if}/>
-							<label class='variableUnit' for='minimumOrdersA'>Bestellungen</label>
+							<label {if $config.StandardDeviationFactor.Active == 0}class='disabled'{/if} for='standardDeviationFactor'> Faktor Standardabweichung: </label>
+							<input id='standardDeviationFactor' value='{$config.StandardDeviationFactor.Value}' {if $config.StandardDeviationFactor.Active == 0}disabled{/if}/>
 					</ul>
+					<div id='firstPeriodManipulation' class='box'>
+						<strong>Zeitraum A</strong>
+						<ul>
+							<li>
+								<label {if $config.CalculationTimeA.Active == 0}class='disabled'{/if} for='calculationTimeA'> Berechnungszeitraum: </label>
+								<input id='calculationTimeA' value='{$config.CalculationTimeA.Value}' {if $config.CalculationTimeA.Active == 0}disabled{/if}/>
+								<label class='variableUnit' for='calculationTimeA'>Tage</label>
+							<li>
+								<label {if $config.MinimumToleratedSpikesA.Active == 0}class='disabled'{/if} for='minimumToleratedSpikesA'> Mindestanzahl Spitzen: </label>
+								<input id='minimumToleratedSpikesA' value='{$config.MinimumToleratedSpikesA.Value}' {if $config.MinimumToleratedSpikesA.Active == 0}disabled{/if}/>
+								<label class='variableUnit' for='minimumToleratedSpikesA'>Spitzen</label>
+							<li>
+								<label {if $config.MinimumOrdersA.Active == 0}class='disabled'{/if} for='minimumOrdersA'> Mindestanzahl Bestellungen: </label>
+								<input id='minimumOrdersA' value='{$config.MinimumOrdersA.Value}' {if $config.MinimumOrdersA.Active == 0}disabled{/if}/>
+								<label class='variableUnit' for='minimumOrdersA'>Bestellungen</label>
+						</ul>
+					</div>
+					<div id='secondPeriodManipulation' class='box'>
+						<strong>Zeitraum B</strong>
+						<ul>
+							<li>
+								<label {if $config.CalculationTimeB.Active == 0}class='disabled'{/if} for='calculationTimeB'> Berechnungszeitraum: </label>
+								<input id='calculationTimeB' value='{$config.CalculationTimeB.Value}' {if $config.CalculationTimeB.Active == 0}disabled{/if}/>
+								<label class='variableUnit' for='calculationTimeB'>Tage</label>
+							<li>
+								<label {if $config.MinimumToleratedSpikesB.Active == 0}class='disabled'{/if} for='minimumToleratedSpikesB'> Mindestanzahl Spitzen: </label>
+								<input id='minimumToleratedSpikesB' value='{$config.MinimumToleratedSpikesB.Value}' {if $config.MinimumToleratedSpikesB.Active == 0}disabled{/if}/>
+								<label class='variableUnit' for='minimumToleratedSpikesB'>Spitzen</label>
+							<li>
+								<label {if $config.MinimumOrdersB.Active == 0}class='disabled'{/if} for='minimumOrdersB'> Mindestanzahl Bestellungen: </label>
+								<input id='minimumOrdersB' value='{$config.MinimumOrdersB.Value}' {if $config.MinimumOrdersB.Active == 0}disabled{/if}/>
+								<label class='variableUnit' for='minimumOrdersB'>Bestellungen</label>
+						</ul>
+					</div>
+					<div class='clear'></div>
 				</div>
-				<div id='secondPeriodManipulation'>
-					<strong>Zeitraum B</strong>
-					<ul>
-						<li>
-							<label {if $config.CalculationTimeB.Active == 0}class='disabled'{/if} for='calculationTimeB'> Berechnungszeitraum: </label>
-							<input id='calculationTimeB' value='{$config.CalculationTimeB.Value}' {if $config.CalculationTimeB.Active == 0}disabled{/if}/>
-							<label class='variableUnit' for='calculationTimeB'>Tage</label>
-						<li>
-							<label {if $config.MinimumToleratedSpikesB.Active == 0}class='disabled'{/if} for='minimumToleratedSpikesB'> Mindestanzahl Spitzen: </label>
-							<input id='minimumToleratedSpikesB' value='{$config.MinimumToleratedSpikesB.Value}' {if $config.MinimumToleratedSpikesB.Active == 0}disabled{/if}/>
-							<label class='variableUnit' for='minimumToleratedSpikesB'>Spitzen</label>
-						<li>
-							<label {if $config.MinimumOrdersB.Active == 0}class='disabled'{/if} for='minimumOrdersB'> Mindestanzahl Bestellungen: </label>
-							<input id='minimumOrdersB' value='{$config.MinimumOrdersB.Value}' {if $config.MinimumOrdersB.Active == 0}disabled{/if}/>
-							<label class='variableUnit' for='minimumOrdersB'>Bestellungen</label>
-					</ul>
-				</div>
-				<div class='clear'>
-					<!-- -->
-				</div>
-				<div id='switches'>
+				<div id='switches' class='box'>
+					<strong>Automatikeinstellungen</strong>
 					<label for='calculationActive'>Daten aktualisieren / Kalkulation: </label>
 					<select id='calculationActive' {if $config.CalculationActive.Active == 0}disabled{/if}>
 						<option {if $config.CalculationActive.Value != 0}selected{/if} value='1'>On</option>
@@ -79,13 +87,8 @@
 						<option {if $config.WritebackActive.Value == 0}selected{/if} value='0'>Off</option>
 					</select>
 				</div>
-				<div id='dialog' style='display: none'>
-					<p>
-						<span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20% 0;"></span>
-						<span id='dialogText'></span>
-					</p>
-				</div>
-				<div id='manualOverride'>
+				<div id='manualOverride' class='box'>
+					<strong>Manuelle Funktionsauslösung</strong>
 					<ul style='float:left'>
 						<li>
 							<button id='buttonManualUpdate' class='buttonsLeft'>
@@ -115,25 +118,27 @@
 							</button>
 						</li>
 					</ul>
-					<div class='clear'>
-						<!-- -->
-					</div>
+					<div class='clear'></div>
 				</div>
-				<div id='reorderStock'>
-					<ul>
+				<div id='reorderStock' class='box'>
+					<strong>Meldebestandseinkaufswert</strong>
+					<ul style='float:left'>
 						<li>
-							<span class='name'>aktueller ReorderStock-Wert</span><span class='value'>{$reorderSums.currentReorderStock|number_format:2:",":"."}</span>
+							<span class='name'>aktuell</span><span class='value'>{$reorderSums.currentReorderStock|number_format:2:",":"."}</span>
 						</li>
 						<li>
-							<span class='name'>vorgeschlagener ReorderStock-Wert</span><span class='value'>{$reorderSums.proposedReorderStock|number_format:2:",":"."}</span>
+							<span class='name'>vorgeschlagen</span><span class='value'>{$reorderSums.proposedReorderStock|number_format:2:",":"."}</span>
 						</li>
+						<li>
+							<span class='name'>maximal</span><span class='value'>{$reorderSums.maxStock|number_format:2:",":"."}</span>
+						</li>
+					</ul>
+					<ul style='float:right;margin-top:0.5em;'>
 						<li>
 							<span class='name'>Differenz</span><span class='value'>{($reorderSums.proposedReorderStock - $reorderSums.currentReorderStock)|number_format:2:",":"."}</span>
 						</li>
-						<li>
-							<span class='name'>maximaler Stock-Wert</span><span class='value'>{$reorderSums.maxStock|number_format:2:",":"."}</span>
-						</li>
 					</ul>
+					<div class='clear'></div>
 				</div>
 			</div>
 		</div>

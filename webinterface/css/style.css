@@ -3,108 +3,137 @@
 	font-size: 10pt;
 }
 
-#config {
-	width: 800px;
-	border: 1px solid #ccc;
-	border-radius: 5px;
-	padding: 10px;
-	margin: 1em 0;
+#errorMessages {
+	background-color: #00e0d0;
 }
 
-#switches, #manualOverride, #reorderStock {
-	border: 1px solid #ccc;
-	border-radius: 5px;
-	margin-top: 1em;
+/** start config styling **/
+
+.box {
+	margin: 1em 0 0;
 	padding: 1em;
+	border: 1px solid #ccc;
+	border-radius: 0.5em;
 }
 
-#manualOverride > ul {
+.box strong {
+	display: block;
+	margin: 0 0 1em;
+}
+
+.box ul {
+	margin: 0;
 	padding: 0;
-	margin: 0
-}
-
-#manualOverride > ul button {
-	width: 70%;
-}
-
-#switches select {
-	margin-right: 4em;
-}
-
-#variableManipulation ul {
-	width: 360px;
-}
-
-#variableManipulation strong {
-	margin-left: 10px;
-}
-
-#variableManipulation li {
-	list-style-type: none;
-	margin-bottom: 2px;
-}
-
-#variableManipulation h2 {
-	text-align: center;
-}
-
-#variableManipulation input {
-	width: 50px;
-	text-align: right;
-	padding-right: 5px;
-}
-
-#variableManipulation label {
-	display: inline-block;
-	width: 175px;
-}
-
-#variableManipulation label.disabled {
-	color: #aaaaaa;
-	text-decoration: line-through;
-}
-
-#variableManipulation label.variableUnit {
-	display: inline-block;
-	width: auto;
-	color: #aaaaaa;
-}
-
-#variableManipulation label[for="calculationActive"], #variableManipulation label[for="writebackActive"] {
-	width: auto;
-}
-
-#variableManipulation > div > ul {
-	padding-left: 10px;
-}
-
-#globalManipulation {
-	margin-left: auto;
-	margin-right: auto;
-}
-
-#firstPeriodManipulation {
-	float: left;
-	border: 1px solid #ccc;
-	border-radius: 5px;
-}
-
-#secondPeriodManipulation {
-	float: right;
-	border: 1px solid #ccc;
-	border-radius: 5px;
+	list-style: none;
 }
 
 .clear {
 	clear: both;
 }
 
-#warehouseSelection {
-	margin-top: 1em;
+#config {
+	width: 800px;
 }
 
-#errorMessages {
-	background-color: #00e0d0;
+#config > strong {
+	margin: 0;
+}
+
+#fade {
+	padding: 1em 0 0;
+}
+
+#dialog {
+	display: none;
+}
+
+.dialogDanger .ui-dialog-titlebar, .dialogDanger .ui-dialog-buttonset button:first-child {
+	background: red !important;
+}
+
+#globalManipulation {
+	width: 360px;
+	margin: 1em auto 0;
+}
+
+#variableManipulation label, #variableManipulation input {
+	display: inline-block;
+}
+
+#variableManipulation label {
+	width: 175px;
+}
+
+#variableManipulation label.disabled {
+	color: #aaa;
+	text-decoration: line-through;
+}
+
+#variableManipulation .variableUnit {
+	width: auto;
+	color: #aaa;
+}
+
+#variableManipulation input {
+	width: 50px;
+	padding: 0 5px 0 0;
+	text-align: right;
+}
+
+#firstPeriodManipulation, #secondPeriodManipulation {
+	width: calc(50% - 2 * 1em - 2px - 0.5em);
+}
+
+#firstPeriodManipulation {
+	float: left;
+}
+
+#secondPeriodManipulation {
+	float: right;
+}
+
+#switches select {
+	margin-right: 4em;
+}
+
+#manualOverride ul {
+	width: 50%;
+}
+
+#manualOverride li {
+	width: 90%;
+	margin: 0.5em 0 0;
+}
+
+#manualOverride button {
+	width: 100%;
+}
+
+#manualOverride li:first-child {
+	margin: 0;
+}
+
+#reorderStock ul {
+	width: 50%;
+}
+
+#reorderStock .name {
+	width: 250px;
+	display: inline-block;
+}
+
+#reorderStock .name:after {
+	content: ':';
+}
+
+#reorderStock .value {
+	width: 100px;
+	text-align: right;
+	display: inline-block;
+}
+
+#reorderStock .value:after {
+	content: ' EUR';
 }
 
 .modal {
@@ -124,6 +153,16 @@ body.loading {
 
 body.loading .modal {
 	display: block;
+}
+
+/** end config styling **/
+
+/** start table styling **/
+
+/** ** filter section **/
+
+.flexigrid {
+	margin: 1em 0 0;
 }
 
 .filter {
@@ -178,6 +217,7 @@ body.loading .modal {
 	background: url("../images/marking1d_20.png") no-repeat scroll center center transparent;
 }
 
+/** ** interior **/
 .markingIDCell_20 {
 	background: url("../images/marking1d_20.png") no-repeat scroll center center transparent;
 }
@@ -212,14 +252,6 @@ body.loading .modal {
 .noWritePermission {
 	color: blue;
 	font-weight: bolder
-}
-
-.flexigrid {
-	clear: both;
-}
-
-.flexigrid div.fbutton .gear {
-	background: url("../images/database_gear.png") no-repeat scroll left center transparent;
 }
 
 .flexigrid ul {
@@ -265,25 +297,6 @@ body.loading .modal {
 	min-width: 3em;
 }
 
-.dialogDanger .ui-dialog-titlebar, .dialogDanger .ui-dialog-buttonset button:first-child {
-	background: red !important;
-}
 
-#reorderStock .name {
-	width: 250px;
-	display: inline-block;
-}
+/** end table styling **/
 
-#reorderStock .name:after {
-	content: ':';
-}
-
-#reorderStock .value {
-	width: 100px;
-	text-align : right;
-	display: inline-block;
-}
-
-#reorderStock .value:after {
-	content: ' EUR';
-}
