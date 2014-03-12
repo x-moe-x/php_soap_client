@@ -105,12 +105,12 @@
 					</ul>
 					<ul style='float:right'>
 						<li>
-							<button id='buttonResetArticles'class='buttonsRight' disabled>
+							<button id='buttonResetArticles'class='buttonsRight'>
 								Reset Artikel-Datenbank
 							</button>
 						</li>
 						<li>
-							<button id='buttonResetOrders'class='buttonsRight' disabled>
+							<button id='buttonResetOrders'class='buttonsRight'>
 								Reset Order-Datenbank
 							</button>
 						</li>

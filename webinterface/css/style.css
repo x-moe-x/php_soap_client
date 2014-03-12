@@ -264,3 +264,7 @@ body.loading .modal {
 .totalSum {
 	min-width: 3em;
 }
+
+.dialogDanger .ui-dialog-titlebar, .dialogDanger .ui-dialog-buttonset button:first-child {
+	background: red !important;
+}

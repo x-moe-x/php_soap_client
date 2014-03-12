@@ -1,9 +1,10 @@
-$.fn.dialogify = function(title, htmlText, okFunction) {
+$.fn.dialogify = function(title, htmlText, cssClass, okFunction) {
 	$(this).button().click(function() {
 		$('#dialogText').html(htmlText);
 		$('#dialog').dialog({
 			title : title,
 			modal : true,
+			dialogClass : cssClass,
 			buttons : {
 				OK : function() {
 					okFunction();
@@ -72,7 +73,7 @@ $.fn.updateConfig = function() {'use strict';
 function loadSuccess(result) {
 	$('body').removeClass("loading");
 	$('#resultTable').flexReload();
-	$('#errorMessages').append('<p> ' + result.task + ' took ' + result.executionTime + ' ' + result.executionTimeUnit + '</p>');
+	$('#errorMessages').append('<p> ' + result + '</p>');
 };
 
 $(document).ready(function() {'use strict';
@@ -105,25 +106,39 @@ $(document).ready(function() {'use strict';
 		}
 	});
 
-	$('#buttonManualUpdate').dialogify('Manuelle Aktualisierung anstossen?', 'Aktualisierung der Artikel- und Rechnungsdaten. Dieser Vorgang kann einige Minuten in Anspruch nehmen.', function() {
+	$('#buttonManualUpdate').dialogify('Manuelle Aktualisierung anstossen?', 'Aktualisierung der Artikel- und Rechnungsdaten. Dieser Vorgang kann einige Minuten in Anspruch nehmen.', 'dialogNormal', function() {
 		$('body').addClass('loading');
 		$.get('executeManual.php5', {
 			action : 'update'
-		}, loadSuccess, 'json');
+		}, loadSuccess);
 	});
 
-	$('#buttonManualCalculate').dialogify('Manuelle Kalkulation anstossen?', 'Ermittelung des spitzenbreinigten Tagesbedarfes, der Rückschreibedaten sowie der Schreibberechtigungen. Dieser Vorgang kann einige Minuten in Anspruch nehmen.', function() {
+	$('#buttonManualCalculate').dialogify('Manuelle Kalkulation anstossen?', 'Ermittelung des spitzenbreinigten Tagesbedarfes, der Rückschreibedaten sowie der Schreibberechtigungen. Dieser Vorgang kann einige Minuten in Anspruch nehmen.', 'dialogNormal', function() {
 		$('body').addClass('loading');
 		$.get('executeManual.php5', {
 			action : 'calculate'
-		}, loadSuccess, 'json');
+		}, loadSuccess);
 	});
 
-	$('#buttonManualWriteBack').dialogify('Manuelles Rückschreiben anstossen?', 'Rückschreiben der Lieferanten- und Lagerdaten für schreibberechtigte Artikel', function() {
+	$('#buttonManualWriteBack').dialogify('Manuelles Rückschreiben anstossen?', 'Rückschreiben der Lieferanten- und Lagerdaten für schreibberechtigte Artikel', 'dialogNormal', function() {
 		$('body').addClass('loading');
 		$.get('executeManual.php5', {
 			action : 'writeBack'
-		}, loadSuccess, 'json');
+		}, loadSuccess);
+	});
+
+	$('#buttonResetArticles').dialogify('Artikeldaten zurücksetzen?', 'Wirklich alle Artikeldaten löschen?', 'dialogDanger', function() {
+		$('body').addClass('loading');
+		$.get('executeManual.php5', {
+			action : 'resetArticles'
+		}, loadSuccess);
+	});
+
+	$('#buttonResetOrders').dialogify('Rechnugnsdaten zurücksetzen?', 'Wirklich alle Rechnungsdaten löschen?', 'dialogDanger', function() {
+		$('body').addClass('loading');
+		$.get('executeManual.php5', {
+			action : 'resetOrders'
+		}, loadSuccess);
 	});
 
 	$('#resultTable').flexigrid({
