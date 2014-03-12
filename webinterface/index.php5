@@ -20,6 +20,37 @@ function getWarehouseList() {
 	return $result;
 }
 
+function getReorderSums() {
+	$query = 'SELECT
+	SUM(ItemSuppliers.ItemSupplierPrice * ItemsWarehouseSettings.ReorderLevel) AS currentReorderStock,
+	SUM(ItemSuppliers.ItemSupplierPrice * WriteBackSuggestion.ReorderLevel) AS proposedReorderStock,
+	SUM(ItemSuppliers.ItemSupplierPrice * ItemsWarehouseSettings.MaximumStock ) AS maxStock
+FROM
+	ItemSuppliers
+LEFT JOIN
+	ItemsWarehouseSettings
+ON
+	ItemSuppliers.ItemID = ItemsWarehouseSettings.ItemID
+LEFT JOIN
+	WriteBackSuggestion
+ON
+	ItemsWarehouseSettings.ItemID = WriteBackSuggestion.ItemID
+AND
+	ItemsWarehouseSettings.AttributeValueSetID = WriteBackSuggestion.AttributeValueSetID
+LEFT JOIN
+	WritePermissions
+ON
+	ItemsWarehouseSettings.ItemID = WritePermissions.ItemID
+AND
+	ItemsWarehouseSettings.AttributeValueSetID = WritePermissions.AttributeValueSetID
+WHERE
+	WritePermissions.WritePermission = 1';
+
+	$resultReorderSums = DBQuery::getInstance() -> select($query);
+
+	return $resultReorderSums -> fetchAssoc();
+}
+
 function checkBadVariants() {
 	$query = 'SELECT
 	ItemsBase.ItemID,
@@ -42,7 +73,7 @@ GROUP BY
 	if ($badVariants -> getNumRows() != 0) {
 		$result = '<ul>';
 		while ($badVariant = $badVariants -> fetchAssoc()) {
-			$result .= "<li>ItemdID:{$badVariant['ItemID']} has misformed SupplierMinimumPurchase ≠ 0</li>";
+			$result .= "<li>ItemdID:{$badVariant['ItemID']} has misformed SupplierMinimumPurchase not equal 0</li>";
 		}
 		return $result;
 	}
@@ -102,7 +133,8 @@ $smarty -> setConfigDir('smarty/configs');
 
 $smarty -> assign('warehouseList', getWarehouseList());
 $smarty -> assign('config', Config::getAll());
-$smarty -> assign('debug', ob_get_clean() . checkItemSupplierConfiguration() . checkFailedOrders(). checkBadVariants());
+$smarty -> assign('reorderSums', getReorderSums());
+$smarty -> assign('debug', ob_get_clean() . checkItemSupplierConfiguration() . checkFailedOrders() . checkBadVariants());
 // make function output available if needed
 $smarty -> display('index.tpl');
 ?>

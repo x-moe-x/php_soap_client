@@ -119,6 +119,22 @@
 						<!-- -->
 					</div>
 				</div>
+				<div id='reorderStock'>
+					<ul>
+						<li>
+							<span class='name'>aktueller ReorderStock-Wert</span><span class='value'>{$reorderSums.currentReorderStock|number_format:2:",":"."}</span>
+						</li>
+						<li>
+							<span class='name'>vorgeschlagener ReorderStock-Wert</span><span class='value'>{$reorderSums.proposedReorderStock|number_format:2:",":"."}</span>
+						</li>
+						<li>
+							<span class='name'>Differenz</span><span class='value'>{($reorderSums.proposedReorderStock - $reorderSums.currentReorderStock)|number_format:2:",":"."}</span>
+						</li>
+						<li>
+							<span class='name'>maximaler Stock-Wert</span><span class='value'>{$reorderSums.maxStock|number_format:2:",":"."}</span>
+						</li>
+					</ul>
+				</div>
 			</div>
 		</div>
 		<table id='resultTable' style='display:none'>
