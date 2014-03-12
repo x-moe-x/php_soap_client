@@ -1,3 +1,23 @@
+$.fn.dialogify = function(title, htmlText, okFunction) {
+	$(this).button().click(function() {
+		$('#dialogText').html(htmlText);
+		$('#dialog').dialog({
+			title : title,
+			modal : true,
+			buttons : {
+				OK : function() {
+					okFunction();
+					$(this).dialog("close");
+				},
+				Cancel : function() {
+					$(this).dialog("close");
+				}
+			}
+		});
+	});
+	return this;
+};
+
 $.fn.checkIntval = function() {'use strict';
 	var val = parseInt(this.val().replace(',', '.'), 10);
 	if (isNaN(val)) {
@@ -49,6 +69,12 @@ $.fn.updateConfig = function() {'use strict';
 	return this;
 };
 
+function loadSuccess(result) {
+	$('body').removeClass("loading");
+	$('#resultTable').flexReload();
+	$('#errorMessages').append('<p> ' + result.task + ' took ' + result.executionTime + ' ' + result.executionTimeUnit + '</p>');
+};
+
 $(document).ready(function() {'use strict';
 	var integerInputfields, floatInputFields;
 
@@ -77,6 +103,27 @@ $(document).ready(function() {'use strict';
 		} else {
 			$(this).select();
 		}
+	});
+
+	$('#buttonManualUpdate').dialogify('Manuelle Aktualisierung anstossen?', 'Aktualisierung der Artikel- und Rechnungsdaten. Dieser Vorgang kann einige Minuten in Anspruch nehmen.', function() {
+		$('body').addClass('loading');
+		$.get('executeManual.php5', {
+			action : 'update'
+		}, loadSuccess, 'json');
+	});
+
+	$('#buttonManualCalculate').dialogify('Manuelle Kalkulation anstossen?', 'Ermittelung des spitzenbreinigten Tagesbedarfes, der Rückschreibedaten sowie der Schreibberechtigungen. Dieser Vorgang kann einige Minuten in Anspruch nehmen.', function() {
+		$('body').addClass('loading');
+		$.get('executeManual.php5', {
+			action : 'calculate'
+		}, loadSuccess, 'json');
+	});
+
+	$('#buttonManualWriteBack').dialogify('Manuelles Rückschreiben anstossen?', 'Rückschreiben der Lieferanten- und Lagerdaten für schreibberechtigte Artikel', function() {
+		$('body').addClass('loading');
+		$.get('executeManual.php5', {
+			action : 'writeBack'
+		}, loadSuccess, 'json');
 	});
 
 	$('#resultTable').flexigrid({
@@ -165,19 +212,6 @@ $(document).ready(function() {'use strict';
 			align : 'right'
 		}],
 		buttons : [{
-			name : 'Kalkulation manuell auslösen',
-			bclass : 'gear',
-			onpress : function() {
-				$('body').addClass('loading');
-				$.get('executeCalculation.php5', function(result) {
-					$('body').removeClass("loading");
-					$('#resultTable').flexReload();
-					$('#errorMessages').append('<p> calculation took ' + result.executionTime + ' ' + result.executionTimeUnit + '</p>');
-				}, 'json');
-			}
-		}, {
-			separator : true
-		}, {
 			name : 'Filter',
 			bclass : 'filter'
 		}],

@@ -68,7 +68,7 @@
 					<!-- -->
 				</div>
 				<div id='switches'>
-					<label for='calculationActive'>Kalkulation: </label>
+					<label for='calculationActive'>Daten aktualisieren / Kalkulation: </label>
 					<select id='calculationActive' {if $config.CalculationActive.Active == 0}disabled{/if}>
 						<option {if $config.CalculationActive.Value != 0}selected{/if} value='1'>On</option>
 						<option {if $config.CalculationActive.Value == 0}selected{/if} value='0'>Off</option>
@@ -78,6 +78,46 @@
 						<option {if $config.WritebackActive.Value != 0}selected{/if} value='1'>On</option>
 						<option {if $config.WritebackActive.Value == 0}selected{/if} value='0'>Off</option>
 					</select>
+				</div>
+				<div id='dialog' style='display: none'>
+					<p>
+						<span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20% 0;"></span>
+						<span id='dialogText'></span>
+					</p>
+				</div>
+				<div id='manualOverride'>
+					<ul style='float:left'>
+						<li>
+							<button id='buttonManualUpdate' class='buttonsLeft'>
+								Aktualisierung auslösen
+							</button>
+						</li>
+						<li>
+							<button id='buttonManualCalculate'class='buttonsLeft'>
+								Kalkulation auslösen
+							</button>
+						</li>
+						<li>
+							<button id='buttonManualWriteBack'class='buttonsLeft'>
+								Rückschreiben auslösen
+							</button>
+						</li>
+					</ul>
+					<ul style='float:right'>
+						<li>
+							<button id='buttonResetArticles'class='buttonsRight' disabled>
+								Reset Artikel-Datenbank
+							</button>
+						</li>
+						<li>
+							<button id='buttonResetOrders'class='buttonsRight' disabled>
+								Reset Order-Datenbank
+							</button>
+						</li>
+					</ul>
+					<div class='clear'>
+						<!-- -->
+					</div>
 				</div>
 			</div>
 		</div>
