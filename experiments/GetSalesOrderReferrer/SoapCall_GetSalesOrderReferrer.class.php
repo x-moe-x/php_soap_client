@@ -1,6 +1,7 @@
 <?php
 
 require_once ROOT . 'lib/soap/call/PlentySoapCall.abstract.php';
+require_once ROOT . 'includes/DBUtils2.class.php';
 
 class SoapCall_GetSalesOrderReferrer extends PlentySoapCall {
 
@@ -9,9 +10,16 @@ class SoapCall_GetSalesOrderReferrer extends PlentySoapCall {
 	 */
 	private $aProcessedSalesOrderReferrer;
 
+	/**
+	 * @return SoapCall_GetSalesOrderReferrer
+	 */
 	public function __construct() {
 		parent::__construct(__CLASS__);
+
 		$this -> aProcessedSalesOrderReferrer = array();
+
+		// truncate table to prevent old leftovers
+		DBQuery::getInstance() -> truncate('TRUNCATE TABLE `SalesOrderReferrer`');
 	}
 
 	/**
@@ -28,7 +36,7 @@ class SoapCall_GetSalesOrderReferrer extends PlentySoapCall {
 
 			if ($oPlentySoapResponse_GetSalesOrderReferrer -> Success == true) {
 				$this -> responseInterpretation($oPlentySoapResponse_GetSalesOrderReferrer);
-				$this->storeToDB();
+				$this -> storeToDB();
 			} else {
 				$this -> getLogger() -> debug(__FUNCTION__ . ' Request Error');
 			}
@@ -68,8 +76,12 @@ class SoapCall_GetSalesOrderReferrer extends PlentySoapCall {
 		// @formatter:on
 	}
 
+	/**
+	 * @return void
+	 */
 	private function storeToDB() {
-		print_r($this -> aProcessedSalesOrderReferrer);
+		$this -> getLogger() -> debug(__FUNCTION__ . ' storing ' . count($this -> aProcessedSalesOrderReferrer) . ' SalesOrderReferrer to db');
+		DBQuery::getInstance() -> insert('INSERT INTO `SalesOrderReferrer`' . DBUtils2::buildMultipleInsertOnDuplikateKeyUpdate($this -> aProcessedSalesOrderReferrer));
 	}
 
 }
