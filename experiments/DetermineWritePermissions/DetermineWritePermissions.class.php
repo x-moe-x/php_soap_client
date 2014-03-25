@@ -90,46 +90,46 @@ class DetermineWritePermissions {
 	 * @return string query
 	 */
 	private function getQuery() {
-		return '
-			SELECT
-				ItemsBase.ItemID,
-				ItemsBase.Marking1ID,
-				ItemsBase.BundleType,
-				CASE WHEN (AttributeValueSets.AttributeValueSetID IS null) THEN
-					"0"
-				ELSE
-					AttributeValueSets.AttributeValueSetID
-				END AttributeValueSetID,
-				CASE WHEN (ItemsWarehouseSettings.StockTurnover IS null) THEN
-					"0"
-				ELSE
-					ItemsWarehouseSettings.StockTurnover
-				END StockTurnover,
-				CASE WHEN (ItemsWarehouseSettings.ReorderLevel IS null) THEN
-					"0"
-				ELSE
-					ItemsWarehouseSettings.ReorderLevel
-				END ReorderLevel,
-				ItemSuppliers.SupplierDeliveryTime,
-				ItemSuppliers.SupplierMinimumPurchase
-			FROM
-				ItemsBase
-			LEFT JOIN
-				AttributeValueSets
-			ON
-				ItemsBase.ItemID = AttributeValueSets.ItemID
-			LEFT JOIN ItemSuppliers
-				ON ItemsBase.ItemID = ItemSuppliers.ItemID
-			LEFT JOIN
-				ItemsWarehouseSettings
-			ON
-				ItemsBase.ItemID = ItemsWarehouseSettings.ItemID
-                AND CASE WHEN (AttributeValueSets.AttributeValueSetID IS null) THEN
-					"0"
-                ELSE
-					AttributeValueSets.AttributeValueSetID
-                END = ItemsWarehouseSettings.AttributeValueSetID
-			';
+		return 'SELECT
+	ItemsBase.ItemID,
+	ItemsBase.Marking1ID,
+	ItemsBase.BundleType,
+	CASE WHEN (AttributeValueSets.AttributeValueSetID IS null) THEN
+		"0"
+	ELSE
+		AttributeValueSets.AttributeValueSetID
+	END AttributeValueSetID,
+	CASE WHEN (ItemsWarehouseSettings.StockTurnover IS null) THEN
+		"0"
+	ELSE
+		ItemsWarehouseSettings.StockTurnover
+	END StockTurnover,
+	CASE WHEN (ItemsWarehouseSettings.ReorderLevel IS null) THEN
+		"0"
+	ELSE
+		ItemsWarehouseSettings.ReorderLevel
+	END ReorderLevel,
+	ItemSuppliers.SupplierDeliveryTime,
+	ItemSuppliers.SupplierMinimumPurchase
+FROM
+	ItemsBase
+LEFT JOIN
+	AttributeValueSets
+ON
+	ItemsBase.ItemID = AttributeValueSets.ItemID
+LEFT JOIN ItemSuppliers
+	ON ItemsBase.ItemID = ItemSuppliers.ItemID
+LEFT JOIN
+	ItemsWarehouseSettings
+ON
+	ItemsBase.ItemID = ItemsWarehouseSettings.ItemID
+    AND CASE WHEN (AttributeValueSets.AttributeValueSetID IS null) THEN
+		"0"
+    ELSE
+		AttributeValueSets.AttributeValueSetID
+    END = ItemsWarehouseSettings.AttributeValueSetID
+WHERE
+	ItemsBase.Inactive = 0';
 	}
 
 	/**

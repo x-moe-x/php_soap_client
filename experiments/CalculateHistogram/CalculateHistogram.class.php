@@ -229,10 +229,13 @@ FROM
 LEFT JOIN
 	(OrderHead, ItemsBase) ON (OrderHead.OrderID = OrderItem.OrderID AND OrderItem.ItemID = ItemsBase.ItemID)
 WHERE
-	(OrderHead.OrderTimestamp BETWEEN {$this -> currentTime} -( 86400 *  $daysBack ) AND {$this -> currentTime} ) AND
-	(OrderHead.OrderStatus < 8 OR OrderHead.OrderStatus >= 9) AND
-	OrderType = \"order\" /* AND
-	ItemsBase.Marking1ID IN (9,12,16,20) */ /* yellow, red, green, black */
+	(OrderHead.OrderTimestamp BETWEEN {$this -> currentTime} -( 86400 *  $daysBack ) AND {$this -> currentTime} )
+AND
+	(OrderHead.OrderStatus < 8 OR OrderHead.OrderStatus >= 9)
+AND
+	OrderType = \"order\"
+AND
+	ItemsBase.Inactive = 0
 GROUP BY
 	OrderItem.SKU
 ORDER BY

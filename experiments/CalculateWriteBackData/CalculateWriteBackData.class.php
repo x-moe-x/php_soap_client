@@ -135,7 +135,9 @@ LEFT JOIN ItemsWarehouseSettings
         "0"
     ELSE
         AttributeValueSets.AttributeValueSetID
-    END = ItemsWarehouseSettings.AttributeValueSetID' . PHP_EOL;
+    END = ItemsWarehouseSettings.AttributeValueSetID
+WHERE
+	ItemsBase.Inactive = 0' . PHP_EOL;
 	}
 
 	/**

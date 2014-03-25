@@ -205,7 +205,8 @@ LEFT JOIN WriteBackSuggestion
         AttributeValueSets.AttributeValueSetID
     END = WriteBackSuggestion.AttributeValueSetID' . PHP_EOL;
 
-$where = 'WHERE 1' . PHP_EOL;
+$where = 'WHERE
+	ItemsBase.Inactive = 0' . PHP_EOL;
 
 if ($query && $qtype) {
 	if (strpos($query, ',') !== false) {

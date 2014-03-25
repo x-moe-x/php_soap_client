@@ -210,6 +210,7 @@ class SoapCall_GetItemsBase extends PlentySoapCall {
 				'Free20'					=> $oItemsBase->FreeTextFields->Free20,
 				'HasAttributes'				=> $oItemsBase->HasAttributes,
 				'ISBN'						=> $oItemsBase->ISBN,
+				'Inactive'					=> $oItemsBase->Availability->Inactive, /* just inactive field needed */
 				'Inserted'					=> $oItemsBase->Inserted,
 			/*	'ItemAttributeMarkup'		=> $oItemsBase->ItemAttributeMarkup,	ignored since not part of the request	*/
 				'ItemID'					=> $itemID,
