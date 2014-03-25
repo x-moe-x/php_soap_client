@@ -111,7 +111,6 @@ class SoapCall_GetItemsBase extends PlentySoapCall {
 				$this -> processItemsBase($itemsBase);
 			}
 		} else {
-
 			$this -> processItemsBase($oPlentySoapResponse_GetItemsBase -> ItemsBase -> item);
 		}
 	}

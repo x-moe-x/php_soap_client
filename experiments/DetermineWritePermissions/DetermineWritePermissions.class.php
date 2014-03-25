@@ -22,11 +22,6 @@ class DetermineWritePermissions {
 	private $aArticleData;
 
 	/**
-	 * @var array
-	 */
-	private static $aExclusiveItemIDs = array(1919, 416, 1882, 201, 410);
-
-	/**
 	 * @return DetermineWritePermissions
 	 */
 	public function __construct() {
