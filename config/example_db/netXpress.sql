@@ -307,3 +307,14 @@ CREATE TABLE `soap_db`.`FailedOrderIDRange` (
 	`Reason` TEXT COLLATE utf8_unicode_ci,
 	PRIMARY KEY (`FromOrderID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+
+DROP TABLE IF EXISTS `soap_db`.`SalesOrderReferrer`;
+
+CREATE TABLE `soap_db`.`SalesOrderReferrer` (
+	`SalesOrderReferrerID` int(11) NOT NULL,
+	`Name` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
+	`PriceColumn` int(11) DEFAULT NULL,
+	PRIMARY KEY (`SalesOrderReferrerID`),
+	UNIQUE KEY `Name` (`Name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
