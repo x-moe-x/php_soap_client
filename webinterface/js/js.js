@@ -73,7 +73,7 @@ $.fn.updateConfig = function() {'use strict';
 
 function loadSuccess(result) {
 	$('body').removeClass("loading");
-	$('#resultTable').flexReload();
+	$('#stockTable').flexReload();
 	$('#errorMessages').append('<p> ' + result + '</p>');
 };
 
@@ -113,20 +113,20 @@ function updateify(inputData) {
 	});
 }
 
-
-$(document).ready(function() {'use strict';
-
-	$('#config').accordion({
+function prepareStock() {
+	$('.config').accordion({
 		heightStyle : 'content',
 		collapsible : true,
 		active : false
 	});
 
 	$('.accordion').accordion({
-		heightStyle : "content"
+		heightStyle : 'content'
 	});
-	
-	$('#tabs').tabs();
+
+	$('#tabs').tabs({
+		heightStyle : 'content'
+	});
 
 	updateify([{
 		id : '#calculationTimeA',
@@ -192,8 +192,8 @@ $(document).ready(function() {'use strict';
 		type : 'danger'
 	}]);
 
-	$('#resultTable').flexigrid({
-		url : 'post-xml.php5',
+	$('#stockTable').flexigrid({
+		url : 'stock-post-xml.php5',
 		dataType : 'xml',
 		colModel : [{
 			display : 'Item ID',
@@ -206,7 +206,7 @@ $(document).ready(function() {'use strict';
 			name : 'ItemNo',
 			width : 80,
 			sortable : true,
-			align : 'center'
+			align : 'left'
 		}, {
 			display : 'Name',
 			name : 'Name',
@@ -443,4 +443,92 @@ $(document).ready(function() {'use strict';
 		pagestat : 'Zeige {from} bis {to} von {total} Artikeln',
 		procmsg : 'Bitte warten...'
 	});
+};
+
+function preparePrice() {
+	$('#priceTable').flexigrid({
+		url : 'price-post-xml.php5',
+		dataType : 'xml',
+		colModel : [{
+			display : 'Item ID',
+			name : 'ItemID',
+			width : 40,
+			sortable : true,
+			align : 'center'
+		}, {
+			display : 'Artikel Nr',
+			name : 'ItemNo',
+			width : 80,
+			sortable : true,
+			align : 'left'
+		}, {
+			display : 'Name',
+			name : 'Name',
+			width : 500,
+			sortable : true,
+			align : 'left'
+		}, {
+			display : 'Markierung',
+			name : 'Marking1ID',
+			width : 60,
+			sortable : true,
+			align : 'center'
+		}, {
+			display : 'Name / Herkunft',
+			name : 'Referrer'
+		}, {
+			display : 'Ø Bedarf / Monat',
+			name : 'MonthlyNeed'
+		}, {
+			display : 'pausiert (Grund)',
+			name : 'PauseCause',
+			hide: true
+		}, {
+			display : 'Trend Gewinn % im Zeitraum',
+			name : 'x1',
+			hide: true
+		}, {
+			display : 'Min.-Preis',
+			name : 'x2',
+			hide: true
+		}, {
+			display : 'aktueller Preis',
+			name : 'CurrentPrice',
+			hide: true
+		}, {
+			display : 'Preisvorschlag',
+			name : 'x3',
+			hide: true
+		}, {
+			display : 'Preis ändern',
+			name : 'x4',
+			hide: true
+		}, {
+			display : 'Function man. auslösen',
+			name : 'x5',
+			hide: true
+		}],
+		status : [4, 9, 12, 16, 20],
+		sortname : "ItemID",
+		sortorder : "asc",
+		usepager : true,
+		singleSelect : true,
+		title : 'Preisautomatik',
+		useRp : true,
+		height : 500,
+		rp : 20,
+		rpOptions : [10, 20, 30, 50, 100, 200],
+		showTableToggleBtn : false,
+		pagetext : 'Seite',
+		outof : 'von',
+		pagestat : 'Zeige {from} bis {to} von {total} Artikeln',
+		procmsg : 'Bitte warten...'
+	});
+};
+
+$(document).ready(function() {'use strict';
+
+	prepareStock();
+	preparePrice();
+
 });

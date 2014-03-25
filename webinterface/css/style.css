@@ -24,7 +24,7 @@
 	float: right;
 }
 
-#config ul, .box ul {
+.config ul, .box ul {
 	margin: 0;
 	padding: 0;
 	list-style: none;
@@ -34,11 +34,11 @@
 	width: 40px;
 }
 
-#config {
+.config {
 	width: 800px;
 }
 
-#config > strong {
+.config > strong {
 	margin: 0;
 }
 
