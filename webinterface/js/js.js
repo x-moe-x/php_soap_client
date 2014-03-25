@@ -1,10 +1,11 @@
-$.fn.dialogify = function(title, htmlText, cssClass, okFunction) {
+$.fn.dialogify = function(title, htmlText, type, okFunction) {
 	$(this).button().click(function() {
 		$('#dialogText').html(htmlText);
+		$('#dialogIcon').attr('class',(type === 'danger' ? 'ui-icon ui-icon-alert' : 'ui-icon ui-icon-info'));
 		$('#dialog').dialog({
 			title : title,
 			modal : true,
-			dialogClass : cssClass,
+			dialogClass : (type === 'danger' ? 'ui-state-error' : 'ui-state-highlight'),
 			buttons : {
 				OK : function() {
 					okFunction();
@@ -76,70 +77,120 @@ function loadSuccess(result) {
 	$('#errorMessages').append('<p> ' + result + '</p>');
 };
 
+function dialogify(buttonData) {
+	$.each(buttonData, function(index, button) {
+		$(button.id).dialogify(button.title, button.descr, button.type, function() {
+			$('body').addClass('loading');
+			$.get('executeManual.php5', {
+				action : button.task
+			}, loadSuccess);
+		});
+	});
+}
+
+function updateify(inputData) {
+	$.each(inputData, function(index, input) {
+		$(input.id).change(function() {
+			$(this).updateConfig();
+
+			if ((input.type === 'int') || (input.type === 'float')) {
+				if (input.type === 'int') {
+					$(this).checkIntval();
+				} else {
+					$(this).checkFloatval();
+				}
+				$(this).mouseup(function(e) {
+					e.preventDefault();
+				}).focus(function() {
+					if (isNaN($(this).val())) {
+						$(this).val("");
+					} else {
+						$(this).select();
+					}
+				});
+			}
+		});
+	});
+}
+
+
 $(document).ready(function() {'use strict';
-	var integerInputfields, floatInputFields;
 
-	integerInputfields = $('#calculationTimeA, #calculationTimeB, #minimumToleratedSpikesA, #minimumToleratedSpikesB, #minimumOrdersA, #minimumOrdersB');
-	floatInputFields = $('#standardDeviationFactor, #spikeTolerance');
-
-	$('#calculationActive, #writebackActive').change(function() {
-		$(this).updateConfig();
+	$('#config').accordion({
+		heightStyle : 'content',
+		collapsible : true,
+		active : false
 	});
 
-	integerInputfields.change(function() {
-		$(this).checkIntval();
-		$(this).updateConfig();
+	$('.accordion').accordion({
+		heightStyle : "content"
 	});
+	
+	$('#tabs').tabs();
 
-	floatInputFields.change(function() {
-		$(this).checkFloatval();
-		$(this).updateConfig();
-	});
+	updateify([{
+		id : '#calculationTimeA',
+		type : 'int'
+	}, {
+		id : '#calculationTimeB',
+		type : 'int'
+	}, {
+		id : '#minimumToleratedSpikesA',
+		type : 'int'
+	}, {
+		id : '#minimumToleratedSpikesB',
+		type : 'int'
+	}, {
+		id : '#minimumOrdersA',
+		type : 'int'
+	}, {
+		id : '#minimumOrdersB',
+		type : 'int'
+	}, {
+		id : '#standardDeviationFactor',
+		type : 'float'
+	}, {
+		id : '#spikeTolerance',
+		type : 'float'
+	}, {
+		id : '#calculationActive',
+		type : 'select'
+	}, {
+		id : '#writebackActive',
+		type : 'select'
+	}]);
 
-	integerInputfields.add(floatInputFields).mouseup(function(e) {
-		e.preventDefault();
-	}).focus(function() {
-		if (isNaN($(this).val())) {
-			$(this).val("");
-		} else {
-			$(this).select();
-		}
-	});
-
-	$('#buttonManualUpdate').dialogify('Manuelle Aktualisierung anstossen?', 'Aktualisierung der Artikel- und Rechnungsdaten. Dieser Vorgang kann einige Minuten in Anspruch nehmen.', 'dialogNormal', function() {
-		$('body').addClass('loading');
-		$.get('executeManual.php5', {
-			action : 'update'
-		}, loadSuccess);
-	});
-
-	$('#buttonManualCalculate').dialogify('Manuelle Kalkulation anstossen?', 'Ermittelung des spitzenbreinigten Tagesbedarfes, der Rückschreibedaten sowie der Schreibberechtigungen. Dieser Vorgang kann einige Minuten in Anspruch nehmen.', 'dialogNormal', function() {
-		$('body').addClass('loading');
-		$.get('executeManual.php5', {
-			action : 'calculate'
-		}, loadSuccess);
-	});
-
-	$('#buttonManualWriteBack').dialogify('Manuelles Rückschreiben anstossen?', 'Rückschreiben der Lieferanten- und Lagerdaten für schreibberechtigte Artikel', 'dialogNormal', function() {
-		$('body').addClass('loading');
-		$.get('executeManual.php5', {
-			action : 'writeBack'
-		}, loadSuccess);
-	});
-
-	$('#buttonResetArticles').dialogify('Artikeldaten zurücksetzen?', 'Wirklich alle Artikeldaten löschen?', 'dialogDanger', function() {
-		$('body').addClass('loading');
-		$.get('executeManual.php5', {
-			action : 'resetArticles'
-		}, loadSuccess);
-	});
-
-	$('#buttonResetOrders').dialogify('Rechnugnsdaten zurücksetzen?', 'Wirklich alle Rechnungsdaten löschen?', 'dialogDanger', function() {
-		$('body').addClass('loading');
-		$.get('executeManual.php5', {
-			action : 'resetOrders'
-		}, loadSuccess);
-	});
+	dialogify([{
+		id : '#buttonManualUpdate',
+		task : 'update',
+		title : 'Manuelle Aktualisierung anstossen?',
+		descr : 'Aktualisierung der Artikel- und Rechnungsdaten. Dieser Vorgang kann einige Minuten in Anspruch nehmen.',
+		type : 'normal'
+	}, {
+		id : '#buttonManualCalculate',
+		task : 'calculate',
+		title : 'Manuelle Kalkulation anstossen?',
+		descr : 'Ermittelung des spitzenbreinigten Tagesbedarfes, der Rückschreibedaten sowie der Schreibberechtigungen. Dieser Vorgang kann einige Minuten in Anspruch nehmen.',
+		type : 'normal'
+	}, {
+		id : '#buttonManualWriteBack',
+		task : 'writeBack',
+		title : 'Manuelles Rückschreiben anstossen?',
+		descr : 'Rückschreiben der Lieferanten- und Lagerdaten für schreibberechtigte Artikel',
+		type : 'normal'
+	}, {
+		id : '#buttonResetArticles',
+		task : 'resetArticles',
+		title : 'Artikeldaten zurücksetzen?',
+		descr : '<strong>Achtung:</strong><p>Wirklich alle Artikeldaten löschen?<br><br>Diese Aktion löscht ausschliesslich die Artikeldaten und stösst kein erneutes Update an!<p>',
+		type : 'danger'
+	}, {
+		id : '#buttonResetOrders',
+		task : 'resetOrders',
+		title : 'Rechnugnsdaten zurücksetzen?',
+		descr : 'Wirklich alle Rechnungsdaten löschen?<br><br>Diese Aktion löscht ausschliesslich die Rechnungsdaten und stösst kein erneutes Update an!',
+		type : 'danger'
+	}]);
 
 	$('#resultTable').flexigrid({
 		url : 'post-xml.php5',
@@ -391,11 +442,5 @@ $(document).ready(function() {'use strict';
 		outof : 'von',
 		pagestat : 'Zeige {from} bis {to} von {total} Artikeln',
 		procmsg : 'Bitte warten...'
-	}); ( function() {
-			var configDiv = $('#fade');
-			$(configDiv).hide();
-			$('#toggleConfig').button().click(function() {
-				$(configDiv).toggle('blind', 500);
-			});
-		}());
+	});
 });

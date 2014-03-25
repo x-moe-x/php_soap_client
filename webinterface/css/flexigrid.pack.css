@@ -16,7 +16,7 @@
 .flexigrid div.nBtn{position:absolute;height:40px;width:14px;z-index:900;background:#fafafa url(../images/fhbg.gif) repeat-x bottom;border:0 solid #ccc;border-left:1px solid #ccc;top:0;left:0;margin-top:1px;cursor:pointer;display:none}
 .flexigrid div.nBtn div{height:40px;width:12px;border-left:1px solid #fff;float:left;background:url(../images/ddn.png) no-repeat center}
 .flexigrid div.nBtn.srtd{background:url(../images/wbg.gif) repeat-x 0 -1px}
-.flexigrid div.mDiv{background:url(../images/wbg.gif) repeat-x top;border:1px solid #ccc;border-bottom:0;border-top:0;font-weight:700;display:block;overflow:hidden;white-space:nowrap;position:relative}
+.flexigrid div.mDiv{background:url(../images/wbg.gif) repeat-x top;border:1px solid #ccc;border-bottom:0;border-top:0;font-weight:700;display:block;overflow:hidden;white-space:nowrap;position:relative;border-top-right-radius:5px;border-top-left-radius:5px}
 .flexigrid div.mDiv div{white-space:nowrap;padding:6px}
 .flexigrid div.mDiv div.ptogtitle{position:absolute;top:4px;right:3px;height:16px;width:16px;overflow:hidden;border:1px solid #ccc;cursor:pointer;padding:0}
 .flexigrid div.mDiv div.ptogtitle:hover{background-position:left -2px;border-color:#bbb}
