@@ -1,12 +1,12 @@
 <?php
 ob_start();
 
-require_once realpath(dirname(__FILE__) . '/../') . '/config/basic.inc.php';
+require_once 'includes/basic_forward.inc.php';
 require_once ROOT . 'includes/GetConfig.php';
 
 $result = array('Message' => null, 'Value' => null);
 
-if (isset($_POST['key']) && isset($_POST['value' ])) {
+if (isset($_POST['key']) && isset($_POST['value'])) {
 	$key = ucfirst($_POST['key']);
 	$newValue = $_POST['value'];
 	try {

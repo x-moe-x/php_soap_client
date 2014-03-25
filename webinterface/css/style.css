@@ -3,10 +3,6 @@
 	font-size: 10pt;
 }
 
-#errorMessages {
-	background-color: #00e0d0;
-}
-
 /** start config styling **/
 
 .box {
@@ -16,44 +12,48 @@
 	border-radius: 0.5em;
 }
 
-.box strong {
-	display: block;
-	margin: 0 0 1em;
+.column {
+	width: calc(50% - 2 * 1em - 2px - 0.5em) !important;
 }
 
-.box ul {
+.leftColumn {
+	float: left;
+}
+
+.rightColumn {
+	float: right;
+}
+
+.config ul, .box ul {
 	margin: 0;
 	padding: 0;
 	list-style: none;
 }
 
-.clear {
-	clear: both;
+#toggleConfig {
+	width: 40px;
 }
 
-#config {
+.config {
 	width: 800px;
 }
 
-#config > strong {
+.config > strong {
 	margin: 0;
-}
-
-#fade {
-	padding: 1em 0 0;
 }
 
 #dialog {
 	display: none;
 }
 
-.dialogDanger .ui-dialog-titlebar, .dialogDanger .ui-dialog-buttonset button:first-child {
-	background: red !important;
+#dialogIcon {
+	float: left;
+	margin: 0 0.3em 6em 0;
 }
 
 #globalManipulation {
 	width: 360px;
-	margin: 1em auto 0;
+	margin: 1em auto 0 !important;
 }
 
 #variableManipulation label, #variableManipulation input {
@@ -78,18 +78,6 @@
 	width: 50px;
 	padding: 0 5px 0 0;
 	text-align: right;
-}
-
-#firstPeriodManipulation, #secondPeriodManipulation {
-	width: calc(50% - 2 * 1em - 2px - 0.5em);
-}
-
-#firstPeriodManipulation {
-	float: left;
-}
-
-#secondPeriodManipulation {
-	float: right;
 }
 
 #switches select {
@@ -118,7 +106,7 @@
 }
 
 #reorderStock .name {
-	width: 250px;
+	width: 45%;
 	display: inline-block;
 }
 
@@ -127,13 +115,17 @@
 }
 
 #reorderStock .value {
-	width: 100px;
+	width: 45%;
 	text-align: right;
 	display: inline-block;
 }
 
 #reorderStock .value:after {
 	content: ' EUR';
+}
+
+#reorderStock .rightColumn {
+	margin-top: 0.5em;
 }
 
 .modal {
@@ -296,7 +288,6 @@ body.loading .modal {
 .totalSum {
 	min-width: 3em;
 }
-
 
 /** end table styling **/
 
