@@ -107,6 +107,25 @@ class CalculateHistogram {
 			die();
 		}
 
+		// check if activationdate given (match against regular german date format like dd.mm.yyyy, tolerating -:/. as delimiter) ...
+		if ($aCurrentArticle['ActivationDate'] != 0 && preg_match('/(((?:[0-2]?\d{1})|(?:[3][01]{1}))[-:\/.]([0]?[1-9]|[1][012])[-:\/.]((?:[1]{1}\d{1}\d{1}\d{1})|(?:[2]{1}\d{3})))(?![\d])/', $aCurrentArticle['ActivationDate'], $matches)) {
+			// ... then extract difference to current time in days
+			$date = new DateTime();
+			$date -> setDate($matches[4], $matches[3], $matches[2]);
+			$date -> setTime(0, 0, 0);
+			$activationTimeDifferenceDays = floor(($this -> currentTime - $date -> format('U')) / 86400);
+
+			// check if activation date is in the future ...
+			if ($activationTimeDifferenceDays < 0) {
+				// ... then no further processing is needed, skip article
+				return;
+			}
+			// ... or if activation date is period b ...
+			else if ($activationTimeDifferenceDays < $this -> aConfig['CalculationTimeB']['Value']) {
+				// ... then mark as new
+				$newArticle = true;
+			}
+		}
 		$skippedIndex;
 		$adjustedQuantity = $this -> getArticleAdjustedQuantity(explode(',', $aCurrentArticle['quantities']), $aCurrentArticle['quantity'], $aCurrentArticle['range'], $this -> aConfig['MinimumToleratedSpikes' . $sAorB]['Value'], $this -> aConfig['MinimumOrders' . $sAorB]['Value'], $skippedIndex);
 
@@ -240,7 +259,8 @@ class CalculateHistogram {
 	SUM(CAST(OrderItem.Quantity AS SIGNED)) AS `quantity`,
 	AVG(`quantity`) + STDDEV(`quantity`) * {$this->aConfig['StandardDeviationFactor']['Value']} AS `range`,
 	CAST(GROUP_CONCAT(IF(OrderItem.Quantity > 0 ,CAST(OrderItem.Quantity AS SIGNED),NULL) ORDER BY OrderItem.Quantity DESC SEPARATOR \",\") AS CHAR) AS `quantities`,
-	ItemsBase.Marking1ID
+	ItemsBase.Marking1ID,
+	ItemsBase.Free5 AS ActivationDate
 FROM
 	OrderItem
 LEFT JOIN
