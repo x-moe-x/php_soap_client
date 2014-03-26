@@ -98,6 +98,9 @@ class CalculateHistogram {
 	 */
 	private function processArticle(array $aCurrentArticle, $sAorB) {
 		list($ItemID, , $AttributeValueSetID) = SKU2Values($aCurrentArticle['SKU']);
+		/** indicates if article activation date is in period b, so it is to be skipped for period a processing
+		 * @var bool */
+		$newArticle = false;
 		$sAorB = strtoupper($sAorB);
 		if ($sAorB !== 'A' && $sAorB !== 'B') {
 			$this -> getLogger() -> info(__FUNCTION__ . ' : wrong syntax of $sAorB : ' . $sAorB);
@@ -107,8 +110,9 @@ class CalculateHistogram {
 		$skippedIndex;
 		$adjustedQuantity = $this -> getArticleAdjustedQuantity(explode(',', $aCurrentArticle['quantities']), $aCurrentArticle['quantity'], $aCurrentArticle['range'], $this -> aConfig['MinimumToleratedSpikes' . $sAorB]['Value'], $this -> aConfig['MinimumOrders' . $sAorB]['Value'], $skippedIndex);
 
-		if ($sAorB === 'A') {
-			// add data for calculation time A
+		// if processing period is a and article isn't new ...
+		if ($sAorB === 'A' && !$newArticle) {
+			// ... add data for calculation time A
 
 			// @formatter:off
 			$this->aArticleData[$aCurrentArticle['SKU']] = 
@@ -123,8 +127,10 @@ class CalculateHistogram {
 					'SkippedB' => 				'0'
 			);
 			// @formatter:on
-		} else {
-			// add data for calculation time B
+		}
+		// ... or if period is b ...
+		else if ($sAorB === 'B'){
+			// ... add data for calculation time B
 
 			// if there's an existing record ...
 			if (array_key_exists($aCurrentArticle['SKU'], $this -> aArticleData)) {
@@ -135,12 +141,23 @@ class CalculateHistogram {
 			} else {
 				// ... otherwise create new one
 
+				/** holds daily need for period b*/
+				$dailyNeedB;
+
+				// if article is new ...
+				if ($newArticle) {
+					// ... store the whole daily need value
+					$dailyNeedB = $adjustedQuantity / $this -> aConfig['CalculationTimeB']['Value'];
+				} else {
+					// ... otherwise store just a fraction of the daily need value (so the article just hasn't been sold much past period b)
+					$dailyNeedB = ($adjustedQuantity / $this -> aConfig['CalculationTimeB']['Value']) / 2;
+				}
 				// @formatter:off
 				$this->aArticleData[$aCurrentArticle['SKU']] =
 					array(
 						'ItemID' =>					$ItemID,
 						'AttributeValueSetID' =>	$AttributeValueSetID,
-						'DailyNeed' =>				($adjustedQuantity / $this -> aConfig['CalculationTimeB']['Value']) / 2,
+						'DailyNeed' =>				$dailyNeedB,
 						'LastUpdate' =>				$this -> currentTime,
 						'QuantitiesA' =>			'0',
 						'SkippedA' =>				'0',
