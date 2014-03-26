@@ -23,11 +23,12 @@ class CalculateHistogram {
 	private $aConfig;
 
 	/**
+	 * timestamp at construction time
 	 * @var int
 	 */
 	private $currentTime;
 
-	/**
+	/** article data to be stored to db
 	 * @var array
 	 */
 	private $aArticleData;
@@ -97,13 +98,13 @@ class CalculateHistogram {
 	 * @return void
 	 */
 	private function processArticle(array $aCurrentArticle, $sAorB) {
-		list($ItemID, , $AttributeValueSetID) = SKU2Values($aCurrentArticle['SKU']);
+
 		/** indicates if article activation date is in period b, so it is to be skipped for period a processing
 		 * @var bool */
 		$newArticle = false;
 		$sAorB = strtoupper($sAorB);
 		if ($sAorB !== 'A' && $sAorB !== 'B') {
-			$this -> getLogger() -> info(__FUNCTION__ . ' : wrong syntax of $sAorB : ' . $sAorB);
+			$this -> getLogger() -> error(__FUNCTION__ . ' : wrong syntax of $sAorB : ' . $sAorB);
 			die();
 		}
 
@@ -120,13 +121,25 @@ class CalculateHistogram {
 				// ... then no further processing is needed, skip article
 				return;
 			}
-			// ... or if activation date is period b ...
+			// ... or if activation date is in period b ...
 			else if ($activationTimeDifferenceDays < $this -> aConfig['CalculationTimeB']['Value']) {
 				// ... then mark as new
 				$newArticle = true;
 			}
 		}
+
+		/** current article's ItemID */
+		$ItemID;
+
+		/** current article's variant id (0 for non-variant articles) */
+		$AttributeValueSetID;
+
+		list($ItemID, , $AttributeValueSetID) = SKU2Values($aCurrentArticle['SKU']);
+
+		/** holds # of skipped orders after adjusting quantity */
 		$skippedIndex;
+
+		/** spike-cleared total quantity */
 		$adjustedQuantity = $this -> getArticleAdjustedQuantity(explode(',', $aCurrentArticle['quantities']), $aCurrentArticle['quantity'], $aCurrentArticle['range'], $this -> aConfig['MinimumToleratedSpikes' . $sAorB]['Value'], $this -> aConfig['MinimumOrders' . $sAorB]['Value'], $skippedIndex);
 
 		// if processing period is a and article isn't new ...
@@ -171,6 +184,7 @@ class CalculateHistogram {
 					// ... otherwise store just a fraction of the daily need value (so the article just hasn't been sold much past period b)
 					$dailyNeedB = ($adjustedQuantity / $this -> aConfig['CalculationTimeB']['Value']) / 2;
 				}
+
 				// @formatter:off
 				$this->aArticleData[$aCurrentArticle['SKU']] =
 					array(
