@@ -4,6 +4,7 @@ require_once ROOT . 'lib/soap/call/PlentySoapCall.abstract.php';
 require_once 'Request_SearchOrders.class.php';
 require_once ROOT . 'includes/DBLastUpdate.php';
 require_once ROOT . 'includes/DBUtils2.class.php';
+require_once ROOT . 'includes/SerializeErrors.php';
 
 /*
  * there's a plenty bug when an order contains some non-utf-8 characters, soap will refuse to respond for the whole package of 25 orders
@@ -72,7 +73,7 @@ class SoapCall_SearchOrders extends PlentySoapCall {
 	}
 
 	public function execute() {
-		$this -> getLogger() -> debug(__FUNCTION__);
+		$this -> getLogger() -> info(__FUNCTION__ . ' Fetching order data from plenty');
 
 		list($lastUpdate, $currentTime, $this -> startAtPage) = lastUpdateStart(__CLASS__);
 
@@ -83,7 +84,7 @@ class SoapCall_SearchOrders extends PlentySoapCall {
 				$this -> oPlentySoapRequest_SearchOrders = $oRequest_SearchOrders -> getRequest($lastUpdate, $currentTime, $this -> startAtPage);
 
 				if ($this -> startAtPage > 0) {
-					$this -> getLogger() -> debug(__FUNCTION__ . " Starting at page " . $this -> startAtPage);
+					$this -> getLogger() -> info(__FUNCTION__ . " Starting at page " . $this -> startAtPage);
 				}
 
 				/*
@@ -95,23 +96,20 @@ class SoapCall_SearchOrders extends PlentySoapCall {
 					$ordersFound = count($oPlentySoapResponse_SearchOrders -> Orders -> item);
 					$pagesFound = $oPlentySoapResponse_SearchOrders -> Pages;
 
-					//$this -> getLogger() -> debug(__FUNCTION__ . ' Request Success - orders found : ' . $ordersFound . ' / pages : ' . $pagesFound);
-
 					// auswerten
 					$this -> responseInterpretation($oPlentySoapResponse_SearchOrders);
 
 					if ($pagesFound > $this -> page) {
 						$this -> page = $this -> startAtPage + 1;
 						$this -> pages = $pagesFound;
-
 						lastUpdatePageUpdate(__CLASS__, $this -> page);
 						$this -> executePages();
 					}
-
 				} else if (($oPlentySoapResponse_SearchOrders -> Success == true) && !isset($oPlentySoapResponse_SearchOrders -> Orders -> item)) {
 					$this -> getLogger() -> debug(__FUNCTION__ . ' Request Success - but no matching orders found');
 				} else {
 					$this -> getLogger() -> debug(__FUNCTION__ . ' Request Error');
+					$this -> getLogger() -> debug(serialize_errors($oPlentySoapResponse_SearchOrders -> ResponseMessages -> item));
 				}
 			} catch(Exception $e) {
 				$this -> onExceptionAction($e);
