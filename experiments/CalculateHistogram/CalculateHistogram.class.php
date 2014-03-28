@@ -115,35 +115,12 @@ class CalculateHistogram {
 		// if activation date given ...
 		if ($withActivationDate) {
 
-			// ... then calculate (now - ActivationDate) in days
-			$activationTimeDifference = $this -> getActivationTimeDifference($aCurrentArticle['ActivationDate']);
+			// ... potentially update article variant data (if date is in current period)
+			$skipArticle = false;
+			$this -> updateArticleOnActivationDate($aCurrentArticle, $daysBack, $isNewArticle, $skipArticle);
 
-			// check if a date is given which doesn't match ...
-			if (is_null($activationTimeDifference)) {
-				// ... report error and skip article
-				$this -> getLogger() -> debug(__FUNCTION__ . " article {$aCurrentArticle['SKU']} has misformed activation date: {$aCurrentArticle['ActivationDate']}");
+			if ($skipArticle) {
 				return;
-			}
-			// ... or if activation date is in the future ...
-			else if ($activationTimeDifference < 0) {
-				// ... then no further processing is needed, skip article
-				return;
-			}
-			// ... or if date is in current calculation period ...
-			else if ($activationTimeDifference < $daysBack && $activationTimeDifference < $this -> aConfig['CalculationTimeA']['Value']) {
-				// ... then adjust calculation period
-				$daysBack = $activationTimeDifference;
-				$isNewArticle = 1;
-
-				$currentArticleResult = DBQuery::getInstance() -> select($this -> getIntervalQuery($daysBack, true, $aCurrentArticle['SKU']));
-				// ... if there's any data for the adjusted period
-				if ($aSpecificArticle = $currentArticleResult -> fetchAssoc()) {
-					// ... then update the current article
-					$aCurrentArticle = $aSpecificArticle;
-				} else {
-					// ... otherwise skip the article
-					return;
-				}
 			}
 		}
 
@@ -211,6 +188,39 @@ class CalculateHistogram {
 		} else {
 			$this -> getLogger() -> error(__FUNCTION__ . ' : wrong syntax of $sAorB : ' . $sAorB);
 			die();
+		}
+	}
+
+	private function updateArticleOnActivationDate(&$aCurrentArticle, &$daysBack, &$isNewArticle, &$skipArticle) {
+		// calculate (now - ActivationDate) in days
+		$activationTimeDifference = $this -> getActivationTimeDifference($aCurrentArticle['ActivationDate']);
+
+		// check if a date is given which doesn't match ...
+		if (is_null($activationTimeDifference)) {
+			// ... report error and skip article
+			$this -> getLogger() -> debug(__FUNCTION__ . " article {$aCurrentArticle['SKU']} has misformed activation date: {$aCurrentArticle['ActivationDate']}");
+			$skipArticle = true;
+		}
+		// ... or if activation date is in the future ...
+		else if ($activationTimeDifference < 0) {
+			// ... then no further processing is needed, skip article
+			$skipArticle = true;
+		}
+		// ... or if date is in current calculation period ...
+		else if ($activationTimeDifference < $daysBack && $activationTimeDifference < $this -> aConfig['CalculationTimeA']['Value']) {
+			// ... then adjust calculation period
+			$daysBack = $activationTimeDifference;
+			$isNewArticle = 1;
+
+			$currentArticleResult = DBQuery::getInstance() -> select($this -> getIntervalQuery($daysBack, true, $aCurrentArticle['SKU']));
+			// ... if there's any data for the adjusted period
+			if ($aSpecificArticle = $currentArticleResult -> fetchAssoc()) {
+				// ... then update the current article
+				$aCurrentArticle = $aSpecificArticle;
+			} else {
+				// ... otherwise skip the article
+				$skipArticle = true;
+			}
 		}
 	}
 
