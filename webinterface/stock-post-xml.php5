@@ -134,7 +134,11 @@ $select_basic = 'SELECT
 	END AttributeValueSetID' . PHP_EOL;
 
 $select_advanced = $select_basic . ',
-	CONCAT(CASE WHEN (ItemsBase.BundleType = "bundle") THEN
+	CONCAT(CASE WHEN (CalculatedDailyNeeds.New = 1) THEN
+			"[Neu] "
+		ELSE
+			""
+		END,CASE WHEN (ItemsBase.BundleType = "bundle") THEN
 			"[Bundle] "
 		WHEN (ItemsBase.BundleType = "bundle_item") THEN
 			"[Bundle Artikel] "
@@ -156,6 +160,7 @@ $select_advanced = $select_basic . ',
 	CalculatedDailyNeeds.SkippedA,
 	CalculatedDailyNeeds.QuantitiesB,
 	CalculatedDailyNeeds.SkippedB,
+	CalculatedDailyNeeds.New,
 	ItemsWarehouseSettings.ReorderLevel,
 	ItemsWarehouseSettings.StockTurnover,
 	ItemsWarehouseSettings.MaximumStock,

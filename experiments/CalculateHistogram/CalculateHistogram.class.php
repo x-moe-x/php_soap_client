@@ -61,21 +61,29 @@ class CalculateHistogram {
 
 		// retrieve latest orders from db for calculation time a
 		$articleResultA = DBQuery::getInstance() -> select($this -> getIntervalQuery($this -> aConfig['CalculationTimeA']['Value']));
-		$this -> getLogger() -> info(__FUNCTION__ . ' : retrieved ' . $articleResultA -> getNumRows() . ' article variants for calculation time a');
+		$articleResultAWithActivationDate = DBQuery::getInstance() -> select($this -> getIntervalQuery($this -> aConfig['CalculationTimeA']['Value'], true));
+		$this -> getLogger() -> info(__FUNCTION__ . ' : retrieved ' . $articleResultA -> getNumRows() . ' article variants for calculation time a' . ($articleResultAWithActivationDate -> getNumRows() > 0 ? ' + ' . $articleResultAWithActivationDate -> getNumRows() . ' with activation date' : ''));
 
 		// calculate data for calculation time a
 		while ($aCurrentArticle = $articleResultA -> fetchAssoc()) {
 			$this -> processArticle($aCurrentArticle, 'A');
 		}
+		while ($aCurrentArticle = $articleResultAWithActivationDate -> fetchAssoc()) {
+			$this -> processArticle($aCurrentArticle, 'A', true);
+		}
 
 		// retrieve latest orders from db for calculation time b
 		$articleResultB = DBQuery::getInstance() -> select($this -> getIntervalQuery($this -> aConfig['CalculationTimeB']['Value']));
-		$this -> getLogger() -> info(__FUNCTION__ . ' : retrieved ' . $articleResultB -> getNumRows() . ' article variants for calculation time b');
+		$articleResultBWithActivationDate = DBQuery::getInstance() -> select($this -> getIntervalQuery($this -> aConfig['CalculationTimeB']['Value'], true));
+		$this -> getLogger() -> info(__FUNCTION__ . ' : retrieved ' . $articleResultB -> getNumRows() . ' article variants for calculation time b' . ($articleResultBWithActivationDate -> getNumRows() > 0 ? ' + ' . $articleResultBWithActivationDate -> getNumRows() . ' with activation date' : ''));
 
 		// for every article in calculation time b do:
 		// combine a and b
 		while ($aCurrentArticle = $articleResultB -> fetchAssoc()) {
 			$this -> processArticle($aCurrentArticle, 'B');
+		}
+		while ($aCurrentArticle = $articleResultBWithActivationDate -> fetchAssoc()) {
+			$this -> processArticle($aCurrentArticle, 'B', true);
 		}
 
 		$this -> storeToDB();
@@ -95,36 +103,47 @@ class CalculateHistogram {
 	 *
 	 * @param array $aCurrentArticle associative array of current article
 	 * @param string $sAorB select calculation time a or b
+	 * @param bool $withActivationDate (default) false, when articles with activation date are to be ignored, true otherwise	 *
 	 * @return void
 	 */
-	private function processArticle(array $aCurrentArticle, $sAorB) {
+	private function processArticle(array $aCurrentArticle, $sAorB, $withActivationDate = false) {
 
-		/** indicates if article activation date is in period b, so it is to be skipped for period a processing
-		 * @var bool */
-		$newArticle = false;
-		$sAorB = strtoupper($sAorB);
-		if ($sAorB !== 'A' && $sAorB !== 'B') {
-			$this -> getLogger() -> error(__FUNCTION__ . ' : wrong syntax of $sAorB : ' . $sAorB);
-			die();
-		}
+		/** holds # of days to be considered during daily need computation */
+		$daysBack = $this -> aConfig['CalculationTime' . $sAorB]['Value'];
+		$isNewArticle = 0;
 
-		// check if activationdate given (match against regular german date format like dd.mm.yyyy, tolerating -:/. as delimiter) ...
-		if ($aCurrentArticle['ActivationDate'] != 0 && preg_match('/(((?:[0-2]?\d{1})|(?:[3][01]{1}))[-:\/.]([0]?[1-9]|[1][012])[-:\/.]((?:[1]{1}\d{1}\d{1}\d{1})|(?:[2]{1}\d{3})))(?![\d])/', $aCurrentArticle['ActivationDate'], $matches)) {
-			// ... then extract difference to current time in days
-			$date = new DateTime();
-			$date -> setDate($matches[4], $matches[3], $matches[2]);
-			$date -> setTime(0, 0, 0);
-			$activationTimeDifferenceDays = floor(($this -> currentTime - $date -> format('U')) / 86400);
+		// if activation date given ...
+		if ($withActivationDate) {
 
-			// check if activation date is in the future ...
-			if ($activationTimeDifferenceDays < 0) {
+			// ... then calculate (now - ActivationDate) in days
+			$activationTimeDifference = $this -> getActivationTimeDifference($aCurrentArticle['ActivationDate']);
+
+			// check if a date is given which doesn't match ...
+			if (is_null($activationTimeDifference)) {
+				// ... report error and skip article
+				$this -> getLogger() -> debug(__FUNCTION__ . " article {$aCurrentArticle['SKU']} has misformed activation date: {$aCurrentArticle['ActivationDate']}");
+				return;
+			}
+			// ... or if activation date is in the future ...
+			else if ($activationTimeDifference < 0) {
 				// ... then no further processing is needed, skip article
 				return;
 			}
-			// ... or if activation date is in period b ...
-			else if ($activationTimeDifferenceDays < $this -> aConfig['CalculationTimeB']['Value']) {
-				// ... then mark as new
-				$newArticle = true;
+			// ... or if date is in current calculation period ...
+			else if ($activationTimeDifference < $daysBack && $activationTimeDifference < $this -> aConfig['CalculationTimeA']['Value']) {
+				// ... then adjust calculation period
+				$daysBack = $activationTimeDifference;
+				$isNewArticle = 1;
+
+				$currentArticleResult = DBQuery::getInstance() -> select($this -> getIntervalQuery($daysBack, true, $aCurrentArticle['SKU']));
+				// ... if there's any data for the adjusted period
+				if ($aSpecificArticle = $currentArticleResult -> fetchAssoc()) {
+					// ... then update the current article
+					$aCurrentArticle = $aSpecificArticle;
+				} else {
+					// ... otherwise skip the article
+					return;
+				}
 			}
 		}
 
@@ -143,7 +162,7 @@ class CalculateHistogram {
 		$adjustedQuantity = $this -> getArticleAdjustedQuantity(explode(',', $aCurrentArticle['quantities']), $aCurrentArticle['quantity'], $aCurrentArticle['range'], $this -> aConfig['MinimumToleratedSpikes' . $sAorB]['Value'], $this -> aConfig['MinimumOrders' . $sAorB]['Value'], $skippedIndex);
 
 		// if processing period is a and article isn't new ...
-		if ($sAorB === 'A' && !$newArticle) {
+		if ($sAorB === 'A') {
 			// ... add data for calculation time A
 
 			// @formatter:off
@@ -151,54 +170,47 @@ class CalculateHistogram {
 				array(
 					'ItemID' => 				$ItemID,
 					'AttributeValueSetID' =>	$AttributeValueSetID,
-					'DailyNeed' =>				($adjustedQuantity / $this -> aConfig['CalculationTimeA']['Value'])/2,
+					'DailyNeed' =>				($adjustedQuantity / $daysBack) / 2,
 					'LastUpdate' =>				$this -> currentTime,
 					'QuantitiesA' =>			$aCurrentArticle['quantities'],
 					'SkippedA' =>				$skippedIndex,
 					'QuantitiesB' =>			'0',
-					'SkippedB' => 				'0'
+					'SkippedB' => 				'0',
+					'New'	=>					$isNewArticle
 			);
 			// @formatter:on
 		}
 		// ... or if period is b ...
-		else if ($sAorB === 'B'){
+		else if ($sAorB === 'B') {
 			// ... add data for calculation time B
 
 			// if there's an existing record ...
 			if (array_key_exists($aCurrentArticle['SKU'], $this -> aArticleData)) {
 				// ... then use existing record
-				$this -> aArticleData[$aCurrentArticle['SKU']]['DailyNeed'] = ($adjustedQuantity / $this -> aConfig['CalculationTimeB']['Value']) / 2 + $this -> aArticleData[$aCurrentArticle['SKU']]['DailyNeed'];
+				$this -> aArticleData[$aCurrentArticle['SKU']]['DailyNeed'] += ($adjustedQuantity / $daysBack) / 2;
 				$this -> aArticleData[$aCurrentArticle['SKU']]['QuantitiesB'] = $aCurrentArticle['quantities'];
 				$this -> aArticleData[$aCurrentArticle['SKU']]['SkippedB'] = $skippedIndex;
 			} else {
 				// ... otherwise create new one
-
-				/** holds daily need for period b*/
-				$dailyNeedB;
-
-				// if article is new ...
-				if ($newArticle) {
-					// ... store the whole daily need value
-					$dailyNeedB = $adjustedQuantity / $this -> aConfig['CalculationTimeB']['Value'];
-				} else {
-					// ... otherwise store just a fraction of the daily need value (so the article just hasn't been sold much past period b)
-					$dailyNeedB = ($adjustedQuantity / $this -> aConfig['CalculationTimeB']['Value']) / 2;
-				}
 
 				// @formatter:off
 				$this->aArticleData[$aCurrentArticle['SKU']] =
 					array(
 						'ItemID' =>					$ItemID,
 						'AttributeValueSetID' =>	$AttributeValueSetID,
-						'DailyNeed' =>				$dailyNeedB,
+						'DailyNeed' =>				$adjustedQuantity / $daysBack,
 						'LastUpdate' =>				$this -> currentTime,
 						'QuantitiesA' =>			'0',
 						'SkippedA' =>				'0',
 						'QuantitiesB' =>			$aCurrentArticle['quantities'],
-						'SkippedB' =>				$skippedIndex
+						'SkippedB' =>				$skippedIndex,
+						'New'	=>					$isNewArticle
 				);
 				// @formatter:on
 			}
+		} else {
+			$this -> getLogger() -> error(__FUNCTION__ . ' : wrong syntax of $sAorB : ' . $sAorB);
+			die();
 		}
 	}
 
@@ -261,12 +273,50 @@ class CalculateHistogram {
 	}
 
 	/**
+	 * @param string $sActivationDate
+	 * @return int|null
+	 */
+	private function getActivationTimeDifference($sActivationDate) {
+
+		// check if activationdate given (match against regular german date format like dd.mm.yyyy, tolerating -:/. as delimiter) ...
+		if (preg_match('/(((?:[0-2]?\d{1})|(?:[3][01]{1}))[-:\/.]([0]?[1-9]|[1][012])[-:\/.]((?:[1]{1}\d{1}\d{1}\d{1})|(?:[2]{1}\d{3})))(?![\d])/', $sActivationDate, $matches)) {
+
+			// ... then return difference to current time in days
+			$date = new DateTime();
+			$date -> setDate($matches[4], $matches[3], $matches[2]);
+			$date -> setTime(0, 0, 0);
+
+			return floor(($this -> currentTime - $date -> format('U')) / 86400);
+		} else {
+			// ... otherwise return null
+			return null;
+		}
+	}
+
+	/**
 	 * prepare query to get total quantities and spike-toleration-data for all articles from db
 	 *
-	 * @param int $daysBack
+	 * @param int $daysBack # of days to consider when collecting order data
+	 * @param bool $withActivationDate (default) false, when articles with activation date are to be ignored, true otherwise
+	 * @param string $sku (default) null to get all articles, a specific SKU to get just the specific article's variants if $withActivationDate is true
 	 * @return string query
 	 */
-	private function getIntervalQuery($daysBack) {
+	private function getIntervalQuery($daysBack, $withActivationDate = false, $sku = null) {
+
+		/** holds SQL statement part to adjust query for activation date processing */
+		$activationDateString;
+
+		if ($withActivationDate && !isset($sku)) {
+			// get all articles with given activation date
+			$activationDateString = "ItemsBase.Free5 > \"\"";
+		} else if ($withActivationDate && isset($sku)) {
+			// get a specific article (with all of it's variants) with given activation date
+			$activationDateString = "OrderItem.SKU = \"$sku\"\nAND\n\tItemsBase.Free5 > \"\"";
+		} else {
+			// get all articles without activation date
+			$activationDateString = "\n\tItemsBase.Free5 = \"\"";
+		}
+
 		return "SELECT
 	OrderItem.ItemID,
 	OrderItem.SKU,
@@ -280,6 +330,8 @@ FROM
 LEFT JOIN
 	(OrderHead, ItemsBase) ON (OrderHead.OrderID = OrderItem.OrderID AND OrderItem.ItemID = ItemsBase.ItemID)
 WHERE
+	$activationDateString
+AND
 	(OrderHead.OrderTimestamp BETWEEN {$this -> currentTime} -( 86400 *  $daysBack ) AND {$this -> currentTime} )
 AND
 	(OrderHead.OrderStatus < 8 OR OrderHead.OrderStatus >= 9)
