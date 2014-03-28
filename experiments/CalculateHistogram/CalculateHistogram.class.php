@@ -110,6 +110,7 @@ class CalculateHistogram {
 
 		/** holds # of days to be considered during daily need computation */
 		$daysBack = $this -> aConfig['CalculationTime' . $sAorB]['Value'];
+		$isNewArticle = 0;
 
 		// if activation date given ...
 		if ($withActivationDate) {
@@ -117,21 +118,22 @@ class CalculateHistogram {
 			// ... then calculate (now - ActivationDate) in days
 			$activationTimeDifference = $this -> getActivationTimeDifference($aCurrentArticle['ActivationDate']);
 
-			// check if activation date is in the future ...
-			if (!is_null($activationTimeDifference) && $activationTimeDifference < 0) {
-				// ... then no further processing is needed, skip article
-				return;
-			}
-			// ... or if a date is given wich doesn't match ...
-			else if (is_null($activationTimeDifference)) {
+			// check if a date is given which doesn't match ...
+			if (is_null($activationTimeDifference)) {
 				// ... report error and skip article
 				$this -> getLogger() -> debug(__FUNCTION__ . " article {$aCurrentArticle['SKU']} has misformed activation date: {$aCurrentArticle['ActivationDate']}");
 				return;
 			}
+			// ... or if activation date is in the future ...
+			else if ($activationTimeDifference < 0) {
+				// ... then no further processing is needed, skip article
+				return;
+			}
 			// ... or if date is in current calculation period ...
-			else if ($activationTimeDifference < $daysBack) {
+			else if ($activationTimeDifference < $daysBack && $activationTimeDifference < $this -> aConfig['CalculationTimeA']['Value']) {
 				// ... then adjust calculation period
 				$daysBack = $activationTimeDifference;
+				$isNewArticle = 1;
 
 				$currentArticleResult = DBQuery::getInstance() -> select($this -> getIntervalQuery($daysBack, true, $aCurrentArticle['SKU']));
 				// ... if there's any data for the adjusted period
@@ -173,7 +175,8 @@ class CalculateHistogram {
 					'QuantitiesA' =>			$aCurrentArticle['quantities'],
 					'SkippedA' =>				$skippedIndex,
 					'QuantitiesB' =>			'0',
-					'SkippedB' => 				'0'
+					'SkippedB' => 				'0',
+					'New'	=>					$isNewArticle
 			);
 			// @formatter:on
 		}
@@ -200,7 +203,8 @@ class CalculateHistogram {
 						'QuantitiesA' =>			'0',
 						'SkippedA' =>				'0',
 						'QuantitiesB' =>			$aCurrentArticle['quantities'],
-						'SkippedB' =>				$skippedIndex
+						'SkippedB' =>				$skippedIndex,
+						'New'	=>					$isNewArticle
 				);
 				// @formatter:on
 			}
@@ -302,7 +306,6 @@ class CalculateHistogram {
 		/** holds SQL statement part to adjust query for activation date processing */
 		$activationDateString;
 
-		//TODO warn about outdated activation dates!
 		if ($withActivationDate && !isset($sku)) {
 			// get all articles with given activation date
 			$activationDateString = "ItemsBase.Free5 > \"\"";
