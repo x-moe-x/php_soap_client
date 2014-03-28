@@ -61,21 +61,29 @@ class CalculateHistogram {
 
 		// retrieve latest orders from db for calculation time a
 		$articleResultA = DBQuery::getInstance() -> select($this -> getIntervalQuery($this -> aConfig['CalculationTimeA']['Value']));
-		$this -> getLogger() -> info(__FUNCTION__ . ' : retrieved ' . $articleResultA -> getNumRows() . ' article variants for calculation time a');
+		$articleResultAWithActivationDate = DBQuery::getInstance() -> select($this -> getIntervalQuery($this -> aConfig['CalculationTimeA']['Value'], true));
+		$this -> getLogger() -> info(__FUNCTION__ . ' : retrieved ' . $articleResultA -> getNumRows() . ' article variants for calculation time a' . ($articleResultAWithActivationDate -> getNumRows() > 0 ? ' + ' . $articleResultAWithActivationDate -> getNumRows() . ' with activation date' : ''));
 
 		// calculate data for calculation time a
 		while ($aCurrentArticle = $articleResultA -> fetchAssoc()) {
 			$this -> processArticle($aCurrentArticle, 'A');
 		}
+		while ($aCurrentArticle = $articleResultAWithActivationDate -> fetchAssoc()) {
+			$this -> processArticle($aCurrentArticle, 'A', true);
+		}
 
 		// retrieve latest orders from db for calculation time b
 		$articleResultB = DBQuery::getInstance() -> select($this -> getIntervalQuery($this -> aConfig['CalculationTimeB']['Value']));
-		$this -> getLogger() -> info(__FUNCTION__ . ' : retrieved ' . $articleResultB -> getNumRows() . ' article variants for calculation time b');
+		$articleResultBWithActivationDate = DBQuery::getInstance() -> select($this -> getIntervalQuery($this -> aConfig['CalculationTimeB']['Value'], true));
+		$this -> getLogger() -> info(__FUNCTION__ . ' : retrieved ' . $articleResultB -> getNumRows() . ' article variants for calculation time b' . ($articleResultBWithActivationDate -> getNumRows() > 0 ? ' + ' . $articleResultBWithActivationDate -> getNumRows() . ' with activation date' : ''));
 
 		// for every article in calculation time b do:
 		// combine a and b
 		while ($aCurrentArticle = $articleResultB -> fetchAssoc()) {
 			$this -> processArticle($aCurrentArticle, 'B');
+		}
+		while ($aCurrentArticle = $articleResultBWithActivationDate -> fetchAssoc()) {
+			$this -> processArticle($aCurrentArticle, 'B', true);
 		}
 
 		$this -> storeToDB();
