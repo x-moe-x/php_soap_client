@@ -95,36 +95,45 @@ class CalculateHistogram {
 	 *
 	 * @param array $aCurrentArticle associative array of current article
 	 * @param string $sAorB select calculation time a or b
+	 * @param bool $withActivationDate (default) false, when articles with activation date are to be ignored, true otherwise	 *
 	 * @return void
 	 */
-	private function processArticle(array $aCurrentArticle, $sAorB) {
+	private function processArticle(array $aCurrentArticle, $sAorB, $withActivationDate = false) {
 
-		/** indicates if article activation date is in period b, so it is to be skipped for period a processing
-		 * @var bool */
-		$newArticle = false;
-		$sAorB = strtoupper($sAorB);
-		if ($sAorB !== 'A' && $sAorB !== 'B') {
-			$this -> getLogger() -> error(__FUNCTION__ . ' : wrong syntax of $sAorB : ' . $sAorB);
-			die();
-		}
+		/** holds # of days to be considered during daily need computation */
+		$daysBack = $this -> aConfig['CalculationTime' . $sAorB]['Value'];
 
-		// check if activationdate given (match against regular german date format like dd.mm.yyyy, tolerating -:/. as delimiter) ...
-		if ($aCurrentArticle['ActivationDate'] != 0 && preg_match('/(((?:[0-2]?\d{1})|(?:[3][01]{1}))[-:\/.]([0]?[1-9]|[1][012])[-:\/.]((?:[1]{1}\d{1}\d{1}\d{1})|(?:[2]{1}\d{3})))(?![\d])/', $aCurrentArticle['ActivationDate'], $matches)) {
-			// ... then extract difference to current time in days
-			$date = new DateTime();
-			$date -> setDate($matches[4], $matches[3], $matches[2]);
-			$date -> setTime(0, 0, 0);
-			$activationTimeDifferenceDays = floor(($this -> currentTime - $date -> format('U')) / 86400);
+		// if activation date given ...
+		if ($withActivationDate) {
+
+			// ... then calculate (now - ActivationDate) in days
+			$activationTimeDifference = $this -> getActivationTimeDifference($aCurrentArticle['ActivationDate']);
 
 			// check if activation date is in the future ...
-			if ($activationTimeDifferenceDays < 0) {
+			if (!is_null($activationTimeDifference) && $activationTimeDifference < 0) {
 				// ... then no further processing is needed, skip article
 				return;
 			}
-			// ... or if activation date is in period b ...
-			else if ($activationTimeDifferenceDays < $this -> aConfig['CalculationTimeB']['Value']) {
-				// ... then mark as new
-				$newArticle = true;
+			// ... or if a date is given wich doesn't match ...
+			else if (is_null($activationTimeDifference)) {
+				// ... report error and skip article
+				$this -> getLogger() -> debug(__FUNCTION__ . " article {$aCurrentArticle['SKU']} has misformed activation date: {$aCurrentArticle['ActivationDate']}");
+				return;
+			}
+			// ... or if date is in current calculation period ...
+			else if ($activationTimeDifference < $daysBack) {
+				// ... then adjust calculation period
+				$daysBack = $activationTimeDifference;
+
+				$currentArticleResult = DBQuery::getInstance() -> select($this -> getIntervalQuery($daysBack, true, $aCurrentArticle['SKU']));
+				// ... if there's any data for the adjusted period
+				if ($aSpecificArticle = $currentArticleResult -> fetchAssoc()) {
+					// ... then update the current article
+					$aCurrentArticle = $aSpecificArticle;
+				} else {
+					// ... otherwise skip the article
+					return;
+				}
 			}
 		}
 
@@ -143,7 +152,7 @@ class CalculateHistogram {
 		$adjustedQuantity = $this -> getArticleAdjustedQuantity(explode(',', $aCurrentArticle['quantities']), $aCurrentArticle['quantity'], $aCurrentArticle['range'], $this -> aConfig['MinimumToleratedSpikes' . $sAorB]['Value'], $this -> aConfig['MinimumOrders' . $sAorB]['Value'], $skippedIndex);
 
 		// if processing period is a and article isn't new ...
-		if ($sAorB === 'A' && !$newArticle) {
+		if ($sAorB === 'A') {
 			// ... add data for calculation time A
 
 			// @formatter:off
@@ -151,7 +160,7 @@ class CalculateHistogram {
 				array(
 					'ItemID' => 				$ItemID,
 					'AttributeValueSetID' =>	$AttributeValueSetID,
-					'DailyNeed' =>				($adjustedQuantity / $this -> aConfig['CalculationTimeA']['Value'])/2,
+					'DailyNeed' =>				($adjustedQuantity / $daysBack) / 2,
 					'LastUpdate' =>				$this -> currentTime,
 					'QuantitiesA' =>			$aCurrentArticle['quantities'],
 					'SkippedA' =>				$skippedIndex,
@@ -161,36 +170,24 @@ class CalculateHistogram {
 			// @formatter:on
 		}
 		// ... or if period is b ...
-		else if ($sAorB === 'B'){
+		else if ($sAorB === 'B') {
 			// ... add data for calculation time B
 
 			// if there's an existing record ...
 			if (array_key_exists($aCurrentArticle['SKU'], $this -> aArticleData)) {
 				// ... then use existing record
-				$this -> aArticleData[$aCurrentArticle['SKU']]['DailyNeed'] = ($adjustedQuantity / $this -> aConfig['CalculationTimeB']['Value']) / 2 + $this -> aArticleData[$aCurrentArticle['SKU']]['DailyNeed'];
+				$this -> aArticleData[$aCurrentArticle['SKU']]['DailyNeed'] += ($adjustedQuantity / $daysBack) / 2;
 				$this -> aArticleData[$aCurrentArticle['SKU']]['QuantitiesB'] = $aCurrentArticle['quantities'];
 				$this -> aArticleData[$aCurrentArticle['SKU']]['SkippedB'] = $skippedIndex;
 			} else {
 				// ... otherwise create new one
-
-				/** holds daily need for period b*/
-				$dailyNeedB;
-
-				// if article is new ...
-				if ($newArticle) {
-					// ... store the whole daily need value
-					$dailyNeedB = $adjustedQuantity / $this -> aConfig['CalculationTimeB']['Value'];
-				} else {
-					// ... otherwise store just a fraction of the daily need value (so the article just hasn't been sold much past period b)
-					$dailyNeedB = ($adjustedQuantity / $this -> aConfig['CalculationTimeB']['Value']) / 2;
-				}
 
 				// @formatter:off
 				$this->aArticleData[$aCurrentArticle['SKU']] =
 					array(
 						'ItemID' =>					$ItemID,
 						'AttributeValueSetID' =>	$AttributeValueSetID,
-						'DailyNeed' =>				$dailyNeedB,
+						'DailyNeed' =>				$adjustedQuantity / $daysBack,
 						'LastUpdate' =>				$this -> currentTime,
 						'QuantitiesA' =>			'0',
 						'SkippedA' =>				'0',
@@ -199,6 +196,9 @@ class CalculateHistogram {
 				);
 				// @formatter:on
 			}
+		} else {
+			$this -> getLogger() -> error(__FUNCTION__ . ' : wrong syntax of $sAorB : ' . $sAorB);
+			die();
 		}
 	}
 
