@@ -261,6 +261,27 @@ class CalculateHistogram {
 	}
 
 	/**
+	 * @param string $sActivationDate
+	 * @return int|null
+	 */
+	private function getActivationTimeDifference($sActivationDate) {
+
+		// check if activationdate given (match against regular german date format like dd.mm.yyyy, tolerating -:/. as delimiter) ...
+		if (preg_match('/(((?:[0-2]?\d{1})|(?:[3][01]{1}))[-:\/.]([0]?[1-9]|[1][012])[-:\/.]((?:[1]{1}\d{1}\d{1}\d{1})|(?:[2]{1}\d{3})))(?![\d])/', $sActivationDate, $matches)) {
+
+			// ... then return difference to current time in days
+			$date = new DateTime();
+			$date -> setDate($matches[4], $matches[3], $matches[2]);
+			$date -> setTime(0, 0, 0);
+
+			return floor(($this -> currentTime - $date -> format('U')) / 86400);
+		} else {
+			// ... otherwise return null
+			return null;
+		}
+	}
+
+	/**
 	 * prepare query to get total quantities and spike-toleration-data for all articles from db
 	 *
 	 * @param int $daysBack # of days to consider when collecting order data
