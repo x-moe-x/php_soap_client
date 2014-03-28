@@ -263,10 +263,28 @@ class CalculateHistogram {
 	/**
 	 * prepare query to get total quantities and spike-toleration-data for all articles from db
 	 *
-	 * @param int $daysBack
+	 * @param int $daysBack # of days to consider when collecting order data
+	 * @param bool $withActivationDate (default) false, when articles with activation date are to be ignored, true otherwise
+	 * @param string $sku (default) null to get all articles, a specific SKU to get just the specific article's variants if $withActivationDate is true
 	 * @return string query
 	 */
-	private function getIntervalQuery($daysBack) {
+	private function getIntervalQuery($daysBack, $withActivationDate = false, $sku = null) {
+
+		/** holds SQL statement part to adjust query for activation date processing */
+		$activationDateString;
+
+		//TODO warn about outdated activation dates!
+		if ($withActivationDate && !isset($sku)) {
+			// get all articles with given activation date
+			$activationDateString = "ItemsBase.Free5 > \"\"";
+		} else if ($withActivationDate && isset($sku)) {
+			// get a specific article (with all of it's variants) with given activation date
+			$activationDateString = "OrderItem.SKU = \"$sku\"\nAND\n\tItemsBase.Free5 > \"\"";
+		} else {
+			// get all articles without activation date
+			$activationDateString = "\n\tItemsBase.Free5 = \"\"";
+		}
+
 		return "SELECT
 	OrderItem.ItemID,
 	OrderItem.SKU,
@@ -280,6 +298,8 @@ FROM
 LEFT JOIN
 	(OrderHead, ItemsBase) ON (OrderHead.OrderID = OrderItem.OrderID AND OrderItem.ItemID = ItemsBase.ItemID)
 WHERE
+	$activationDateString
+AND
 	(OrderHead.OrderTimestamp BETWEEN {$this -> currentTime} -( 86400 *  $daysBack ) AND {$this -> currentTime} )
 AND
 	(OrderHead.OrderStatus < 8 OR OrderHead.OrderStatus >= 9)
