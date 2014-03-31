@@ -10,7 +10,7 @@ require_once ROOT . 'includes/DBUtils2.class.php';
  * @author x-moe-x
  * @copyright net-xpress GmbH & Co. KG www.net-xpress.com
  */
-class CalculateHistogram {
+class CalculateDailyNeed {
 
 	/**
 	 * @var string
@@ -34,7 +34,7 @@ class CalculateHistogram {
 	private $aArticleData;
 
 	/**
-	 * @return CalculateHistogram
+	 * @return CalculateDailyNeed
 	 */
 	public function __construct() {
 		$this -> identifier4Logger = __CLASS__;

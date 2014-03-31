@@ -27,7 +27,7 @@ if (isset($_GET['action'])) {
 		case 'calculate' :
 			Logger::instance('executeManual.php') -> debug('manually executing "calculate"');
 			// calculate daily need
-			NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'CalculateHistogram', 'CalculateHistogram'));
+			NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'CalculateDailyNeed', 'CalculateDailyNeed'));
 
 			// calculate write back data
 			NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'CalculateWriteBackData', 'CalculateWriteBackData'));

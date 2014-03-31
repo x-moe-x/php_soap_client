@@ -14,7 +14,7 @@ if (Config::get('CalculationActive') === 1) {
 	NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'GetItemsSuppliers'));
 
 	// calculate daily need
-	NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'CalculateHistogram', 'CalculateHistogram'));
+	NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'CalculateDailyNeed', 'CalculateDailyNeed'));
 
 	// calculate write back data
 	NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'CalculateWriteBackData', 'CalculateWriteBackData'));
