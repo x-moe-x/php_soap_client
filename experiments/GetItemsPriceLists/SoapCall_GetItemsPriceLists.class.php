@@ -6,6 +6,11 @@ require_once 'Request_GetItemsPriceLists.class.php';
 class SoapCall_GetItemsPriceLists extends PlentySoapCall {
 
 	/**
+	 * @var int
+	 */
+	 const MAX_PRICE_SETS_PER_PAGE = 200;
+
+	/**
 	 * @return SoapCall_GetItemsPriceLists
 	 */
 	public function __construct() {
