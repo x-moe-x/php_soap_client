@@ -1,7 +1,7 @@
 $.fn.dialogify = function(title, htmlText, type, okFunction) {
 	$(this).button().click(function() {
 		$('#dialogText').html(htmlText);
-		$('#dialogIcon').attr('class',(type === 'danger' ? 'ui-icon ui-icon-alert' : 'ui-icon ui-icon-info'));
+		$('#dialogIcon').attr('class', (type === 'danger' ? 'ui-icon ui-icon-alert' : 'ui-icon ui-icon-info'));
 		$('#dialog').dialog({
 			title : title,
 			modal : true,
@@ -289,10 +289,9 @@ function prepareStock() {
 			params = this.params;
 
 			// post-processing of cells
-			$('tbody tr td', g.bDiv).each(function(index) {
-				var newCell, colName;
+			$('tbody tr td div', g.bDiv).each(function(index, newCell) {
+				var colName;
 
-				newCell = $(this).find('div');
 				colName = colModel[index % colModel.length].name;
 
 				// visualize rawdata
@@ -385,13 +384,13 @@ function prepareStock() {
 
 				// append filter selection
 				$('.filter', g.tDiv).append(function() {
-					var filterSelection = '';
+					var filterSelection = '<div class=\'customButtonContent\'>';
 
 					$.each(status, function(index, value) {
 						filterSelection += '<div id="markingID_' + value + '"><input type="checkbox" id="markingID_' + value + '_field"></input><label for="markingID_' + value + '_field"></label></div>';
 					});
 
-					return filterSelection;
+					return filterSelection + '</div>';
 				});
 
 				$('.filter input[type=checkbox]', g.tDiv).change(function() {
