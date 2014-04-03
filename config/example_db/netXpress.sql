@@ -319,3 +319,48 @@ CREATE TABLE `soap_db`.`SalesOrderReferrer` (
 	PRIMARY KEY (`SalesOrderReferrerID`),
 	UNIQUE KEY `Name` (`Name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+
+DROP TABLE IF EXISTS `soap_db`.`PriceSets`;
+
+CREATE TABLE `soap_db`.`PriceSets` (
+	`ItemID` int(11) NOT NULL,
+	`PriceID` int(11) NOT NULL,
+	`Price` decimal(8,2) DEFAULT NULL,
+	`Price1` decimal(8,2) DEFAULT NULL,
+	`Price2` decimal(8,2) DEFAULT NULL,
+	`Price3` decimal(8,2) DEFAULT NULL,
+	`Price4` decimal(8,2) DEFAULT NULL,
+	`Price5` decimal(8,2) DEFAULT NULL,
+	`Price6` decimal(8,2) DEFAULT NULL,
+	`Price7` decimal(8,2) DEFAULT NULL,
+	`Price8` decimal(8,2) DEFAULT NULL,
+	`Price9` decimal(8,2) DEFAULT NULL,
+	`Price10` decimal(8,2) DEFAULT NULL,
+	`Price11` decimal(8,2) DEFAULT NULL,
+	`Price12` decimal(8,2) DEFAULT NULL,
+	`Lot` decimal(8,2) DEFAULT NULL,
+	`Package` int(11) DEFAULT NULL,
+	`PackagingUnit` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Position` int(11) DEFAULT NULL,
+	`PurchasePriceNet` decimal(8,2) DEFAULT NULL,
+	`RRP` decimal(8,2) DEFAULT NULL,
+	`RebateLevelPrice10` int(11) DEFAULT NULL,
+	`RebateLevelPrice11` int(11) DEFAULT NULL,
+	`RebateLevelPrice6` int(11) DEFAULT NULL,
+	`RebateLevelPrice7` int(11) DEFAULT NULL,
+	`RebateLevelPrice8` int(11) DEFAULT NULL,
+	`RebateLevelPrice9` int(11) DEFAULT NULL,
+	`ShowOnly` int(11) DEFAULT NULL,
+	`TypeOfPackage` int(11) DEFAULT NULL,
+	`Unit` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Unit1` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Unit2` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`UnitLoadDevice` int(11) DEFAULT NULL,
+	`VAT` decimal(8,2) DEFAULT NULL,
+	`WeightInGramm` int(11) DEFAULT NULL,
+	`HeightInMM` int(11) DEFAULT NULL,
+	`LengthInMM` int(11) DEFAULT NULL,
+	`WidthInMM` int(11) DEFAULT NULL,
+	PRIMARY KEY (`ItemID`,`PriceID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
