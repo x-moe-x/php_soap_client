@@ -102,7 +102,6 @@ class SoapCall_SearchOrders extends PlentySoapCall {
 					if ($pagesFound > $this -> page) {
 						$this -> page = $this -> startAtPage + 1;
 						$this -> pages = $pagesFound;
-						lastUpdatePageUpdate(__CLASS__, $this -> page);
 						$this -> executePages();
 					}
 				} else if (($oPlentySoapResponse_SearchOrders -> Success == true) && !isset($oPlentySoapResponse_SearchOrders -> Orders -> item)) {
@@ -169,8 +168,6 @@ class SoapCall_SearchOrders extends PlentySoapCall {
 				}
 
 				$this -> page++;
-				lastUpdatePageUpdate(__CLASS__, $this -> page);
-
 			} catch(Exception $e) {
 				$this -> onExceptionAction($e);
 			}
@@ -178,6 +175,7 @@ class SoapCall_SearchOrders extends PlentySoapCall {
 			if ($this -> page - $this -> lastSavedPage > self::$SAVE_AFTER_PAGES) {
 				$this -> storeToDB();
 				$this -> lastSavedPage = $this -> page;
+				lastUpdatePageUpdate(__CLASS__, $this -> page);
 			}
 		}
 	}
