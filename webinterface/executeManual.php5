@@ -51,6 +51,7 @@ if (isset($_GET['action'])) {
 			Logger::instance('executeManual.php') -> debug('manually executing "resetArticles"');
 			DBQuery::getInstance() -> truncate('TRUNCATE `ItemsBase`');
 			DBQuery::getInstance() -> delete('DELETE FROM MetaLastUpdate WHERE Function = "SoapCall_GetItemsBase"');
+			DBQuery::getInstance() -> delete('DELETE FROM MetaLastUpdate WHERE Function = "Adapter_GetItemsBase"');
 			DBQuery::getInstance() -> truncate('TRUNCATE `ItemsWarehouseSettings`');
 			DBQuery::getInstance() -> truncate('TRUNCATE `ItemSuppliers`');
 			ob_end_clean();
@@ -59,6 +60,7 @@ if (isset($_GET['action'])) {
 			Logger::instance('executeManual.php') -> debug('manually executing "resetOrders"');
 			DBQuery::getInstance() -> truncate('TRUNCATE `OrderHead`');
 			DBQuery::getInstance() -> delete('DELETE FROM MetaLastUpdate WHERE Function = "SoapCall_SearchOrders"');
+			DBQuery::getInstance() -> delete('DELETE FROM MetaLastUpdate WHERE Function = "Adapter_SearchOrders"');
 			DBQuery::getInstance() -> truncate('TRUNCATE `OrderItem`');
 			ob_end_clean();
 			break;
