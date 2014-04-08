@@ -6,6 +6,7 @@
  */
 
 require_once realpath(dirname(__FILE__).'/../').'/config/basic.inc.php';
+require_once ROOT.'includes/ForcePHPVersion.php';
 require_once ROOT.'daemon/PlentySoapDaemon.class.php';
 
 
