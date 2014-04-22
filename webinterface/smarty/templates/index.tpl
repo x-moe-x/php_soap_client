@@ -20,6 +20,9 @@
 				<li>
 					<a href='#priceCalculation'>Preisautomatik</a>
 				</li>
+				<li>
+					<a href='#generalCostConfiguration'>Konfiguration Kosten</a>
+				</li>
 			</ul>
 			<div id='dialog'>
 				<p>
@@ -38,6 +41,9 @@
 				<table id='stockTable' style='display:none'>
 					<!-- -->
 				</table>
+			</div>
+			<div id='generalCostConfiguration'>
+				{include file='general_cost_config.tpl'}
 			</div>
 		</div>
 		<div class="modal">
