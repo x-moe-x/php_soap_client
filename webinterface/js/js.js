@@ -533,25 +533,25 @@ function prepareGeneralCostConfig() {'use strict';
 		name : 'month',
 		align : 'left'
 	}, {
-		display : 'Allg. Betriebskosten<br>%',
+		display : 'Allg. Betriebskosten',
 		name : 'generalCosts_manual',
 		align : 'right'
 	}];
 
 	$.each(warehouses, function(index, warehouse) {
 		colModel.push({
-			display : 'Kosten Transport/Lager<br>' + warehouse.name,
+			display : 'Transp./Lager<br>' + warehouse.name,
 			name : 'warehouseCost_manual_' + warehouse.id,
-			align : 'right'
+			align : 'left',
+			width: 120
 		});
 		colModel.push({
-			display : 'Kosten % der Gesamtleistung<br>' + warehouse.name,
+			display : 'Anteil Gesamtlstg.<br>' + warehouse.name,
 			name : 'warehouseCost_automatic_' + warehouse.id,
-			align : 'center'
+			align : 'center',
+			width: 120
 		});
 	});
-
-	console.log(colModel);
 
 	$('#runningCostConfiguration').flexigrid({
 		url : 'runningCost-post-xml.php',

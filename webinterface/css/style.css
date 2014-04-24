@@ -69,7 +69,7 @@
 	text-decoration: line-through;
 }
 
-#variableManipulation .variableUnit {
+#variableManipulation .variableUnit, .variableUnit {
 	width: auto;
 	color: #aaa;
 }
@@ -289,5 +289,24 @@ body.loading .modal {
 	min-width: 3em;
 }
 
-/** end table styling **/
+.flexigrid input {
+	width: 80%;
+	margin-right: 5%;
+	border: 0;
+	padding: 0;
+	text-align: right;
+}
 
+.flexigrid .trSelected input {
+	background: url("../images/hl.png") repeat-x scroll center -5px #D5EFFC !important
+}
+
+.flexigrid div.bDiv tr:hover input {
+	background: #d9ebf5;
+}
+
+.notModifyable {
+	background-color: #eee !important;
+}
+
+/** end table styling **/
