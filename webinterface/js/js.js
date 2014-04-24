@@ -1,4 +1,4 @@
-$.fn.dialogify = function(title, htmlText, type, okFunction) {
+$.fn.dialogify = function(title, htmlText, type, okFunction) {'use strict';
 	$(this).button().click(function() {
 		$('#dialogText').html(htmlText);
 		$('#dialogIcon').attr('class', (type === 'danger' ? 'ui-icon ui-icon-alert' : 'ui-icon ui-icon-info'));
@@ -71,13 +71,13 @@ $.fn.updateConfig = function() {'use strict';
 	return this;
 };
 
-function loadSuccess(result) {
+function loadSuccess(result) {'use strict';
 	$('body').removeClass("loading");
 	$('#stockTable').flexReload();
 	$('#errorMessages').append('<p> ' + result + '</p>');
-};
+}
 
-function dialogify(buttonData) {
+function dialogify(buttonData) {'use strict';
 	$.each(buttonData, function(index, button) {
 		$(button.id).dialogify(button.title, button.descr, button.type, function() {
 			$('body').addClass('loading');
@@ -88,7 +88,7 @@ function dialogify(buttonData) {
 	});
 }
 
-function updateify(inputData) {
+function updateify(inputData) {'use strict';
 	$.each(inputData, function(index, input) {
 		$(input.id).change(function() {
 			$(this).updateConfig();
@@ -113,7 +113,7 @@ function updateify(inputData) {
 	});
 }
 
-function prepareStock() {
+function prepareStock() {'use strict';
 	$('.config').accordion({
 		heightStyle : 'content',
 		collapsible : true,
@@ -442,9 +442,9 @@ function prepareStock() {
 		pagestat : 'Zeige {from} bis {to} von {total} Artikeln',
 		procmsg : 'Bitte warten...'
 	});
-};
+}
 
-function preparePrice() {
+function preparePrice() {'use strict';
 	$('#priceTable').flexigrid({
 		url : 'price-post-xml.php5',
 		dataType : 'xml',
@@ -481,31 +481,31 @@ function preparePrice() {
 		}, {
 			display : 'pausiert (Grund)',
 			name : 'PauseCause',
-			hide: true
+			hide : true
 		}, {
 			display : 'Trend Gewinn % im Zeitraum',
 			name : 'x1',
-			hide: true
+			hide : true
 		}, {
 			display : 'Min.-Preis',
 			name : 'x2',
-			hide: true
+			hide : true
 		}, {
 			display : 'aktueller Preis',
 			name : 'CurrentPrice',
-			hide: true
+			hide : true
 		}, {
 			display : 'Preisvorschlag',
 			name : 'x3',
-			hide: true
+			hide : true
 		}, {
 			display : 'Preis ändern',
 			name : 'x4',
-			hide: true
+			hide : true
 		}, {
 			display : 'Function man. auslösen',
 			name : 'x5',
-			hide: true
+			hide : true
 		}],
 		status : [4, 9, 12, 16, 20],
 		sortname : "ItemID",
