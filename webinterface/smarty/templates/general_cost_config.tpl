@@ -1,7 +1,5 @@
 <script type='text/javascript'>
-	$(document).ready(function() {
-		$('#runningCostConfiguration').flexigrid();
-	}); 
+	var warehouses = {$warehouseList|@json_encode};
 </script>
 <table id='runningCostConfiguration' style='display:none'>
 	<!-- -->

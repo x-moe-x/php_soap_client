@@ -523,11 +523,51 @@ function preparePrice() {
 		pagestat : 'Zeige {from} bis {to} von {total} Artikeln',
 		procmsg : 'Bitte warten...'
 	});
-};
+}
+
+function prepareGeneralCostConfig() {'use strict';
+
+	// prepare col model
+	var colModel = [{
+		display : 'Monat',
+		name : 'month',
+		align : 'left'
+	}, {
+		display : 'Allg. Betriebskosten<br>%',
+		name : 'generalCosts_manual',
+		align : 'right'
+	}];
+
+	$.each(warehouses, function(index, warehouse) {
+		colModel.push({
+			display : 'Kosten Transport/Lager<br>' + warehouse.name,
+			name : 'warehouseCost_manual_' + warehouse.id,
+			align : 'right'
+		});
+		colModel.push({
+			display : 'Kosten % der Gesamtleistung<br>' + warehouse.name,
+			name : 'warehouseCost_automatic_' + warehouse.id,
+			align : 'center'
+		});
+	});
+
+	console.log(colModel);
+
+	$('#runningCostConfiguration').flexigrid({
+		url : 'runningCost-post-xml.php',
+		dataType : 'xml',
+		colModel : colModel,
+		singleSelect : true,
+		title : 'Betriebskosten',
+		height : 500
+	});
+}
+
 
 $(document).ready(function() {'use strict';
 
 	prepareStock();
 	preparePrice();
+	prepareGeneralCostConfig();
 
 });
