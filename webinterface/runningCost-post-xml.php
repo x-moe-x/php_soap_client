@@ -18,7 +18,7 @@ function getMonthDates(DateTime $fromDate, $nrOfMonthDates = 6) {
 }
 
 function collectData(array $months, array $warehouses) {
-	// prepare table
+	// prepare empty table
 	$result = array(-1 => array());
 
 	foreach ($warehouses as $warehouse) {
@@ -37,6 +37,7 @@ function collectData(array $months, array $warehouses) {
 	}, $warehouses)) . ')';
 	$dbResult = DBQuery::getInstance() -> select($query);
 
+	// populate table
 	while ($runningCostRecord = $dbResult -> fetchAssoc()) {
 		if (array_key_exists($runningCostRecord['WarehouseID'], $result) && array_key_exists($runningCostRecord['Date'], $result[$runningCostRecord['WarehouseID']])) {
 			$result[$runningCostRecord['WarehouseID']][$runningCostRecord['Date']]['absolute'] = $runningCostRecord['AbsoluteAmount'];
@@ -47,8 +48,6 @@ function collectData(array $months, array $warehouses) {
 	return $result;
 }
 
-// for every month: get all available
-
 ob_start();
 $months = getMonthDates(new DateTime());
 $warehouses = getWarehouseList();
@@ -58,9 +57,9 @@ ob_end_clean();
 header('Content-type: text/xml');
 $xml = "<?xml version='1.0' encoding='utf-8'?>\n<rows>\n\t<page>1</page>\n\t<total>1</total>\n";
 foreach ($months as $monthDate) {
-
-	$xml .= "\t<row id=''>
-		<cell><![CDATA[$monthDate]]></cell>
+	$currentMonth = new DateTime($monthDate);
+	$xml .= "\t<row id='$monthDate'>
+		<cell><![CDATA[".$currentMonth->format('M. Y')."]]></cell>
 		<cell><![CDATA[{$data['-1'][$monthDate]['percentage']}]]></cell>\n";
 	foreach ($warehouses as $warehouse) {
 		$xml .= "\t\t<cell><![CDATA[{$data[$warehouse['id']][$monthDate]['absolute']}]]></cell>\n";
