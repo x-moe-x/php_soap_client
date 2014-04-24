@@ -558,8 +558,45 @@ function prepareGeneralCostConfig() {'use strict';
 		dataType : 'xml',
 		colModel : colModel,
 		singleSelect : true,
+		striped : false,
 		title : 'Betriebskosten',
-		height : 500
+		onSuccess : function(g) {
+			var colModel, status, params;
+
+			colModel = this.colModel;
+			status = this.status;
+			params = this.params;
+
+			// post-processing of cells
+			$('tbody tr td div', g.bDiv).each(function(index, newCell) {
+				var colName, date;
+
+				colName = colModel[index % colModel.length].name;
+				date = $(newCell).closest('tr').attr("id").substr(3);
+
+				// enable editing of values
+				if (colName === 'generalCosts_manual') {( function() {
+							var preparedHTML;
+
+							preparedHTML = '<input id="generalCosts_manual_' + date + '" value="' + $(newCell).text() + '"/><label class="variableUnit">%</label>';
+							$(newCell).html(preparedHTML);
+						}());
+				} else if (colName.indexOf('warehouseCost_manual_') === 0) {( function() {
+							var preparedHTML;
+							//$(newCell).closest('td').css('border-left-color','lightgrey');
+							preparedHTML = '<input id="' + colName + '_' + date + '" value="' + $(newCell).text() + '"/><label class="variableUnit">€</label>';
+							$(newCell).html(preparedHTML);
+						}());
+				} else if (colName.indexOf('warehouseCost_automatic_') === 0) {( function() {
+							$(newCell).closest('td').addClass('notModifyable').css('border-right-color','grey');
+							if ($(newCell).text().trim() !== '') {
+								$(newCell).append(' <label class="variableUnit">%</label>');
+							}
+						}());
+
+				}
+			});
+		}
 	});
 }
 
