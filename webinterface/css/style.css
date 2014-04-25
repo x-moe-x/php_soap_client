@@ -289,7 +289,19 @@ body.loading .modal {
 	min-width: 3em;
 }
 
-.flexigrid input {
+.flexigrid div.bDiv .automatic_value {
+	margin-right: 5%;
+}
+
+.flexigrid div.fbutton span.pReload {
+	background-position: left;
+}
+
+.flexigrid div.fbutton span.pReload.loading {
+	background: url(../images/load.gif) no-repeat center
+}
+
+.flexigrid div.bDiv input {
 	width: 80%;
 	margin-right: 5%;
 	border: 0;
@@ -297,7 +309,7 @@ body.loading .modal {
 	text-align: right;
 }
 
-.flexigrid .trSelected input {
+.flexigrid div.bDiv .trSelected input {
 	background: url("../images/hl.png") repeat-x scroll center -5px #D5EFFC !important
 }
 

@@ -42,7 +42,43 @@ $.fn.checkFloatval = function() {'use strict';
 	return this;
 };
 
-$.fn.updateConfig = function() {'use strict';
+function updateRegularConfig(element, data) {
+	// disable field during post
+	element.prop('disabled', true);
+
+	$.post('updateConfig.php5', data, function(newConfig) {
+
+		// re-enable field after post
+		element.prop('disabled', false);
+		if (newConfig.Message !== null) {
+			$('#errorMessages').append('<p>' + newConfig.Message + '</p>');
+			if (newConfig.Value !== null) {
+				$(element).val(newConfig.Value);
+			}
+		}
+	}, 'json');
+}
+
+function updateGeneralCostConfig(element, data) {
+	// disable field during post
+	element.prop('disabled', true);
+
+	$.post('updateGeneralCostConfig.php5', data, function(newConfig) {
+
+		// re-enable field after post
+		element.prop('disabled', false);
+		if (newConfig.Message !== null) {
+			$('#errorMessages').append($('<p/>', {
+				html : newConfig.Message
+			}));
+			if (newConfig.Value !== null) {
+				$(element).val(newConfig.Value);
+			}
+		}
+	}, 'json');
+}
+
+$.fn.updateConfig = function(updateFunction) {'use strict';
 	var data, element;
 
 	if (!isNaN($(this).val())) {
@@ -52,20 +88,7 @@ $.fn.updateConfig = function() {'use strict';
 		};
 		element = $(this);
 
-		// disable field during post
-		element.prop('disabled', true);
-
-		$.post('updateConfig.php5', data, function(newConfig) {
-
-			// re-enable field after post
-			element.prop('disabled', false);
-			if (newConfig.Message !== null) {
-				$('#errorMessages').append('<p>' + newConfig.Message + '</p>');
-				if (newConfig.Value !== null) {
-					$(element).val(newConfig.Value);
-				}
-			}
-		}, 'json');
+		updateFunction(element, data);
 	}
 
 	return this;
@@ -91,7 +114,6 @@ function dialogify(buttonData) {
 function updateify(inputData) {
 	$.each(inputData, function(index, input) {
 		$(input.id).change(function() {
-			$(this).updateConfig();
 
 			if ((input.type === 'int') || (input.type === 'float')) {
 				if (input.type === 'int') {
@@ -99,6 +121,7 @@ function updateify(inputData) {
 				} else {
 					$(this).checkFloatval();
 				}
+				$(this).updateConfig(input.updateFunction);
 				$(this).mouseup(function(e) {
 					e.preventDefault();
 				}).focus(function() {
@@ -130,34 +153,44 @@ function prepareStock() {
 
 	updateify([{
 		id : '#calculationTimeA',
-		type : 'int'
+		type : 'int',
+		updateFunction : updateRegularConfig
 	}, {
 		id : '#calculationTimeB',
-		type : 'int'
+		type : 'int',
+		updateFunction : updateRegularConfig
 	}, {
 		id : '#minimumToleratedSpikesA',
-		type : 'int'
+		type : 'int',
+		updateFunction : updateRegularConfig
 	}, {
 		id : '#minimumToleratedSpikesB',
-		type : 'int'
+		type : 'int',
+		updateFunction : updateRegularConfig
 	}, {
 		id : '#minimumOrdersA',
-		type : 'int'
+		type : 'int',
+		updateFunction : updateRegularConfig
 	}, {
 		id : '#minimumOrdersB',
-		type : 'int'
+		type : 'int',
+		updateFunction : updateRegularConfig
 	}, {
 		id : '#standardDeviationFactor',
-		type : 'float'
+		type : 'float',
+		updateFunction : updateRegularConfig
 	}, {
 		id : '#spikeTolerance',
-		type : 'float'
+		type : 'float',
+		updateFunction : updateRegularConfig
 	}, {
 		id : '#calculationActive',
-		type : 'select'
+		type : 'select',
+		updateFunction : updateRegularConfig
 	}, {
 		id : '#writebackActive',
-		type : 'select'
+		type : 'select',
+		updateFunction : updateRegularConfig
 	}]);
 
 	dialogify([{
@@ -543,16 +576,17 @@ function prepareGeneralCostConfig() {'use strict';
 			display : 'Transp./Lager<br>' + warehouse.name,
 			name : 'warehouseCost_manual_' + warehouse.id,
 			align : 'left',
-			width: 120
+			width : 120
 		});
 		colModel.push({
 			display : 'Anteil Gesamtlstg.<br>' + warehouse.name,
 			name : 'warehouseCost_automatic_' + warehouse.id,
 			align : 'center',
-			width: 120
+			width : 120
 		});
 	});
 
+	// create table
 	$('#runningCostConfiguration').flexigrid({
 		url : 'runningCost-post-xml.php',
 		dataType : 'xml',
@@ -560,6 +594,13 @@ function prepareGeneralCostConfig() {'use strict';
 		singleSelect : true,
 		striped : false,
 		title : 'Betriebskosten',
+		buttons : [{
+			name : 'Update',
+			bclass : 'pReload',
+			onpress : function(idOrName, gDiv) {
+				$('#runningCostConfiguration').flexReload();
+			}
+		}],
 		onSuccess : function(g) {
 			var colModel, status, params;
 
@@ -575,27 +616,61 @@ function prepareGeneralCostConfig() {'use strict';
 				date = $(newCell).closest('tr').attr("id").substr(3);
 
 				// enable editing of values
-				if (colName === 'generalCosts_manual') {( function() {
-							var preparedHTML;
-
-							preparedHTML = '<input id="generalCosts_manual_' + date + '" value="' + $(newCell).text() + '"/><label class="variableUnit">%</label>';
-							$(newCell).html(preparedHTML);
-						}());
-				} else if (colName.indexOf('warehouseCost_manual_') === 0) {( function() {
-							var preparedHTML;
-							//$(newCell).closest('td').css('border-left-color','lightgrey');
-							preparedHTML = '<input id="' + colName + '_' + date + '" value="' + $(newCell).text() + '"/><label class="variableUnit">€</label>';
-							$(newCell).html(preparedHTML);
-						}());
-				} else if (colName.indexOf('warehouseCost_automatic_') === 0) {( function() {
-							$(newCell).closest('td').addClass('notModifyable').css('border-right-color','grey');
-							if ($(newCell).text().trim() !== '') {
-								$(newCell).append(' <label class="variableUnit">%</label>');
+				if (colName === 'generalCosts_manual') {
+					$(newCell).html($('<input/>', {
+						id : 'generalCosts_manual_' + date,
+						value : $(newCell).text(),
+						on : {
+							change : function() {
+								$(this).checkFloatval().updateConfig(updateGeneralCostConfig).mouseup(function(e) {
+									e.preventDefault();
+								}).focus(function() {
+									if (isNaN($(this).val())) {
+										$(this).val("");
+									} else {
+										$(this).select();
+									}
+								});
 							}
-						}());
-
+						}
+					})).append($('<label/>', {
+						'class' : 'variableUnit',
+						html : '%'
+					}));
+				} else if (colName.indexOf('warehouseCost_manual_') === 0) {
+					$(newCell).html($('<input/>', {
+						id : colName + '_' + date,
+						value : $(newCell).text(),
+						on : {
+							change : function() {
+								$(this).checkFloatval().updateConfig(updateGeneralCostConfig).mouseup(function(e) {
+									e.preventDefault();
+								}).focus(function() {
+									if (isNaN($(this).val())) {
+										$(this).val("");
+									} else {
+										$(this).select();
+									}
+								});
+							}
+						}
+					})).append($('<label/>', {
+						'class' : 'variableUnit',
+						html : '€'
+					}));
+				} else if (colName.indexOf('warehouseCost_automatic_') === 0) {
+					$(newCell).closest('td').addClass('notModifyable').css('border-right-color', 'grey');
+					if ($(newCell).text().trim() !== '') {
+						$(newCell).wrapInner($('<span/>', {
+							'class' : 'automatic_value'
+						})).append($('<label/>', {
+							'class' : 'variableUnit',
+							html : '%'
+						}));
+					}
 				}
 			});
+
 		}
 	});
 }
