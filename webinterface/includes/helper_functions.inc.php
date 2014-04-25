@@ -9,7 +9,7 @@ function getWarehouseList() {
 
 	$result = array();
 	while ($warehouse = $resultWarehouseList -> fetchAssoc()) {
-		$result[] = array('id' => $warehouse['WarehouseID'], 'name' => $warehouse['Name']);
+		$result[$warehouse['WarehouseID']] = array('id' => $warehouse['WarehouseID'], 'name' => $warehouse['Name']);
 	}
 	return $result;
 }
