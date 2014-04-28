@@ -7,6 +7,16 @@ require_once ROOT . 'includes/GetConfig.php';
 
 $result = array('Message' => null, 'Value' => null);
 
+function zeroToNull($value) {
+	$floatValue = floatval($value);
+	if ($floatValue === 0.0) {
+		return 'NULL';
+	} else {
+		return $floatValue;
+	}
+
+}
+
 if (isset($_POST['key']) && isset($_POST['value'])) {
 	// extract warehouse id & date
 	if (preg_match('/(?:generalCosts_manual|warehouseCost_manual_(?\'warehouseId\'\d))_(?\'date\'\d{6}01)/', $_POST['key'], $matches) && preg_match('/(?:(?:20\d{2})(0[1-9]|1[0-2])(?:01))/', $matches['date'])) {
@@ -33,10 +43,10 @@ if (isset($_POST['key']) && isset($_POST['value'])) {
 			DBQuery::getInstance() -> insert('INSERT INTO `RunningCosts`' . DBUtils::buildInsert(array(
 				'Date' =>			$matches['date'],
 				'WarehouseID' =>	$matches['warehouseId'],
-				'AbsoluteAmount' =>	$_POST['value'],
+				'AbsoluteAmount' =>	zeroToNull($_POST['value']),
 				'Percentage' =>		'NULL'
 			)).'ON DUPLICATE KEY UPDATE' . DBUtils::buildOnDuplicateKeyUpdate(array(
-				'AbsoluteAmount' =>	$_POST['value'],
+				'AbsoluteAmount' =>	zeroToNull($_POST['value']),
 				'Percentage' =>		'NULL'
 			)));
 			// @formatter:on

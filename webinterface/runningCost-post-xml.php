@@ -32,7 +32,22 @@ function collectData(array $months, array $warehouses) {
 	}
 
 	// get data from db
-	$query = 'SELECT * FROM RunningCosts WHERE `Date` IN (' . implode(',', $months) . ') AND `WarehouseID` IN (-1,' . implode(',', array_map(function($warehouse) {
+	$query = 'SELECT
+	RunningCosts.Date,
+	RunningCosts.WarehouseID,
+	RunningCosts.AbsoluteAmount,
+	RunningCosts.Percentage,
+	TotalNetto.TotalNetto
+FROM
+	RunningCosts
+LEFT JOIN
+	TotalNetto
+ON
+	(RunningCosts.Date = TotalNetto.Date AND RunningCosts.WarehouseID = TotalNetto.WarehouseID)
+WHERE
+	RunningCosts.Date IN (' . implode(',', $months) . ')
+AND
+	RunningCosts.WarehouseID IN (-1,' . implode(',', array_map(function($warehouse) {
 		return $warehouse['id'];
 	}, $warehouses)) . ')';
 	$dbResult = DBQuery::getInstance() -> select($query);
@@ -40,11 +55,16 @@ function collectData(array $months, array $warehouses) {
 	// populate table
 	while ($runningCostRecord = $dbResult -> fetchAssoc()) {
 		if (array_key_exists($runningCostRecord['WarehouseID'], $result) && array_key_exists($runningCostRecord['Date'], $result[$runningCostRecord['WarehouseID']])) {
-			$result[$runningCostRecord['WarehouseID']][$runningCostRecord['Date']]['absolute'] = $runningCostRecord['AbsoluteAmount'];
-			$result[$runningCostRecord['WarehouseID']][$runningCostRecord['Date']]['percentage'] = $runningCostRecord['Percentage'];
+			if (intval($runningCostRecord['WarehouseID']) === -1) {
+				$result[$runningCostRecord['WarehouseID']][$runningCostRecord['Date']]['percentage'] = $runningCostRecord['Percentage'];
+			} else {
+				$result[$runningCostRecord['WarehouseID']][$runningCostRecord['Date']]['absolute'] = $runningCostRecord['AbsoluteAmount'];
+				if (floatval($runningCostRecord['AbsoluteAmount']) > 0) {
+					$result[$runningCostRecord['WarehouseID']][$runningCostRecord['Date']]['percentage'] = number_format(100 * $runningCostRecord['AbsoluteAmount'] / $runningCostRecord['TotalNetto'], 2);
+				}
+			}
 		}
 	}
-
 	return $result;
 }
 
