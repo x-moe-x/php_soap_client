@@ -7,7 +7,7 @@ require_once ROOT . 'includes/DBUtils2.class.php';
  * @author x-moe-x
  * @copyright net-xpress GmbH & Co. KG www.net-xpress.com
  */
-class CalculateRunningCosts {
+class CalculateTotalNetto {
 
 	/**
 	 * @var DateTime
@@ -25,7 +25,7 @@ class CalculateRunningCosts {
 	private $aRunningCosts;
 
 	/**
-	 * @return CalculateRunningCosts
+	 * @return CalculateTotalNetto
 	 */
 	public function __construct() {
 		$now = new DateTime();
