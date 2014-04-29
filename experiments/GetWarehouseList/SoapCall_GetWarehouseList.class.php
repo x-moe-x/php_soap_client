@@ -1,36 +1,37 @@
 <?php
-
 require_once ROOT . 'lib/soap/call/PlentySoapCall.abstract.php';
-require_once 'Request_GetWarehouseList.class.php';
-require_once ROOT . 'includes/DBLastUpdate.php';
 
 class SoapCall_GetWarehouseList extends PlentySoapCall {
 
-	private $oPlentySoapRequest_GetWarehouseList = null;
+	/**
+	 * @var array
+	 */
+	private $aWarehouseData;
 
+	/**
+	 * @return SoapCall_GetWarehouseList
+	 */
 	public function __construct() {
 		parent::__construct(__CLASS__);
+
+		$this -> aWarehouseData = array();
+
+		DBQuery::getInstance() -> truncate('TRUNCATE TABLE `WarehouseList`');
 	}
 
+	/**
+	 * @return void
+	 */
 	public function execute() {
-		$this -> getLogger() -> debug(__FUNCTION__);
-
 		try {
+			$oPlentySoapResponse_GetWarehouseList = $this -> getPlentySoap() -> GetWarehouseList(new PlentySoapRequest_GetWarehouseList());
 
-			$oRequest_GetWarehouseList = new Request_GetWarehouseList();
-
-			$this -> oPlentySoapRequest_GetWarehouseList = $oRequest_GetWarehouseList -> getRequest();
-
-			/*
-			 * do soap call
-			 */
-			$response = $this -> getPlentySoap() -> GetWarehouseList($this -> oPlentySoapRequest_GetWarehouseList);
-
-			if ($response -> Success == true) {
-				$this -> getLogger() -> debug(__FUNCTION__ . ' Request Success');
+			if ($oPlentySoapResponse_GetWarehouseList -> Success == true) {
 
 				// process response
-				$this -> responseInterpretation($response);
+				$this -> responseInterpretation($oPlentySoapResponse_GetWarehouseList);
+
+				$this -> storeToDB();
 			} else {
 				$this -> getLogger() -> debug(__FUNCTION__ . ' Request Error');
 			}
@@ -39,31 +40,44 @@ class SoapCall_GetWarehouseList extends PlentySoapCall {
 		}
 	}
 
-	private function processWarehouse($oWarehouse) {
-		// store to db
-		$query = 'REPLACE INTO `WarehouseList` ' . DBUtils::buildInsert(array('WarehouseID' => $oWarehouse -> WarehouseID, 'Name' => $oWarehouse -> Name, 'Type' => $oWarehouse -> Type));
-
-		DBQuery::getInstance() -> replace($query);
-	}
-
-	private function clearDB() {
-		$query = 'DELETE FROM `WarehouseList`';
-		$deletedItems = DBQuery::getInstance() -> delete($query);
-		$this -> getLogger() -> debug(__FUNCTION__ . ' : done, deleted ' . $deletedItems . ' items');
-	}
-
-	private function responseInterpretation($oPlentySoapResponse_GetWarehouseList) {
-		$this -> clearDB();
+	/**
+	 * @param PlentySoapResponse_GetWarehouseList $oPlentySoapResponse_GetWarehouseList
+	 * @return void
+	 */
+	private function responseInterpretation(PlentySoapResponse_GetWarehouseList $oPlentySoapResponse_GetWarehouseList) {
 		if (is_array($oPlentySoapResponse_GetWarehouseList -> WarehouseList -> item)) {
-			foreach ($oPlentySoapResponse_GetWarehouseList-> WarehouseList->item AS $warehouse) {
-				$this -> processWarehouse($warehouse);
+			foreach ($oPlentySoapResponse_GetWarehouseList -> WarehouseList -> item as $oPlentySoapObject_GetWarehouseList) {
+				$this -> processWarehouse($oPlentySoapObject_GetWarehouseList);
 			}
-			$this -> getLogger() -> debug(__FUNCTION__ . ' : done, added ' . count($oPlentySoapResponse_GetWarehouseList -> WarehouseList -> item) . ' items');
 		} else {
 			$this -> processWarehouse($oPlentySoapResponse_GetWarehouseList -> WarehouseList -> item);
-			$this -> getLogger() -> debug(__FUNCTION__ . ' : done, added 1 item');
 		}
+	}
 
+	/**
+	 * @param PlentySoapObject_GetWarehouseList $oPlentySoapObject_GetWarehouseList
+	 * @return void
+	 */
+	private function processWarehouse($oPlentySoapObject_GetWarehouseList) {
+		// @formatter:off
+		$this -> aWarehouseData[] = array(
+			'WarehouseID' =>	$oPlentySoapObject_GetWarehouseList->WarehouseID,
+			'Name' =>			$oPlentySoapObject_GetWarehouseList->Name,
+			'Type' =>			$oPlentySoapObject_GetWarehouseList->Type
+		);
+		// @formatter:on
+	}
+
+	/**
+	 * @return void
+	 */
+	private function storeToDB() {
+		$dataCount = count($this -> aWarehouseData);
+
+		if ($dataCount > 0) {
+			$this -> getLogger() -> debug(__FUNCTION__ . " storing $dataCount warehouse records to db");
+			DBQuery::getInstance() -> insert('INSERT INTO `WarehouseList`' . DBUtils::buildMultipleInsert($this -> aWarehouseData));
+		}
 	}
 
 }

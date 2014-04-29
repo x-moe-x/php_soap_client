@@ -69,7 +69,7 @@ div.colCopy{font-family:Arial, Helvetica, sans-serif;font-size:11px;background:#
 .flexigrid tr.erow td{background:#f7f7f7;border-bottom:1px solid #f7f7f7}
 .flexigrid tr.erow td.sorted{background:#e3e3e3;border-bottom:1px solid #e3e3e3}
 .flexigrid div.bDiv tr:hover td,.flexigrid div.bDiv tr:hover td.sorted,.flexigrid div.bDiv tr.trOver td.sorted,.flexigrid div.bDiv tr.trOver td{background:#d9ebf5;border-left:1px solid #eef8ff;border-bottom:1px dotted #a8d8eb}
-.flexigrid div.bDiv tr.trSelected:hover td,.flexigrid div.bDiv tr.trSelected:hover td.sorted,.flexigrid div.bDiv tr.trOver.trSelected td.sorted,.flexigrid div.bDiv tr.trOver.trSelected td,.flexigrid tr.trSelected td.sorted,.flexigrid tr.trSelected td{background:#d5effc url(../images/hl.png) repeat-x top;border-right:1px solid #d2e3ec;border-left:1px solid #eef8ff;border-bottom:1px solid #a8d8eb}
+.flexigrid div.bDiv tr.trSelected:hover td,.flexigrid div.bDiv tr.trSelected:hover td.sorted,.flexigrid div.bDiv tr.trOver.trSelected td.sorted,.flexigrid div.bDiv tr.trOver.trSelected td,.flexigrid tr.trSelected td.sorted,.flexigrid tr.trSelected td{background:#d5effc url(../images/hl.png) repeat-x top !important;border-right:1px solid #d2e3ec;border-left:1px solid #eef8ff;border-bottom:1px solid #a8d8eb}
 .flexigrid.novstripe .bDiv table{border-bottom:1px solid #ccc;border-right:1px solid #ccc}
 .flexigrid.novstripe div.bDiv td{border-right-color:#fff}
 .flexigrid.novstripe div.bDiv tr.erow td.sorted{border-right-color:#e3e3e3}

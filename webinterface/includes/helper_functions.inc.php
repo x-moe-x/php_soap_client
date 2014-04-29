@@ -4,12 +4,12 @@ require_once 'includes/basic_forward.inc.php';
 require_once ROOT . 'lib/db/DBQuery.class.php';
 
 function getWarehouseList() {
-	$query = 'SELECT * FROM `WarehouseList`';
+	$query = 'SELECT * FROM `WarehouseList` ORDER BY WarehouseID ASC';
 	$resultWarehouseList = DBQuery::getInstance() -> select($query);
 
 	$result = array();
 	while ($warehouse = $resultWarehouseList -> fetchAssoc()) {
-		$result[] = array('id' => $warehouse['WarehouseID'], 'name' => $warehouse['Name']);
+		$result[$warehouse['WarehouseID']] = array('id' => $warehouse['WarehouseID'], 'name' => $warehouse['Name']);
 	}
 	return $result;
 }
