@@ -291,6 +291,8 @@ body.loading .modal {
 
 .flexigrid div.bDiv .automatic_value {
 	margin-right: 5%;
+	font-size: 1em;
+	font-family: Verdana,Arial,sans-serif;
 }
 
 .flexigrid div.fbutton span.pReload {
@@ -326,10 +328,6 @@ tr:hover .notModifyable {
 }
 
 .notModifyable {
-	background-color: #eee !important;
-}
-
-#rowAverage td {
 	background-color: #eee !important;
 }
 /** end table styling **/

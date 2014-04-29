@@ -590,15 +590,15 @@ function prepareGeneralCostConfig() {'use strict';
 		display : 'Monat',
 		name : 'month',
 		align : 'left',
-		width: 60,
-		process : function(celDiv, id){
+		width : 60,
+		process : function(celDiv, id) {
 			$(celDiv).addClass('notModifyable');
 		}
 	}, {
 		display : 'Allg. Betriebskosten',
 		name : 'generalCosts_manual',
 		align : 'right',
-		width: 75,
+		width : 75,
 		process : function(celDiv, id) {
 			if (id !== 'Average') {
 				$(celDiv).insertInput('generalCosts_manual_' + id, '%');
@@ -620,7 +620,7 @@ function prepareGeneralCostConfig() {'use strict';
 		colModel.push({
 			display : 'Transp./Lager<br>' + warehouse.name,
 			name : 'warehouseCost_manual_' + warehouse.id,
-			align : 'left',
+			align : 'right',
 			width : 110,
 			process : function(celDiv, id) {
 				if (id !== 'Average') {
@@ -662,7 +662,7 @@ function prepareGeneralCostConfig() {'use strict';
 		url : 'runningCost-post-xml.php',
 		dataType : 'xml',
 		colModel : colModel,
-		height: 'auto',
+		height : 'auto',
 		singleSelect : true,
 		striped : false,
 		title : 'Betriebskosten',
