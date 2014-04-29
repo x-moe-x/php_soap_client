@@ -21,7 +21,7 @@ class CalculateTotalNetto {
 	/**
 	 * @var int
 	 */
-	private $nrOfMonthsBackwards;
+	private $defaultNrOfMonthsBackwards;
 
 	/**
 	 * @var array
@@ -38,7 +38,7 @@ class CalculateTotalNetto {
 
 		$this -> startDate = new DateTime($now -> format('Y-m-01'));
 
-		$this -> nrOfMonthsBackwards = 6;
+		$this -> defaultNrOfMonthsBackwards = 6;
 
 		$this -> aRunningCosts = array();
 	}
@@ -48,7 +48,7 @@ class CalculateTotalNetto {
 	 */
 	public function execute() {
 		// for every (month,warehouse) currently considered:
-		$dbResult = DBQuery::getInstance() -> select($this -> getQuery($this -> startDate, new DateInterval('P' . $this -> nrOfMonthsBackwards . 'M')));
+		$dbResult = DBQuery::getInstance() -> select($this -> getQuery($this -> startDate));
 
 		// ... get associated total revenue
 		while ($currentTotelNetto = $dbResult -> fetchAssoc()) {
@@ -80,13 +80,19 @@ class CalculateTotalNetto {
 	 * @param DateInterval $duringBackwardsInterval
 	 * @return string query
 	 */
-	private function getQuery(DateTime $startAt, DateInterval $duringBackwardsInterval) {
+	private function getQuery(DateTime $startAt, DateInterval $duringBackwardsInterval = null) {
+
+		if (is_null($duringBackwardsInterval)) {
+			$duringBackwardsInterval = new DateInterval('P' . $this -> defaultNrOfMonthsBackwards . 'M');
+		}
 
 		$toDate = $startAt -> format('\'Y-m-d\'');
 		$fromDate = $startAt -> sub($duringBackwardsInterval) -> format('\'Y-m-d\'');
 
+		$consideredTimestamp = 'DoneTimestamp';
+
 		return "SELECT
-	DATE_FORMAT(FROM_UNIXTIME(OrderHead.OrderTimestamp), '%Y%m01') AS `Date`,
+	DATE_FORMAT(FROM_UNIXTIME(OrderHead.$consideredTimestamp), '%Y%m01') AS `Date`,
 	OrderItem.WarehouseID,
 	SUM(OrderItem.Price * OrderItem.Quantity / (1 + OrderItem.VAT / 100)) AS `TotalNetto`
 FROM
@@ -100,7 +106,7 @@ WHERE
 AND
 	OrderHead.OrderType = 'order'
 AND
-	FROM_UNIXTIME(OrderHead.OrderTimestamp) BETWEEN $fromDate AND $toDate 
+	FROM_UNIXTIME(OrderHead.$consideredTimestamp) BETWEEN $fromDate AND $toDate
 GROUP BY
 	`Date`,
 	WarehouseID\n";
