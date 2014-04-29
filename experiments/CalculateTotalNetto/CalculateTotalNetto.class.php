@@ -8,6 +8,10 @@ require_once ROOT . 'includes/DBUtils2.class.php';
  * @copyright net-xpress GmbH & Co. KG www.net-xpress.com
  */
 class CalculateTotalNetto {
+	/**
+	 * @var string
+	 */
+	private $identifier4Logger = '';
 
 	/**
 	 * @var DateTime
@@ -28,6 +32,8 @@ class CalculateTotalNetto {
 	 * @return CalculateTotalNetto
 	 */
 	public function __construct() {
+		$this -> identifier4Logger = __CLASS__;
+
 		$now = new DateTime();
 
 		$this -> startDate = new DateTime($now -> format('Y-m-01'));
@@ -54,7 +60,12 @@ class CalculateTotalNetto {
 	}
 
 	private function storeToDB() {
-		DBQuery::getInstance() -> insert('INSERT INTO `TotalNetto`' . DBUtils2::buildMultipleInsertOnDuplikateKeyUpdate($this -> aRunningCosts));
+		$recordCount = count($this -> aRunningCosts);
+
+		if ($recordCount > 0) {
+			$this -> getLogger() -> debug(__FUNCTION__ . " storing $recordCount total netto records to db");
+			DBQuery::getInstance() -> insert('INSERT INTO `TotalNetto`' . DBUtils2::buildMultipleInsertOnDuplikateKeyUpdate($this -> aRunningCosts));
+		}
 	}
 
 	/**
@@ -95,5 +106,12 @@ GROUP BY
 	WarehouseID\n";
 	}
 
+	/**
+	 *
+	 * @return Logger
+	 */
+	protected function getLogger() {
+		return Logger::instance($this -> identifier4Logger);
+	}
 }
 ?>
