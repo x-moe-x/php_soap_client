@@ -51,8 +51,8 @@ class CalculateTotalNetto {
 		$dbResult = DBQuery::getInstance() -> select($this -> getQuery($this -> startDate));
 
 		// ... get associated total revenue
-		while ($currentTotelNetto = $dbResult -> fetchAssoc()) {
-			$this -> aRunningCosts[] = $currentTotelNetto;
+		while ($currentTotalNetto = $dbResult -> fetchAssoc()) {
+			$this -> aRunningCosts[] = $currentTotalNetto;
 		}
 
 		// ... store to db
