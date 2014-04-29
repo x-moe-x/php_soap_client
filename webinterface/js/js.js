@@ -42,6 +42,31 @@ $.fn.checkFloatval = function() {'use strict';
 	return this;
 };
 
+$.fn.insertInput = function(inputID, unitString) {'use strict';
+	$(this).html($('<input/>', {
+		id : inputID,
+		value : $(this).text(),
+		on : {
+			focus : function() {
+				if (isNaN($(this).val())) {
+					$(this).val("");
+				} else {
+					$(this).select();
+				}
+			},
+			change : function() {
+				$(this).checkFloatval().updateConfig(updateGeneralCostConfig);
+			}
+		}
+	})).append($('<label/>', {
+		'class' : 'variableUnit',
+		'for' : inputID,
+		html : unitString
+	}));
+
+	return this;
+};
+
 function updateRegularConfig(element, data) {
 	// disable field during post
 	element.prop('disabled', true);
@@ -564,11 +589,21 @@ function prepareGeneralCostConfig() {'use strict';
 	var colModel = [{
 		display : 'Monat',
 		name : 'month',
-		align : 'left'
+		align : 'left',
+		width: 60,
+		process : function(celDiv, id){
+			$(celDiv).addClass('notModifyable');
+		}
 	}, {
 		display : 'Allg. Betriebskosten',
 		name : 'generalCosts_manual',
-		align : 'right'
+		align : 'right',
+		width: 75,
+		process : function(celDiv, id) {
+			if (id !== 'Average') {
+				$(celDiv).insertInput('generalCosts_manual_' + id, '%');
+			}
+		}
 	}];
 
 	$.each(warehouses, function(index, warehouse) {
@@ -576,13 +611,29 @@ function prepareGeneralCostConfig() {'use strict';
 			display : 'Transp./Lager<br>' + warehouse.name,
 			name : 'warehouseCost_manual_' + warehouse.id,
 			align : 'left',
-			width : 120
+			width : 110,
+			process : function(celDiv, id) {
+				if (id !== 'Average') {
+					$(celDiv).insertInput('warehouseCost_manual_' + warehouse.id + '_' + id, '€');
+				}
+			}
 		});
 		colModel.push({
 			display : 'Anteil Gesamtlstg.<br>' + warehouse.name,
 			name : 'warehouseCost_automatic_' + warehouse.id,
 			align : 'center',
-			width : 120
+			width : 110,
+			process : function(celDiv, id) {
+				$(celDiv).addClass('notModifyable');
+				if ($(celDiv).text().trim() !== '') {
+					$(celDiv).wrapInner($('<span/>', {
+						'class' : 'automatic_value'
+					})).append($('<label/>', {
+						'class' : 'variableUnit',
+						html : '%'
+					}));
+				}
+			}
 		});
 	});
 
@@ -591,6 +642,7 @@ function prepareGeneralCostConfig() {'use strict';
 		url : 'runningCost-post-xml.php',
 		dataType : 'xml',
 		colModel : colModel,
+		height: 'auto',
 		singleSelect : true,
 		striped : false,
 		title : 'Betriebskosten',
@@ -600,78 +652,7 @@ function prepareGeneralCostConfig() {'use strict';
 			onpress : function(idOrName, gDiv) {
 				$('#runningCostConfiguration').flexReload();
 			}
-		}],
-		onSuccess : function(g) {
-			var colModel, status, params;
-
-			colModel = this.colModel;
-			status = this.status;
-			params = this.params;
-
-			// post-processing of cells
-			$('tbody tr td div', g.bDiv).each(function(index, newCell) {
-				var colName, date;
-
-				colName = colModel[index % colModel.length].name;
-				date = $(newCell).closest('tr').attr("id").substr(3);
-
-				// enable editing of values
-				if (colName === 'generalCosts_manual') {
-					$(newCell).html($('<input/>', {
-						id : 'generalCosts_manual_' + date,
-						value : $(newCell).text(),
-						on : {
-							change : function() {
-								$(this).checkFloatval().updateConfig(updateGeneralCostConfig).mouseup(function(e) {
-									e.preventDefault();
-								}).focus(function() {
-									if (isNaN($(this).val())) {
-										$(this).val("");
-									} else {
-										$(this).select();
-									}
-								});
-							}
-						}
-					})).append($('<label/>', {
-						'class' : 'variableUnit',
-						html : '%'
-					}));
-				} else if (colName.indexOf('warehouseCost_manual_') === 0) {
-					$(newCell).html($('<input/>', {
-						id : colName + '_' + date,
-						value : $(newCell).text(),
-						on : {
-							change : function() {
-								$(this).checkFloatval().updateConfig(updateGeneralCostConfig).mouseup(function(e) {
-									e.preventDefault();
-								}).focus(function() {
-									if (isNaN($(this).val())) {
-										$(this).val("");
-									} else {
-										$(this).select();
-									}
-								});
-							}
-						}
-					})).append($('<label/>', {
-						'class' : 'variableUnit',
-						html : '€'
-					}));
-				} else if (colName.indexOf('warehouseCost_automatic_') === 0) {
-					$(newCell).closest('td').addClass('notModifyable').css('border-right-color', 'grey');
-					if ($(newCell).text().trim() !== '') {
-						$(newCell).wrapInner($('<span/>', {
-							'class' : 'automatic_value'
-						})).append($('<label/>', {
-							'class' : 'variableUnit',
-							html : '%'
-						}));
-					}
-				}
-			});
-
-		}
+		}]
 	});
 }
 

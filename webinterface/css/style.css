@@ -317,8 +317,19 @@ body.loading .modal {
 	background: #d9ebf5;
 }
 
+tr:hover .notModifyable {
+	background: #d9ebf5 !important;
+}
+
+.trSelected .notModifyable {
+	background: url("../images/hl.png") repeat-x scroll center top #D5EFFC !important
+}
+
 .notModifyable {
 	background-color: #eee !important;
 }
 
+#rowAverage td {
+	background-color: #eee !important;
+}
 /** end table styling **/
