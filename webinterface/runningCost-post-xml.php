@@ -30,6 +30,7 @@ function collectData(array $months, array $warehouses) {
 		foreach ($months as $month) {
 			$warehouse[$month] = array('absolute' => null, 'percentage' => null);
 		}
+		$warehouse['average'] = array('absolute' => null, 'percentage' => null);
 	}
 
 	// get data from db
@@ -66,6 +67,19 @@ AND
 			}
 		}
 	}
+
+	// calculate averages
+	$maxDate = count($months) - 1;
+	foreach ($result as &$warehouse) {
+		$allMonthsTotalAbsolute = 0;
+		$allMonthsTotalPercentage = 0;
+		for ($date = 0; $date < $maxDate; $date++) {
+			$allMonthsTotalAbsolute += $warehouse[$months[$date]]['absolute'];
+			$allMonthsTotalPercentage += $warehouse[$months[$date]]['percentage'];
+		}
+		$warehouse['average']['absolute'] = number_format($allMonthsTotalAbsolute / $maxDate, 2,'.','');
+		$warehouse['average']['percentage'] = number_format($allMonthsTotalPercentage / $maxDate, 2,'.','');
+	}
 	return $result;
 }
 
@@ -80,7 +94,7 @@ $xml = "<?xml version='1.0' encoding='utf-8'?>\n<rows>\n\t<page>1</page>\n\t<tot
 foreach ($months as $monthDate) {
 	$currentMonth = new DateTime($monthDate);
 	$xml .= "\t<row id='$monthDate'>
-		<cell><![CDATA[".$currentMonth->format('M. Y')."]]></cell>
+		<cell><![CDATA[" . $currentMonth -> format('M. Y') . "]]></cell>
 		<cell><![CDATA[{$data['-1'][$monthDate]['percentage']}]]></cell>\n";
 	foreach ($warehouses as $warehouse) {
 		$xml .= "\t\t<cell><![CDATA[{$data[$warehouse['id']][$monthDate]['absolute']}]]></cell>\n";
@@ -89,6 +103,18 @@ foreach ($months as $monthDate) {
 
 	$xml .= "\t</row>\n";
 }
+
+// append average for each month exept the current one
+$xml .= "\t<row id='Average'>
+		<cell><![CDATA[Durchschnitt]]></cell>
+		<cell><![CDATA[{$data['-1']['average']['percentage']}]]></cell>\n";
+
+foreach ($warehouses as $warehouse) {
+	$xml .= "\t\t<cell><![CDATA[{$data[$warehouse['id']]['average']['absolute']}]]></cell>\n";
+	$xml .= "\t\t<cell><![CDATA[{$data[$warehouse['id']]['average']['percentage']}]]></cell>\n";
+}
+
+$xml .= "\t</row>\n";
 
 $xml .= "</rows>\n";
 echo $xml;

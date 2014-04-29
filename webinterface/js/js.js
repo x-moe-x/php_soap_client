@@ -602,6 +602,16 @@ function prepareGeneralCostConfig() {'use strict';
 		process : function(celDiv, id) {
 			if (id !== 'Average') {
 				$(celDiv).insertInput('generalCosts_manual_' + id, '%');
+			} else {
+				$(celDiv).addClass('notModifyable');
+				if ($(celDiv).text().trim() !== '') {
+					$(celDiv).wrapInner($('<span/>', {
+						'class' : 'automatic_value'
+					})).append($('<label/>', {
+						'class' : 'variableUnit',
+						html : '%'
+					}));
+				}
 			}
 		}
 	}];
@@ -615,6 +625,16 @@ function prepareGeneralCostConfig() {'use strict';
 			process : function(celDiv, id) {
 				if (id !== 'Average') {
 					$(celDiv).insertInput('warehouseCost_manual_' + warehouse.id + '_' + id, '€');
+				} else {
+					$(celDiv).addClass('notModifyable');
+					if ($(celDiv).text().trim() !== '') {
+						$(celDiv).wrapInner($('<span/>', {
+							'class' : 'automatic_value'
+						})).append($('<label/>', {
+							'class' : 'variableUnit',
+							html : '€'
+						}));
+					}
 				}
 			}
 		});
