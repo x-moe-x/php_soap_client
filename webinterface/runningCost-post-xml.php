@@ -10,9 +10,10 @@ $qtype = isset($_POST['qtype']) ? $_POST['qtype'] : false;
 
 function getMonthDates(DateTime $fromDate, $nrOfMonthDates = 6) {
 	$result = array();
-	$result[] = $fromDate -> format('Ym01');
+	$normalizedDate = new DateTime($fromDate -> format('Ym01'));
+	$result[] = $normalizedDate -> format('Ymd');
 	for ($i = 1; $i <= $nrOfMonthDates; $i++) {
-		$result[] = $fromDate -> sub(new DateInterval('P1M')) -> format('Ym01');
+		$result[] = $normalizedDate -> sub(new DateInterval('P1M')) -> format('Ymd');
 	}
 	return array_reverse($result);
 }
