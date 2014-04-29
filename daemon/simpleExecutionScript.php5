@@ -13,6 +13,13 @@ if (Config::get('CalculationActive') === 1) {
 	NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'GetItemsWarehouseSettings'));
 	NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'GetItemsSuppliers'));
 
+	// update warehouse db
+	NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'GetWarehouseList'));
+
+	// calculate total netto values for last 6 months
+	// TODO would be better as a daemon action
+	NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'CalculateTotalNetto', 'CalculateTotalNetto'));
+
 	// calculate daily need
 	NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'CalculateDailyNeed', 'CalculateDailyNeed'));
 
