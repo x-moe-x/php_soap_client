@@ -8,6 +8,6 @@ Epi::init('route');
 
 getRoute() -> get('/config/stock', array('ApiStock', 'getConfigJSON'));
 getRoute() -> get('/config/stock/(\w+)', array('ApiStock', 'getConfigJSON'));
-getRoute() -> put('/config/stock/(\w+)/(\w+)', array('ApiStock', 'setConfigJSON'));
+getRoute() -> put('/config/stock/(\w+)/(\w+|\d+|\d+\.\d+)', array('ApiStock', 'setConfigJSON'));
 getRoute() -> run();
 ?>
