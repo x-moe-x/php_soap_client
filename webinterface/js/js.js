@@ -42,6 +42,24 @@ $.fn.checkFloatval = function() {'use strict';
 	return this;
 };
 
+function checkNumericValues(element, type) {'use strict';
+	switch (type) {
+		case 'int':
+			element.checkIntval();
+			return isNaN(element.val()) ? 'incorrect' : element.val();
+			break;
+		case 'float':
+			element.checkFloatval();
+			return isNaN(element.val()) ? 'incorrect' : element.val();
+			break;
+		case 'percent':
+			element.checkFloatval();
+			return isNaN(element.val()) ? 'incorrect' : element.val() / 100;
+		default:
+			return 'incorrect';
+	}
+};
+
 $.fn.insertInput = function(inputID, unitString) {'use strict';
 	$(this).html($('<input/>', {
 		id : inputID,
@@ -66,42 +84,6 @@ $.fn.insertInput = function(inputID, unitString) {'use strict';
 
 	return this;
 };
-
-function updateRegularConfig(element, data) {
-
-	// disable field during operation
-	element.prop('disabled', true);
-
-	// put data to api
-	$.ajax({
-		type : 'PUT',
-		url : '../api/config/stock/' + data.key + '/' + data.value
-	}).done(function(putResult) {
-		// when done: check for success ...
-		if (putResult.success) {
-			// ... then just set the value
-			element.val(putResult.data[data.key]);
-		} else {
-			// ... otherwise log error ...
-			$('#errorMessages').append('<p>' + putResult.error + '</p>');
-			// ... and try to get original value ...
-			$.ajax({
-				type : 'GET',
-				url : '../api/config/stock/' + data.key,
-			}).done(function(getResult) {
-				// when done: check for success ...
-				if (getResult.success) {
-					// ... then just set the unmodified value
-					element.val(getResult.data[data.key]);
-				} else {
-					// ... otherwise log error
-					$('#errorMessages').append('<p>' + getResult.error + '</p>');
-				}
-			});
-		}
-		element.prop('disabled', false);
-	});
-}
 
 function updateGeneralCostConfig(element, data) {
 
@@ -159,24 +141,7 @@ function dialogify(buttonData) {'use strict';
 function updateify(inputData) {'use strict';
 	$.each(inputData, function(index, input) {
 		$(input.id).change(function() {
-
-			if ((input.type === 'int') || (input.type === 'float')) {
-				if (input.type === 'int') {
-					$(this).checkIntval();
-				} else {
-					$(this).checkFloatval();
-				}
-				$(this).updateConfig(input.updateFunction);
-				$(this).mouseup(function(e) {
-					e.preventDefault();
-				}).focus(function() {
-					if (isNaN($(this).val())) {
-						$(this).val("");
-					} else {
-						$(this).select();
-					}
-				});
-			}
+			$(this).apiUpdate(input.path, input.type, input.preprocess, input.postprocess);
 		});
 	});
 }
@@ -199,43 +164,56 @@ function prepareStock() {'use strict';
 	updateify([{
 		id : '#calculationTimeA',
 		type : 'int',
-		updateFunction : updateRegularConfig
+		path : '../api/config/stock',
+		preprocess : checkNumericValues,
 	}, {
 		id : '#calculationTimeB',
 		type : 'int',
-		updateFunction : updateRegularConfig
+		path : '../api/config/stock',
+		preprocess : checkNumericValues
 	}, {
 		id : '#minimumToleratedSpikesA',
 		type : 'int',
-		updateFunction : updateRegularConfig
+		path : '../api/config/stock',
+		preprocess : checkNumericValues
 	}, {
 		id : '#minimumToleratedSpikesB',
 		type : 'int',
-		updateFunction : updateRegularConfig
+		path : '../api/config/stock',
+		preprocess : checkNumericValues
 	}, {
 		id : '#minimumOrdersA',
 		type : 'int',
-		updateFunction : updateRegularConfig
+		path : '../api/config/stock',
+		preprocess : checkNumericValues
 	}, {
 		id : '#minimumOrdersB',
 		type : 'int',
-		updateFunction : updateRegularConfig
+		path : '../api/config/stock',
+		preprocess : checkNumericValues
 	}, {
 		id : '#standardDeviationFactor',
 		type : 'float',
-		updateFunction : updateRegularConfig
+		path : '../api/config/stock',
+		preprocess : checkNumericValues
 	}, {
 		id : '#spikeTolerance',
-		type : 'float',
-		updateFunction : updateRegularConfig
+		type : 'percent',
+		path : '../api/config/stock',
+		preprocess : checkNumericValues,
+		postprocess : function(value) {
+			return value * 100;
+		}
 	}, {
 		id : '#calculationActive',
 		type : 'select',
-		updateFunction : updateRegularConfig
+		path : '../api/config/stock',
+		preprocess : checkNumericValues
 	}, {
 		id : '#writebackActive',
 		type : 'select',
-		updateFunction : updateRegularConfig
+		path : '../api/config/stock',
+		preprocess : checkNumericValues
 	}]);
 
 	dialogify([{
