@@ -68,23 +68,43 @@ $.fn.insertInput = function(inputID, unitString) {'use strict';
 };
 
 function updateRegularConfig(element, data) {
-	// disable field during post
+
+	// disable field during operation
 	element.prop('disabled', true);
 
-	$.post('updateConfig.php5', data, function(newConfig) {
-
-		// re-enable field after post
-		element.prop('disabled', false);
-		if (newConfig.Message !== null) {
-			$('#errorMessages').append('<p>' + newConfig.Message + '</p>');
-			if (newConfig.Value !== null) {
-				$(element).val(newConfig.Value);
-			}
+	// put data to api
+	$.ajax({
+		type : 'PUT',
+		url : '../api/config/stock/' + data.key + '/' + data.value
+	}).done(function(putResult) {
+		// when done: check for success ...
+		if (putResult.success) {
+			// ... then just set the value
+			element.val(putResult.data[data.key]);
+		} else {
+			// ... otherwise log error ...
+			$('#errorMessages').append('<p>' + putResult.error + '</p>');
+			// ... and try to get original value ...
+			$.ajax({
+				type : 'GET',
+				url : '../api/config/stock/' + data.key,
+			}).done(function(getResult) {
+				// when done: check for success ...
+				if (getResult.success) {
+					// ... then just set the unmodified value
+					element.val(getResult.data[data.key]);
+				} else {
+					// ... otherwise log error
+					$('#errorMessages').append('<p>' + getResult.error + '</p>');
+				}
+			});
 		}
-	}, 'json');
+		element.prop('disabled', false);
+	});
 }
 
 function updateGeneralCostConfig(element, data) {
+
 	// disable field during post
 	element.prop('disabled', true);
 
