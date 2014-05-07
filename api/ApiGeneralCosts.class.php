@@ -10,22 +10,39 @@ class ApiGeneralCosts {
 	const MODE_WITH_AVERAGE = 0x2;
 
 	public static function getCostsTotal($mode = null, array $warehouses = null, array $months = null, DateTime $fromDate = null, $nrOfMonths = 6) {
-		// prepare standard parameters
+		// prepare standard parameter mode
 		if (is_null($mode)) {
 			$mode = self::MODE_WITH_AVERAGE | self::MODE_WITH_GENERAL_COSTS;
 		}
 
-		if (is_null($warehouses)) {
+		// prepare standard parameter warehouses
+		// if warehouses not set ...
+		if (empty($warehouses)) {
+			// ... then if in general-costs mode ...
 			if (($mode & self::MODE_WITH_GENERAL_COSTS) === self::MODE_WITH_GENERAL_COSTS) {
+				// ... ... then init warehouses with warehouse list, prepended with general costs col as warehouse id -1
 				$warehouses = array(-1 => array('id' => -1, 'name' => ''));
 				$warehouses = $warehouses + ApiHelper::getWarehouseList();
 			} else {
+				// ... ... otherwise just init warehouses with warehouse list
 				$warehouses = ApiHelper::getWarehouseList();
 			}
-		} else if (($mode & self::MODE_WITH_GENERAL_COSTS) === self::MODE_WITH_GENERAL_COSTS) {
-			$warehouses = array(-1 => array('id' => -1, 'name' => '')) + $warehouses;
+		}
+		// if warehouses set ...
+		else {
+			// ... then if no or not available warehouses are set
+			$warehouses = array_intersect_key(ApiHelper::getWarehouseList(), $warehouses);
+			if (count($warehouses) === 0) {
+				throw new Exception("Not availabe warehouses requested");
+			}
+
+			// if in general-costs mode prepend given warehouses with general costs col as warhouse id -1
+			if (($mode & self::MODE_WITH_GENERAL_COSTS) === self::MODE_WITH_GENERAL_COSTS) {
+				$warehouses = array(-1 => array('id' => -1, 'name' => '')) + $warehouses;
+			}
 		}
 
+		// prepare standard parameter months
 		if (is_null($months)) {
 			if (is_null($fromDate)) {
 				$fromDate = new DateTime();
@@ -50,22 +67,7 @@ class ApiGeneralCosts {
 		}
 
 		// get data from db
-		$query = 'SELECT
-	RunningCosts.Date,
-	RunningCosts.WarehouseID,
-	RunningCosts.AbsoluteAmount,
-	RunningCosts.Percentage,
-	TotalNetto.TotalNetto
-FROM
-	RunningCosts
-LEFT JOIN
-	TotalNetto
-ON
-	(RunningCosts.Date = TotalNetto.Date AND RunningCosts.WarehouseID = TotalNetto.WarehouseID)
-WHERE
-	RunningCosts.Date IN (' . implode(',', $months) . ')
-AND
-	RunningCosts.WarehouseID IN (' . implode(',', array_map(function($warehouse) {
+		$query = 'SELECT rc.Date, rc.WarehouseID, rc.AbsoluteAmount, rc.Percentage, tn.TotalNetto FROM RunningCosts AS rc LEFT JOIN	TotalNetto AS tn ON	(rc.Date = tn.Date AND rc.WarehouseID = tn.WarehouseID) WHERE rc.Date IN (' . implode(',', $months) . ') AND rc.WarehouseID IN (' . implode(',', array_map(function($warehouse) {
 			return $warehouse['id'];
 		}, $warehouses)) . ')';
 
@@ -89,7 +91,8 @@ AND
 
 		if (($mode & self::MODE_WITH_AVERAGE) === self::MODE_WITH_AVERAGE) {
 			// calculate averages
-			$maxDate = count($months) - 1;
+			$maxDate = count($months) - 2;
+			// '- (1 for current month + 1 for average row)'
 			foreach ($result as &$warehouse) {
 				$allMonthsTotalAbsolute = 0;
 				$allMonthsTotalPercentage = 0;
@@ -101,7 +104,6 @@ AND
 				$warehouse['average']['percentage'] = number_format($allMonthsTotalPercentage / $maxDate, 2, '.', '');
 			}
 		}
-
 		return $result;
 	}
 
