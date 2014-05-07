@@ -20,46 +20,6 @@ $.fn.dialogify = function(title, htmlText, type, okFunction) {'use strict';
 	return this;
 };
 
-$.fn.checkIntval = function() {'use strict';
-	var val = parseInt(this.val().replace(',', '.'), 10);
-	if (isNaN(val)) {
-		this.val('not a number');
-	} else {
-		this.val(val);
-	}
-
-	return this;
-};
-
-$.fn.checkFloatval = function() {'use strict';
-	var val = parseFloat(this.val().replace(',', '.'), 10);
-	if (isNaN(val)) {
-		this.val('not a number');
-	} else {
-		this.val(val);
-	}
-
-	return this;
-};
-
-function checkNumericValues(element, type) {'use strict';
-	switch (type) {
-		case 'int':
-			element.checkIntval();
-			return isNaN(element.val()) ? 'incorrect' : element.val();
-			break;
-		case 'float':
-			element.checkFloatval();
-			return isNaN(element.val()) ? 'incorrect' : element.val();
-			break;
-		case 'percent':
-			element.checkFloatval();
-			return isNaN(element.val()) ? 'incorrect' : element.val() / 100;
-		default:
-			return 'incorrect';
-	}
-};
-
 $.fn.insertInput = function(inputID, unitString) {'use strict';
 	$(this).html($('<input/>', {
 		id : inputID,
@@ -73,7 +33,7 @@ $.fn.insertInput = function(inputID, unitString) {'use strict';
 				}
 			},
 			change : function() {
-				$(this).checkFloatval().updateConfig(updateGeneralCostConfig);
+				$(this).apiUpdate('../api/generalCost', 'float', elementProcessGeneralCosts);
 			}
 		}
 	})).append($('<label/>', {
@@ -85,40 +45,57 @@ $.fn.insertInput = function(inputID, unitString) {'use strict';
 	return this;
 };
 
-function updateGeneralCostConfig(element, data) {
-
-	// disable field during post
-	element.prop('disabled', true);
-
-	$.post('updateGeneralCostConfig.php5', data, function(newConfig) {
-
-		// re-enable field after post
-		element.prop('disabled', false);
-		if (newConfig.Message !== null) {
-			$('#errorMessages').append($('<p/>', {
-				html : newConfig.Message
-			}));
-			if (newConfig.Value !== null) {
-				$(element).val(newConfig.Value);
+function elementProcessGeneralCosts(element, type) {'use strict';
+	var id, matches;
+	switch (type) {
+		case 'float':
+			element.checkFloatval();
+			if (!isNaN(element.val())) {
+				id = element.attr('id');
+				if ( matches = id.match(/generalCosts_manual_(\d{8})/)) {
+					return {
+						key : '-1/' + matches[1],
+						value : element.val()
+					};
+				} else if (matches = id.match(/warehouseCost_manual_(\d+)_(\d{8})/)) {
+					return {
+						key : matches[1] + '/' + matches[2],
+						value : element.val()
+					};
+				} else {
+					return 'incorrect';
+				}
+			} else {
+				return 'incorrect';
 			}
-		}
-	}, 'json');
+		default:
+			return 'incorrect';
+	}
 }
 
-$.fn.updateConfig = function(updateFunction) {'use strict';
-	var data, element;
-
-	if (!isNaN($(this).val())) {
-		data = {
-			key : $(this).attr('id'),
-			value : $(this).val()
-		};
-		element = $(this);
-
-		updateFunction(element, data);
+function elementProcessStockConfig(element, type) {'use strict';
+	switch (type) {
+		case 'int':
+			element.checkIntval();
+			return isNaN(element.val()) ? 'incorrect' : {
+				key : element.attr('id'),
+				value : element.val()
+			};
+		case 'float':
+			element.checkFloatval();
+			return isNaN(element.val()) ? 'incorrect' : {
+				key : element.attr('id'),
+				value : element.val()
+			};
+		case 'percent':
+			element.checkFloatval();
+			return isNaN(element.val()) ? 'incorrect' : {
+				key : element.attr('id'),
+				value : element.val() / 100
+			};
+		default:
+			return 'incorrect';
 	}
-
-	return this;
 };
 
 function loadSuccess(result) {'use strict';
@@ -138,14 +115,6 @@ function dialogify(buttonData) {'use strict';
 	});
 }
 
-function updateify(inputData) {'use strict';
-	$.each(inputData, function(index, input) {
-		$(input.id).change(function() {
-			$(this).apiUpdate(input.path, input.type, input.preprocess, input.postprocess);
-		});
-	});
-}
-
 function prepareStock() {'use strict';
 	$('.config').accordion({
 		heightStyle : 'content',
@@ -161,46 +130,46 @@ function prepareStock() {'use strict';
 		heightStyle : 'content'
 	});
 
-	updateify([{
+	$.each([{
 		id : '#calculationTimeA',
 		type : 'int',
 		path : '../api/config/stock',
-		preprocess : checkNumericValues,
+		preprocess : elementProcessStockConfig,
 	}, {
 		id : '#calculationTimeB',
 		type : 'int',
 		path : '../api/config/stock',
-		preprocess : checkNumericValues
+		preprocess : elementProcessStockConfig
 	}, {
 		id : '#minimumToleratedSpikesA',
 		type : 'int',
 		path : '../api/config/stock',
-		preprocess : checkNumericValues
+		preprocess : elementProcessStockConfig
 	}, {
 		id : '#minimumToleratedSpikesB',
 		type : 'int',
 		path : '../api/config/stock',
-		preprocess : checkNumericValues
+		preprocess : elementProcessStockConfig
 	}, {
 		id : '#minimumOrdersA',
 		type : 'int',
 		path : '../api/config/stock',
-		preprocess : checkNumericValues
+		preprocess : elementProcessStockConfig
 	}, {
 		id : '#minimumOrdersB',
 		type : 'int',
 		path : '../api/config/stock',
-		preprocess : checkNumericValues
+		preprocess : elementProcessStockConfig
 	}, {
 		id : '#standardDeviationFactor',
 		type : 'float',
 		path : '../api/config/stock',
-		preprocess : checkNumericValues
+		preprocess : elementProcessStockConfig
 	}, {
 		id : '#spikeTolerance',
 		type : 'percent',
 		path : '../api/config/stock',
-		preprocess : checkNumericValues,
+		preprocess : elementProcessStockConfig,
 		postprocess : function(value) {
 			return value * 100;
 		}
@@ -208,13 +177,17 @@ function prepareStock() {'use strict';
 		id : '#calculationActive',
 		type : 'select',
 		path : '../api/config/stock',
-		preprocess : checkNumericValues
+		preprocess : elementProcessStockConfig
 	}, {
 		id : '#writebackActive',
 		type : 'select',
 		path : '../api/config/stock',
-		preprocess : checkNumericValues
-	}]);
+		preprocess : elementProcessStockConfig
+	}], function(index, input) {
+		$(input.id).change(function() {
+			$(this).apiUpdate(input.path, input.type, input.preprocess, input.postprocess);
+		});
+	});
 
 	dialogify([{
 		id : '#buttonManualUpdate',
