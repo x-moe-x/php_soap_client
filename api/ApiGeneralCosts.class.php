@@ -9,6 +9,25 @@ class ApiGeneralCosts {
 
 	const MODE_WITH_AVERAGE = 0x2;
 
+	public static function getCostsJSON($warehouseID, $date) {
+		header('Content-Type: application/json');
+		$result = array('success' => false, 'data' => NULL, 'error' => NULL);
+
+		if (!is_null($warehouseID) && !is_null($date)) {
+
+			try {
+				$data = self::getCostsTotal(0, array($warehouseID => array('id' => $warehouseID, 'name' => null)), array($date));
+				$result['success'] = true;
+				$result['data'] = $data;
+			} catch(Exception $e) {
+				$result['error'] = $e -> getMessage();
+			}
+		} else {
+			$result['error'] = "Missing parameter warehouse id or date\n";
+		}
+		echo json_encode($result);
+	}
+
 	public static function getCostsTotal($mode = null, array $warehouses = null, array $months = null, DateTime $fromDate = null, $nrOfMonths = 6) {
 		// prepare standard parameter mode
 		if (is_null($mode)) {
