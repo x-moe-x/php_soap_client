@@ -16,9 +16,9 @@ class ApiGeneralCosts {
 		if (!is_null($warehouseID) && !is_null($date)) {
 
 			try {
-				$data = self::getCostsTotal(0, array($warehouseID => array('id' => $warehouseID, 'name' => null)), array($date));
+				$data = self::getCostsTotal(self::MODE_WITH_GENERAL_COSTS, array($warehouseID => array('id' => $warehouseID, 'name' => null)), array($date));
 				$result['success'] = true;
-				$result['data'] = $data;
+				$result['data'] = array('warehouseID' => $warehouseID, 'date' => $date, 'value' => $data[$warehouseID][$date]);
 			} catch(Exception $e) {
 				$result['error'] = $e -> getMessage();
 			}
@@ -40,23 +40,26 @@ class ApiGeneralCosts {
 			// ... then if in general-costs mode ...
 			if (($mode & self::MODE_WITH_GENERAL_COSTS) === self::MODE_WITH_GENERAL_COSTS) {
 				// ... ... then init warehouses with warehouse list, prepended with general costs col as warehouse id -1
-				$warehouses = array(-1 => array('id' => -1, 'name' => ''));
-				$warehouses = $warehouses + ApiHelper::getWarehouseList();
+				$warehouses = array(-1 => array('id' => -1, 'name' => '')) + ApiHelper::getWarehouseList();
 			} else {
 				// ... ... otherwise just init warehouses with warehouse list
 				$warehouses = ApiHelper::getWarehouseList();
 			}
-		}
-		// if warehouses set ...
-		else {
-			// ... then if no or not available warehouses are set
-			$warehouses = array_intersect_key(ApiHelper::getWarehouseList(), $warehouses);
+		} else {
+			// ... otherwise: check for not available warehouse id's in both general costs mode as well as non general costs mode
+			if (($mode & self::MODE_WITH_GENERAL_COSTS) === self::MODE_WITH_GENERAL_COSTS) {
+				$warehouses = array_intersect_key( array(-1 => array('id' => -1, 'name' => '')) + ApiHelper::getWarehouseList(), $warehouses);
+			} else {
+				$warehouses = array_intersect_key(ApiHelper::getWarehouseList(), $warehouses);
+			}
+
 			if (count($warehouses) === 0) {
+				// ... ... then throw exception
 				throw new Exception("Not availabe warehouses requested");
 			}
 
 			// if in general-costs mode prepend given warehouses with general costs col as warhouse id -1
-			if (($mode & self::MODE_WITH_GENERAL_COSTS) === self::MODE_WITH_GENERAL_COSTS) {
+			if ((($mode & self::MODE_WITH_GENERAL_COSTS) === self::MODE_WITH_GENERAL_COSTS) && !key_exists(-1, $warehouses)) {
 				$warehouses = array(-1 => array('id' => -1, 'name' => '')) + $warehouses;
 			}
 		}
