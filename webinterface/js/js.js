@@ -20,28 +20,6 @@ $.fn.dialogify = function(title, htmlText, type, okFunction) {'use strict';
 	return this;
 };
 
-$.fn.checkIntval = function() {'use strict';
-	var val = parseInt(this.val().replace(',', '.'), 10);
-	if (isNaN(val)) {
-		this.val('not a number');
-	} else {
-		this.val(val);
-	}
-
-	return this;
-};
-
-$.fn.checkFloatval = function() {'use strict';
-	var val = parseFloat(this.val().replace(',', '.'), 10);
-	if (isNaN(val)) {
-		this.val('not a number');
-	} else {
-		this.val(val);
-	}
-
-	return this;
-};
-
 $.fn.insertInput = function(inputID, unitString) {'use strict';
 	$(this).html($('<input/>', {
 		id : inputID,
@@ -55,7 +33,7 @@ $.fn.insertInput = function(inputID, unitString) {'use strict';
 				}
 			},
 			change : function() {
-				$(this).checkFloatval().updateConfig(updateGeneralCostConfig);
+				$(this).apiUpdate('../api/generalCost', 'float', elementProcessGeneralCosts, elementPostProcessGeneralCosts);
 			}
 		}
 	})).append($('<label/>', {
@@ -67,57 +45,102 @@ $.fn.insertInput = function(inputID, unitString) {'use strict';
 	return this;
 };
 
-function updateRegularConfig(element, data) {
-	// disable field during post
-	element.prop('disabled', true);
-
-	$.post('updateConfig.php5', data, function(newConfig) {
-
-		// re-enable field after post
-		element.prop('disabled', false);
-		if (newConfig.Message !== null) {
-			$('#errorMessages').append('<p>' + newConfig.Message + '</p>');
-			if (newConfig.Value !== null) {
-				$(element).val(newConfig.Value);
+function elementPostProcessGeneralCosts(element, type, requestData, resultData) {'use strict';
+	var returnValue;
+	switch (type) {
+		case 'float':
+			if (resultData['warehouseID'] == -1) {
+				returnValue = resultData['value']['percentage'];
+			} else {
+				// clear corresponding percentage field
+				$('#' + 'warehouseCost_automatic_' + resultData['warehouseID'] + '_' + resultData['date']).html(resultData['value']['percentage']);
+				returnValue = resultData['value']['absolute'];
 			}
-		}
-	}, 'json');
-}
-
-function updateGeneralCostConfig(element, data) {
-	// disable field during post
-	element.prop('disabled', true);
-
-	$.post('updateGeneralCostConfig.php5', data, function(newConfig) {
-
-		// re-enable field after post
-		element.prop('disabled', false);
-		if (newConfig.Message !== null) {
-			$('#errorMessages').append($('<p/>', {
-				html : newConfig.Message
-			}));
-			if (newConfig.Value !== null) {
-				$(element).val(newConfig.Value);
+			if (returnValue === null) {
+				return '';
+			} else {
+				returnValue = parseFloat(returnValue);
+				return isNaN(returnValue) ? 'error' : returnValue.toFixed(2);
 			}
-		}
-	}, 'json');
-}
-
-$.fn.updateConfig = function(updateFunction) {'use strict';
-	var data, element;
-
-	if (!isNaN($(this).val())) {
-		data = {
-			key : $(this).attr('id'),
-			value : $(this).val()
-		};
-		element = $(this);
-
-		updateFunction(element, data);
+		default:
+			return 'error';
 	}
+}
 
-	return this;
+function elementProcessGeneralCosts(element, type) {'use strict';
+	var id, matches;
+	switch (type) {
+		case 'float':
+			element.checkFloatval();
+			if (!isNaN(element.val())) {
+				id = element.attr('id');
+				if ( matches = id.match(/generalCosts_manual_(\d{8})/)) {
+					return {
+						key : '-1/' + matches[1],
+						value : element.val()
+					};
+				} else if ( matches = id.match(/warehouseCost_manual_(\d+)_(\d{8})/)) {
+					return {
+						key : matches[1] + '/' + matches[2],
+						value : element.val()
+					};
+				} else {
+					return 'incorrect';
+				}
+			} else {
+				return 'incorrect';
+			}
+		default:
+			return 'incorrect';
+	}
+}
+
+function elementProcessStockConfig(element, type) {'use strict';
+	switch (type) {
+		case 'int':
+			element.checkIntval();
+			return isNaN(element.val()) ? 'incorrect' : {
+				key : element.attr('id'),
+				value : element.val()
+			};
+		case 'float':
+			element.checkFloatval();
+			return isNaN(element.val()) ? 'incorrect' : {
+				key : element.attr('id'),
+				value : element.val()
+			};
+		case 'percent':
+			element.checkFloatval();
+			return isNaN(element.val()) ? 'incorrect' : {
+				key : element.attr('id'),
+				value : element.val() / 100
+			};
+		case 'select':
+			return {
+				key: element.attr('id'),
+				value : element.val()
+			};
+		default:
+			return 'incorrect';
+	}
 };
+
+function elementPostProcessStockConfig(element, type, requestData, resultData) {'use strict';
+	var returnValue;
+	switch (type) {
+		case 'int':
+			returnValue = parseInt(resultData[requestData.key]);
+			return isNaN(returnValue) ? 'error' : returnValue;
+		case 'float':
+			returnValue = parseFloat(resultData[requestData.key]);
+			return isNaN(returnValue) ? 'error' : returnValue;
+		case 'percent':
+			returnValue = parseFloat(resultData[requestData.key]);
+			return isNaN(returnValue) ? 'error' : returnValue * 100;
+		default:
+			return 'error';
+	}
+}
 
 function loadSuccess(result) {'use strict';
 	$('body').removeClass("loading");
@@ -132,31 +155,6 @@ function dialogify(buttonData) {'use strict';
 			$.get('executeManual.php5', {
 				action : button.task
 			}, loadSuccess);
-		});
-	});
-}
-
-function updateify(inputData) {'use strict';
-	$.each(inputData, function(index, input) {
-		$(input.id).change(function() {
-
-			if ((input.type === 'int') || (input.type === 'float')) {
-				if (input.type === 'int') {
-					$(this).checkIntval();
-				} else {
-					$(this).checkFloatval();
-				}
-				$(this).updateConfig(input.updateFunction);
-				$(this).mouseup(function(e) {
-					e.preventDefault();
-				}).focus(function() {
-					if (isNaN($(this).val())) {
-						$(this).val("");
-					} else {
-						$(this).select();
-					}
-				});
-			}
 		});
 	});
 }
@@ -176,47 +174,71 @@ function prepareStock() {'use strict';
 		heightStyle : 'content'
 	});
 
-	updateify([{
+	$.each([{
 		id : '#calculationTimeA',
 		type : 'int',
-		updateFunction : updateRegularConfig
+		path : '../api/config/stock',
+		preprocess : elementProcessStockConfig,
+		postprocess : elementPostProcessStockConfig
 	}, {
 		id : '#calculationTimeB',
 		type : 'int',
-		updateFunction : updateRegularConfig
+		path : '../api/config/stock',
+		preprocess : elementProcessStockConfig,
+		postprocess : elementPostProcessStockConfig
 	}, {
 		id : '#minimumToleratedSpikesA',
 		type : 'int',
-		updateFunction : updateRegularConfig
+		path : '../api/config/stock',
+		preprocess : elementProcessStockConfig,
+		postprocess : elementPostProcessStockConfig
 	}, {
 		id : '#minimumToleratedSpikesB',
 		type : 'int',
-		updateFunction : updateRegularConfig
+		path : '../api/config/stock',
+		preprocess : elementProcessStockConfig,
+		postprocess : elementPostProcessStockConfig
 	}, {
 		id : '#minimumOrdersA',
 		type : 'int',
-		updateFunction : updateRegularConfig
+		path : '../api/config/stock',
+		preprocess : elementProcessStockConfig,
+		postprocess : elementPostProcessStockConfig
 	}, {
 		id : '#minimumOrdersB',
 		type : 'int',
-		updateFunction : updateRegularConfig
+		path : '../api/config/stock',
+		preprocess : elementProcessStockConfig,
+		postprocess : elementPostProcessStockConfig
 	}, {
 		id : '#standardDeviationFactor',
 		type : 'float',
-		updateFunction : updateRegularConfig
+		path : '../api/config/stock',
+		preprocess : elementProcessStockConfig,
+		postprocess : elementPostProcessStockConfig
 	}, {
 		id : '#spikeTolerance',
-		type : 'float',
-		updateFunction : updateRegularConfig
+		type : 'percent',
+		path : '../api/config/stock',
+		preprocess : elementProcessStockConfig,
+		postprocess : elementPostProcessStockConfig
 	}, {
 		id : '#calculationActive',
 		type : 'select',
-		updateFunction : updateRegularConfig
+		path : '../api/config/stock',
+		preprocess : elementProcessStockConfig,
+		postprocess : elementPostProcessStockConfig
 	}, {
 		id : '#writebackActive',
 		type : 'select',
-		updateFunction : updateRegularConfig
-	}]);
+		path : '../api/config/stock',
+		preprocess : elementProcessStockConfig,
+		postprocess : elementPostProcessStockConfig
+	}], function(index, input) {
+		$(input.id).change(function() {
+			$(this).apiUpdate(input.path, input.type, input.preprocess, input.postprocess);
+		});
+	});
 
 	dialogify([{
 		id : '#buttonManualUpdate',
@@ -647,6 +669,7 @@ function prepareGeneralCostConfig() {'use strict';
 				$(celDiv).addClass('notModifyable');
 				if ($(celDiv).text().trim() !== '') {
 					$(celDiv).wrapInner($('<span/>', {
+						id : 'warehouseCost_automatic_' + warehouse.id + '_' + id,
 						'class' : 'automatic_value'
 					})).append($('<label/>', {
 						'class' : 'variableUnit',

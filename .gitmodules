@@ -1,0 +1,3 @@
+[submodule "submodules/epiphany"]
+	path = submodules/epiphany
+	url = git://github.com/jmathai/epiphany.git
