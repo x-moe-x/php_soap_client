@@ -33,7 +33,7 @@ $.fn.insertInput = function(inputID, unitString) {'use strict';
 				}
 			},
 			change : function() {
-				$(this).apiUpdate('../api/generalCost', 'float', elementProcessGeneralCosts);
+				$(this).apiUpdate('../api/generalCost', 'float', elementProcessGeneralCosts, elementPostProcessGeneralCosts);
 			}
 		}
 	})).append($('<label/>', {
@@ -44,6 +44,23 @@ $.fn.insertInput = function(inputID, unitString) {'use strict';
 
 	return this;
 };
+
+function elementPostProcessGeneralCosts(element, type, requestData, resultData) {'use strict';
+	var returnValue;
+	switch (type) {
+		case 'float':
+			if (resultData['warehouseID'] == -1) {
+				returnValue = parseFloat(resultData['value']['percentage']);
+			} else {
+				// clear corresponding percentage field
+				$('#' + 'warehouseCost_automatic_' + resultData['warehouseID'] + '_' + resultData['date']).html(resultData['value']['percentage']);
+				returnValue = parseFloat(resultData['value']['absolute']);
+			}
+			return isNaN(returnValue) ? 'error' : returnValue.toFixed(2);
+		default:
+			return 'error';
+	}
+}
 
 function elementProcessGeneralCosts(element, type) {'use strict';
 	var id, matches;
@@ -57,7 +74,7 @@ function elementProcessGeneralCosts(element, type) {'use strict';
 						key : '-1/' + matches[1],
 						value : element.val()
 					};
-				} else if (matches = id.match(/warehouseCost_manual_(\d+)_(\d{8})/)) {
+				} else if ( matches = id.match(/warehouseCost_manual_(\d+)_(\d{8})/)) {
 					return {
 						key : matches[1] + '/' + matches[2],
 						value : element.val()
@@ -93,10 +110,32 @@ function elementProcessStockConfig(element, type) {'use strict';
 				key : element.attr('id'),
 				value : element.val() / 100
 			};
+		case 'select':
+			return {
+				key: element.attr('id'),
+				value : element.val()
+			};
 		default:
 			return 'incorrect';
 	}
 };
+
+function elementPostProcessStockConfig(element, type, requestData, resultData) {'use strict';
+	var returnValue;
+	switch (type) {
+		case 'int':
+			returnValue = parseInt(resultData[requestData.key]);
+			return isNaN(returnValue) ? 'error' : returnValue;
+		case 'float':
+			returnValue = parseFloat(resultData[requestData.key]);
+			return isNaN(returnValue) ? 'error' : returnValue;
+		case 'percent':
+			returnValue = parseFloat(resultData[requestData.key]);
+			return isNaN(returnValue) ? 'error' : returnValue * 100;
+		default:
+			return 'error';
+	}
+}
 
 function loadSuccess(result) {'use strict';
 	$('body').removeClass("loading");
@@ -135,54 +174,61 @@ function prepareStock() {'use strict';
 		type : 'int',
 		path : '../api/config/stock',
 		preprocess : elementProcessStockConfig,
+		postprocess : elementPostProcessStockConfig
 	}, {
 		id : '#calculationTimeB',
 		type : 'int',
 		path : '../api/config/stock',
-		preprocess : elementProcessStockConfig
+		preprocess : elementProcessStockConfig,
+		postprocess : elementPostProcessStockConfig
 	}, {
 		id : '#minimumToleratedSpikesA',
 		type : 'int',
 		path : '../api/config/stock',
-		preprocess : elementProcessStockConfig
+		preprocess : elementProcessStockConfig,
+		postprocess : elementPostProcessStockConfig
 	}, {
 		id : '#minimumToleratedSpikesB',
 		type : 'int',
 		path : '../api/config/stock',
-		preprocess : elementProcessStockConfig
+		preprocess : elementProcessStockConfig,
+		postprocess : elementPostProcessStockConfig
 	}, {
 		id : '#minimumOrdersA',
 		type : 'int',
 		path : '../api/config/stock',
-		preprocess : elementProcessStockConfig
+		preprocess : elementProcessStockConfig,
+		postprocess : elementPostProcessStockConfig
 	}, {
 		id : '#minimumOrdersB',
 		type : 'int',
 		path : '../api/config/stock',
-		preprocess : elementProcessStockConfig
+		preprocess : elementProcessStockConfig,
+		postprocess : elementPostProcessStockConfig
 	}, {
 		id : '#standardDeviationFactor',
 		type : 'float',
 		path : '../api/config/stock',
-		preprocess : elementProcessStockConfig
+		preprocess : elementProcessStockConfig,
+		postprocess : elementPostProcessStockConfig
 	}, {
 		id : '#spikeTolerance',
 		type : 'percent',
 		path : '../api/config/stock',
 		preprocess : elementProcessStockConfig,
-		postprocess : function(value) {
-			return value * 100;
-		}
+		postprocess : elementPostProcessStockConfig
 	}, {
 		id : '#calculationActive',
 		type : 'select',
 		path : '../api/config/stock',
-		preprocess : elementProcessStockConfig
+		preprocess : elementProcessStockConfig,
+		postprocess : elementPostProcessStockConfig
 	}, {
 		id : '#writebackActive',
 		type : 'select',
 		path : '../api/config/stock',
-		preprocess : elementProcessStockConfig
+		preprocess : elementProcessStockConfig,
+		postprocess : elementPostProcessStockConfig
 	}], function(index, input) {
 		$(input.id).change(function() {
 			$(this).apiUpdate(input.path, input.type, input.preprocess, input.postprocess);
@@ -618,6 +664,7 @@ function prepareGeneralCostConfig() {'use strict';
 				$(celDiv).addClass('notModifyable');
 				if ($(celDiv).text().trim() !== '') {
 					$(celDiv).wrapInner($('<span/>', {
+						id : 'warehouseCost_automatic_' + warehouse.id + '_' + id,
 						'class' : 'automatic_value'
 					})).append($('<label/>', {
 						'class' : 'variableUnit',

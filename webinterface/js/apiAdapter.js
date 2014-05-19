@@ -20,11 +20,11 @@ $.fn.checkFloatval = function() {'use strict';
 	return this;
 };
 
-$.fn.apiUpdate = function(path, type, elementPreprocess, valuePostprocess) {'use strict';
+$.fn.apiUpdate = function(path, type, elementPreprocess, elementPostprocess) {'use strict';
 	var element, data;
 	// preprocess data
 	element = $(this);
-	data = elementPreprocess($(this), type);
+	data = elementPreprocess(element, type);
 
 	element.prop('disabled', true);
 
@@ -38,11 +38,7 @@ $.fn.apiUpdate = function(path, type, elementPreprocess, valuePostprocess) {'use
 			// when done: check for success ...
 			if (putResult.success) {
 				// ... then just set the value
-				if ( typeof valuePostprocess !== 'undefined') {
-					element.val(valuePostprocess(putResult.data[data.key], type));
-				} else {
-					element.val(putResult.data[data.key]);
-				}
+				element.val(elementPostprocess(element, type, data, putResult.data));
 			} else {
 				// ... otherwise log error ...
 				$('#errorMessages').append('<p>' + putResult.error + '</p>');
@@ -54,11 +50,7 @@ $.fn.apiUpdate = function(path, type, elementPreprocess, valuePostprocess) {'use
 					// when done: check for success ...
 					if (getResult.success) {
 						// ... then just set the unmodified value
-						if ( typeof valuePostprocess !== 'undefined') {
-							element.val(valuePostprocess(getResult.data[data.key], type));
-						} else {
-							element.val(getResult.data[key]);
-						}
+						element.val(elementPostprocess(element, type, data, getResult.data));
 					} else {
 						// ... otherwise log error
 						$('#errorMessages').append('<p>' + getResult.error + '</p>');
