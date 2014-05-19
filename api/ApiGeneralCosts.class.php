@@ -28,6 +28,24 @@ class ApiGeneralCosts {
 		echo json_encode($result);
 	}
 
+	public static function setCostsJSON($warehouseID, $date, $value) {
+		header('Content-Type: application/json');
+		$result = array('success' => false, 'data' => NULL, 'error' => NULL);
+
+		if (!is_null($warehouseID) && !is_null($date) && !is_null($value)) {
+			try {
+				$data = self::setCosts($warehouseID, $date, $value);
+				$result['success'] = true;
+				$result['data'] = $data;
+			} catch(Exception $e) {
+				$result['error'] = $e -> getMessage();
+			}
+		} else {
+			$result['error'] = "Missing parameter warehouse id, date or value\n";
+		}
+		echo json_encode($result);
+	}
+
 	public static function getCostsTotal($mode = null, array $warehouses = null, array $months = null, DateTime $fromDate = null, $nrOfMonths = 6) {
 		// prepare standard parameter mode
 		if (is_null($mode)) {
@@ -127,6 +145,49 @@ class ApiGeneralCosts {
 			}
 		}
 		return $result;
+	}
+
+	public static function setCosts($warehouseID, $date, $value) {
+		// check if warehouse is available
+		if (key_exists($warehouseID, array_values(ApiHelper::getWarehouseList())) || $warehouseID == -1) {
+			// ... then if general costs are to be updated ...
+			if ($warehouseID == -1) {
+				// ... ... then update general costs (warehouse id = -1) at (-1 -> date)
+				// ... ... and update corresponding percentage-value
+				$insertValue = array('AbsoluteAmount' => 'NULL', 'Percentage' => $value != 0 ? $value : 'NULL');
+			} else {
+				// ... ... otherwise update running costs at (warehouse -> date)
+				// ... then update corresponding absolute-value and clear corresponding percentage value
+				$insertValue = array('AbsoluteAmount' => $value != 0 ? $value : 'NULL', 'Percentage' => 'NULL');
+			}
+		} else {
+			// ... otherwise: error
+			throw new Exception("Unknown warehouse id $warehouseID");
+		}
+		// perform actual insertion
+		// @formatter:off
+		ob_start();
+		DBQuery::getInstance() -> insert('INSERT INTO `RunningCosts`' . DBUtils::buildInsert(array(
+			'Date' =>			$date,
+			'WarehouseID' =>	$warehouseID) + $insertValue)
+			.'ON DUPLICATE KEY UPDATE' . DBUtils::buildOnDuplicateKeyUpdate(
+			$insertValue
+		));
+		ob_end_clean();
+		// @formatter:on
+
+		// check insertion:
+		$check = self::getCostsTotal(self::MODE_WITH_GENERAL_COSTS, array($warehouseID => array('id' => $warehouseID, 'name' => '')), array($date));
+		if ($warehouseID == -1) {
+			$checkValue = $check[$warehouseID][$date]['percentage'];
+		} else {
+			$checkValue = $check[$warehouseID][$date]['absolute'];
+		}
+		if ($value != $checkValue) {
+			throw new Exception("Update of ($warehouseID -> $date) = $value unsuccessful. Current value still $checkValue");
+		}
+
+		return array('warehouseID' => $warehouseID, 'date' => $date, 'value' => $check[$warehouseID][$date]);
 	}
 
 }
