@@ -12,8 +12,9 @@ class ApiHelper {
 	}
 
 	public static function getWarehouseList() {
-		$query = 'SELECT * FROM `WarehouseList` ORDER BY WarehouseID ASC';
-		$resultWarehouseList = DBQuery::getInstance() -> select($query);
+		ob_start();
+		$resultWarehouseList = DBQuery::getInstance() -> select('SELECT * FROM `WarehouseList` ORDER BY WarehouseID ASC');
+		ob_end_clean();
 
 		$result = array();
 		while ($warehouse = $resultWarehouseList -> fetchAssoc()) {
