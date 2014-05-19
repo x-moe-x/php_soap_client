@@ -183,7 +183,8 @@ class ApiGeneralCosts {
 		} else {
 			$checkValue = $check[$warehouseID][$date]['absolute'];
 		}
-		if ($value != $checkValue) {
+		if ($value == 0 && is_null($checkValue)) {
+		} else if ($value != $checkValue) {
 			throw new Exception("Update of ($warehouseID -> $date) = $value unsuccessful. Current value still $checkValue");
 		}
 

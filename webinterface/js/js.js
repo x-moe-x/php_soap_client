@@ -50,13 +50,18 @@ function elementPostProcessGeneralCosts(element, type, requestData, resultData) 
 	switch (type) {
 		case 'float':
 			if (resultData['warehouseID'] == -1) {
-				returnValue = parseFloat(resultData['value']['percentage']);
+				returnValue = resultData['value']['percentage'];
 			} else {
 				// clear corresponding percentage field
 				$('#' + 'warehouseCost_automatic_' + resultData['warehouseID'] + '_' + resultData['date']).html(resultData['value']['percentage']);
-				returnValue = parseFloat(resultData['value']['absolute']);
+				returnValue = resultData['value']['absolute'];
 			}
-			return isNaN(returnValue) ? 'error' : returnValue.toFixed(2);
+			if (returnValue === null) {
+				return '';
+			} else {
+				returnValue = parseFloat(returnValue);
+				return isNaN(returnValue) ? 'error' : returnValue.toFixed(2);
+			}
 		default:
 			return 'error';
 	}
