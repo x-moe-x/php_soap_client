@@ -64,7 +64,7 @@
 	width: 175px;
 }
 
-#variableManipulation label.disabled {
+#variableManipulation label.disabled, label.disabled {
 	color: #aaa;
 	text-decoration: line-through;
 }

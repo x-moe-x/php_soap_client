@@ -7,6 +7,7 @@ require_once 'includes/helper_functions.inc.php';
 require_once 'includes/smarty.inc.php';
 require_once ROOT . 'includes/GetConfig.php';
 require_once ROOT . 'api/ApiHelper.class.php';
+require_once ROOT . 'api/ApiAmazon.class.php';
 
 $smarty -> assign('warehouseList', getWarehouseList());
 $smarty -> assign('config', Config::getAll());
@@ -15,7 +16,8 @@ $smarty -> assign('debug', ob_get_clean() . checkItemSupplierConfiguration() . c
 // make function output available if needed
 
 /* amazon */
-$smarty->assign('amazonData', ApiHelper::getSalesOrderReferrer(4));
+$smarty->assign('amazonStatic', ApiHelper::getSalesOrderReferrer(4));
+$smarty->assign('amazonVariables', ApiAmazon::getConfig());
 
 $smarty -> display('index.tpl');
 ?>
