@@ -19,7 +19,7 @@
 					<a href='#reorderStockCalculation'>Bestandsautomatik</a>
 				</li>
 				<li>
-					<a href='#priceCalculation'>Preisautomatik</a>
+					<a href='#amazonCalculation'>Kalkulation Amazon</a>
 				</li>
 				<li>
 					<a href='#generalCostConfiguration'>Konfiguration Kosten</a>
@@ -31,11 +31,8 @@
 					<span id='dialogText'></span>
 				</p>
 			</div>
-			<div id='priceCalculation'>
-				{include file='price_config.tpl'}
-				<table id='priceTable' style='display:none'>
-					<!-- -->
-				</table>
+			<div id='amazonCalculation'>
+				{include file='amazon_config.tpl'}
 			</div>
 			<div id='reorderStockCalculation'>
 				{include file='stock_config.tpl'}
