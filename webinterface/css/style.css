@@ -149,6 +149,36 @@ body.loading .modal {
 
 /** end config styling **/
 
+/** start amazon specific styling **/
+
+#amazonStatic li {
+	display: inline-block;
+	width: 18%;
+	margin-right: 1%;
+}
+
+#amazonVariables li {
+	display: inline-block;
+	width: 22%;
+	margin-right: 1%;
+}
+
+#amazonStatic li label, #amazonVariables li label:first-child, #amazonStatic li span {
+	display: block;
+}
+
+#amazonVariables input {
+	width: 60%;
+	text-align: right;
+}
+
+#amazonStatic li span {
+	text-align: right;
+	background-color: #eee;
+}
+
+/** end amazon specific styling **/
+
 /** start table styling **/
 
 /** ** filter section **/
