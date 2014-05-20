@@ -524,84 +524,29 @@ function prepareStock() {'use strict';
 	});
 }
 
-function preparePrice() {'use strict';
-	$('#priceTable').flexigrid({
-		url : 'price-post-xml.php5',
-		dataType : 'xml',
-		colModel : [{
-			display : 'Item ID',
-			name : 'ItemID',
-			width : 40,
-			sortable : true,
-			align : 'center'
-		}, {
-			display : 'Artikel Nr',
-			name : 'ItemNo',
-			width : 80,
-			sortable : true,
-			align : 'left'
-		}, {
-			display : 'Name',
-			name : 'Name',
-			width : 500,
-			sortable : true,
-			align : 'left'
-		}, {
-			display : 'Markierung',
-			name : 'Marking1ID',
-			width : 60,
-			sortable : true,
-			align : 'center'
-		}, {
-			display : 'Name / Herkunft',
-			name : 'Referrer'
-		}, {
-			display : 'Ø Bedarf / Monat',
-			name : 'MonthlyNeed'
-		}, {
-			display : 'pausiert (Grund)',
-			name : 'PauseCause',
-			hide : true
-		}, {
-			display : 'Trend Gewinn % im Zeitraum',
-			name : 'x1',
-			hide : true
-		}, {
-			display : 'Min.-Preis',
-			name : 'x2',
-			hide : true
-		}, {
-			display : 'aktueller Preis',
-			name : 'CurrentPrice',
-			hide : true
-		}, {
-			display : 'Preisvorschlag',
-			name : 'x3',
-			hide : true
-		}, {
-			display : 'Preis ändern',
-			name : 'x4',
-			hide : true
-		}, {
-			display : 'Function man. auslösen',
-			name : 'x5',
-			hide : true
-		}],
-		status : [4, 9, 12, 16, 20],
-		sortname : "ItemID",
-		sortorder : "asc",
-		usepager : true,
-		singleSelect : true,
-		title : 'Preisautomatik',
-		useRp : true,
-		height : 500,
-		rp : 20,
-		rpOptions : [10, 20, 30, 50, 100, 200],
-		showTableToggleBtn : false,
-		pagetext : 'Seite',
-		outof : 'von',
-		pagestat : 'Zeige {from} bis {to} von {total} Artikeln',
-		procmsg : 'Bitte warten...'
+function prepareAmazon() {'use strict';
+	$.each([{
+		id : '#provisionCosts',
+		type : 'percent',
+		path : '../api/config/amazon',
+		preprocess : elementProcessStockConfig,
+		postprocess : elementPostProcessStockConfig
+	}, {
+		id : '#minimumMarge',
+		type : 'percent',
+		path : '../api/config/amazon',
+		preprocess : elementProcessStockConfig,
+		postprocess : elementPostProcessStockConfig
+	}, {
+		id : '#measuringTimeFrame',
+		type : 'int',
+		path : '../api/config/amazon',
+		preprocess : elementProcessStockConfig,
+		postprocess : elementPostProcessStockConfig
+	}], function(index, input) {
+		$(input.id).change(function() {
+			$(this).apiUpdate(input.path, input.type, input.preprocess, input.postprocess);
+		});
 	});
 }
 
@@ -703,7 +648,7 @@ function prepareGeneralCostConfig() {'use strict';
 $(document).ready(function() {'use strict';
 
 	prepareStock();
-	preparePrice();
+	prepareAmazon();
 	prepareGeneralCostConfig();
 
 });
