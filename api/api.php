@@ -3,6 +3,7 @@ require_once realpath(dirname(__FILE__) . '/../') . '/config/basic.inc.php';
 require_once ROOT . 'submodules/epiphany/src/Epi.php';
 require_once 'ApiStock.class.php';
 require_once 'ApiGeneralCosts.class.php';
+require_once 'ApiAmazon.class.php';
 
 Epi::setSetting('exceptions', true);
 Epi::init('route');
@@ -16,9 +17,10 @@ getRoute() -> put('/config/stock/(\w+)/(\w+|\d+|\d+\.\d+)', array('ApiStock', 's
 getRoute() -> get('/generalCost/(\d+|-\d+)/(\d+)', array('ApiGeneralCosts', 'getCostsJSON'));
 getRoute() -> put('/generalCost/(\d+|-\d+)/(\d+)/(\w+|\d+|\d+\.\d+)', array('ApiGeneralCosts', 'setCostsJSON'));
 
-/*
- getRoute() -> get('/generalCost/(\d+|-\d+)/(\d+)', array('ApiGeneralCosts', 'getCostsJSON'));
- */
+// register amazon api calls
+getRoute() -> get('/config/amazon', array('ApiAmazon', 'getConfigJSON'));
+getRoute() -> get('/config/amazon/(\w+)', array('ApiAmazon', 'getConfigJSON'));
+getRoute() -> put('/config/amazon/(\w+)/(\w+|\d+|\d+\.\d+)', array('ApiAmazon', 'setConfigJSON'));
 
 getRoute() -> run();
 ?>
