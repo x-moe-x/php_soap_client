@@ -64,7 +64,7 @@ class CalculateTotalNetto {
 
 		if ($recordCount > 0) {
 			$this -> getLogger() -> debug(__FUNCTION__ . " storing $recordCount total netto records to db");
-			DBQuery::getInstance() -> insert('INSERT INTO `TotalNetto`' . DBUtils2::buildMultipleInsertOnDuplikateKeyUpdate($this -> aRunningCosts));
+			DBQuery::getInstance() -> insert('INSERT INTO `PerWarehouseRevenue`' . DBUtils2::buildMultipleInsertOnDuplikateKeyUpdate($this -> aRunningCosts));
 		}
 	}
 
@@ -94,7 +94,7 @@ class CalculateTotalNetto {
 		return "SELECT
 	DATE_FORMAT(FROM_UNIXTIME(OrderHead.$consideredTimestamp), '%Y%m01') AS `Date`,
 	OrderItem.WarehouseID,
-	SUM(OrderItem.Price * OrderItem.Quantity / (1 + OrderItem.VAT / 100)) AS `TotalNetto`
+	SUM(OrderItem.Price * OrderItem.Quantity / (1 + OrderItem.VAT / 100)) AS `PerWarehouseNetto`
 FROM
 	OrderItem
 LEFT JOIN

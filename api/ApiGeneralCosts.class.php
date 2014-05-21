@@ -107,7 +107,7 @@ class ApiGeneralCosts {
 		}
 
 		// get data from db
-		$query = 'SELECT rc.Date, rc.WarehouseID, rc.AbsoluteAmount, rc.Percentage, tn.TotalNetto FROM RunningCosts AS rc LEFT JOIN	TotalNetto AS tn ON	(rc.Date = tn.Date AND rc.WarehouseID = tn.WarehouseID) WHERE rc.Date IN (' . implode(',', $months) . ') AND rc.WarehouseID IN (' . implode(',', array_map(function($warehouse) {
+		$query = 'SELECT rc.Date, rc.WarehouseID, rc.AbsoluteAmount, rc.Percentage, wr.PerWarehouseNetto, wr.PerWarehouseShipping FROM RunningCosts AS rc LEFT JOIN	PerWarehouseRevenue AS wr ON	(rc.Date = wr.Date AND rc.WarehouseID = wr.WarehouseID) WHERE rc.Date IN (' . implode(',', $months) . ') AND rc.WarehouseID IN (' . implode(',', array_map(function($warehouse) {
 			return $warehouse['id'];
 		}, $warehouses)) . ')';
 
@@ -123,7 +123,7 @@ class ApiGeneralCosts {
 				} else {
 					$result[$runningCostRecord['WarehouseID']][$runningCostRecord['Date']]['absolute'] = $runningCostRecord['AbsoluteAmount'];
 					if (floatval($runningCostRecord['AbsoluteAmount']) > 0) {
-						$result[$runningCostRecord['WarehouseID']][$runningCostRecord['Date']]['percentage'] = number_format(100 * $runningCostRecord['AbsoluteAmount'] / $runningCostRecord['TotalNetto'], 2);
+						$result[$runningCostRecord['WarehouseID']][$runningCostRecord['Date']]['percentage'] = number_format(100 * $runningCostRecord['AbsoluteAmount'] / $runningCostRecord['PerWarehouseNetto'], 2);
 					}
 				}
 			}

@@ -331,12 +331,12 @@ CREATE TABLE `soap_db`.`RunningCosts` (
 	PRIMARY KEY (`Date`,`WarehouseID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
-DROP TABLE IF EXISTS `soap_db`.`TotalNetto`;
+DROP TABLE IF EXISTS `soap_db`.`PerWarehouseRevenue`;
 
-CREATE TABLE `soap_db`.`TotalNetto` (
+CREATE TABLE `soap_db`.`PerWarehouseRevenue` (
 	`Date` int(11) NOT NULL,
 	`WarehouseID` int(11) NOT NULL,
-	`TotalNetto` decimal(8,2) DEFAULT NULL,
+	`PerWarehouseNetto` decimal(10,4) DEFAULT NULL,
 	PRIMARY KEY (`Date`,`WarehouseID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
