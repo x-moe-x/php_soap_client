@@ -123,7 +123,7 @@ class ApiGeneralCosts {
 				} else {
 					$result[$runningCostRecord['WarehouseID']][$runningCostRecord['Date']]['absolute'] = $runningCostRecord['AbsoluteAmount'];
 					if (floatval($runningCostRecord['AbsoluteAmount']) > 0) {
-						$result[$runningCostRecord['WarehouseID']][$runningCostRecord['Date']]['percentage'] = number_format(100 * $runningCostRecord['AbsoluteAmount'] / $runningCostRecord['PerWarehouseNetto'], 2);
+						$result[$runningCostRecord['WarehouseID']][$runningCostRecord['Date']]['percentage'] = number_format(100 * $runningCostRecord['AbsoluteAmount'] / ($runningCostRecord['PerWarehouseNetto'] + $runningCostRecord['PerWarehouseShipping']), 2);
 					}
 				}
 			}
