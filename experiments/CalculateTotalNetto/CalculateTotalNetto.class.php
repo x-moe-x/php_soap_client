@@ -124,6 +124,18 @@ GROUP BY
 	WarehouseID\n";
 	}
 
+	/**
+	 * for all Orders that are:
+	 * - in a certain status ( 7 <= status < 8 OR 9 <= status)
+	 * - of type 'order'
+	 * - of interval [$startAt - $duringBackwardsInterval, $startAt]
+	 * do:
+	 * sum up their total netto value as well as total netto shipment costs and group them by date
+	 *
+	 * @param DateTime $startAt
+	 * @param DateInterval $duringBackwardsInterval
+	 * @return string query
+	 */
 	private function getTotalNettoAndShippingCostsQuery(DateTime $startAt, DateInterval $duringBackwardsInterval = null) {
 
 		$internalStartAt = clone $startAt;
