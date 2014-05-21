@@ -16,7 +16,7 @@ class CalculateTotalNetto {
 	/**
 	 * @var DateTime
 	 */
-	private $startDate;
+	private $oStartDate;
 
 	/**
 	 * @var int
@@ -36,7 +36,7 @@ class CalculateTotalNetto {
 
 		$now = new DateTime();
 
-		$this -> startDate = new DateTime($now -> format('Y-m-01'));
+		$this -> oStartDate = new DateTime($now -> format('Y-m-01'));
 
 		$this -> defaultNrOfMonthsBackwards = 6;
 
@@ -47,12 +47,22 @@ class CalculateTotalNetto {
 	 * @return void
 	 */
 	public function execute() {
-		// for every (month,warehouse) currently considered:
-		$dbResult = DBQuery::getInstance() -> select($this -> getQuery($this -> startDate));
+		// for every month currently considered:
+		// ... calculate average charged shipping costs
+		$totalDBResult = DBQuery::getInstance() -> select($this -> getTotalNettoAndShippingCostsQuery($this -> oStartDate));
+		$totalNettoAndShipping = array();
+		while ($currentTotalNettoAndShipping = $totalDBResult -> fetchAssoc()) {
+			$totalNettoAndShipping[$currentTotalNettoAndShipping['Date']] = $currentTotalNettoAndShipping;
+		}
 
+		// for every (month,warehouse) currently considered:
 		// ... get associated total revenue
-		while ($currentTotalNetto = $dbResult -> fetchAssoc()) {
-			$this -> aRunningCosts[] = $currentTotalNetto;
+		$perWarehouseDBResult = DBQuery::getInstance() -> select($this -> getPerWarehouseNettoQuery($this -> oStartDate));
+
+		while ($currentPerWarehouseNetto = $perWarehouseDBResult -> fetchAssoc()) {
+			$currentTotalNetto = $totalNettoAndShipping[$currentPerWarehouseNetto['Date']];
+			$currentPerWarehouseShipping = $currentPerWarehouseNetto['PerWarehouseNetto'] / $currentTotalNetto['TotalNetto'] * $currentTotalNetto['TotalShippingNetto'];
+			$this -> aRunningCosts[] = array_merge($currentPerWarehouseNetto, array('PerWarehouseShipping' => $currentPerWarehouseShipping));
 		}
 
 		// ... store to db
@@ -80,14 +90,16 @@ class CalculateTotalNetto {
 	 * @param DateInterval $duringBackwardsInterval
 	 * @return string query
 	 */
-	private function getQuery(DateTime $startAt, DateInterval $duringBackwardsInterval = null) {
+	private function getPerWarehouseNettoQuery(DateTime $startAt, DateInterval $duringBackwardsInterval = null) {
+
+		$internalStartAt = clone $startAt;
 
 		if (is_null($duringBackwardsInterval)) {
 			$duringBackwardsInterval = new DateInterval('P' . $this -> defaultNrOfMonthsBackwards . 'M');
 		}
 
-		$toDate = $startAt -> format('\'Y-m-d\'');
-		$fromDate = $startAt -> sub($duringBackwardsInterval) -> format('\'Y-m-d\'');
+		$toDate = $internalStartAt -> format('\'Y-m-d\'');
+		$fromDate = $internalStartAt -> sub($duringBackwardsInterval) -> format('\'Y-m-d\'');
 
 		$consideredTimestamp = 'DoneTimestamp';
 
@@ -112,6 +124,35 @@ GROUP BY
 	WarehouseID\n";
 	}
 
+	private function getTotalNettoAndShippingCostsQuery(DateTime $startAt, DateInterval $duringBackwardsInterval = null) {
+
+		$internalStartAt = clone $startAt;
+
+		if (is_null($duringBackwardsInterval)) {
+			$duringBackwardsInterval = new DateInterval('P' . $this -> defaultNrOfMonthsBackwards . 'M');
+		}
+
+		$toDate = $internalStartAt -> format('\'Y-m-d\'');
+		$fromDate = $internalStartAt -> sub($duringBackwardsInterval) -> format('\'Y-m-d\'');
+
+		$consideredTimestamp = 'DoneTimestamp';
+
+		return "SELECT
+	DATE_FORMAT(FROM_UNIXTIME(OrderHead.$consideredTimestamp), '%Y%m01') AS `Date`,
+	SUM(TotalNetto) AS `TotalNetto`,
+	SUM(TotalInvoice - (TotalVAT + TotalNetto)) AS `TotalShippingNetto`
+FROM
+	OrderHead
+WHERE
+	((OrderHead.OrderStatus >= 7 AND OrderHead.OrderStatus < 8) OR OrderHead.OrderStatus >= 9)
+AND
+	OrderHead.OrderType = 'order'
+AND
+	FROM_UNIXTIME(OrderHead.$consideredTimestamp) BETWEEN $fromDate AND $toDate
+GROUP BY
+	`Date`\n";
+	}
+
 	/**
 	 *
 	 * @return Logger
@@ -119,5 +160,6 @@ GROUP BY
 	protected function getLogger() {
 		return Logger::instance($this -> identifier4Logger);
 	}
+
 }
 ?>

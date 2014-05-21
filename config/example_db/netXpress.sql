@@ -337,6 +337,7 @@ CREATE TABLE `soap_db`.`PerWarehouseRevenue` (
 	`Date` int(11) NOT NULL,
 	`WarehouseID` int(11) NOT NULL,
 	`PerWarehouseNetto` decimal(10,4) DEFAULT NULL,
+	`PerWarehouseShipping` decimal(10,4) DEFAULT NULL,
 	PRIMARY KEY (`Date`,`WarehouseID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
