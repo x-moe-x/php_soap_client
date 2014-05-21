@@ -149,7 +149,9 @@ class ApiGeneralCosts {
 
 	public static function setCosts($warehouseID, $date, $value) {
 		// check if warehouse is available
-		if (key_exists($warehouseID, array_values(ApiHelper::getWarehouseList())) || $warehouseID == -1) {
+		if (in_array($warehouseID, array_map(function($item) {
+			return $item['id'];
+		}, ApiHelper::getWarehouseList())) || $warehouseID == -1) {
 			// ... then if general costs are to be updated ...
 			if ($warehouseID == -1) {
 				// ... ... then update general costs (warehouse id = -1) at (-1 -> date)
