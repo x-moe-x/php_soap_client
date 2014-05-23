@@ -46,7 +46,10 @@ class NetXpressSoapExperimentLoader
 	{
 		if(isset($params[1]) && strlen($params[1]))
 		{
-			$clazz = 'SoapCall_'.$params[1];
+			if (isset($params[2]))
+				$clazz = $params[2];
+			else
+				$clazz = 'SoapCall_'.$params[1];
 			$file = ROOT.'experiments/'.$params[1].'/'.$clazz.'.class.php';
 			
 			if(is_file($file))

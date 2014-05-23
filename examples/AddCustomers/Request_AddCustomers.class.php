@@ -1,11 +1,11 @@
 <?php
 
 class Request_AddCustomers {
-	
+
 	public function getRequest()
 	{
 		$oPlentySoapRequest_AddCustomers	=	new PlentySoapRequest_AddCustomers();
-		
+
 		$oPlentySoapObject_Customer							=	new PlentySoapObject_Customer();
 		$oPlentySoapObject_Customer->AdditionalName			=	"Maximilian";
 		$oPlentySoapObject_Customer->ArchiveNumber			=	null;
@@ -34,9 +34,9 @@ class Request_AddCustomers {
 		$oPlentySoapObject_Customer->Telephone				=	"74110815";
 		$oPlentySoapObject_Customer->ZIP					=	"12345";
 		$oPlentySoapObject_Customer->Email					=	"Max@Mustermann.de";
-		
+
 		$oPlentySoapRequest_AddCustomers->Customers[]		=	$oPlentySoapObject_Customer;
-		
+
 		$oPlentySoapObject_Customer2							=	new PlentySoapObject_Customer();
 		$oPlentySoapObject_Customer2->AdditionalName			=	"Maximilian";
 		$oPlentySoapObject_Customer2->ArchiveNumber			=	null;
@@ -64,13 +64,13 @@ class Request_AddCustomers {
 		$oPlentySoapObject_Customer2->Surname				=	"Mustermann";
 		$oPlentySoapObject_Customer2->Telephone				=	"74110815";
 		$oPlentySoapObject_Customer2->ZIP					=	"12345";
-		$oPlentySoapObject_Customer2->Email					=	null;
-		
+		$oPlentySoapObject_Customer2->Email					=	"Maximilian@Mustermann.de";;
+
 		$oPlentySoapRequest_AddCustomers->Customers[]		=	$oPlentySoapObject_Customer2;
-		
+
 		return $oPlentySoapRequest_AddCustomers;
 	}
-	
+
 }
 
 ?>

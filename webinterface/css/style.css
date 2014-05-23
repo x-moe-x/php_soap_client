@@ -1,0 +1,293 @@
+* {
+	font-family: Arial;
+	font-size: 10pt;
+}
+
+/** start config styling **/
+
+.box {
+	margin: 1em 0 0;
+	padding: 1em;
+	border: 1px solid #ccc;
+	border-radius: 0.5em;
+}
+
+.column {
+	width: calc(50% - 2 * 1em - 2px - 0.5em) !important;
+}
+
+.leftColumn {
+	float: left;
+}
+
+.rightColumn {
+	float: right;
+}
+
+.config ul, .box ul {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+#toggleConfig {
+	width: 40px;
+}
+
+.config {
+	width: 800px;
+}
+
+.config > strong {
+	margin: 0;
+}
+
+#dialog {
+	display: none;
+}
+
+#dialogIcon {
+	float: left;
+	margin: 0 0.3em 6em 0;
+}
+
+#globalManipulation {
+	width: 360px;
+	margin: 1em auto 0 !important;
+}
+
+#variableManipulation label, #variableManipulation input {
+	display: inline-block;
+}
+
+#variableManipulation label {
+	width: 175px;
+}
+
+#variableManipulation label.disabled {
+	color: #aaa;
+	text-decoration: line-through;
+}
+
+#variableManipulation .variableUnit {
+	width: auto;
+	color: #aaa;
+}
+
+#variableManipulation input {
+	width: 50px;
+	padding: 0 5px 0 0;
+	text-align: right;
+}
+
+#switches select {
+	margin-right: 4em;
+}
+
+#manualOverride ul {
+	width: 50%;
+}
+
+#manualOverride li {
+	width: 90%;
+	margin: 0.5em 0 0;
+}
+
+#manualOverride button {
+	width: 100%;
+}
+
+#manualOverride li:first-child {
+	margin: 0;
+}
+
+#reorderStock ul {
+	width: 50%;
+}
+
+#reorderStock .name {
+	width: 45%;
+	display: inline-block;
+}
+
+#reorderStock .name:after {
+	content: ':';
+}
+
+#reorderStock .value {
+	width: 45%;
+	text-align: right;
+	display: inline-block;
+}
+
+#reorderStock .value:after {
+	content: ' EUR';
+}
+
+#reorderStock .rightColumn {
+	margin-top: 0.5em;
+}
+
+.modal {
+	display: none;
+	position: fixed;
+	z-index: 1000;
+	top: 0;
+	left: 0;
+	height: 100%;
+	width: 100%;
+	background: rgba( 255, 255, 255, .8 ) url('http://i.stack.imgur.com/FhHRx.gif') 50% 50% no-repeat;
+}
+
+body.loading {
+	overflow: hidden;
+}
+
+body.loading .modal {
+	display: block;
+}
+
+/** end config styling **/
+
+/** start table styling **/
+
+/** ** filter section **/
+
+.flexigrid {
+	margin: 1em 0 0;
+}
+
+.filter {
+	float: left;
+	height: 16px;
+}
+
+.filter > div {
+	display: inline-block;
+	float: none !important;
+	height: 16px;
+}
+
+.filter input {
+	visibility: hidden;
+	margin: 0;
+}
+
+.filter label {
+	width: 16px;
+	height: 16px;
+	display: inline-block;
+	opacity: 0.3;
+	margin-left: -1em;
+}
+
+.filter label:hover {
+	opacity: 0.8;
+}
+
+.filter input[type=checkbox]:checked + label {
+	opacity: 1;
+}
+
+#markingID_4 > label {
+	background: url("../images/marking1d_4.png") no-repeat scroll center center transparent;
+}
+
+#markingID_9 > label {
+	background: url("../images/marking1d_9.png") no-repeat scroll center center transparent;
+}
+
+#markingID_12 > label {
+	background: url("../images/marking1d_12.png") no-repeat scroll center center transparent;
+}
+
+#markingID_16 > label {
+	background: url("../images/marking1d_16.png") no-repeat scroll center center transparent;
+}
+
+#markingID_20 > label {
+	background: url("../images/marking1d_20.png") no-repeat scroll center center transparent;
+}
+
+/** ** interior **/
+.markingIDCell_20 {
+	background: url("../images/marking1d_20.png") no-repeat scroll center center transparent;
+}
+.markingIDCell_16 {
+	background: url("../images/marking1d_16.png") no-repeat scroll center center transparent;
+}
+.markingIDCell_9 {
+	background: url("../images/marking1d_9.png") no-repeat scroll center center transparent;
+}
+
+.markingIDCell_12 {
+	background: url("../images/marking1d_12.png") no-repeat scroll center center transparent;
+}
+.markingIDCell_4 {
+	background: url("../images/marking1d_4.png") no-repeat scroll center center transparent;
+}
+
+.writePermission {
+	color: green;
+	font-weight: bolder
+}
+
+.noSuggestion {
+
+}
+
+.writePermissionError {
+	color: red;
+	font-weight: bolder
+}
+
+.noWritePermission {
+	color: blue;
+	font-weight: bolder
+}
+
+.flexigrid ul {
+	display: inline;
+	padding: 0;
+}
+
+.flexigrid li {
+	list-style-type: none;
+	display: inline;
+	margin-right: 1px;
+}
+
+.flexigrid li:after {
+	content: ',';
+	color: black;
+}
+
+.flexigrid li:last-child:after {
+	content: '';
+	color: black;
+}
+
+.flexigrid ul.counted li:last-child:after {
+	content: '';
+}
+
+.flexigrid .totalSum {
+	display: inline-block;
+	text-align: right;
+	margin-right: 5px;
+}
+
+.skipped {
+	color: red;
+}
+
+.counted {
+	color: green;
+}
+
+.totalSum {
+	min-width: 3em;
+}
+
+/** end table styling **/
+

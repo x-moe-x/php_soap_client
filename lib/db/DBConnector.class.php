@@ -71,9 +71,11 @@ class DBConnector extends DBAbstractConnector
 			setDataBase(SQL_DATA_BASE)->
 			setDataSource(SQL_DATA_SOURCE)->
 			setUserName(SQL_USERNAME)->
-			setPassword(SQL_PASSWORD);
+			setPassword(SQL_PASSWORD)->
+			setPort(SQL_PORT)->
+			setSocket(SQL_SOCKET);
 
-		$this->getLogger()->debug(__FUNCTION__.' connection initialized host:'.SQL_DATA_SOURCE.' db:'.SQL_DATA_BASE);
+		$this->getLogger()->debug(__FUNCTION__.' connection initialized host:'.SQL_DATA_SOURCE.' db:'.SQL_DATA_BASE.' port:'.SQL_PORT.' socket:'.(SQL_SOCKET==null?"null":SQL_SOCKET));
 		
 		return $this;
 	}

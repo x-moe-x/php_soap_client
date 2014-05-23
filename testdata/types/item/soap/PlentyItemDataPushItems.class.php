@@ -7,45 +7,45 @@ require_once ROOT.'testdata/types/item/soap/PlentyItemDataPushStock.class.php';
 
 /**
  * This class needs an array of PlentySoapObject_AddItemsBaseItemBase objects.
- * Commit the list to pushItems($itemList). This method calls ->execute() on its own. 
- * 
+ * Commit the list to pushItems($itemList). This method calls ->execute() on its own.
+ *
  * @author phileon
  * @copyright plentymarkets GmbH www.plentymarkets.com
  */
 class PlentyItemDataPushItems extends PlentySoapCall
 {
 	/**
-	 * 
+	 *
 	 * @var PlentySoapRequest_AddItemsBase
 	 */
 	private $plentySoapRequest_AddItemsBase = null;
 
 	/**
-	 * 
+	 *
 	 * @var PlentyItemDataCollectorImages
 	 */
 	private $plentyItemDataCollectorImages = null;
-	
+
 	/**
 	 * used for push stock
-	 * 
+	 *
 	 * @var int
 	 */
 	private $warehouseId = 0;
-	
+
 	/**
 	 *
 	 * @var PlentyItemDataPushItems
 	 */
 	private static $instance = null;
-	
+
 	public function __construct()
 	{
 		parent::__construct(__CLASS__);
-		
+
 		$this->plentyItemDataCollectorImages = new PlentyItemDataCollectorImages();
 	}
-	
+
 	/**
 	 * singleton pattern
 	 *
@@ -57,19 +57,19 @@ class PlentyItemDataPushItems extends PlentySoapCall
 		{
 			self::$instance = new PlentyItemDataPushItems();
 		}
-	
+
 		return self::$instance;
 	}
-	
+
 	/**
 	 * push items to api
-	 * 
-	 * @param unknown $itemList array of PlentySoapObject_AddItemsBaseItemBase objects 
+	 *
+	 * @param unknown $itemList array of PlentySoapObject_AddItemsBaseItemBase objects
 	 */
 	public function pushItems($itemList)
 	{
 		$this->plentySoapRequest_AddItemsBase = new PlentySoapRequest_AddItemsBase();
-		
+
 		if(is_array($itemList))
 		{
 			/*
@@ -90,7 +90,7 @@ class PlentyItemDataPushItems extends PlentySoapCall
 						 * push to api
 						 */
 						$this->execute();
-						
+
 						/*
 						 * empty list
 						 */
@@ -110,7 +110,7 @@ class PlentyItemDataPushItems extends PlentySoapCall
 			 */
 			$c = count($this->plentySoapRequest_AddItemsBase->BaseItems);
 
-			
+
 			if($c > 0)
 			{
 				$this->execute();
@@ -121,7 +121,7 @@ class PlentyItemDataPushItems extends PlentySoapCall
 			$this->getLogger()->crit(__FUNCTION__.' itemList is empty or not an array.');
 		}
 	}
-	
+
 	public function execute()
 	{
 		try
@@ -130,7 +130,7 @@ class PlentyItemDataPushItems extends PlentySoapCall
 			 * do soap call
 			 */
 			$response	=	$this->getPlentySoap()->AddItemsBase($this->plentySoapRequest_AddItemsBase);
-	
+
 			/*
 			 * check soap response
 			 */
@@ -141,37 +141,44 @@ class PlentyItemDataPushItems extends PlentySoapCall
 				/*
 				 * parse and save the data
 				 */
-				if(is_array($response->SuccessMessages->item))
+				if(is_array($response->ResponseMessages->item))
 				{
-					foreach($response->SuccessMessages->item as $item)
+					foreach($response->ResponseMessages->item as $ResponseMessages)
 					{
-						if($item->Code=='SIB0001' && strpos($item->Message, ';')!==false)
+						$itemId = null;
+						$priceId = null;
+
+						foreach ($ResponseMessages->SuccessMessages->item as $SuccessMessage)
 						{
-							/*
-							 * 0 = itemId
-							 * 1 = priceId
-							 */
-							$idList = explode(';', $item->Message);
-							
-							$this->getLogger()->debug(__FUNCTION__.' new item id: '.$idList[0]);
-								
-							/*
-							 * add an image for this new item
-							 */
-							$this->pushImage((int)$idList[0]);
-							
-							/*
-							 * push items to stock data objects
-							 */
-							$this->push2StockStack((int)$idList[0], (int)$idList[1]);
+							if ($SuccessMessage->Key == 'ItemID')
+							{
+								$itemId = (integer) $SuccessMessage->Value;
+							}
+							else if ($SuccessMessage->Key == 'PriceID')
+							{
+								$priceId = (integer) $SuccessMessage->Value;
+							}
+
 						}
+
+						$this->getLogger()->debug(__FUNCTION__.' new item id: '.$itemId);
+
+						/*
+						 * add an image for this new item
+						 */
+						$this->pushImage($itemId);
+
+						/*
+						 * push items to stock data objects
+						 */
+						$this->push2StockStack($itemId, $priceId);
 					}
-					
+
 					/*
 					 * push stock to api
 					 */
 					PlentyItemDataPushStock::getInstance()->pushData2API();
-					
+
 				}
 
 			}
@@ -185,7 +192,7 @@ class PlentyItemDataPushItems extends PlentySoapCall
 			$this->onExceptionAction($e);
 		}
 	}
-	
+
 	/**
 	 * add an image for this new item
 	 *
@@ -194,7 +201,7 @@ class PlentyItemDataPushItems extends PlentySoapCall
 	private function pushImage($itemId)
 	{
 		$imageUrl = $this->plentyItemDataCollectorImages->getOneImageUrl();
-		 
+
 		if(strlen($imageUrl) && $itemId>0)
 		{
 			PlentyItemDataPushImage::getInstance()->setImageUrl($imageUrl)->setItemId($itemId)->pushTestImage2API(2);
@@ -204,10 +211,10 @@ class PlentyItemDataPushItems extends PlentySoapCall
 			$this->getLogger()->debug(__FUNCTION__.' I miss some data - itemId: '.$itemId.' imageUrl: '.$imageUrl);
 		}
 	}
-	
+
 	/**
 	 * push items to stock data objects
-	 * 
+	 *
 	 * @param int $itemId
 	 * @param int $priceId
 	 */
@@ -226,19 +233,19 @@ class PlentyItemDataPushItems extends PlentySoapCall
 			$this->getLogger()->crit(__FUNCTION__.' I miss some data - itemId: '.$itemId.' priceId: '.$priceId.' warehouseId: '.$this->warehouseId);
 		}
 	}
-	
+
 	/**
 	 * @param number $warehouseId
-	 * 
+	 *
 	 * @return PlentyItemDataPushItems
 	 */
-	public function setWarehouseId($warehouseId) 
+	public function setWarehouseId($warehouseId)
 	{
 		$this->warehouseId = $warehouseId;
-		
+
 		return $this;
 	}
 
-	
+
 }
 ?>
