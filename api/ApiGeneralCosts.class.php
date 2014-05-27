@@ -9,6 +9,8 @@ class ApiGeneralCosts {
 
 	const MODE_WITH_AVERAGE = 0x2;
 
+	const MODE_WITH_TOTAL_NETTO_AND_SHIPPING_VALUE = 0x4;
+
 	public static function getCostsJSON($warehouseID, $date) {
 		header('Content-Type: application/json');
 		$result = array('success' => false, 'data' => NULL, 'error' => NULL);
@@ -99,10 +101,18 @@ class ApiGeneralCosts {
 
 		foreach ($result as &$warehouse) {
 			foreach ($months as $month) {
-				$warehouse[$month] = array('absolute' => null, 'percentage' => null);
+				if (($mode & self::MODE_WITH_TOTAL_NETTO_AND_SHIPPING_VALUE) === self::MODE_WITH_TOTAL_NETTO_AND_SHIPPING_VALUE) {
+					$warehouse[$month] = array('absolute' => null, 'percentage' => null, 'total' => null);
+				} else {
+					$warehouse[$month] = array('absolute' => null, 'percentage' => null);
+				}
 			}
 			if (($mode & self::MODE_WITH_AVERAGE) === self::MODE_WITH_AVERAGE) {
-				$warehouse['average'] = array('absolute' => null, 'percentage' => null);
+				if (($mode & self::MODE_WITH_TOTAL_NETTO_AND_SHIPPING_VALUE) === self::MODE_WITH_TOTAL_NETTO_AND_SHIPPING_VALUE) {
+					$warehouse['average'] = array('absolute' => null, 'percentage' => null, 'total' => null);
+				} else {
+					$warehouse['average'] = array('absolute' => null, 'percentage' => null);
+				}
 			}
 		}
 
@@ -125,6 +135,10 @@ class ApiGeneralCosts {
 					if (floatval($runningCostRecord['AbsoluteAmount']) > 0) {
 						$result[$runningCostRecord['WarehouseID']][$runningCostRecord['Date']]['percentage'] = number_format(100 * $runningCostRecord['AbsoluteAmount'] / ($runningCostRecord['PerWarehouseNetto'] + $runningCostRecord['PerWarehouseShipping']), 2);
 					}
+
+					if (($mode & self::MODE_WITH_TOTAL_NETTO_AND_SHIPPING_VALUE) === self::MODE_WITH_TOTAL_NETTO_AND_SHIPPING_VALUE) {
+						$result[$runningCostRecord['WarehouseID']][$runningCostRecord['Date']]['total'] = $runningCostRecord['PerWarehouseNetto'] + $runningCostRecord['PerWarehouseShipping'];
+					}
 				}
 			}
 		}
@@ -136,12 +150,20 @@ class ApiGeneralCosts {
 			foreach ($result as &$warehouse) {
 				$allMonthsTotalAbsolute = 0;
 				$allMonthsTotalPercentage = 0;
+				$allMonthsTotalTotal = 0;
 				for ($date = 0; $date < $maxDate; $date++) {
 					$allMonthsTotalAbsolute += $warehouse[$months[$date]]['absolute'];
 					$allMonthsTotalPercentage += $warehouse[$months[$date]]['percentage'];
+					if (($mode & self::MODE_WITH_TOTAL_NETTO_AND_SHIPPING_VALUE) === self::MODE_WITH_TOTAL_NETTO_AND_SHIPPING_VALUE) {
+						$allMonthsTotalTotal += $warehouse[$months[$date]]['total'];
+					}
 				}
 				$warehouse['average']['absolute'] = number_format($allMonthsTotalAbsolute / $maxDate, 2, '.', '');
 				$warehouse['average']['percentage'] = number_format($allMonthsTotalPercentage / $maxDate, 2, '.', '');
+
+				if (($mode & self::MODE_WITH_TOTAL_NETTO_AND_SHIPPING_VALUE) === self::MODE_WITH_TOTAL_NETTO_AND_SHIPPING_VALUE) {
+					$warehouse['average']['total'] = number_format($allMonthsTotalTotal / $maxDate, 2, '.', '');
+				}
 			}
 		}
 		return $result;
