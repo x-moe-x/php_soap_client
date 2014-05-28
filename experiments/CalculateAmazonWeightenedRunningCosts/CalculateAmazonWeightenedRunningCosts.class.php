@@ -2,6 +2,7 @@
 require_once ROOT . 'lib/db/DBQuery.class.php';
 require_once ROOT . 'api/ApiGeneralCosts.class.php';
 require_once ROOT . 'api/ApiAmazon.class.php';
+require_once ROOT . 'api/ApiHelper.class.php';
 require_once ROOT . 'experiments/Common/TotalNettoQuery.class.php';
 
 /**
@@ -51,6 +52,20 @@ class CalculateAmazonWeightenedRunningCosts {
 		$this -> oStartDate = new DateTime($now -> format('Y-m-01'));
 
 		$this -> oInterval = new DateInterval('P' . self::DEFAULT_AMAZON_NR_OF_MONTHS_BACKWARDS . 'M');
+	}
+
+	public static function arePrequisitesMet() {
+		$netxpressWarehouseID = 1;
+		$now = new DateTime();
+		$startDate = new DateTime($now -> format('Y-m-01'));
+		$months = ApiHelper::getMonthDates($startDate, CalculateAmazonWeightenedRunningCosts::DEFAULT_AMAZON_NR_OF_MONTHS_BACKWARDS, true);
+		$generalCostsNetxpressWarehouse = ApiGeneralCosts::getCostsTotal(0, array(1 => array('id' => $netxpressWarehouseID, 'name' => null)), $months, null, null);
+		foreach ($months as $date) {
+			if (!$generalCostsNetxpressWarehouse[$netxpressWarehouseID][$date]['absolute'] > 0) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	/**
