@@ -16,6 +16,9 @@ if (Config::get('CalculationActive') === 1) {
 	// update warehouse db
 	NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'GetWarehouseList'));
 
+	// update sales order referrer db
+	NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'GetSalesOrderReferrer'));
+
 	// calculate total netto values for last 6 months
 	// TODO would be better as a daemon action
 	NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'CalculateTotalNetto', 'CalculateTotalNetto'));
