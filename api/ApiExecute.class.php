@@ -1,6 +1,7 @@
 <?php
 require_once realpath(dirname(__FILE__) . '/../') . '/config/basic.inc.php';
 require_once ROOT . 'lib/soap/experiment_loader/NetXpressSoapExperimentLoader.class.php';
+require_once ROOT . 'experiments/CalculateAmazonWeightenedRunningCosts/CalculateAmazonWeightenedRunningCosts.class.php';
 
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
@@ -8,7 +9,7 @@ error_reporting(-1);
 
 class ApiExecute {
 
-	private static $allowedJSONTasks = array(self::UPDATE_ALL, self::CALCULATE_ALL, self::SET_ALL, self::RESET_ARTICLES, self::RESET_ORDERS);
+	private static $allowedJSONTasks = array(self::UPDATE_ALL, self::CALCULATE_ALL, self::SET_ALL, self::RESET_ARTICLES, self::RESET_ORDERS, self::CALCULATE_AMAZON_RUNNING_COSTS);
 
 	/**
 	 * @var string
@@ -174,7 +175,11 @@ class ApiExecute {
 					NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'DetermineWritePermissions', 'DetermineWritePermissions'));
 					break;
 				case self::CALCULATE_AMAZON_RUNNING_COSTS :
-					NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'CalculateAmazonWeightenedRunningCosts', 'CalculateAmazonWeightenedRunningCosts'));
+					if (CalculateAmazonWeightenedRunningCosts::arePrequisitesMet()) {
+						NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'CalculateAmazonWeightenedRunningCosts', 'CalculateAmazonWeightenedRunningCosts'));
+					} else {
+						throw new RuntimeException('Prequisites not met for ' . self::CALCULATE_AMAZON_RUNNING_COSTS);
+					}
 					break;
 				case self::SET_ITEMS_SUPPLIERS :
 					NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'SetItemsSuppliers'));
