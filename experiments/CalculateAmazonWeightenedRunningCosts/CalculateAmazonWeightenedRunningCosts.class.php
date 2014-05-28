@@ -80,7 +80,7 @@ class CalculateAmazonWeightenedRunningCosts {
 		$amazonTotalNettoAndShipping = $this -> getAmazonTotalNettoAndShippingByDate();
 
 		// 2. get overall per warehouse total and shipping costs as well as percentage of absolut amount from total
-		$overallPerWarehouseTotalAndPercentage = ApiGeneralCosts::getCostsTotal(ApiGeneralCosts::MODE_WITH_TOTAL_NETTO_AND_SHIPPING_VALUE, null, null, $this -> oStartDate, self::DEFAULT_AMAZON_NR_OF_MONTHS_BACKWARDS);
+		$overallPerWarehouseTotalAndPercentage = ApiGeneralCosts::getCostsTotal(ApiGeneralCosts::MODE_WITH_TOTAL_NETTO_AND_SHIPPING_VALUE | ApiGeneralCosts::MODE_WITH_GENERAL_COSTS | ApiGeneralCosts::MODE_WITH_AVERAGE, null, null, $this -> oStartDate, self::DEFAULT_AMAZON_NR_OF_MONTHS_BACKWARDS);
 
 		// 3. get amazon specific per warehouse total
 		$amazonPerWarehouseNettoDBResult = DBQuery::getInstance() -> select(TotalNettoQuery::getPerWarehouseNettoQuery($this -> oStartDate, $this -> oInterval, self::AMAZON_REFERRER_ID));
@@ -132,19 +132,20 @@ class CalculateAmazonWeightenedRunningCosts {
 					$amazonProvisionConfig = ApiAmazon::getConfig('ProvisionCosts');
 					$amazonProvision = $amazonProvisionConfig['ProvisionCosts'];
 				} catch(Exception $e) {
-					$this -> getLogger() -> debug(__FUNCTION__ . ' Error: ' . $e->getMessage() . ', setting amazonProvision to defalut value');
+					$this -> getLogger() -> debug(__FUNCTION__ . ' Error: ' . $e -> getMessage() . ', setting amazonProvision to defalut value');
 					$amazonProvision = self::AMAZON_PROVISION_DEFAULT_VALUE;
 				}
 
 				$amazonWeightedPercentage += (array_sum($amazonPerDatePerWarehouseWeightedPercentage[$date]) + ($amazonProvision - 1) * $amazonTotalNettoAndShipping[$date]['TotalShippingNetto'] / $amazonTotalNettoAndShipping[$date]['TotalNetto']) / 2;
 			} else {
 				$this -> getLogger() -> debug(__FUNCTION__ . ' Error: TotalNetto ' . $amazonTotalNettoAndShipping[$date]['TotalNetto'] . ' <= 0');
-				die();
+				return;
 			}
 		}
 
 		try {
-			ApiAmazon::setConfig('RunninCostsAmount', number_format($amazonWeightedPercentage, 10));
+			ApiAmazon::setConfig('WarehouseRunningCostsAmount', number_format($amazonWeightedPercentage, 10));
+			ApiAmazon::setConfig('CommonRunningCostsAmount', number_format($overallPerWarehouseTotalAndPercentage[-1]['average']['percentage'] / 100, 4));
 		} catch(Exception $e) {
 			$this -> getLogger() -> debug(__FUNCTION__ . ' Error: ' . $e -> getMessage());
 		}
