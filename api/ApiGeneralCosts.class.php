@@ -132,8 +132,8 @@ class ApiGeneralCosts {
 					$result[$runningCostRecord['WarehouseID']][$runningCostRecord['Date']]['percentage'] = $runningCostRecord['Percentage'];
 				} else {
 					$result[$runningCostRecord['WarehouseID']][$runningCostRecord['Date']]['absolute'] = $runningCostRecord['AbsoluteAmount'];
-					if (floatval($runningCostRecord['AbsoluteAmount']) > 0) {
-						$result[$runningCostRecord['WarehouseID']][$runningCostRecord['Date']]['percentage'] = number_format(100 * $runningCostRecord['AbsoluteAmount'] / ($runningCostRecord['PerWarehouseNetto'] + $runningCostRecord['PerWarehouseShipping']), 2);
+					if ((floatval($runningCostRecord['AbsoluteAmount']) > 0) && (floatval($runningCostRecord['PerWarehouseNetto']) > 0)) {
+						$result[$runningCostRecord['WarehouseID']][$runningCostRecord['Date']]['percentage'] = number_format(100 * $runningCostRecord['AbsoluteAmount'] / ($runningCostRecord['PerWarehouseNetto']), 2);
 					}
 
 					if (($mode & self::MODE_WITH_TOTAL_NETTO_AND_SHIPPING_VALUE) === self::MODE_WITH_TOTAL_NETTO_AND_SHIPPING_VALUE) {

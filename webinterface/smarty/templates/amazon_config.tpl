@@ -18,7 +18,7 @@
 				</li>
 				<li>
 					<label>anteillige Kosten Herkunft % Transport/Lager (Durchschn. der letzten zwei Werte)</label>
-					<span>8,7 %</span>
+					<span>{($amazonVariables.RunninCostsAmount * 100)|number_format:2} %</span>
 				</li>
 				<li>
 					<label>Allg. Betriebskosten % (Durchschn. der ketzten zwei Werte)</label>
