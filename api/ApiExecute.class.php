@@ -8,7 +8,92 @@ error_reporting(-1);
 
 class ApiExecute {
 
-	private static $allowedJSONTasks = array('updateAll', 'calculateAll', 'setAll', 'resetArticles', 'resetOrders');
+	private static $allowedJSONTasks = array(self::UPDATE_ALL, self::CALCULATE_ALL, self::SET_ALL, self::RESET_ARTICLES, self::RESET_ORDERS);
+
+	/**
+	 * @var string
+	 */
+	const UPDATE_ORDERS = 'updateOrders';
+
+	/**
+	 * @var string
+	 */
+	const UPDATE_ITEMS = 'updateItems';
+
+	/**
+	 * @var string
+	 */
+	const UPDATE_ITEMS_WAREHOUSE_SETTINGS = 'updateItemsWarehouseSettings';
+
+	/**
+	 * @var string
+	 */
+	const UPDATE_ITEMS_SUPPLIERS = 'updateItemsSuppliers';
+
+	/**
+	 * @var string
+	 */
+	const UPDATE_WAREHOUSE_LIST = 'updateWarehouseList';
+
+	/**
+	 * @var string
+	 */
+	const UPDATE_SALES_ORDER_REFERRER = 'updateSalesOrderReferrer';
+
+	/**
+	 * @var string
+	 */
+	const UPDATE_ALL = 'updateAll';
+
+	/**
+	 * @var string
+	 */
+	const CALCULATE_TOTAL_NETTO = 'calculateTotalNetto';
+
+	/**
+	 * @var string
+	 */
+	const CALCULATE_DAILY_NEED = 'calculateDailyNeed';
+
+	/**
+	 * @var string
+	 */
+	const CALCULATE_WRITE_BACK_DATA = 'calculateWriteBackData';
+
+	/**
+	 * @var string
+	 */
+	const CALCULATE_WRITE_PERMISSIONS = 'calculateWritePermissions';
+
+	/**
+	 * @var string
+	 */
+	const CALCULATE_ALL = 'calculateAll';
+
+	/**
+	 * @var string
+	 */
+	const SET_ITEMS_SUPPLIERS = 'setItemsSuppliers';
+
+	/**
+	 * @var string
+	 */
+	const SET_ITEMS_WAREHOUSE_SETTINGS = 'setItemsWarehouseSettings';
+
+	/**
+	 * @var string
+	 */
+	const SET_ALL = 'setAll';
+
+	/**
+	 * @var string
+	 */
+	const RESET_ARTICLES = 'resetArticles';
+
+	/**
+	 * @var string
+	 */
+	const RESET_ORDERS = 'resetOrders';
 
 	public static function executeTaskWithOutputJSON($task) {
 		self::executeTaskJSON($task, true);
@@ -53,50 +138,50 @@ class ApiExecute {
 		foreach ($tasks as $task) {
 			switch ($task) {
 				// checking single functions
-				case 'updateOrders' :
+				case self::UPDATE_ORDERS :
 					NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'SearchOrders'));
 					break;
-				case 'updateItems' :
+				case self::UPDATE_ITEMS :
 					NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'GetItemsBase'));
 					break;
-				case 'updateItemsWarehouseSettings' :
+				case self::UPDATE_ITEMS_WAREHOUSE_SETTINGS :
 					NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'GetItemsWarehouseSettings'));
 					break;
-				case 'updateItemsSuppliers' :
+				case self::UPDATE_ITEMS_SUPPLIERS :
 					NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'GetItemsSuppliers'));
 					break;
-				case 'updateWarehouseList' :
+				case self::UPDATE_WAREHOUSE_LIST :
 					NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'GetWarehouseList'));
 					break;
-				case 'updateSalesOrderReferrer' :
+				case self::UPDATE_SALES_ORDER_REFERRER :
 					NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'GetSalesOrderReferrer'));
 					break;
-				case 'calculateTotalNetto' :
+				case self::CALCULATE_TOTAL_NETTO :
 					NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'CalculateTotalNetto', 'CalculateTotalNetto'));
 					break;
-				case 'calculateDailyNeed' :
+				case self::CALCULATE_DAILY_NEED :
 					NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'CalculateDailyNeed', 'CalculateDailyNeed'));
 					break;
-				case 'calculateWriteBackData' :
+				case self::CALCULATE_WRITE_BACK_DATA :
 					NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'CalculateWriteBackData', 'CalculateWriteBackData'));
 					break;
-				case 'calculateWritePermissions' :
+				case self::CALCULATE_WRITE_PERMISSIONS :
 					NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'DetermineWritePermissions', 'DetermineWritePermissions'));
 					break;
-				case 'setItemsSuppliers' :
+				case self::SET_ITEMS_SUPPLIERS :
 					NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'SetItemsSuppliers'));
 					break;
-				case 'setItemsWarehouseSettings' :
+				case self::SET_ITEMS_WAREHOUSE_SETTINGS :
 					NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'SetItemsWarehouseSettings'));
 					break;
-				case 'resetArticles' :
+				case self::RESET_ARTICLES :
 					DBQuery::getInstance() -> truncate('TRUNCATE `ItemsBase`');
 					DBQuery::getInstance() -> delete('DELETE FROM MetaLastUpdate WHERE Function = "SoapCall_GetItemsBase"');
 					DBQuery::getInstance() -> delete('DELETE FROM MetaLastUpdate WHERE Function = "Adapter_GetItemsBase"');
 					DBQuery::getInstance() -> truncate('TRUNCATE `ItemsWarehouseSettings`');
 					DBQuery::getInstance() -> truncate('TRUNCATE `ItemSuppliers`');
 					break;
-				case 'resetOrders' :
+				case self::RESET_ORDERS :
 					DBQuery::getInstance() -> truncate('TRUNCATE `OrderHead`');
 					DBQuery::getInstance() -> delete('DELETE FROM MetaLastUpdate WHERE Function = "SoapCall_SearchOrders"');
 					DBQuery::getInstance() -> delete('DELETE FROM MetaLastUpdate WHERE Function = "Adapter_SearchOrders"');
@@ -105,13 +190,13 @@ class ApiExecute {
 				default :
 					// checking group functions
 					switch ($task) {
-						case 'updateAll' :
+						case self::UPDATE_ALL :
 							self::executeTasks(array('updateOrders', 'updateItems', 'updateItemsWarehouseSettings', 'updateItemsSuppliers', 'updateWarehouseList', 'updateSalesOrderReferrer'));
 							break;
-						case 'calculateAll' :
+						case self::CALCULATE_ALL :
 							self::executeTasks(array('calculateTotalNetto', 'calculateDailyNeed', 'calculateWriteBackData', 'calculateWritePermissions'));
 							break;
-						case 'setAll' :
+						case self::SET_ALL :
 							self::executeTasks(array('setItemsSuppliers', 'setItemsWarehouseSettings'));
 							break;
 						default :
