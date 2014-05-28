@@ -1,10 +1,12 @@
 <?php
 
 class ApiHelper {
-	public static function getMonthDates(DateTime $fromDate, $nrOfMonthDates = 6) {
+	public static function getMonthDates(DateTime $fromDate, $nrOfMonthDates = 6, $omitCurrentMonth = false) {
 		$result = array();
 		$normalizedDate = new DateTime($fromDate -> format('Ym01'));
-		$result[] = $normalizedDate -> format('Ymd');
+		if (!$omitCurrentMonth) {
+			$result[] = $normalizedDate -> format('Ymd');
+		}
 		for ($i = 1; $i <= $nrOfMonthDates; $i++) {
 			$result[] = $normalizedDate -> sub(new DateInterval('P1M')) -> format('Ymd');
 		}
