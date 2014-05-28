@@ -58,7 +58,7 @@ class ApiGeneralCosts {
 		// if warehouses not set ...
 		if (empty($warehouses)) {
 			// ... then if in general-costs mode ...
-			if (($mode & self::MODE_WITH_GENERAL_COSTS) === self::MODE_WITH_GENERAL_COSTS) {
+			if (self::isBitSet($mode, self::MODE_WITH_GENERAL_COSTS)) {
 				// ... ... then init warehouses with warehouse list, prepended with general costs col as warehouse id -1
 				$warehouses = array(-1 => array('id' => -1, 'name' => '')) + ApiHelper::getWarehouseList();
 			} else {
@@ -67,7 +67,7 @@ class ApiGeneralCosts {
 			}
 		} else {
 			// ... otherwise: check for not available warehouse id's in both general costs mode as well as non general costs mode
-			if (($mode & self::MODE_WITH_GENERAL_COSTS) === self::MODE_WITH_GENERAL_COSTS) {
+			if (self::isBitSet($mode, self::MODE_WITH_GENERAL_COSTS)) {
 				$warehouses = array_intersect_key( array(-1 => array('id' => -1, 'name' => '')) + ApiHelper::getWarehouseList(), $warehouses);
 			} else {
 				$warehouses = array_intersect_key(ApiHelper::getWarehouseList(), $warehouses);
@@ -79,7 +79,7 @@ class ApiGeneralCosts {
 			}
 
 			// if in general-costs mode prepend given warehouses with general costs col as warhouse id -1
-			if ((($mode & self::MODE_WITH_GENERAL_COSTS) === self::MODE_WITH_GENERAL_COSTS) && !key_exists(-1, $warehouses)) {
+			if (self::isBitSet($mode, self::MODE_WITH_GENERAL_COSTS) && !key_exists(-1, $warehouses)) {
 				$warehouses = array(-1 => array('id' => -1, 'name' => '')) + $warehouses;
 			}
 		}
@@ -101,14 +101,14 @@ class ApiGeneralCosts {
 
 		foreach ($result as &$warehouse) {
 			foreach ($months as $month) {
-				if (($mode & self::MODE_WITH_TOTAL_NETTO_AND_SHIPPING_VALUE) === self::MODE_WITH_TOTAL_NETTO_AND_SHIPPING_VALUE) {
+				if (self::isBitSet($mode, self::MODE_WITH_TOTAL_NETTO_AND_SHIPPING_VALUE)) {
 					$warehouse[$month] = array('absolute' => null, 'percentage' => null, 'total' => null);
 				} else {
 					$warehouse[$month] = array('absolute' => null, 'percentage' => null);
 				}
 			}
-			if (($mode & self::MODE_WITH_AVERAGE) === self::MODE_WITH_AVERAGE) {
-				if (($mode & self::MODE_WITH_TOTAL_NETTO_AND_SHIPPING_VALUE) === self::MODE_WITH_TOTAL_NETTO_AND_SHIPPING_VALUE) {
+			if (self::isBitSet($mode, self::MODE_WITH_AVERAGE)) {
+				if (self::isBitSet($mode, self::MODE_WITH_TOTAL_NETTO_AND_SHIPPING_VALUE)) {
 					$warehouse['average'] = array('absolute' => null, 'percentage' => null, 'total' => null);
 				} else {
 					$warehouse['average'] = array('absolute' => null, 'percentage' => null);
@@ -136,14 +136,14 @@ class ApiGeneralCosts {
 						$result[$runningCostRecord['WarehouseID']][$runningCostRecord['Date']]['percentage'] = number_format(100 * $runningCostRecord['AbsoluteAmount'] / ($runningCostRecord['PerWarehouseNetto']), 2);
 					}
 
-					if (($mode & self::MODE_WITH_TOTAL_NETTO_AND_SHIPPING_VALUE) === self::MODE_WITH_TOTAL_NETTO_AND_SHIPPING_VALUE) {
+					if (self::isBitSet($mode, self::MODE_WITH_TOTAL_NETTO_AND_SHIPPING_VALUE)) {
 						$result[$runningCostRecord['WarehouseID']][$runningCostRecord['Date']]['total'] = $runningCostRecord['PerWarehouseNetto'] + $runningCostRecord['PerWarehouseShipping'];
 					}
 				}
 			}
 		}
 
-		if (($mode & self::MODE_WITH_AVERAGE) === self::MODE_WITH_AVERAGE) {
+		if (self::isBitSet($mode, self::MODE_WITH_AVERAGE)) {
 			// calculate averages
 			$maxDate = count($months) - 2;
 			// '- (1 for current month + 1 for average row)'
@@ -154,14 +154,14 @@ class ApiGeneralCosts {
 				for ($date = 0; $date < $maxDate; $date++) {
 					$allMonthsTotalAbsolute += $warehouse[$months[$date]]['absolute'];
 					$allMonthsTotalPercentage += $warehouse[$months[$date]]['percentage'];
-					if (($mode & self::MODE_WITH_TOTAL_NETTO_AND_SHIPPING_VALUE) === self::MODE_WITH_TOTAL_NETTO_AND_SHIPPING_VALUE) {
+					if (self::isBitSet($mode, self::MODE_WITH_TOTAL_NETTO_AND_SHIPPING_VALUE)) {
 						$allMonthsTotalTotal += $warehouse[$months[$date]]['total'];
 					}
 				}
 				$warehouse['average']['absolute'] = number_format($allMonthsTotalAbsolute / $maxDate, 2, '.', '');
 				$warehouse['average']['percentage'] = number_format($allMonthsTotalPercentage / $maxDate, 2, '.', '');
 
-				if (($mode & self::MODE_WITH_TOTAL_NETTO_AND_SHIPPING_VALUE) === self::MODE_WITH_TOTAL_NETTO_AND_SHIPPING_VALUE) {
+				if (self::isBitSet($mode, self::MODE_WITH_TOTAL_NETTO_AND_SHIPPING_VALUE)) {
 					$warehouse['average']['total'] = number_format($allMonthsTotalTotal / $maxDate, 2, '.', '');
 				}
 			}
@@ -213,6 +213,10 @@ class ApiGeneralCosts {
 		}
 
 		return array('warehouseID' => $warehouseID, 'date' => $date, 'value' => $check[$warehouseID][$date]);
+	}
+
+	private static function isBitSet($value, $bit) {
+		return ($value & $bit) === $bit;
 	}
 
 }
