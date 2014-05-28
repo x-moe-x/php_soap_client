@@ -36,6 +36,11 @@ class CalculateAmazonWeightenedRunningCosts {
 	const DEFAULT_AMAZON_NR_OF_MONTHS_BACKWARDS = 2;
 
 	/**
+	 * @var float
+	 */
+	const AMAZON_PROVISION_DEFAULT_VALUE = 0.1785;
+
+	/**
 	 * @return CalculateAmazonWeightenedRunningCosts
 	 */
 	public function __construct() {
@@ -105,21 +110,21 @@ class CalculateAmazonWeightenedRunningCosts {
 			 */
 
 			if ($amazonTotalNettoAndShipping[$date]['TotalNetto'] > 0) {
-				//TODO remove hardcoded value
-				$amazonProvision = 0.1785;
-				$amazonShippingTotalRatio = $amazonTotalNettoAndShipping[$date]['TotalShippingNetto'] / $amazonTotalNettoAndShipping[$date]['TotalNetto'];
-				echo "p = " . array_sum($amazonPerDatePerWarehouseWeightedPercentage[$date]) . "\n";
-				echo "(Ap - 1) * ts/tn = " . (($amazonProvision - 1) * $amazonShippingTotalRatio) . "\n";
-				echo "p + (Ap - 1) * ts/tn = " . (array_sum($amazonPerDatePerWarehouseWeightedPercentage[$date]) + ($amazonProvision - 1) * $amazonShippingTotalRatio) . "\n";
+				$amazonProvision = 0.0;
+				try {
+					$amazonProvisionConfig = ApiAmazon::getConfig('ProvisionCosts');
+					$amazonProvision = $amazonProvisionConfig['ProvisionCosts'];
+				} catch(Exception $e) {
+					$this -> getLogger() -> debug(__FUNCTION__ . ' Error: ' . $e->getMessage() . ', setting amazonProvision to defalut value');
+					$amazonProvision = self::AMAZON_PROVISION_DEFAULT_VALUE;
+				}
 
-				$amazonWeightedPercentage += (array_sum($amazonPerDatePerWarehouseWeightedPercentage[$date]) + ($amazonProvision - 1) * $amazonShippingTotalRatio) / 2;
+				$amazonWeightedPercentage += (array_sum($amazonPerDatePerWarehouseWeightedPercentage[$date]) + ($amazonProvision - 1) * $amazonTotalNettoAndShipping[$date]['TotalShippingNetto'] / $amazonTotalNettoAndShipping[$date]['TotalNetto']) / 2;
 			} else {
 				$this -> getLogger() -> debug(__FUNCTION__ . ' Error: TotalNetto ' . $amazonTotalNettoAndShipping[$date]['TotalNetto'] . ' <= 0');
 				die();
 			}
 		}
-
-		echo "mean: " . $amazonWeightedPercentage . "\n";
 
 		try {
 			ApiAmazon::setConfig('RunninCostsAmount', number_format($amazonWeightedPercentage, 10));
