@@ -4,9 +4,14 @@ require_once ROOT . 'submodules/epiphany/src/Epi.php';
 require_once 'ApiStock.class.php';
 require_once 'ApiGeneralCosts.class.php';
 require_once 'ApiAmazon.class.php';
+require_once 'ApiExecute.class.php';
 
 Epi::setSetting('exceptions', true);
 Epi::init('route');
+
+//register execution api calls
+getRoute() -> get('/execute/(\w+)', array('ApiExecute', 'executeTaskJSON'));
+getRoute() -> get('/executeWithOutput/(\w+)', array('ApiExecute', 'executeTaskWithOutputJSON'));
 
 // register stock api calls
 getRoute() -> get('/config/stock', array('ApiStock', 'getConfigJSON'));
