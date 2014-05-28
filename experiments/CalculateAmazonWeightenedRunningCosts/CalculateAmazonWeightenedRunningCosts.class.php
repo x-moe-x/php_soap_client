@@ -55,7 +55,7 @@ class CalculateAmazonWeightenedRunningCosts {
 		$amazonPerDatePerWarehouseWeightedPercentage = array();
 
 		// 1. get amazon specific total shipping: shipping_ratio[date] = total_netto / total_charged_shipping_costs
-		$amazonTotalShippingRatio = $this -> getAmazonTotalShippingRatioByDate();
+		$amazonTotalNetto = $this -> getAmazonTotalNettoByDate();
 
 		// 2. get overall per warehouse total and shipping costs as well as percentage of absolut amount from total
 		$overallPerWarehouseTotalAndPercentage = ApiGeneralCosts::getCostsTotal(ApiGeneralCosts::MODE_WITH_TOTAL_NETTO_AND_SHIPPING_VALUE, null, null, $this -> oStartDate, self::DEFAULT_AMAZON_NR_OF_MONTHS_BACKWARDS);
@@ -73,18 +73,23 @@ class CalculateAmazonWeightenedRunningCosts {
 			/*
 			 * Perform the following calculation:
 			 *
-			 * calculate weight:
-			 * amazon_weighted[date][warehouseID] = (amazonPerWarehouseNetto + amazonPerWarehouseShipping) / (overallPerWarehouseNetto + overallPerWarehouseShipping)
-			 *
-			 * apply weight:
-			 * amazon_weighted_percentage[date][warehouseID] = amazon_weighted[date][warehouseID] * general_cost[warehouseID][date][percentage]
+			 * first calculate weight:
+			 * amazon_weight[date][warehouseID] = (amazonPerWarehouseNetto + amazonPerWarehouseShipping) / (amazonTotalNetto + amazonTotalShipping)
 			 *
 			 * with: term (amazonPerWarehouseNetto + amazonPerWarehouseShipping) = amazonPerWarehouseNetto * (1 + amazonTotalShipping / amazonTotalNetto)
-			 * with: term (overallPerWarehouseNetto + overallPerWarehouseShipping) = general_cost[warehouseID][date][total]
+			 * with: term (amazonTotalNetto + amazonTotalShipping) = amazonTotalNetto * (1 + amazonTotalShipping / amazonTotalNetto)
 			 *
+			 * simplifies to: amazon_weight[date][warehouseID] = amazonPerWarehouseNetto / amazonTotalNetto
+			 *
+			 * then apply weight:
+			 * amazon_weighted_percentage[date][warehouseID] = amazon_weight[date][warehouseID] * general_cost[warehouseID][date][percentage]
+			 *
+			 * with: term (overallPerWarehouseNetto + overallPerWarehouseShipping) = general_cost[warehouseID][date][total]
 			 */
 
-			$amazonPerDatePerWarehouseWeightedPercentage[$date][$warehouseID] = $amazonPerWarehouseNetto['PerWarehouseNetto'] * (1 + $amazonTotalShippingRatio[$date]) / $overallPerWarehouseTotalAndPercentage[$warehouseID][$date]['total'] * $overallPerWarehouseTotalAndPercentage[$warehouseID][$date]['percentage'];
+			if ($amazonTotalNetto[$date] > 0) {
+				$amazonPerDatePerWarehouseWeightedPercentage[$date][$warehouseID] = $amazonPerWarehouseNetto['PerWarehouseNetto'] / $amazonTotalNetto[$date] * $overallPerWarehouseTotalAndPercentage[$warehouseID][$date]['percentage'];
+			}
 		}
 
 		// 4. calculate weighted mean
@@ -94,7 +99,7 @@ class CalculateAmazonWeightenedRunningCosts {
 		}
 
 		try {
-			ApiAmazon::setConfig('RunninCostsAmount', number_format($amazonWeightedPercentage / 100,8));
+			ApiAmazon::setConfig('RunninCostsAmount', number_format($amazonWeightedPercentage / 100, 8));
 		} catch(Exception $e) {
 			$this -> getLogger() -> debug(__FUNCTION__ . ' Error: ' . $e -> getMessage());
 		}
@@ -103,16 +108,16 @@ class CalculateAmazonWeightenedRunningCosts {
 	/**
 	 * @return array $amazonTotalShippingRatio
 	 */
-	private function getAmazonTotalShippingRatioByDate() {
-		$amazonTotalShippingRatio = array();
+	private function getAmazonTotalNettoByDate() {
+		$amazonTotalNettoResult = array();
 
-		$amazonTotalNettoAndShippingDBResult = DBQuery::getInstance() -> select(TotalNettoQuery::getTotalNettoAndShippingCostsQuery($this -> oStartDate, $this -> oInterval, self::AMAZON_REFERRER_ID));
+		$amazonTotalNettoDBResult = DBQuery::getInstance() -> select(TotalNettoQuery::getTotalNettoAndShippingCostsQuery($this -> oStartDate, $this -> oInterval, self::AMAZON_REFERRER_ID));
 
-		while ($amazonTotalNettoAndShipping = $amazonTotalNettoAndShippingDBResult -> fetchAssoc()) {
-			$amazonShippingRatio[$amazonTotalNettoAndShipping['Date']] = $amazonTotalNettoAndShipping['TotalShippingNetto'] / $amazonTotalNettoAndShipping['TotalNetto'];
+		while ($amazonTotalNetto = $amazonTotalNettoDBResult -> fetchAssoc()) {
+			$amazonTotalNettoResult[$amazonTotalNetto['Date']] = floatval($amazonTotalNetto['TotalNetto']);
 		}
 
-		return $amazonTotalShippingRatio;
+		return $amazonTotalNettoResult;
 	}
 
 	/**
