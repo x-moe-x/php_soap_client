@@ -68,6 +68,11 @@ class ApiExecute {
 	/**
 	 * @var string
 	 */
+	const CALCULATE_AMAZON_RUNNING_COSTS = 'calculateAmazonRunningCosts';
+
+	/**
+	 * @var string
+	 */
 	const CALCULATE_ALL = 'calculateAll';
 
 	/**
@@ -167,6 +172,9 @@ class ApiExecute {
 					break;
 				case self::CALCULATE_WRITE_PERMISSIONS :
 					NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'DetermineWritePermissions', 'DetermineWritePermissions'));
+					break;
+				case self::CALCULATE_AMAZON_RUNNING_COSTS :
+					NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'CalculateAmazonWeightenedRunningCosts', 'CalculateAmazonWeightenedRunningCosts'));
 					break;
 				case self::SET_ITEMS_SUPPLIERS :
 					NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'SetItemsSuppliers'));
