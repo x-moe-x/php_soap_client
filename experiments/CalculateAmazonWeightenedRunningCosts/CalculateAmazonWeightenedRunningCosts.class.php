@@ -59,9 +59,11 @@ class CalculateAmazonWeightenedRunningCosts {
 		$now = new DateTime();
 		$startDate = new DateTime($now -> format('Y-m-01'));
 		$months = ApiHelper::getMonthDates($startDate, CalculateAmazonWeightenedRunningCosts::DEFAULT_AMAZON_NR_OF_MONTHS_BACKWARDS, true);
-		$generalCostsNetxpressWarehouse = ApiGeneralCosts::getCostsTotal(0, array(1 => array('id' => $netxpressWarehouseID, 'name' => null)), $months, null, null);
+		$generalCostsNetxpressWarehouse = ApiGeneralCosts::getCostsTotal(ApiGeneralCosts::MODE_WITH_GENERAL_COSTS, array(1 => array('id' => $netxpressWarehouseID, 'name' => null)), $months, null, null);
+
+		// at least net-xpress warhouse and general costs are necessary
 		foreach ($months as $date) {
-			if (!$generalCostsNetxpressWarehouse[$netxpressWarehouseID][$date]['absolute'] > 0) {
+			if ((!$generalCostsNetxpressWarehouse[$netxpressWarehouseID][$date]['absolute'] > 0) && (!$generalCostsNetxpressWarehouse[-1][$date]['percentage'] > 0)) {
 				return false;
 			}
 		}
