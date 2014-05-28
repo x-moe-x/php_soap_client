@@ -152,9 +152,7 @@ function dialogify(buttonData) {'use strict';
 	$.each(buttonData, function(index, button) {
 		$(button.id).dialogify(button.title, button.descr, button.type, function() {
 			$('body').addClass('loading');
-			$.get('executeManual.php5', {
-				action : button.task
-			}, loadSuccess);
+			$.get('../api/execute/' + button.task, loadSuccess);
 		});
 	});
 }
@@ -242,19 +240,19 @@ function prepareStock() {'use strict';
 
 	dialogify([{
 		id : '#buttonManualUpdate',
-		task : 'update',
+		task : 'updateAll',
 		title : 'Manuelle Aktualisierung anstossen?',
 		descr : 'Aktualisierung der Artikel- und Rechnungsdaten. Dieser Vorgang kann einige Minuten in Anspruch nehmen.',
 		type : 'normal'
 	}, {
 		id : '#buttonManualCalculate',
-		task : 'calculate',
+		task : 'calculateAll',
 		title : 'Manuelle Kalkulation anstossen?',
 		descr : 'Ermittelung des spitzenbreinigten Tagesbedarfes, der Rückschreibedaten sowie der Schreibberechtigungen. Dieser Vorgang kann einige Minuten in Anspruch nehmen.',
 		type : 'normal'
 	}, {
 		id : '#buttonManualWriteBack',
-		task : 'writeBack',
+		task : 'setAll',
 		title : 'Manuelles Rückschreiben anstossen?',
 		descr : 'Rückschreiben der Lieferanten- und Lagerdaten für schreibberechtigte Artikel',
 		type : 'normal'
