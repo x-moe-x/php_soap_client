@@ -1,23 +1,24 @@
 <?xml version='1.0' encoding='utf-8'?>
 <rows>
 	<page>
-		1
+		{$data.page}
 	</page>
 	<total>
-		1
+		{$data.total}
 	</total>
-	<row>
+{foreach $data.rows as $itemVariant}
+	<row id='{$itemVariant.RowID}'>
 		<cell>
-			<![CDATA[ItemID]]>
+			<![CDATA[{$itemVariant.ItemID}]]>
 		</cell>
 		<cell>
-			<![CDATA[ItemNo]]>
+			<![CDATA[{$itemVariant.ItemNo}]]>
 		</cell>
 		<cell>
-			<![CDATA[ItemName]]>
+			<![CDATA[{$itemVariant.Name}]]>
 		</cell>
 		<cell>
-			<![CDATA[Marking1D]]>
+			<![CDATA[{$itemVariant.Marking1ID}]]>
 		</cell>
 		<cell>
 			<![CDATA[M]]>
@@ -48,4 +49,5 @@
 		</cell>
 
 	</row>
+{/foreach}
 </rows>

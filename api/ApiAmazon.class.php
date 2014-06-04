@@ -1,6 +1,47 @@
 <?php
+ini_set('display_errors',1);
+ini_set('display_startup_errors',1);
+error_reporting(-1);
+
+require_once realpath(dirname(__FILE__) . '/../') . '/config/basic.inc.php';
+require_once ROOT . 'lib/db/DBQuery.class.php';
 
 class ApiAmazon {
+
+	const PRICE_DATA_SELECT_BASIC = 'SELECT
+	ItemsBase.ItemID,
+	CASE WHEN (AttributeValueSets.AttributeValueSetID IS null) THEN
+		"0"
+	ELSE
+		AttributeValueSets.AttributeValueSetID
+	END AttributeValueSetID';
+
+	const PRICE_DATA_SELECT_ADVANCED = ',
+	CONCAT(
+		CASE WHEN (ItemsBase.BundleType = "bundle") THEN
+			"[Bundle] "
+		WHEN (ItemsBase.BundleType = "bundle_item") THEN
+			"[Bundle Artikel] "
+		ELSE
+			""
+		END,
+		ItemsBase.Name,
+		CASE WHEN (AttributeValueSets.AttributeValueSetID IS NOT null) THEN
+			CONCAT(", ", AttributeValueSets.AttributeValueSetName)
+		ELSE
+			""
+		END
+	) AS Name,
+	ItemsBase.Name AS SortName,
+	ItemsBase.ItemNo,
+	ItemsBase.Marking1ID';
+
+	const PRICE_DATA_FROM = "\nFROM ItemsBase
+LEFT JOIN AttributeValueSets
+		ON ItemsBase.ItemID = AttributeValueSets.ItemID\n";
+
+	const PRICE_DATA_WHERE = "WHERE
+	ItemsBase.Inactive = 0\n";
 
 	public static function setConfigJSON($key, $value) {
 		header('Content-Type: application/json');
@@ -101,6 +142,33 @@ class ApiAmazon {
 		}
 
 		return $result;
+	}
+
+	public static function getAmazonPriceData($page = 1, $rowsPerPage = 10, $sortByColumn = 'ItemID', $sortOrder = 'ASC') {
+		$data = array('page' => $page, 'total' => null, 'rows' => array());
+
+		ob_start();
+		$data['total'] = DBQuery::getInstance() -> select(self::PRICE_DATA_SELECT_BASIC . self::PRICE_DATA_FROM . self::PRICE_DATA_WHERE) -> getNumRows();
+
+		$sort = "ORDER BY $sortByColumn $sortOrder\n";
+		$start = (($page - 1) * $rowsPerPage);
+		$limit = "LIMIT $start,$rowsPerPage";
+		$query = self::PRICE_DATA_SELECT_BASIC . self::PRICE_DATA_SELECT_ADVANCED . self::PRICE_DATA_FROM . self::PRICE_DATA_WHERE . $sort . $limit;
+		$amazonPriceDataDBResult = DBQuery::getInstance() -> select($query);
+		ob_end_clean();
+
+		while ($amazonPriceData = $amazonPriceDataDBResult -> fetchAssoc()) {
+			// @formatter:off		
+			$data['rows'][] = array(
+				'RowID' => $amazonPriceData['ItemID'] . '-0-' . $amazonPriceData['AttributeValueSetID'],
+				'ItemID' => $amazonPriceData['ItemID'],
+				'ItemNo' => $amazonPriceData['ItemNo'],
+				'Name' => $amazonPriceData['Name'],
+				'Marking1ID' => $amazonPriceData['Marking1ID']
+			);
+			 // @formatter:on
+		}
+		return $data;
 	}
 
 }

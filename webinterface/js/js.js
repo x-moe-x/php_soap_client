@@ -549,7 +549,7 @@ function prepareAmazon() {'use strict';
 
 	// create table
 	$('#amazonTable').flexigrid({
-		url : 'price-post-xml.php5',
+		url : 'price-post-xml.php',
 		dataType : 'xml',
 		colModel : [{
 			display : 'Item ID',
