@@ -553,16 +553,19 @@ function prepareAmazon() {'use strict';
 		dataType : 'xml',
 		colModel : [{
 			display : 'Item ID',
-			name : 'ItemID'
+			name : 'ItemID',
+			sortable : true
 		},{
 			display : 'Artikel Nr',
-			name : 'ItemNo'
+			name : 'ItemNo',
+			sortable : true
 		},{
 			display : 'Name',
 			name : 'ItemName'
 		},{
 			display : 'Markierung',
-			name : 'Marking1D'
+			name : 'Marking1ID',
+			sortable : true
 		},{
 			display : 'Verkauf Stk. / 30 Tage<br>(vor) nach Änderung VK',
 			name : 'M'
@@ -595,6 +598,16 @@ function prepareAmazon() {'use strict';
 		singleSelect : true,
 		striped : false,
 		title : 'Kalkulation Amazon',
+		sortname : "ItemID",
+		sortorder : "asc",
+		usepager : true,
+		useRp : true,
+		rp : 20,
+		rpOptions : [10, 20, 30, 50, 100, 200],
+		pagetext : 'Seite',
+		outof : 'von',
+		pagestat : 'Zeige {from} bis {to} von {total} Artikeln',
+		procmsg : 'Bitte warten...'
 	});
 }
 
