@@ -1,6 +1,7 @@
 <?php
 require_once 'includes/basic_forward.inc.php';
-
+require_once 'includes/smarty.inc.php';
+/*
 $page = isset($_POST['page']) ? $_POST['page'] : 1;
 $rp = isset($_POST['rp']) ? $_POST['rp'] : 10;
 $sortname = isset($_POST['sortname']) ? $_POST['sortname'] : 'ItemID';
@@ -68,27 +69,32 @@ $result = DBQuery::getInstance() -> select($sql);
 
 $total = getMaxRows($select_basic . $from_basic . $where);
 
+ header('Content-type: text/xml');
+ $xml = "<?xml version='1.0' encoding='utf-8'?>\n<rows>\n\t<page>{$page}</page>\n\t<total>{$total}</total>\n";
+ while ($row = $result -> fetchAssoc()) {
+
+ $xml .= "\t<row id='{$row['ItemID']}-0-{$row['AttributeValueSetID']}'>
+ <cell><![CDATA[{$row['ItemID']}]]></cell>
+ <cell><![CDATA[{$row['ItemNo']}]]></cell>
+ <cell><![CDATA[{$row['Name']}]]></cell>
+ <cell><![CDATA[{$row['Marking1ID']}]]></cell>
+ <cell><![CDATA[]]></cell>
+ <cell><![CDATA[]]></cell>
+ <cell><![CDATA[]]></cell>
+ <cell><![CDATA[]]></cell>
+ <cell><![CDATA[]]></cell>
+ <cell><![CDATA[]]></cell>
+ <cell><![CDATA[]]></cell>
+ <cell><![CDATA[]]></cell>
+ <cell><![CDATA[]]></cell>
+ </row>\n";
+ }
+ ob_end_clean();
+
+ $xml .= '</rows>';
+ echo $xml;
+ */
+
 header('Content-type: text/xml');
-$xml = "<?xml version='1.0' encoding='utf-8'?>\n<rows>\n\t<page>{$page}</page>\n\t<total>{$total}</total>\n";
-while ($row = $result -> fetchAssoc()) {
-
-	$xml .= "\t<row id='{$row['ItemID']}-0-{$row['AttributeValueSetID']}'>
-	<cell><![CDATA[{$row['ItemID']}]]></cell>
-	<cell><![CDATA[{$row['ItemNo']}]]></cell>
-	<cell><![CDATA[{$row['Name']}]]></cell>
-	<cell><![CDATA[{$row['Marking1ID']}]]></cell>
-	<cell><![CDATA[]]></cell>
-	<cell><![CDATA[]]></cell>
-	<cell><![CDATA[]]></cell>
-	<cell><![CDATA[]]></cell>
-	<cell><![CDATA[]]></cell>
-	<cell><![CDATA[]]></cell>
-	<cell><![CDATA[]]></cell>
-	<cell><![CDATA[]]></cell>
-	<cell><![CDATA[]]></cell>
-</row>\n";
-}
-ob_end_clean();
-
-$xml .= '</rows>';
-echo $xml;
+$smarty -> display('amazon-post.tpl');
+?>

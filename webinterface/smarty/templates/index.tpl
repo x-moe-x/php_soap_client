@@ -33,6 +33,9 @@
 			</div>
 			<div id='amazonCalculation'>
 				{include file='amazon_config.tpl'}
+				<table id='amazonTable' style='display:none'>
+					<!-- -->
+				</table>
 			</div>
 			<div id='reorderStockCalculation'>
 				{include file='stock_config.tpl'}

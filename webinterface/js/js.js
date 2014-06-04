@@ -546,6 +546,56 @@ function prepareAmazon() {'use strict';
 			$(this).apiUpdate(input.path, input.type, input.preprocess, input.postprocess);
 		});
 	});
+
+	// create table
+	$('#amazonTable').flexigrid({
+		url : 'price-post-xml.php5',
+		dataType : 'xml',
+		colModel : [{
+			display : 'Item ID',
+			name : 'ItemID'
+		},{
+			display : 'Artikel Nr',
+			name : 'ItemNo'
+		},{
+			display : 'Name',
+			name : 'ItemName'
+		},{
+			display : 'Markierung',
+			name : 'Marking1D'
+		},{
+			display : 'Verkauf Stk. / 30 Tage<br>(vor) nach Änderung VK',
+			name : 'M'
+		},{
+			display : 'durchschn. Marge / Stk. (mit aktuellen Kosten)<br>(vor) nach Änderung VK',
+			name : 'N'
+		},{
+			display : 'Trend Artikel<br>verkaufte Stk',
+			name : 'O'
+		},{
+			display : 'Trend Artikel(mit aktuellen Kosten))<br>Gewinn (Vgl. mit Herkunft + 1,8%)',
+			name : 'P'
+		},{
+			display : 'Datum letzte Änderung VK<br>Zeitraum Trend (Soll / Ist)',
+			name : 'Q'
+		},{
+			display : 'alter Preis / aktueller Preis<br>€',
+			name : 'R'
+		},{
+			display : 'Min.- Preis<br>€',
+			name : 'S'
+		},{
+			display : '(Ziel-) Marge<br>%',
+			name : 'T'
+		},{
+			display : 'Pries ändern<br>€',
+			name : 'U'
+		}],
+		height : 'auto',
+		singleSelect : true,
+		striped : false,
+		title : 'Kalkulation Amazon',
+	});
 }
 
 function prepareGeneralCostConfig() {'use strict';
