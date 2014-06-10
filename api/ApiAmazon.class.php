@@ -171,6 +171,34 @@ LEFT JOIN AttributeValueSets
 		return $result;
 	}
 
+	public static function setPriceJSON($sku, $newPrice) {
+		header('Content-Type: application/json');
+		$result = array('success' => false, 'data' => NULL, 'error' => NULL);
+
+		if (!is_null($sku)) {
+			if (!is_null($newPrice) && !is_nan($newPrice)) {
+				$newPrice = floatval($newPrice);
+				if (preg_match('/\d+-\d+-\d+/', $sku) == 1) {
+					try {
+						$setPriceData = self::setPrice($sku, $newPrice);
+						$result['data'] = array('setPrice' => $setPriceData['NewPrice'], 'written' => $setPriceData['Written']);
+						$result['success'] = true;
+					} catch(Exception $e) {
+						$result['error'] = $e -> getMessage();
+					}
+				} else {
+					$result['error'] = 'invalid SKU format';
+				}
+			} else {
+				$result['error'] = "wrong value newPrice = '$newPrice', either none given or not a number";
+			}
+		} else {
+			$result['error'] = 'no sku given';
+		}
+
+		echo json_encode($result);
+	}
+
 	/**
 	 * perform the following algorithm:
 	 *
