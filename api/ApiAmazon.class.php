@@ -5,9 +5,13 @@ error_reporting(-1);
 
 require_once realpath(dirname(__FILE__) . '/../') . '/config/basic.inc.php';
 require_once ROOT . 'lib/db/DBQuery.class.php';
+require_once ROOT . 'includes/SKUHelper.php';
 require_once 'ApiHelper.class.php';
 
 class ApiAmazon {
+
+	const PRICE_COMPARISON_ACCURACY = 0.001;
+
 	/**
 	 * @var string
 	 */
@@ -165,6 +169,52 @@ LEFT JOIN AttributeValueSets
 		}
 
 		return $result;
+	}
+
+	/**
+	 * perform the following algorithm:
+	 *
+	 * for given sku and referrerID = AMAZON_REFERRER_ID:
+	 *
+	 * 1.	get currentPrice
+	 * 2.	if currentPrice != newPrice
+	 * 3.	... then insert into db the following record:
+	 * 		...	...	(itemID,priceID,referrerID,currentPrice,newPrice,!written)
+	 *		...	...	without changing any possibly existing timestamp
+	 * 4.	... otherwise insert into db the following record:
+	 * 		...	... (itemID,priceID,referrerID,currentPrice,currentPrice,written)
+	 *		...	...	without changing any possibly existing timestamp
+	 *
+	 * timestamp is only updated on successful writeback operation to plenty
+	 *
+	 * @param string $sku
+	 * @param float $newPrice
+	 * @return array price data (NewPrice, Written)
+	 */
+	public static function setPrice($sku, $newPrice) {
+		// 1. get current price
+		list($itemID, , ) = SKU2Values($sku);
+		list($currentPrice, $priceID) = ApiHelper::getCurrentPriceDataByReferrer($itemID, self::AMAZON_REFERRER_ID);
+
+		$aPriceUpdate = array('ItemID' => $itemID, 'PriceID' => $priceID, 'OldPrice' => $currentPrice, 'ReferrerID' => self::AMAZON_REFERRER_ID, 'NewPrice' => null, 'Written' => null);
+
+		// 2. if currentPrice != newPrice
+		if (abs($currentPrice - $newPrice) > self::PRICE_COMPARISON_ACCURACY) {
+			// 3. ... then prepare (sku,referrerID,currentPrice,newPrice,!written)
+			$aPriceUpdate['NewPrice'] = $newPrice;
+			$aPriceUpdate['Written'] = 0;
+		} else {
+			// 4.	... otherwise prepare (sku,referrerID,currentPrice,currentPrice,written)
+			$aPriceUpdate['NewPrice'] = $currentPrice;
+			$aPriceUpdate['Written'] = 1;
+		}
+
+		// and insert to db...
+		ob_start();
+		DBQuery::getInstance() -> insert('INSERT INTO PriceUpdate' . DBUtils::buildInsert($aPriceUpdate) . 'ON DUPLICATE KEY UPDATE' . DBUtils::buildOnDuplicateKeyUpdate($aPriceUpdate));
+		ob_end_clean();
+
+		return array('NewPrice' => $aPriceUpdate['NewPrice'], 'Written' => $aPriceUpdate['Written'] == 1);
 	}
 
 	public static function getAmazonPriceData($page = 1, $rowsPerPage = 10, $sortByColumn = 'ItemID', $sortOrder = 'ASC') {
