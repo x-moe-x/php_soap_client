@@ -43,6 +43,10 @@ LEFT JOIN AttributeValueSets
 	const PRICE_DATA_WHERE = "WHERE
 	ItemsBase.Inactive = 0\n";
 
+	/**
+	 * @var int
+	 */
+	const AMAZON_REFERRER_ID = 4;
 	public static function setConfigJSON($key, $value) {
 		header('Content-Type: application/json');
 		$result = array('success' => false, 'data' => NULL, 'error' => NULL);

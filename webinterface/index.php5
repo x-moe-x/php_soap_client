@@ -16,7 +16,7 @@ $smarty -> assign('debug', ob_get_clean() . checkItemSupplierConfiguration() . c
 // make function output available if needed
 
 /* amazon */
-$smarty->assign('amazonStatic', ApiHelper::getSalesOrderReferrer(4));
+$smarty->assign('amazonStatic', ApiHelper::getSalesOrderReferrer(ApiAmazon::AMAZON_REFERRER_ID));
 $smarty->assign('amazonVariables', ApiAmazon::getConfig());
 
 $smarty -> display('index.tpl');

@@ -29,11 +29,6 @@ class CalculateAmazonWeightenedRunningCosts {
 	/**
 	 * @var int
 	 */
-	const AMAZON_REFERRER_ID = 4;
-
-	/**
-	 * @var int
-	 */
 	const DEFAULT_AMAZON_NR_OF_MONTHS_BACKWARDS = 2;
 
 	/**
@@ -83,7 +78,7 @@ class CalculateAmazonWeightenedRunningCosts {
 		$overallPerWarehouseTotalAndPercentage = ApiGeneralCosts::getCostsTotal(ApiGeneralCosts::MODE_WITH_TOTAL_NETTO_AND_SHIPPING_VALUE | ApiGeneralCosts::MODE_WITH_GENERAL_COSTS | ApiGeneralCosts::MODE_WITH_AVERAGE, null, null, $this -> oStartDate, self::DEFAULT_AMAZON_NR_OF_MONTHS_BACKWARDS);
 
 		// 3. get amazon specific per warehouse total
-		$amazonPerWarehouseNettoDBResult = DBQuery::getInstance() -> select(TotalNettoQuery::getPerWarehouseNettoQuery($this -> oStartDate, $this -> oInterval, self::AMAZON_REFERRER_ID));
+		$amazonPerWarehouseNettoDBResult = DBQuery::getInstance() -> select(TotalNettoQuery::getPerWarehouseNettoQuery($this -> oStartDate, $this -> oInterval, ApiAmazon::AMAZON_REFERRER_ID));
 		while ($amazonPerWarehouseNetto = $amazonPerWarehouseNettoDBResult -> fetchAssoc()) {
 			$warehouseID = $amazonPerWarehouseNetto['WarehouseID'];
 			$date = $amazonPerWarehouseNetto['Date'];
@@ -157,7 +152,7 @@ class CalculateAmazonWeightenedRunningCosts {
 	private function getAmazonTotalNettoAndShippingByDate() {
 		$amazonTotalNettoAndShippingResult = array();
 
-		$amazonTotalNettoAndShippingDBResult = DBQuery::getInstance() -> select(TotalNettoQuery::getTotalNettoAndShippingCostsQuery($this -> oStartDate, $this -> oInterval, self::AMAZON_REFERRER_ID));
+		$amazonTotalNettoAndShippingDBResult = DBQuery::getInstance() -> select(TotalNettoQuery::getTotalNettoAndShippingCostsQuery($this -> oStartDate, $this -> oInterval, ApiAmazon::AMAZON_REFERRER_ID));
 
 		while ($amazonTotalNettoAndShipping = $amazonTotalNettoAndShippingDBResult -> fetchAssoc()) {
 			$amazonTotalNettoAndShippingResult[$amazonTotalNettoAndShipping['Date']] = array('TotalNetto' => floatval($amazonTotalNettoAndShipping['TotalNetto']), 'TotalShippingNetto' => floatval($amazonTotalNettoAndShipping['TotalShippingNetto']));
