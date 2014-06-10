@@ -45,6 +45,27 @@ $.fn.insertInput = function(inputID, unitString) {'use strict';
 	return this;
 };
 
+function processMarking1ID(celDiv, sku) {'use strict';
+	var status, marking1ID;
+
+	status = [4, 9, 12, 16, 20];
+
+	// get marking1ID ...
+	marking1ID = parseInt($(celDiv).html(), 10);
+
+	if ($.inArray(marking1ID, status) > -1) {
+		// set class ...
+		$(celDiv).addClass('marking1IDCell_' + marking1ID);
+
+		// ... and clear cell afterwards
+		$(celDiv).html('&nbsp;');
+	} else if (marking1ID === 0) {
+		$(celDiv).html('keine');
+	} else {
+		$(celDiv).html('FEHLER!');
+	}
+}
+
 function elementPostProcessGeneralCosts(element, type, requestData, resultData) {'use strict';
 	var returnValue;
 	switch (type) {
@@ -320,7 +341,8 @@ function prepareStock() {'use strict';
 			name : 'Marking',
 			width : 60,
 			sortable : true,
-			align : 'center'
+			align : 'center',
+			process: processMarking1ID
 		}, {
 			display : 'Meldebest.<br>(neu / alt)',
 			name : 'reorder_level_suggestion',
@@ -402,25 +424,6 @@ function prepareStock() {'use strict';
 
 						}());
 
-					// adjust marking to display colors instead numbers
-				} else if (colName === 'Marking') {( function() {
-							var id;
-
-							// get id ...
-							id = parseInt($(newCell).html(), 10);
-
-							if ($.inArray(id, status) > -1) {
-								// set class ...
-								$(newCell).addClass('markingIDCell_' + id);
-
-								// ... and clear cell afterwards
-								$(newCell).html('&nbsp;');
-							} else if (id === 0) {
-								$(newCell).html('keine');
-							} else {
-								$(newCell).html('FEHLER!');
-							}
-						}());
 					// adjust suggestions to visualize permissions and errors
 				} else if ((colName === 'reorder_level_suggestion') || (colName === 'max_stock_suggestion') || (colName === 'min_purchase_order_suggestion')) {( function() {
 							var dataTokens, suggestionClass;
@@ -565,7 +568,8 @@ function prepareAmazon() {'use strict';
 		},{
 			display : 'Markierung',
 			name : 'Marking1ID',
-			sortable : true
+			sortable : true,
+			process: processMarking1ID
 		},{
 			display : 'Verkauf Stk. / 30 Tage<br>(vor) nach Änderung VK',
 			name : 'M'
