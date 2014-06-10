@@ -36,7 +36,7 @@
 			<![CDATA[Q]]>
 		</cell>
 		<cell>
-			<![CDATA[{$itemVariant.Price|@json_encode}]]>
+			<![CDATA[{$itemVariant.PriceOldCurrent|@json_encode}]]>
 		</cell>
 		<cell>
 			<![CDATA[S]]>
@@ -45,7 +45,7 @@
 			<![CDATA[T]]>
 		</cell>
 		<cell>
-			<![CDATA[{$itemVariant.Price|@json_encode}]]>
+			<![CDATA[{$itemVariant.PriceChanged|@json_encode}]]>
 		</cell>
 
 	</row>

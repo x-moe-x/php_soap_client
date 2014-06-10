@@ -44,7 +44,13 @@ class ApiAmazon {
 	) AS Name,
 	ItemsBase.Name AS SortName,
 	ItemsBase.ItemNo,
-	ItemsBase.Marking1ID';
+	ItemsBase.Marking1ID,
+	PriceUpdate.NewPrice,
+	CASE WHEN (PriceUpdate.Written IS NOT null) THEN
+		PriceUpdate.Written
+	ELSE
+		"1"
+	END AS Written';
 
 	/**
 	 * @var string
@@ -57,7 +63,9 @@ LEFT JOIN AttributeValueSets
 	 * @var string
 	 */
 	const PRICE_DATA_FROM_ADVANCED = "LEFT JOIN PriceSets
-	ON ItemsBase.ItemID = PriceSets.ItemID\n";
+	ON ItemsBase.ItemID = PriceSets.ItemID
+LEFT JOIN PriceUpdate
+	ON (PriceSets.ItemID = PriceUpdate.ItemID) AND (PriceSets.PriceID = PriceUpdate.PriceID)\n";
 
 	/**
 	 * @var string
@@ -266,6 +274,7 @@ LEFT JOIN AttributeValueSets
 		ob_end_clean();
 
 		while ($amazonPriceData = $amazonPriceDataDBResult -> fetchAssoc()) {
+
 			// @formatter:off		
 			$data['rows'][] = array(
 				'RowID' => $amazonPriceData['ItemID'] . '-0-' . $amazonPriceData['AttributeValueSetID'],
@@ -273,7 +282,8 @@ LEFT JOIN AttributeValueSets
 				'ItemNo' => $amazonPriceData['ItemNo'],
 				'Name' => $amazonPriceData['Name'],
 				'Marking1ID' => $amazonPriceData['Marking1ID'],
-				'Price' => array('currentPrice' => $amazonPriceData['Price'], 'oldPrice' => 'XXX', 'written' => true)
+				'PriceOldCurrent' => array('currentPrice' => $amazonPriceData['Price'], 'oldPrice' => 'XXX'),
+				'PriceChanged' => array('currentPrice' => ($amazonPriceData['Written'] == 1 ? $amazonPriceData['Price'] : $amazonPriceData['NewPrice']), 'written' => $amazonPriceData['Written'] == 1)
 			);
 			 // @formatter:on
 		}
