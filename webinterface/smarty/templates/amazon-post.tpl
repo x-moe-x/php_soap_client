@@ -1,0 +1,53 @@
+<?xml version='1.0' encoding='utf-8'?>
+<rows>
+	<page>
+		{$data.page}
+	</page>
+	<total>
+		{$data.total}
+	</total>
+{foreach $data.rows as $itemVariant}
+	<row id='{$itemVariant.RowID}'>
+		<cell>
+			<![CDATA[{$itemVariant.ItemID}]]>
+		</cell>
+		<cell>
+			<![CDATA[{$itemVariant.ItemNo}]]>
+		</cell>
+		<cell>
+			<![CDATA[{$itemVariant.Name}]]>
+		</cell>
+		<cell>
+			<![CDATA[{$itemVariant.Marking1ID}]]>
+		</cell>
+		<cell>
+			<![CDATA[M]]>
+		</cell>
+		<cell>
+			<![CDATA[N]]>
+		</cell>
+		<cell>
+			<![CDATA[O]]>
+		</cell>
+		<cell>
+			<![CDATA[P]]>
+		</cell>
+		<cell>
+			<![CDATA[Q]]>
+		</cell>
+		<cell>
+			<![CDATA[{$itemVariant.Price|@json_encode}]]>
+		</cell>
+		<cell>
+			<![CDATA[S]]>
+		</cell>
+		<cell>
+			<![CDATA[T]]>
+		</cell>
+		<cell>
+			<![CDATA[{$itemVariant.Price|@json_encode}]]>
+		</cell>
+
+	</row>
+{/foreach}
+</rows>

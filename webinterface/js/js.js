@@ -20,10 +20,15 @@ $.fn.dialogify = function(title, htmlText, type, okFunction) {'use strict';
 	return this;
 };
 
-$.fn.insertInput = function(inputID, unitString) {'use strict';
+$.fn.insertInput = function(inputID, unitString, changeEventHandler, externalValue) {'use strict';
+	var setToValue;
+
+	// if given: use external value, otherwise use content of current html element
+	setToValue = typeof externalValue !== 'undefined' ? externalValue : $(this).text().trim();
+
 	$(this).html($('<input/>', {
 		id : inputID,
-		value : $(this).text(),
+		value : setToValue,
 		on : {
 			focus : function() {
 				if (isNaN($(this).val())) {
@@ -32,9 +37,7 @@ $.fn.insertInput = function(inputID, unitString) {'use strict';
 					$(this).select();
 				}
 			},
-			change : function() {
-				$(this).apiUpdate('../api/generalCost', 'float', elementProcessGeneralCosts, elementPostProcessGeneralCosts);
-			}
+			change : changeEventHandler
 		}
 	})).append($('<label/>', {
 		'class' : 'variableUnit',
@@ -44,6 +47,27 @@ $.fn.insertInput = function(inputID, unitString) {'use strict';
 
 	return this;
 };
+
+function processMarking1ID(celDiv, sku) {'use strict';
+	var status, marking1ID;
+
+	status = [4, 9, 12, 16, 20];
+
+	// get marking1ID ...
+	marking1ID = parseInt($(celDiv).html(), 10);
+
+	if ($.inArray(marking1ID, status) > -1) {
+		// set class ...
+		$(celDiv).addClass('marking1IDCell_' + marking1ID);
+
+		// ... and clear cell afterwards
+		$(celDiv).html('&nbsp;');
+	} else if (marking1ID === 0) {
+		$(celDiv).html('keine');
+	} else {
+		$(celDiv).html('FEHLER!');
+	}
+}
 
 function elementPostProcessGeneralCosts(element, type, requestData, resultData) {'use strict';
 	var returnValue;
@@ -320,7 +344,8 @@ function prepareStock() {'use strict';
 			name : 'Marking',
 			width : 60,
 			sortable : true,
-			align : 'center'
+			align : 'center',
+			process: processMarking1ID
 		}, {
 			display : 'Meldebest.<br>(neu / alt)',
 			name : 'reorder_level_suggestion',
@@ -402,25 +427,6 @@ function prepareStock() {'use strict';
 
 						}());
 
-					// adjust marking to display colors instead numbers
-				} else if (colName === 'Marking') {( function() {
-							var id;
-
-							// get id ...
-							id = parseInt($(newCell).html(), 10);
-
-							if ($.inArray(id, status) > -1) {
-								// set class ...
-								$(newCell).addClass('markingIDCell_' + id);
-
-								// ... and clear cell afterwards
-								$(newCell).html('&nbsp;');
-							} else if (id === 0) {
-								$(newCell).html('keine');
-							} else {
-								$(newCell).html('FEHLER!');
-							}
-						}());
 					// adjust suggestions to visualize permissions and errors
 				} else if ((colName === 'reorder_level_suggestion') || (colName === 'max_stock_suggestion') || (colName === 'min_purchase_order_suggestion')) {( function() {
 							var dataTokens, suggestionClass;
@@ -546,6 +552,102 @@ function prepareAmazon() {'use strict';
 			$(this).apiUpdate(input.path, input.type, input.preprocess, input.postprocess);
 		});
 	});
+
+	// create table
+	$('#amazonTable').flexigrid({
+		url : 'price-post-xml.php',
+		dataType : 'xml',
+		colModel : [{
+			display : 'Item ID',
+			name : 'ItemID',
+			sortable : true
+		},{
+			display : 'Artikel Nr',
+			name : 'ItemNo',
+			sortable : true
+		},{
+			display : 'Name',
+			name : 'ItemName'
+		},{
+			display : 'Markierung',
+			name : 'Marking1ID',
+			sortable : true,
+			process: processMarking1ID
+		},{
+			display : 'Verkauf Stk. / 30 Tage<br>(vor) nach Änderung VK',
+			name : 'M'
+		},{
+			display : 'durchschn. Marge / Stk. (mit aktuellen Kosten)<br>(vor) nach Änderung VK',
+			name : 'N'
+		},{
+			display : 'Trend Artikel<br>verkaufte Stk',
+			name : 'O'
+		},{
+			display : 'Trend Artikel(mit aktuellen Kosten))<br>Gewinn (Vgl. mit Herkunft + 1,8%)',
+			name : 'P'
+		},{
+			display : 'Datum letzte Änderung VK<br>Zeitraum Trend (Soll / Ist)',
+			name : 'Q'
+		}, {
+			display : 'alter Preis / aktueller Preis',
+			name : 'Price',
+			align : 'center',
+			width : 120,
+			process : function(cellDiv, SKU) {'use strict';
+				var priceData, price;
+				priceData = $.parseJSON($(cellDiv).html());
+
+				$(cellDiv).html($('<span/>', {
+					'class' : 'price oldPrice',
+					html : priceData.oldPrice
+				})).append($('<span/>', {
+					'class' : 'valueDelimiter',
+					html : '/'
+				})).append($('<span/>', {
+					'class' : 'price currentPrice',
+					html : priceData.currentPrice
+				})).addClass('amazonPrice');
+			}
+		}, {
+			display : 'Min.- Preis<br>€',
+			name : 'S'
+		}, {
+			display : '(Ziel-) Marge<br>%',
+			name : 'T'
+		}, {
+			display : 'Preis ändern',
+			name : 'ChangePrice',
+			process : function(cellDiv, SKU) {
+				var priceData;
+
+				// extract current value
+				priceData = $.parseJSON($(cellDiv).html());
+
+				// add input field with current price plus unit
+				$(cellDiv).insertInput(SKU, '€', function(event) {
+					$(cellDiv).addClass('priceChanged');
+				}, priceData.currentPrice);
+
+				if (!priceData.written) {
+					$(cellDiv).addClass('priceChanged');
+				}
+			}
+		}],
+		height : 'auto',
+		singleSelect : true,
+		striped : false,
+		title : 'Kalkulation Amazon',
+		sortname : "ItemID",
+		sortorder : "asc",
+		usepager : true,
+		useRp : true,
+		rp : 20,
+		rpOptions : [10, 20, 30, 50, 100, 200],
+		pagetext : 'Seite',
+		outof : 'von',
+		pagestat : 'Zeige {from} bis {to} von {total} Artikeln',
+		procmsg : 'Bitte warten...'
+	});
 }
 
 function prepareGeneralCostConfig() {'use strict';
@@ -566,7 +668,9 @@ function prepareGeneralCostConfig() {'use strict';
 		width : 75,
 		process : function(celDiv, id) {
 			if (id !== 'Average') {
-				$(celDiv).insertInput('generalCosts_manual_' + id, '%');
+				$(celDiv).insertInput('generalCosts_manual_' + id, '%', function(event) {
+					$(event.target).apiUpdate('../api/generalCost', 'float', elementProcessGeneralCosts, elementPostProcessGeneralCosts);
+				});
 			} else {
 				$(celDiv).addClass('notModifyable');
 				if ($(celDiv).text().trim() !== '') {
@@ -589,7 +693,9 @@ function prepareGeneralCostConfig() {'use strict';
 			width : 110,
 			process : function(celDiv, id) {
 				if (id !== 'Average') {
-					$(celDiv).insertInput('warehouseCost_manual_' + warehouse.id + '_' + id, '€');
+					$(celDiv).insertInput('warehouseCost_manual_' + warehouse.id + '_' + id, '€', function(event) {
+						$(event.target).apiUpdate('../api/generalCost', 'float', elementProcessGeneralCosts, elementPostProcessGeneralCosts);
+					});
 				} else {
 					$(celDiv).addClass('notModifyable');
 					if ($(celDiv).text().trim() !== '') {

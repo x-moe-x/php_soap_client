@@ -177,6 +177,26 @@ body.loading .modal {
 	background-color: #eee;
 }
 
+.amazonPrice .price {
+	display: inline-block;
+	width: 45%;
+	text-align: right;
+}
+
+.amazonPrice .price:after{
+	content: ' €'
+}
+
+.amazonPrice .valueDelimiter {
+	display: inline-block;
+	text-align: center;
+	width: 10%;
+}
+
+.priceChanged, .priceChanged > input {
+	background-color: #cfc;
+}
+
 /** end amazon specific styling **/
 
 /** start table styling **/
@@ -240,20 +260,20 @@ body.loading .modal {
 }
 
 /** ** interior **/
-.markingIDCell_20 {
+.marking1IDCell_20 {
 	background: url("../images/marking1d_20.png") no-repeat scroll center center transparent;
 }
-.markingIDCell_16 {
+.marking1IDCell_16 {
 	background: url("../images/marking1d_16.png") no-repeat scroll center center transparent;
 }
-.markingIDCell_9 {
+.marking1IDCell_9 {
 	background: url("../images/marking1d_9.png") no-repeat scroll center center transparent;
 }
 
-.markingIDCell_12 {
+.marking1IDCell_12 {
 	background: url("../images/marking1d_12.png") no-repeat scroll center center transparent;
 }
-.markingIDCell_4 {
+.marking1IDCell_4 {
 	background: url("../images/marking1d_4.png") no-repeat scroll center center transparent;
 }
 
