@@ -193,6 +193,10 @@ body.loading .modal {
 	width: 10%;
 }
 
+.priceChanged, .priceChanged > input {
+	background-color: #cfc;
+}
+
 /** end amazon specific styling **/
 
 /** start table styling **/

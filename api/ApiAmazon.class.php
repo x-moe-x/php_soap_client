@@ -195,7 +195,7 @@ LEFT JOIN AttributeValueSets
 				'ItemNo' => $amazonPriceData['ItemNo'],
 				'Name' => $amazonPriceData['Name'],
 				'Marking1ID' => $amazonPriceData['Marking1ID'],
-				'Price' => array('currentPrice' => $amazonPriceData['Price'], 'oldPrice' => 'XXX')
+				'Price' => array('currentPrice' => $amazonPriceData['Price'], 'oldPrice' => 'XXX', 'written' => true)
 			);
 			 // @formatter:on
 		}

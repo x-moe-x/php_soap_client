@@ -20,10 +20,15 @@ $.fn.dialogify = function(title, htmlText, type, okFunction) {'use strict';
 	return this;
 };
 
-$.fn.insertInput = function(inputID, unitString) {'use strict';
+$.fn.insertInput = function(inputID, unitString, changeEventHandler, externalValue) {'use strict';
+	var setToValue;
+
+	// if given: use external value, otherwise use content of current html element
+	setToValue = typeof externalValue !== 'undefined' ? externalValue : $(this).text().trim();
+
 	$(this).html($('<input/>', {
 		id : inputID,
-		value : $(this).text(),
+		value : setToValue,
 		on : {
 			focus : function() {
 				if (isNaN($(this).val())) {
@@ -32,9 +37,7 @@ $.fn.insertInput = function(inputID, unitString) {'use strict';
 					$(this).select();
 				}
 			},
-			change : function() {
-				$(this).apiUpdate('../api/generalCost', 'float', elementProcessGeneralCosts, elementPostProcessGeneralCosts);
-			}
+			change : changeEventHandler
 		}
 	})).append($('<label/>', {
 		'class' : 'variableUnit',
@@ -608,12 +611,27 @@ function prepareAmazon() {'use strict';
 		}, {
 			display : 'Min.- Preis<br>€',
 			name : 'S'
-		},{
+		}, {
 			display : '(Ziel-) Marge<br>%',
 			name : 'T'
-		},{
-			display : 'Pries ändern<br>€',
-			name : 'U'
+		}, {
+			display : 'Preis ändern',
+			name : 'ChangePrice',
+			process : function(cellDiv, SKU) {
+				var priceData;
+
+				// extract current value
+				priceData = $.parseJSON($(cellDiv).html());
+
+				// add input field with current price plus unit
+				$(cellDiv).insertInput(SKU, '€', function(event) {
+					$(cellDiv).addClass('priceChanged');
+				}, priceData.currentPrice);
+
+				if (!priceData.written) {
+					$(cellDiv).addClass('priceChanged');
+				}
+			}
 		}],
 		height : 'auto',
 		singleSelect : true,
@@ -650,7 +668,9 @@ function prepareGeneralCostConfig() {'use strict';
 		width : 75,
 		process : function(celDiv, id) {
 			if (id !== 'Average') {
-				$(celDiv).insertInput('generalCosts_manual_' + id, '%');
+				$(celDiv).insertInput('generalCosts_manual_' + id, '%', function(event) {
+					$(event.target).apiUpdate('../api/generalCost', 'float', elementProcessGeneralCosts, elementPostProcessGeneralCosts);
+				});
 			} else {
 				$(celDiv).addClass('notModifyable');
 				if ($(celDiv).text().trim() !== '') {
@@ -673,7 +693,9 @@ function prepareGeneralCostConfig() {'use strict';
 			width : 110,
 			process : function(celDiv, id) {
 				if (id !== 'Average') {
-					$(celDiv).insertInput('warehouseCost_manual_' + warehouse.id + '_' + id, '€');
+					$(celDiv).insertInput('warehouseCost_manual_' + warehouse.id + '_' + id, '€', function(event) {
+						$(event.target).apiUpdate('../api/generalCost', 'float', elementProcessGeneralCosts, elementPostProcessGeneralCosts);
+					});
 				} else {
 					$(celDiv).addClass('notModifyable');
 					if ($(celDiv).text().trim() !== '') {
