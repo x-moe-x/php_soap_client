@@ -177,6 +177,22 @@ body.loading .modal {
 	background-color: #eee;
 }
 
+.amazonPrice .price {
+	display: inline-block;
+	width: 45%;
+	text-align: right;
+}
+
+.amazonPrice .price:after{
+	content: ' €'
+}
+
+.amazonPrice .valueDelimiter {
+	display: inline-block;
+	text-align: center;
+	width: 10%;
+}
+
 /** end amazon specific styling **/
 
 /** start table styling **/

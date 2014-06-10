@@ -585,10 +585,27 @@ function prepareAmazon() {'use strict';
 		},{
 			display : 'Datum letzte Änderung VK<br>Zeitraum Trend (Soll / Ist)',
 			name : 'Q'
-		},{
-			display : 'alter Preis / aktueller Preis<br>€',
-			name : 'R'
-		},{
+		}, {
+			display : 'alter Preis / aktueller Preis',
+			name : 'Price',
+			align : 'center',
+			width : 120,
+			process : function(cellDiv, SKU) {'use strict';
+				var priceData, price;
+				priceData = $.parseJSON($(cellDiv).html());
+
+				$(cellDiv).html($('<span/>', {
+					'class' : 'price oldPrice',
+					html : priceData.oldPrice
+				})).append($('<span/>', {
+					'class' : 'valueDelimiter',
+					html : '/'
+				})).append($('<span/>', {
+					'class' : 'price currentPrice',
+					html : priceData.currentPrice
+				})).addClass('amazonPrice');
+			}
+		}, {
 			display : 'Min.- Preis<br>€',
 			name : 'S'
 		},{
