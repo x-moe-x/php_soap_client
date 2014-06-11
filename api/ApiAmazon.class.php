@@ -288,7 +288,7 @@ LEFT JOIN PriceUpdate
 				'Name' => $amazonPriceData['Name'],
 				'Marking1ID' => $amazonPriceData['Marking1ID'],
 				'PriceOldCurrent' => array('currentPrice' => $amazonPriceData['Price'], 'oldPrice' => 'XXX'),
-				'PriceChanged' => array('currentPrice' => ($amazonPriceData['Written'] == 1 ? $amazonPriceData['Price'] : $amazonPriceData['NewPrice']), 'written' => $amazonPriceData['Written'] == 1)
+				'PriceChanged' => array('currentPrice' => ((bool) $amazonPriceData['Written'] ? $amazonPriceData['Price'] : $amazonPriceData['NewPrice']), 'written' => (bool) $amazonPriceData['Written'] )
 			);
 			 // @formatter:on
 		}
