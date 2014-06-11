@@ -29,5 +29,14 @@ getRoute() -> put('/config/amazon/(\w+)/(\w+|\d+|\d+\.\d+)', array('ApiAmazon', 
 
 getRoute() -> put('/amazonPrice/(\d+-\d+-\d+)/(\w+|\d+|\d+\.\d+)', array('ApiAmazon', 'setPriceJSON'));
 
-getRoute() -> run();
+try {
+	getRoute() -> run();
+} catch (EpiException $e) {
+	if (strpos($e -> getMessage(), 'Could not find route') === 0) {
+		http_response_code(404);
+		echo 'Error 404: ' . $e -> getMessage();
+	} else {
+		echo 'Unknown error: ' . $e -> getMessage();
+	}
+}
 ?>
