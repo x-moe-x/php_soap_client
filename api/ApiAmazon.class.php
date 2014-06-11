@@ -278,10 +278,11 @@ LEFT JOIN PriceUpdate
 		ob_end_clean();
 
 		while ($amazonPriceData = $amazonPriceDataDBResult -> fetchAssoc()) {
+			$sku = $amazonPriceData['ItemID'] . '-0-' . $amazonPriceData['AttributeValueSetID'];
 
 			// @formatter:off		
-			$data['rows'][] = array(
-				'RowID' => $amazonPriceData['ItemID'] . '-0-' . $amazonPriceData['AttributeValueSetID'],
+			$data['rows'][$sku] = array(
+				'RowID' => $sku,
 				'ItemID' => $amazonPriceData['ItemID'],
 				'ItemNo' => $amazonPriceData['ItemNo'],
 				'Name' => $amazonPriceData['Name'],
