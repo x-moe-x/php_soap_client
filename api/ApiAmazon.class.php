@@ -253,12 +253,16 @@ LEFT JOIN PriceUpdate
 		return array('NewPrice' => $aPriceUpdate['NewPrice'], 'Written' => $aPriceUpdate['Written'] == 1);
 	}
 
-	public static function getAmazonPriceData($page = 1, $rowsPerPage = 10, $sortByColumn = 'ItemID', $sortOrder = 'ASC') {
+	public static function getAmazonPriceData($page = 1, $rowsPerPage = 10, $sortByColumn = 'ItemID', $sortOrder = 'ASC', $itemID = null) {
 		$data = array('page' => $page, 'total' => null, 'rows' => array());
 
 		ob_start();
+		$whereCondition = "";
+		if (!is_null($itemID)) {
+			$whereCondition = "AND\n\tItemsBase.ItemID = $itemID\n";
+		}
 
-		$data['total'] = DBQuery::getInstance() -> select(self::PRICE_DATA_SELECT_BASIC . self::PRICE_DATA_FROM_BASIC . self::PRICE_DATA_WHERE) -> getNumRows();
+		$data['total'] = DBQuery::getInstance() -> select(self::PRICE_DATA_SELECT_BASIC . self::PRICE_DATA_FROM_BASIC . self::PRICE_DATA_WHERE . $whereCondition) -> getNumRows();
 
 		//TODO check for empty values to prevent errors!
 		$sort = "ORDER BY $sortByColumn $sortOrder\n";
@@ -269,7 +273,7 @@ LEFT JOIN PriceUpdate
 		$amazonStaticData = ApiHelper::getSalesOrderReferrer(self::AMAZON_REFERRER_ID);
 		$amazonPrice = 'Price' . $amazonStaticData['PriceColumn'];
 		// add price id to select advanced clause
-		$query = self::PRICE_DATA_SELECT_BASIC . self::PRICE_DATA_SELECT_ADVANCED . ",\n\t$amazonPrice AS Price" . self::PRICE_DATA_FROM_BASIC . self::PRICE_DATA_FROM_ADVANCED . self::PRICE_DATA_WHERE . $sort . $limit;
+		$query = self::PRICE_DATA_SELECT_BASIC . self::PRICE_DATA_SELECT_ADVANCED . ",\n\t$amazonPrice AS Price" . self::PRICE_DATA_FROM_BASIC . self::PRICE_DATA_FROM_ADVANCED . self::PRICE_DATA_WHERE . $whereCondition . $sort . $limit;
 		$amazonPriceDataDBResult = DBQuery::getInstance() -> select($query);
 		ob_end_clean();
 
