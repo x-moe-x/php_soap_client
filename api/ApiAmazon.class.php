@@ -179,6 +179,24 @@ LEFT JOIN PriceUpdate
 		return $result;
 	}
 
+	public static function getPriceJSON($itemID) {
+		header('Content-Type: application/json');
+		$result = array('success' => false, 'data' => NULL, 'error' => NULL);
+
+		if (!is_null($itemID) && !is_nan($itemID)) {
+			try {
+				$setPriceData = self::getPrice($itemID);
+				$result['data'] = array('setPrice' => $setPriceData['NewPrice'], 'written' => $setPriceData['Written']);
+				$result['success'] = true;
+			} catch(Exception $e) {
+			}
+		} else {
+			$result['error'] = 'no item id given or wrong format';
+		}
+
+		echo json_encode($result);
+	}
+
 	public static function setPriceJSON($sku, $newPrice) {
 		header('Content-Type: application/json');
 		$result = array('success' => false, 'data' => NULL, 'error' => NULL);
@@ -205,6 +223,21 @@ LEFT JOIN PriceUpdate
 		}
 
 		echo json_encode($result);
+	}
+
+	/**
+	 * perform the following algorithm:
+	 *
+	 * 1.	check if there's a price update record
+	 * 2.	...	then return (priceUpdateNewPrice, priceUpdateWritten)
+	 * 3.	... otherwise return (currentPrice,written)
+	 *
+	 * @param int $itemID
+	 */
+	public static function getPrice($itemID) {
+		$aAmazonPriceData = self::getAmazonPriceData(1, 10, 'ItemID', 'ASC', $itemID);
+		$aPriceChanged = $aAmazonPriceData['rows']["$itemID-0-0"]['PriceChanged'];
+		return array('NewPrice' => $aPriceChanged['currentPrice'], 'Written' => $aPriceChanged['written'] == 1);
 	}
 
 	/**
