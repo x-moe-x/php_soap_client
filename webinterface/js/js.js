@@ -69,6 +69,27 @@ function processMarking1ID(celDiv, sku) {'use strict';
 	}
 }
 
+function elementPostProcessAmazonPrice(element, type, requestData, resultData) {'use strict';
+	var returnValue;
+	switch (type) {
+		case 'float':
+			returnValue = parseFloat(resultData.setPrice);
+			if (isNaN(returnValue)) {
+				return 'error';
+			}else {
+				if (!resultData.written){
+					element.parent().addClass('priceChanged');
+				} else {
+					element.parent().removeClass('priceChanged');
+				}
+				return returnValue.toFixed(2);
+			}
+			break;
+		default:
+			return 'error';
+	}
+}
+
 function elementPostProcessGeneralCosts(element, type, requestData, resultData) {'use strict';
 	var returnValue;
 	switch (type) {
@@ -117,6 +138,14 @@ function elementProcessGeneralCosts(element, type) {'use strict';
 		default:
 			return 'incorrect';
 	}
+}
+
+function elementProcessAmazonPrice(element) {'use strict';
+	element.checkFloatval();
+	return isNaN(element.val()) ? 'incorrect' : {
+		key : element.attr('id'),
+		value : element.val()
+	};
 }
 
 function elementProcessStockConfig(element, type) {'use strict';
@@ -625,8 +654,9 @@ function prepareAmazon() {'use strict';
 
 				// add input field with current price plus unit
 				$(cellDiv).insertInput(SKU, '€', function(event) {
+					$(event.target).apiUpdate('../api/amazonPrice', 'float', elementProcessAmazonPrice, elementPostProcessAmazonPrice);
 					$(cellDiv).addClass('priceChanged');
-				}, priceData.currentPrice);
+				}, parseFloat(priceData.currentPrice).toFixed(2));
 
 				if (!priceData.written) {
 					$(cellDiv).addClass('priceChanged');

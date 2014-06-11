@@ -341,6 +341,17 @@ CREATE TABLE `soap_db`.`PerWarehouseRevenue` (
 	PRIMARY KEY (`Date`,`WarehouseID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+DROP TABLE IF EXISTS `soap_db`.`PriceUpdate`;
+
+CREATE TABLE `soap_db`.`PriceUpdate` (
+	`ItemID` int(11) NOT NULL,
+	`PriceID` int(11) NOT NULL,
+	`OldPrice` decimal(10,4) DEFAULT NULL,
+	`NewPrice` decimal(10,4) DEFAULT NULL,
+	`ReferrerID` int(11) DEFAULT NULL,
+	`Written` tinyint(1) DEFAULT 0,
+	PRIMARY KEY (`ItemID`,`PriceID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 DROP TABLE IF EXISTS `soap_db`.`PriceSets`;
 

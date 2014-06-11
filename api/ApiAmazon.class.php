@@ -5,9 +5,13 @@ error_reporting(-1);
 
 require_once realpath(dirname(__FILE__) . '/../') . '/config/basic.inc.php';
 require_once ROOT . 'lib/db/DBQuery.class.php';
+require_once ROOT . 'includes/SKUHelper.php';
 require_once 'ApiHelper.class.php';
 
 class ApiAmazon {
+
+	const PRICE_COMPARISON_ACCURACY = 0.001;
+
 	/**
 	 * @var string
 	 */
@@ -40,7 +44,13 @@ class ApiAmazon {
 	) AS Name,
 	ItemsBase.Name AS SortName,
 	ItemsBase.ItemNo,
-	ItemsBase.Marking1ID';
+	ItemsBase.Marking1ID,
+	PriceUpdate.NewPrice,
+	CASE WHEN (PriceUpdate.Written IS NOT null) THEN
+		PriceUpdate.Written
+	ELSE
+		"1"
+	END AS Written';
 
 	/**
 	 * @var string
@@ -53,7 +63,9 @@ LEFT JOIN AttributeValueSets
 	 * @var string
 	 */
 	const PRICE_DATA_FROM_ADVANCED = "LEFT JOIN PriceSets
-	ON ItemsBase.ItemID = PriceSets.ItemID\n";
+	ON ItemsBase.ItemID = PriceSets.ItemID
+LEFT JOIN PriceUpdate
+	ON (PriceSets.ItemID = PriceUpdate.ItemID) AND (PriceSets.PriceID = PriceUpdate.PriceID)\n";
 
 	/**
 	 * @var string
@@ -167,12 +179,123 @@ LEFT JOIN AttributeValueSets
 		return $result;
 	}
 
-	public static function getAmazonPriceData($page = 1, $rowsPerPage = 10, $sortByColumn = 'ItemID', $sortOrder = 'ASC') {
+	public static function getPriceJSON($itemID) {
+		header('Content-Type: application/json');
+		$result = array('success' => false, 'data' => NULL, 'error' => NULL);
+
+		if (!is_null($itemID) && !is_nan($itemID)) {
+			try {
+				$setPriceData = self::getPrice($itemID);
+				$result['data'] = array('setPrice' => $setPriceData['NewPrice'], 'written' => $setPriceData['Written']);
+				$result['success'] = true;
+			} catch(Exception $e) {
+			}
+		} else {
+			$result['error'] = 'no item id given or wrong format';
+		}
+
+		echo json_encode($result);
+	}
+
+	public static function setPriceJSON($sku, $newPrice) {
+		header('Content-Type: application/json');
+		$result = array('success' => false, 'data' => NULL, 'error' => NULL);
+
+		if (!is_null($sku)) {
+			if (!is_null($newPrice) && !is_nan($newPrice)) {
+				$newPrice = floatval($newPrice);
+				if (preg_match('/\d+-\d+-\d+/', $sku) == 1) {
+					try {
+						$setPriceData = self::setPrice($sku, $newPrice);
+						$result['data'] = array('setPrice' => $setPriceData['NewPrice'], 'written' => $setPriceData['Written']);
+						$result['success'] = true;
+					} catch(Exception $e) {
+						$result['error'] = $e -> getMessage();
+					}
+				} else {
+					$result['error'] = 'invalid SKU format';
+				}
+			} else {
+				$result['error'] = "wrong value newPrice = '$newPrice', either none given or not a number";
+			}
+		} else {
+			$result['error'] = 'no sku given';
+		}
+
+		echo json_encode($result);
+	}
+
+	/**
+	 * perform the following algorithm:
+	 *
+	 * 1.	check if there's a price update record
+	 * 2.	...	then return (priceUpdateNewPrice, priceUpdateWritten)
+	 * 3.	... otherwise return (currentPrice,written)
+	 *
+	 * @param int $itemID
+	 */
+	public static function getPrice($itemID) {
+		$aAmazonPriceData = self::getAmazonPriceData(1, 10, 'ItemID', 'ASC', $itemID);
+		$aPriceChanged = $aAmazonPriceData['rows']["$itemID-0-0"]['PriceChanged'];
+		return array('NewPrice' => $aPriceChanged['currentPrice'], 'Written' => $aPriceChanged['written'] == 1);
+	}
+
+	/**
+	 * perform the following algorithm:
+	 *
+	 * for given sku and referrerID = AMAZON_REFERRER_ID:
+	 *
+	 * 1.	get currentPrice
+	 * 2.	if currentPrice != newPrice
+	 * 3.	... then insert into db the following record:
+	 * 		...	...	(itemID,priceID,referrerID,currentPrice,newPrice,!written)
+	 *		...	...	without changing any possibly existing timestamp
+	 * 4.	... otherwise insert into db the following record:
+	 * 		...	... (itemID,priceID,referrerID,currentPrice,currentPrice,written)
+	 *		...	...	without changing any possibly existing timestamp
+	 *
+	 * timestamp is only updated on successful writeback operation to plenty
+	 *
+	 * @param string $sku
+	 * @param float $newPrice
+	 * @return array price data (NewPrice, Written)
+	 */
+	public static function setPrice($sku, $newPrice) {
+		// 1. get current price
+		list($itemID, , ) = SKU2Values($sku);
+		list($currentPrice, $priceID) = ApiHelper::getCurrentPriceDataByReferrer($itemID, self::AMAZON_REFERRER_ID);
+
+		$aPriceUpdate = array('ItemID' => $itemID, 'PriceID' => $priceID, 'OldPrice' => $currentPrice, 'ReferrerID' => self::AMAZON_REFERRER_ID, 'NewPrice' => null, 'Written' => null);
+
+		// 2. if currentPrice != newPrice
+		if (abs($currentPrice - $newPrice) > self::PRICE_COMPARISON_ACCURACY) {
+			// 3. ... then prepare (sku,referrerID,currentPrice,newPrice,!written)
+			$aPriceUpdate['NewPrice'] = $newPrice;
+			$aPriceUpdate['Written'] = 0;
+		} else {
+			// 4.	... otherwise prepare (sku,referrerID,currentPrice,currentPrice,written)
+			$aPriceUpdate['NewPrice'] = $currentPrice;
+			$aPriceUpdate['Written'] = 1;
+		}
+
+		// and insert to db...
+		ob_start();
+		DBQuery::getInstance() -> insert('INSERT INTO PriceUpdate' . DBUtils::buildInsert($aPriceUpdate) . 'ON DUPLICATE KEY UPDATE' . DBUtils::buildOnDuplicateKeyUpdate($aPriceUpdate));
+		ob_end_clean();
+
+		return array('NewPrice' => $aPriceUpdate['NewPrice'], 'Written' => $aPriceUpdate['Written'] == 1);
+	}
+
+	public static function getAmazonPriceData($page = 1, $rowsPerPage = 10, $sortByColumn = 'ItemID', $sortOrder = 'ASC', $itemID = null) {
 		$data = array('page' => $page, 'total' => null, 'rows' => array());
 
 		ob_start();
+		$whereCondition = "";
+		if (!is_null($itemID)) {
+			$whereCondition = "AND\n\tItemsBase.ItemID = $itemID\n";
+		}
 
-		$data['total'] = DBQuery::getInstance() -> select(self::PRICE_DATA_SELECT_BASIC . self::PRICE_DATA_FROM_BASIC . self::PRICE_DATA_WHERE) -> getNumRows();
+		$data['total'] = DBQuery::getInstance() -> select(self::PRICE_DATA_SELECT_BASIC . self::PRICE_DATA_FROM_BASIC . self::PRICE_DATA_WHERE . $whereCondition) -> getNumRows();
 
 		//TODO check for empty values to prevent errors!
 		$sort = "ORDER BY $sortByColumn $sortOrder\n";
@@ -183,19 +306,22 @@ LEFT JOIN AttributeValueSets
 		$amazonStaticData = ApiHelper::getSalesOrderReferrer(self::AMAZON_REFERRER_ID);
 		$amazonPrice = 'Price' . $amazonStaticData['PriceColumn'];
 		// add price id to select advanced clause
-		$query = self::PRICE_DATA_SELECT_BASIC . self::PRICE_DATA_SELECT_ADVANCED . ",\n\t$amazonPrice AS Price" . self::PRICE_DATA_FROM_BASIC . self::PRICE_DATA_FROM_ADVANCED . self::PRICE_DATA_WHERE . $sort . $limit;
+		$query = self::PRICE_DATA_SELECT_BASIC . self::PRICE_DATA_SELECT_ADVANCED . ",\n\t$amazonPrice AS Price" . self::PRICE_DATA_FROM_BASIC . self::PRICE_DATA_FROM_ADVANCED . self::PRICE_DATA_WHERE . $whereCondition . $sort . $limit;
 		$amazonPriceDataDBResult = DBQuery::getInstance() -> select($query);
 		ob_end_clean();
 
 		while ($amazonPriceData = $amazonPriceDataDBResult -> fetchAssoc()) {
+			$sku = $amazonPriceData['ItemID'] . '-0-' . $amazonPriceData['AttributeValueSetID'];
+
 			// @formatter:off		
-			$data['rows'][] = array(
-				'RowID' => $amazonPriceData['ItemID'] . '-0-' . $amazonPriceData['AttributeValueSetID'],
+			$data['rows'][$sku] = array(
+				'RowID' => $sku,
 				'ItemID' => $amazonPriceData['ItemID'],
 				'ItemNo' => $amazonPriceData['ItemNo'],
 				'Name' => $amazonPriceData['Name'],
 				'Marking1ID' => $amazonPriceData['Marking1ID'],
-				'Price' => array('currentPrice' => $amazonPriceData['Price'], 'oldPrice' => 'XXX', 'written' => true)
+				'PriceOldCurrent' => array('currentPrice' => $amazonPriceData['Price'], 'oldPrice' => 'XXX'),
+				'PriceChanged' => array('currentPrice' => ((bool) $amazonPriceData['Written'] ? $amazonPriceData['Price'] : $amazonPriceData['NewPrice']), 'written' => (bool) $amazonPriceData['Written'] )
 			);
 			 // @formatter:on
 		}
