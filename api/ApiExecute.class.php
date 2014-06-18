@@ -9,7 +9,7 @@ error_reporting(-1);
 
 class ApiExecute {
 
-	private static $allowedJSONTasks = array(self::UPDATE_ALL, self::CALCULATE_ALL, self::SET_ALL, self::RESET_ARTICLES, self::RESET_ORDERS, self::CALCULATE_AMAZON_RUNNING_COSTS);
+	private static $allowedJSONTasks = array(self::UPDATE_ALL, self::CALCULATE_ALL, self::SET_ALL, self::RESET_ARTICLES, self::RESET_ORDERS, self::CALCULATE_AMAZON_RUNNING_COSTS, self::SET_ITEMS_PRICE_SETS);
 
 	/**
 	 * @var string
@@ -196,6 +196,9 @@ class ApiExecute {
 					break;
 				case self::SET_ITEMS_SUPPLIERS :
 					NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'SetItemsSuppliers'));
+					break;
+				case self::SET_ITEMS_PRICE_SETS :
+					NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'SetPriceSets'));
 					break;
 				case self::SET_ITEMS_WAREHOUSE_SETTINGS :
 					NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'SetItemsWarehouseSettings'));
