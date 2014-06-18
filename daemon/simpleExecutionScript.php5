@@ -10,6 +10,7 @@ if (Config::get('CalculationActive') === 1) {
 
 	// update article db
 	NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'GetItemsBase'));
+	NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'GetItemsPriceLists'));
 	NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'GetItemsWarehouseSettings'));
 	NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'GetItemsSuppliers'));
 
