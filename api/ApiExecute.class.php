@@ -44,6 +44,11 @@ class ApiExecute {
 	/**
 	 * @var string
 	 */
+	const UPDATE_ITEMS_PRICE_LISTS = 'updateItemsPriceLists';
+
+	/**
+	 * @var string
+	 */
 	const UPDATE_ALL = 'updateAll';
 
 	/**
@@ -85,6 +90,11 @@ class ApiExecute {
 	 * @var string
 	 */
 	const SET_ITEMS_WAREHOUSE_SETTINGS = 'setItemsWarehouseSettings';
+
+	/**
+	 * @var string
+	 */
+	const SET_ITEMS_PRICE_SETS = 'setItemsPriceSets';
 
 	/**
 	 * @var string
@@ -155,6 +165,9 @@ class ApiExecute {
 					break;
 				case self::UPDATE_ITEMS_SUPPLIERS :
 					NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'GetItemsSuppliers'));
+					break;
+				case self::UPDATE_ITEMS_PRICE_LISTS :
+					NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'GetItemsPriceLists'));
 					break;
 				case self::UPDATE_WAREHOUSE_LIST :
 					NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'GetWarehouseList'));
