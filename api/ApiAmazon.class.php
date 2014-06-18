@@ -307,7 +307,7 @@ LEFT JOIN PriceUpdateHistory
 
 		while ($amazonPriceData = $amazonPriceDataDBResult -> fetchAssoc()) {
 			$sku = Values2SKU($amazonPriceData['ItemID'], $amazonPriceData['AttributeValueSetID']);
-			$isChangePending = !is_null($amazonPriceData['NewPrice']) && (abs($amazonPriceData['NewPrice'] - $amazonPriceData['Price']) < self::PRICE_COMPARISON_ACCURACY);
+			$isChangePending = !is_null($amazonPriceData['NewPrice']) && (abs($amazonPriceData['NewPrice'] - $amazonPriceData['Price']) > self::PRICE_COMPARISON_ACCURACY);
 
 			// @formatter:off		
 			$data['rows'][$sku] = array(

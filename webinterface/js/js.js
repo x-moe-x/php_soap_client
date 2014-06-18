@@ -656,9 +656,9 @@ function prepareAmazon() {'use strict';
 				$(cellDiv).insertInput(SKU, '€', function(event) {
 					$(event.target).apiUpdate('../api/amazonPrice', 'float', elementProcessAmazonPrice, elementPostProcessAmazonPrice);
 					$(cellDiv).addClass('priceChanged');
-				}, parseFloat(priceData.currentPrice).toFixed(2));
+				}, parseFloat(priceData.price).toFixed(2));
 
-				if (!priceData.written) {
+				if (priceData.isChangePending) {
 					$(cellDiv).addClass('priceChanged');
 				}
 			}
