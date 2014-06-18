@@ -346,11 +346,20 @@ DROP TABLE IF EXISTS `soap_db`.`PriceUpdate`;
 CREATE TABLE `soap_db`.`PriceUpdate` (
 	`ItemID` int(11) NOT NULL,
 	`PriceID` int(11) NOT NULL,
-	`OldPrice` decimal(10,4) DEFAULT NULL,
-	`NewPrice` decimal(10,4) DEFAULT NULL,
-	`ReferrerID` int(11) DEFAULT NULL,
-	`Written` tinyint(1) DEFAULT 0,
-	PRIMARY KEY (`ItemID`,`PriceID`)
+	`PriceColumn` int(11) NOT NULL,
+	`NewPrice` decimal(8,2) DEFAULT NULL,
+	PRIMARY KEY (`ItemID`,`PriceID`,`PriceColumn`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+DROP TABLE IF EXISTS `soap_db`.`PriceUpdateHistory`;
+
+CREATE TABLE `soap_db`.`PriceUpdateHistory` (
+	`ItemID` int(11) NOT NULL,
+	`PriceID` int(11) NOT NULL,
+	`PriceColumn` int(11) NOT NULL,
+	`OldPrice` decimal(8,2) DEFAULT NULL,
+	`WrittenTimestamp` int(11) DEFAULT NULL,
+	PRIMARY KEY (`ItemID`,`PriceID`,`PriceColumn`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 DROP TABLE IF EXISTS `soap_db`.`PriceSets`;
