@@ -45,12 +45,7 @@ class ApiAmazon {
 	ItemsBase.Name AS SortName,
 	ItemsBase.ItemNo,
 	ItemsBase.Marking1ID,
-	PriceUpdate.NewPrice,
-	CASE WHEN (PriceUpdate.Written IS NOT null) THEN
-		PriceUpdate.Written
-	ELSE
-		"1"
-	END AS Written';
+	PriceUpdate.NewPrice';
 
 	/**
 	 * @var string
@@ -65,7 +60,9 @@ LEFT JOIN AttributeValueSets
 	const PRICE_DATA_FROM_ADVANCED = "LEFT JOIN PriceSets
 	ON ItemsBase.ItemID = PriceSets.ItemID
 LEFT JOIN PriceUpdate
-	ON (PriceSets.ItemID = PriceUpdate.ItemID) AND (PriceSets.PriceID = PriceUpdate.PriceID)\n";
+	ON (PriceSets.ItemID = PriceUpdate.ItemID) AND (PriceSets.PriceID = PriceUpdate.PriceID)
+LEFT JOIN PriceUpdateHistory
+	ON (PriceSets.ItemID = PriceUpdateHistory.ItemID) AND (PriceSets.PriceID = PriceUpdateHistory.PriceID)\n";
 
 	/**
 	 * @var string
@@ -302,13 +299,15 @@ LEFT JOIN PriceUpdate
 		// get associated price id
 		$amazonStaticData = ApiHelper::getSalesOrderReferrer(self::AMAZON_REFERRER_ID);
 		$amazonPrice = 'Price' . $amazonStaticData['PriceColumn'];
+		$amazonPriceSelect = ",\n\tPriceSets.$amazonPrice AS Price,\n\tCASE WHEN (PriceUpdateHistory.OldPrice IS null) THEN\n\t\tPriceSets.$amazonPrice\n\tELSE\n\t\tPriceUpdateHistory.OldPrice\n\tEND OldPrice"; 
 		// add price id to select advanced clause
-		$query = self::PRICE_DATA_SELECT_BASIC . self::PRICE_DATA_SELECT_ADVANCED . ",\n\t$amazonPrice AS Price" . self::PRICE_DATA_FROM_BASIC . self::PRICE_DATA_FROM_ADVANCED . self::PRICE_DATA_WHERE . $whereCondition . $sort . $limit;
+		$query = self::PRICE_DATA_SELECT_BASIC . self::PRICE_DATA_SELECT_ADVANCED . $amazonPriceSelect . self::PRICE_DATA_FROM_BASIC . self::PRICE_DATA_FROM_ADVANCED . self::PRICE_DATA_WHERE . $whereCondition . $sort . $limit;
 		$amazonPriceDataDBResult = DBQuery::getInstance() -> select($query);
 		ob_end_clean();
 
 		while ($amazonPriceData = $amazonPriceDataDBResult -> fetchAssoc()) {
-			$sku = $amazonPriceData['ItemID'] . '-0-' . $amazonPriceData['AttributeValueSetID'];
+			$sku = Values2SKU($amazonPriceData['ItemID'], $amazonPriceData['AttributeValueSetID']);
+			$isChangePending = !is_null($amazonPriceData['NewPrice']) && (abs($amazonPriceData['NewPrice'] - $amazonPriceData['Price']) < self::PRICE_COMPARISON_ACCURACY);
 
 			// @formatter:off		
 			$data['rows'][$sku] = array(
@@ -317,10 +316,10 @@ LEFT JOIN PriceUpdate
 				'ItemNo' => $amazonPriceData['ItemNo'],
 				'Name' => $amazonPriceData['Name'],
 				'Marking1ID' => $amazonPriceData['Marking1ID'],
-				'PriceOldCurrent' => array('currentPrice' => $amazonPriceData['Price'], 'oldPrice' => 'XXX'),
-				'PriceChanged' => array(
-					'currentPrice' => ((bool) $amazonPriceData['Written'] && is_null($amazonPriceData['NewPrice']) ? $amazonPriceData['Price'] : $amazonPriceData['NewPrice']),
-					'written' => (bool) $amazonPriceData['Written']
+				'PriceOldCurrent' => array('price' => $amazonPriceData['Price'], 'oldPrice' => $amazonPriceData['OldPrice']),
+				'PriceChange' => array(
+					'price' => $isChangePending ? $amazonPriceData['NewPrice'] : $amazonPriceData['Price'],
+					'isChangePending' => $isChangePending
 				)
 			);
 			 // @formatter:on
