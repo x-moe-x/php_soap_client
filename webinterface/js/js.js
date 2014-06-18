@@ -634,7 +634,7 @@ function prepareAmazon() {'use strict';
 					html : '/'
 				})).append($('<span/>', {
 					'class' : 'price currentPrice',
-					html : priceData.currentPrice
+					html : priceData.price
 				})).addClass('amazonPrice');
 			}
 		}, {
