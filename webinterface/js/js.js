@@ -73,7 +73,7 @@ function elementPostProcessAmazonPrice(element, type, requestData, resultData) {
 	var returnValue;
 	switch (type) {
 		case 'float':
-			returnValue = parseFloat(resultData.setPrice);
+			returnValue = parseFloat(resultData.NewPrice);
 			if (isNaN(returnValue)) {
 				return 'error';
 			}else {
