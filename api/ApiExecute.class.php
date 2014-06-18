@@ -217,13 +217,13 @@ class ApiExecute {
 					// checking group functions
 					switch ($task) {
 						case self::UPDATE_ALL :
-							self::executeTasks(array('updateOrders', 'updateItems', 'updateItemsWarehouseSettings', 'updateItemsSuppliers', 'updateWarehouseList', 'updateSalesOrderReferrer'));
+							self::executeTasks(array(self::UPDATE_ORDERS, self::UPDATE_ITEMS, self::UPDATE_ITEMS_PRICE_LISTS, self::UPDATE_ITEMS_WAREHOUSE_SETTINGS, self::UPDATE_ITEMS_SUPPLIERS, self::UPDATE_WAREHOUSE_LIST, self::UPDATE_SALES_ORDER_REFERRER));
 							break;
 						case self::CALCULATE_ALL :
-							self::executeTasks(array('calculateTotalNetto', 'calculateDailyNeed', 'calculateWriteBackData', 'calculateWritePermissions'));
+							self::executeTasks(array(self::CALCULATE_TOTAL_NETTO, self::CALCULATE_DAILY_NEED, self::CALCULATE_WRITE_BACK_DATA, self::CALCULATE_WRITE_PERMISSIONS));
 							break;
 						case self::SET_ALL :
-							self::executeTasks(array('setItemsSuppliers', 'setItemsWarehouseSettings'));
+							self::executeTasks(array(self::SET_ITEMS_SUPPLIERS, self::SET_ITEMS_WAREHOUSE_SETTINGS, self::SET_ITEMS_PRICE_SETS));
 							break;
 						default :
 							throw new RuntimeException('Unknown task ' . $task);
