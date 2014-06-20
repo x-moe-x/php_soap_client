@@ -76,8 +76,8 @@ function elementPostProcessAmazonPrice(element, type, requestData, resultData) {
 			returnValue = parseFloat(resultData.NewPrice);
 			if (isNaN(returnValue)) {
 				return 'error';
-			}else {
-				if (!resultData.written){
+			} else {
+				if (resultData.isChangePending) {
 					element.parent().addClass('priceChanged');
 				} else {
 					element.parent().removeClass('priceChanged');
