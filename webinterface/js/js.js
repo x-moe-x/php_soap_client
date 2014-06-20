@@ -685,6 +685,14 @@ function prepareAmazon() {'use strict';
 					$('#amazonTable').flexReload();
 				});
 			}
+		}, {
+			name : 'Ungeschriebene Preisänderungen zurücksetzen',
+			bclass : 'pInitAction',
+			onpress : function(idOrName, gDiv) {
+				$.get('../api/execute/resetPriceUpdates', function() {
+					$('#amazonTable').flexReload();
+				});
+			}
 		}]
 	});
 }

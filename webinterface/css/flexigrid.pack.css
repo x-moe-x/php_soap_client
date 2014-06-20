@@ -92,6 +92,7 @@ div.pGroup{float:left;background:none;height:24px;margin:0 5px}
 .flexigrid .pNext{background:url(../images/next.gif) no-repeat center}
 .flexigrid .pLast{background:url(../images/last.gif) no-repeat center}
 .flexigrid .pReload{background:url(../images/load.png) no-repeat center}
+.flexigrid .pInitAction{background:url(../images/database_gear.png) no-repeat center left}
 .flexigrid .pReload.loading{background:url(../images/load.gif) no-repeat center}
 .flexigrid.ie div.hDiv th div,.flexigrid.ie div.bDiv td div,div.colCopy.ie div
 /* common inner cell properties*/{overflow:hidden}
