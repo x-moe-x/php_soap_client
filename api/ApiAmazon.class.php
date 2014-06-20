@@ -322,6 +322,10 @@ LEFT JOIN PriceUpdateHistory
 		while ($amazonPriceData = $amazonPriceDataDBResult -> fetchAssoc()) {
 			$sku = Values2SKU($amazonPriceData['ItemID'], $amazonPriceData['AttributeValueSetID']);
 			$isChangePending = !is_null($amazonPriceData['NewPrice']) && (abs($amazonPriceData['NewPrice'] - $amazonPriceData['Price']) > self::PRICE_COMPARISON_ACCURACY);
+			$isWrittenTimeValid = !empty($amazonPriceData['WrittenTimeStamp']);
+			if ($isWrittenTimeValid){
+				$writtenDate = new DateTime('@' . $amazonPriceData['WrittenTimeStamp']);
+			}
 
 			// @formatter:off		
 			$data['rows'][$sku] = array(
@@ -336,7 +340,7 @@ LEFT JOIN PriceUpdateHistory
 					'isChangePending' => $isChangePending
 				),
 				'TimeData' => array(
-					'writtenTime' => '00.00.0000',
+					'writtenTime' => $isWrittenTimeValid ? $writtenDate->format('d.m.Y') : '-',
 					'targetDays' => 0,
 					'currentDays' => 0
 				)
