@@ -616,7 +616,17 @@ function prepareAmazon() {'use strict';
 			name : 'P'
 		},{
 			display : 'Datum letzte Änderung VK<br>Zeitraum Trend (Soll / Ist)',
-			name : 'Q'
+			name : 'TimeData',
+			process : function(cellDiv, SKU) {'use strict';
+				var timeData;
+				timeData = $.parseJSON($(cellDiv).html());
+
+				$(cellDiv).html($('<div/>', {
+					html : timeData.writtenTime
+				})).append($('<span/>', {
+					html : '(' + timeData.targetDays + ' / ' + timeData.currentDays + ' Tage)'
+				}));
+			}
 		}, {
 			display : 'alter Preis / aktueller Preis',
 			name : 'Price',

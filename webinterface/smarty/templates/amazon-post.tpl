@@ -33,7 +33,7 @@
 			<![CDATA[P]]>
 		</cell>
 		<cell>
-			<![CDATA[Q]]>
+			<![CDATA[{$itemVariant.TimeData|@json_encode}]]>
 		</cell>
 		<cell>
 			<![CDATA[{$itemVariant.PriceOldCurrent|@json_encode}]]>

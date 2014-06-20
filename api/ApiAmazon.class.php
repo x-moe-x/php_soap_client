@@ -45,7 +45,8 @@ class ApiAmazon {
 	ItemsBase.Name AS SortName,
 	ItemsBase.ItemNo,
 	ItemsBase.Marking1ID,
-	PriceUpdate.NewPrice';
+	PriceUpdate.NewPrice,
+	PriceUpdateHistory.WrittenTimeStamp';
 
 	/**
 	 * @var string
@@ -321,6 +322,10 @@ LEFT JOIN PriceUpdateHistory
 		while ($amazonPriceData = $amazonPriceDataDBResult -> fetchAssoc()) {
 			$sku = Values2SKU($amazonPriceData['ItemID'], $amazonPriceData['AttributeValueSetID']);
 			$isChangePending = !is_null($amazonPriceData['NewPrice']) && (abs($amazonPriceData['NewPrice'] - $amazonPriceData['Price']) > self::PRICE_COMPARISON_ACCURACY);
+			$isWrittenTimeValid = !empty($amazonPriceData['WrittenTimeStamp']);
+			if ($isWrittenTimeValid){
+				$writtenDate = new DateTime('@' . $amazonPriceData['WrittenTimeStamp']);
+			}
 
 			// @formatter:off		
 			$data['rows'][$sku] = array(
@@ -333,6 +338,11 @@ LEFT JOIN PriceUpdateHistory
 				'PriceChange' => array(
 					'price' => $isChangePending ? $amazonPriceData['NewPrice'] : $amazonPriceData['Price'],
 					'isChangePending' => $isChangePending
+				),
+				'TimeData' => array(
+					'writtenTime' => $isWrittenTimeValid ? $writtenDate->format('d.m.Y') : '-',
+					'targetDays' => 0,
+					'currentDays' => 0
 				)
 			);
 			 // @formatter:on
