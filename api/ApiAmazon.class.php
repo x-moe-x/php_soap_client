@@ -243,10 +243,13 @@ LEFT JOIN PriceUpdateHistory
 	 * for given itemID and referrerID = AMAZON_REFERRER_ID:
 	 *
 	 * 1.	get priceID and priceColumn
-	 * 2.	store into db (itemID,priceID,priceColumn,newPrice)
+	 * 2.	if there's a change pending ...
+	 * 3.	... store into price update (itemID,priceID,priceColumn,newPrice)
+	 * 4.	... otherwise delete item corresponding to (itemID,priceID,priceColumn)
 	 *
 	 * @param int $itemID
 	 * @param float $newPrice
+	 * @return array
 	 */
 	public static function setPrice($itemID, $newPrice) {
 		$aPriceUpdate = array('ItemID' => $itemID, 'PriceID' => -1, 'PriceColumn' => -1, 'NewPrice' => $newPrice);
@@ -257,10 +260,14 @@ LEFT JOIN PriceUpdateHistory
 
 		// ... and priceID
 		ob_start();
-		$priceSetsDBResult = DBQuery::getInstance() -> select("SELECT PriceID FROM PriceSets WHERE ItemID = $itemID");
+		$priceString = "Price" . ($aPriceUpdate['PriceColumn'] === 0 ? '' : $aPriceUpdate['PriceColumn']);
+		$priceSetsDBResult = DBQuery::getInstance() -> select("SELECT PriceID, $priceString AS Price FROM PriceSets WHERE ItemID = $itemID");
 		ob_end_clean();
 
+		$isChangePending = false;
+
 		if (($priceSetsDBResult -> getNumRows() === 1) && ($aCurrentPriceSet = $priceSetsDBResult -> fetchAssoc())) {
+			$isChangePending = abs($newPrice - $aCurrentPriceSet['Price']) > self::PRICE_COMPARISON_ACCURACY;
 			$aPriceUpdate['PriceID'] = $aCurrentPriceSet['PriceID'];
 		} else {
 			if ($priceSetsDBResult -> getNumRows() === 0) {
@@ -272,12 +279,18 @@ LEFT JOIN PriceUpdateHistory
 			}
 		}
 
-		// 2. store to db ...
-		ob_start();
-		DBQuery::getInstance() -> insert('INSERT INTO PriceUpdate' . DBUtils::buildInsert($aPriceUpdate) . 'ON DUPLICATE KEY UPDATE' . DBUtils::buildOnDuplicateKeyUpdate($aPriceUpdate));
-		ob_end_clean();
+		// 2. if there's a change pending ...
+		if ($isChangePending) {
+			// 3. ...	then store the change
+			ob_start();
+			DBQuery::getInstance() -> insert('INSERT INTO PriceUpdate' . DBUtils::buildInsert($aPriceUpdate) . 'ON DUPLICATE KEY UPDATE' . DBUtils::buildOnDuplicateKeyUpdate($aPriceUpdate));
+			ob_end_clean();
+		} else {
+			// 4. ...	or delete if current new price is a reset to the current one...
+			DBQuery::getInstance()->delete("DELETE FROM PriceUpdate WHERE ItemID = {$itemID} AND PriceID = {$aPriceUpdate['PriceID']} AND PriceColumn = {$aPriceUpdate['PriceColumn']}");
+		}
 
-		return $aPriceUpdate;
+		return $aPriceUpdate + array('isChangePending' => $isChangePending);
 	}
 
 	public static function getAmazonPriceData($page = 1, $rowsPerPage = 10, $sortByColumn = 'ItemID', $sortOrder = 'ASC', $itemID = null) {
