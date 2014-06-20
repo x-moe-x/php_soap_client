@@ -676,7 +676,16 @@ function prepareAmazon() {'use strict';
 		pagetext : 'Seite',
 		outof : 'von',
 		pagestat : 'Zeige {from} bis {to} von {total} Artikeln',
-		procmsg : 'Bitte warten...'
+		procmsg : 'Bitte warten...',
+		buttons : [{
+			name : 'Manuelles Schreiben auslösen',
+			bclass : 'pReload',
+			onpress : function(idOrName, gDiv) {
+				$.get('../api/execute/setItemsPriceSets', function() {
+					$('#amazonTable').flexReload();
+				});
+			}
+		}]
 	});
 }
 
