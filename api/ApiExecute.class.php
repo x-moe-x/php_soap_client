@@ -9,7 +9,7 @@ error_reporting(-1);
 
 class ApiExecute {
 
-	private static $allowedJSONTasks = array(self::UPDATE_ALL, self::CALCULATE_ALL, self::SET_ALL, self::RESET_ARTICLES, self::RESET_ORDERS, self::CALCULATE_AMAZON_RUNNING_COSTS, self::SET_ITEMS_PRICE_SETS);
+	private static $allowedJSONTasks = array(self::UPDATE_ALL, self::CALCULATE_ALL, self::SET_ALL, self::RESET_ARTICLES, self::RESET_ORDERS, self::CALCULATE_AMAZON_RUNNING_COSTS, self::SET_ITEMS_PRICE_SETS, self::RESET_PRICE_UPDATES);
 
 	/**
 	 * @var string
@@ -110,6 +110,11 @@ class ApiExecute {
 	 * @var string
 	 */
 	const RESET_ORDERS = 'resetOrders';
+
+	/**
+	 * @var string
+	 */
+	const RESET_PRICE_UPDATES = 'resetPriceUpdates';
 
 	public static function executeTaskWithOutputJSON($task) {
 		self::executeTaskJSON($task, true);
@@ -215,6 +220,9 @@ class ApiExecute {
 					DBQuery::getInstance() -> delete('DELETE FROM MetaLastUpdate WHERE Function = "SoapCall_SearchOrders"');
 					DBQuery::getInstance() -> delete('DELETE FROM MetaLastUpdate WHERE Function = "Adapter_SearchOrders"');
 					DBQuery::getInstance() -> truncate('TRUNCATE `OrderItem`');
+					break;
+				case self::RESET_PRICE_UPDATES :
+					DBQuery::getInstance() -> truncate('TRUNCATE `PriceUpdate`');
 					break;
 				default :
 					// checking group functions
