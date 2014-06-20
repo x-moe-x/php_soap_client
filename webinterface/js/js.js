@@ -679,7 +679,7 @@ function prepareAmazon() {'use strict';
 		procmsg : 'Bitte warten...',
 		buttons : [{
 			name : 'Manuelles Schreiben auslösen',
-			bclass : 'pReload',
+			bclass : 'pInitAction',
 			onpress : function(idOrName, gDiv) {
 				$.get('../api/execute/setItemsPriceSets', function() {
 					$('#amazonTable').flexReload();
