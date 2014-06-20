@@ -29,7 +29,7 @@ getRoute() -> put('/config/amazon/(\w+)/(\w+|\d+|\d+\.\d+)', array('ApiAmazon', 
 
 getRoute() -> get('/amazonPrice/(\d+)-\d+-\d+', array('ApiAmazon', 'getPriceJSON'));
 getRoute() -> get('/amazonPrice/(\d+)', array('ApiAmazon', 'getPriceJSON'));
-getRoute() -> put('/amazonPrice/(\d+-\d+-\d+)/(\w+|\d+|\d+\.\d+)', array('ApiAmazon', 'setPriceJSON'));
+getRoute() -> put('/amazonPrice/(\d+)-\d+-\d+/(\w+|\d+|\d+\.\d+)', array('ApiAmazon', 'setPriceJSON'));
 
 try {
 	getRoute() -> run();

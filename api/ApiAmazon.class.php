@@ -45,12 +45,7 @@ class ApiAmazon {
 	ItemsBase.Name AS SortName,
 	ItemsBase.ItemNo,
 	ItemsBase.Marking1ID,
-	PriceUpdate.NewPrice,
-	CASE WHEN (PriceUpdate.Written IS NOT null) THEN
-		PriceUpdate.Written
-	ELSE
-		"1"
-	END AS Written';
+	PriceUpdate.NewPrice';
 
 	/**
 	 * @var string
@@ -65,7 +60,9 @@ LEFT JOIN AttributeValueSets
 	const PRICE_DATA_FROM_ADVANCED = "LEFT JOIN PriceSets
 	ON ItemsBase.ItemID = PriceSets.ItemID
 LEFT JOIN PriceUpdate
-	ON (PriceSets.ItemID = PriceUpdate.ItemID) AND (PriceSets.PriceID = PriceUpdate.PriceID)\n";
+	ON (PriceSets.ItemID = PriceUpdate.ItemID) AND (PriceSets.PriceID = PriceUpdate.PriceID)
+LEFT JOIN PriceUpdateHistory
+	ON (PriceSets.ItemID = PriceUpdateHistory.ItemID) AND (PriceSets.PriceID = PriceUpdateHistory.PriceID)\n";
 
 	/**
 	 * @var string
@@ -197,29 +194,29 @@ LEFT JOIN PriceUpdate
 		echo json_encode($result);
 	}
 
-	public static function setPriceJSON($sku, $newPrice) {
+	/**
+	 * @param int $itemID
+	 * @param float $newPrice
+	 * @return string JSON-String containing informations on the result of the tried action
+	 */
+	public static function setPriceJSON($itemID, $newPrice) {
 		header('Content-Type: application/json');
 		$result = array('success' => false, 'data' => NULL, 'error' => NULL);
 
-		if (!is_null($sku)) {
+		if (!is_null($itemID)) {
 			if (!is_null($newPrice) && !is_nan($newPrice)) {
 				$newPrice = floatval($newPrice);
-				if (preg_match('/\d+-\d+-\d+/', $sku) == 1) {
-					try {
-						$setPriceData = self::setPrice($sku, $newPrice);
-						$result['data'] = array('setPrice' => $setPriceData['NewPrice'], 'written' => $setPriceData['Written']);
-						$result['success'] = true;
-					} catch(Exception $e) {
-						$result['error'] = $e -> getMessage();
-					}
-				} else {
-					$result['error'] = 'invalid SKU format';
+				try {
+					$result['data'] = self::setPrice($itemID, $newPrice);
+					$result['success'] = true;
+				} catch(Exception $e) {
+					$result['error'] = $e -> getMessage();
 				}
 			} else {
 				$result['error'] = "wrong value newPrice = '$newPrice', either none given or not a number";
 			}
 		} else {
-			$result['error'] = 'no sku given';
+			$result['error'] = 'no itemID given';
 		}
 
 		echo json_encode($result);
@@ -243,47 +240,57 @@ LEFT JOIN PriceUpdate
 	/**
 	 * perform the following algorithm:
 	 *
-	 * for given sku and referrerID = AMAZON_REFERRER_ID:
+	 * for given itemID and referrerID = AMAZON_REFERRER_ID:
 	 *
-	 * 1.	get currentPrice
-	 * 2.	if currentPrice != newPrice
-	 * 3.	... then insert into db the following record:
-	 * 		...	...	(itemID,priceID,referrerID,currentPrice,newPrice,!written)
-	 *		...	...	without changing any possibly existing timestamp
-	 * 4.	... otherwise insert into db the following record:
-	 * 		...	... (itemID,priceID,referrerID,currentPrice,currentPrice,written)
-	 *		...	...	without changing any possibly existing timestamp
+	 * 1.	get priceID and priceColumn
+	 * 2.	if there's a change pending ...
+	 * 3.	... store into price update (itemID,priceID,priceColumn,newPrice)
+	 * 4.	... otherwise delete item corresponding to (itemID,priceID,priceColumn)
 	 *
-	 * timestamp is only updated on successful writeback operation to plenty
-	 *
-	 * @param string $sku
+	 * @param int $itemID
 	 * @param float $newPrice
-	 * @return array price data (NewPrice, Written)
+	 * @return array
 	 */
-	public static function setPrice($sku, $newPrice) {
-		// 1. get current price
-		list($itemID, , ) = SKU2Values($sku);
-		list($currentPrice, $priceID) = ApiHelper::getCurrentPriceDataByReferrer($itemID, self::AMAZON_REFERRER_ID);
+	public static function setPrice($itemID, $newPrice) {
+		$aPriceUpdate = array('ItemID' => $itemID, 'PriceID' => -1, 'PriceColumn' => -1, 'NewPrice' => $newPrice);
 
-		$aPriceUpdate = array('ItemID' => $itemID, 'PriceID' => $priceID, 'OldPrice' => $currentPrice, 'ReferrerID' => self::AMAZON_REFERRER_ID, 'NewPrice' => null, 'Written' => null);
+		// 1. get priceColumn ...
+		$aAmazonStaticData = ApiHelper::getSalesOrderReferrer(self::AMAZON_REFERRER_ID);
+		$aPriceUpdate['PriceColumn'] = $aAmazonStaticData['PriceColumn'];
 
-		// 2. if currentPrice != newPrice
-		if (abs($currentPrice - $newPrice) > self::PRICE_COMPARISON_ACCURACY) {
-			// 3. ... then prepare (sku,referrerID,currentPrice,newPrice,!written)
-			$aPriceUpdate['NewPrice'] = $newPrice;
-			$aPriceUpdate['Written'] = 0;
-		} else {
-			// 4.	... otherwise prepare (sku,referrerID,currentPrice,currentPrice,written)
-			$aPriceUpdate['NewPrice'] = $currentPrice;
-			$aPriceUpdate['Written'] = 1;
-		}
-
-		// and insert to db...
+		// ... and priceID
 		ob_start();
-		DBQuery::getInstance() -> insert('INSERT INTO PriceUpdate' . DBUtils::buildInsert($aPriceUpdate) . 'ON DUPLICATE KEY UPDATE' . DBUtils::buildOnDuplicateKeyUpdate($aPriceUpdate));
+		$priceString = "Price" . ($aPriceUpdate['PriceColumn'] === 0 ? '' : $aPriceUpdate['PriceColumn']);
+		$priceSetsDBResult = DBQuery::getInstance() -> select("SELECT PriceID, $priceString AS Price FROM PriceSets WHERE ItemID = $itemID");
 		ob_end_clean();
 
-		return array('NewPrice' => $aPriceUpdate['NewPrice'], 'Written' => $aPriceUpdate['Written'] == 1);
+		$isChangePending = false;
+
+		if (($priceSetsDBResult -> getNumRows() === 1) && ($aCurrentPriceSet = $priceSetsDBResult -> fetchAssoc())) {
+			$isChangePending = abs($newPrice - $aCurrentPriceSet['Price']) > self::PRICE_COMPARISON_ACCURACY;
+			$aPriceUpdate['PriceID'] = $aCurrentPriceSet['PriceID'];
+		} else {
+			if ($priceSetsDBResult -> getNumRows() === 0) {
+				throw new RuntimeException("Item $itemID: no price set found. Does the arcticle exists?");
+			} else if ($priceSetsDBResult -> getNumRows() > 1) {
+				throw new RuntimeException("Item $itemID: found " . $articleVariantPriceDBResult -> getNumRows() . " price sets, expected exactly one!");
+			} else {
+				throw new RuntimeException("Item $itemID: unable to fetch associated row");
+			}
+		}
+
+		// 2. if there's a change pending ...
+		if ($isChangePending) {
+			// 3. ...	then store the change
+			ob_start();
+			DBQuery::getInstance() -> insert('INSERT INTO PriceUpdate' . DBUtils::buildInsert($aPriceUpdate) . 'ON DUPLICATE KEY UPDATE' . DBUtils::buildOnDuplicateKeyUpdate($aPriceUpdate));
+			ob_end_clean();
+		} else {
+			// 4. ...	or delete if current new price is a reset to the current one...
+			DBQuery::getInstance()->delete("DELETE FROM PriceUpdate WHERE ItemID = {$itemID} AND PriceID = {$aPriceUpdate['PriceID']} AND PriceColumn = {$aPriceUpdate['PriceColumn']}");
+		}
+
+		return $aPriceUpdate + array('isChangePending' => $isChangePending);
 	}
 
 	public static function getAmazonPriceData($page = 1, $rowsPerPage = 10, $sortByColumn = 'ItemID', $sortOrder = 'ASC', $itemID = null) {
@@ -305,13 +312,15 @@ LEFT JOIN PriceUpdate
 		// get associated price id
 		$amazonStaticData = ApiHelper::getSalesOrderReferrer(self::AMAZON_REFERRER_ID);
 		$amazonPrice = 'Price' . $amazonStaticData['PriceColumn'];
+		$amazonPriceSelect = ",\n\tPriceSets.$amazonPrice AS Price,\n\tCASE WHEN (PriceUpdateHistory.OldPrice IS null) THEN\n\t\tPriceSets.$amazonPrice\n\tELSE\n\t\tPriceUpdateHistory.OldPrice\n\tEND OldPrice"; 
 		// add price id to select advanced clause
-		$query = self::PRICE_DATA_SELECT_BASIC . self::PRICE_DATA_SELECT_ADVANCED . ",\n\t$amazonPrice AS Price" . self::PRICE_DATA_FROM_BASIC . self::PRICE_DATA_FROM_ADVANCED . self::PRICE_DATA_WHERE . $whereCondition . $sort . $limit;
+		$query = self::PRICE_DATA_SELECT_BASIC . self::PRICE_DATA_SELECT_ADVANCED . $amazonPriceSelect . self::PRICE_DATA_FROM_BASIC . self::PRICE_DATA_FROM_ADVANCED . self::PRICE_DATA_WHERE . $whereCondition . $sort . $limit;
 		$amazonPriceDataDBResult = DBQuery::getInstance() -> select($query);
 		ob_end_clean();
 
 		while ($amazonPriceData = $amazonPriceDataDBResult -> fetchAssoc()) {
-			$sku = $amazonPriceData['ItemID'] . '-0-' . $amazonPriceData['AttributeValueSetID'];
+			$sku = Values2SKU($amazonPriceData['ItemID'], $amazonPriceData['AttributeValueSetID']);
+			$isChangePending = !is_null($amazonPriceData['NewPrice']) && (abs($amazonPriceData['NewPrice'] - $amazonPriceData['Price']) > self::PRICE_COMPARISON_ACCURACY);
 
 			// @formatter:off		
 			$data['rows'][$sku] = array(
@@ -320,10 +329,10 @@ LEFT JOIN PriceUpdate
 				'ItemNo' => $amazonPriceData['ItemNo'],
 				'Name' => $amazonPriceData['Name'],
 				'Marking1ID' => $amazonPriceData['Marking1ID'],
-				'PriceOldCurrent' => array('currentPrice' => $amazonPriceData['Price'], 'oldPrice' => 'XXX'),
-				'PriceChanged' => array(
-					'currentPrice' => ((bool) $amazonPriceData['Written'] && is_null($amazonPriceData['NewPrice']) ? $amazonPriceData['Price'] : $amazonPriceData['NewPrice']),
-					'written' => (bool) $amazonPriceData['Written']
+				'PriceOldCurrent' => array('price' => $amazonPriceData['Price'], 'oldPrice' => $amazonPriceData['OldPrice']),
+				'PriceChange' => array(
+					'price' => $isChangePending ? $amazonPriceData['NewPrice'] : $amazonPriceData['Price'],
+					'isChangePending' => $isChangePending
 				)
 			);
 			 // @formatter:on

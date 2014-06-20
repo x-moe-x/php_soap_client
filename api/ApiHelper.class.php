@@ -41,33 +41,5 @@ class ApiHelper {
 		}
 
 	}
-
-	/**
-	 * @param int $itemID
-	 * @param int $referrerID
-	 * @return float current price
-	 */
-	public static function getCurrentPriceDataByReferrer($itemID, $referrerID) {
-		// get associated price column
-		$aAmazonStaticData = self::getSalesOrderReferrer($referrerID);
-		$priceString = 'Price' . ($aAmazonStaticData['PriceColumn'] === 0 ? '' : $aAmazonStaticData['PriceColumn']);
-
-		// get associated price
-		ob_start();
-		$articleVariantPriceDBResult = DBQuery::getInstance() -> select("SELECT $priceString AS Price, PriceID FROM PriceSets WHERE ItemID = $itemID");
-		ob_end_clean();
-		if ($articleVariantPriceDBResult -> getNumRows() === 0) {
-			throw new RuntimeException("Item $itemID: no price set found. Does the arcticle exists?");
-		} else if ($articleVariantPriceDBResult -> getNumRows() > 1) {
-			throw new RuntimeException("Item $itemID: found " . $articleVariantPriceDBResult -> getNumRows() . " price sets, expected exactly one!");
-		} else {
-			if ($current = $articleVariantPriceDBResult -> fetchAssoc()) {
-				return array($current['Price'], $current['PriceID']);
-			} else {
-				throw new RuntimeException("Item $itemID: unable to fetch associated row");
-			}
-		}
-	}
-
 }
 ?>

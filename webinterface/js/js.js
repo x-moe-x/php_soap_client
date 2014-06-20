@@ -73,11 +73,11 @@ function elementPostProcessAmazonPrice(element, type, requestData, resultData) {
 	var returnValue;
 	switch (type) {
 		case 'float':
-			returnValue = parseFloat(resultData.setPrice);
+			returnValue = parseFloat(resultData.NewPrice);
 			if (isNaN(returnValue)) {
 				return 'error';
-			}else {
-				if (!resultData.written){
+			} else {
+				if (resultData.isChangePending) {
 					element.parent().addClass('priceChanged');
 				} else {
 					element.parent().removeClass('priceChanged');
@@ -634,7 +634,7 @@ function prepareAmazon() {'use strict';
 					html : '/'
 				})).append($('<span/>', {
 					'class' : 'price currentPrice',
-					html : priceData.currentPrice
+					html : priceData.price
 				})).addClass('amazonPrice');
 			}
 		}, {
@@ -656,9 +656,9 @@ function prepareAmazon() {'use strict';
 				$(cellDiv).insertInput(SKU, '€', function(event) {
 					$(event.target).apiUpdate('../api/amazonPrice', 'float', elementProcessAmazonPrice, elementPostProcessAmazonPrice);
 					$(cellDiv).addClass('priceChanged');
-				}, parseFloat(priceData.currentPrice).toFixed(2));
+				}, parseFloat(priceData.price).toFixed(2));
 
-				if (!priceData.written) {
+				if (priceData.isChangePending) {
 					$(cellDiv).addClass('priceChanged');
 				}
 			}
@@ -676,7 +676,16 @@ function prepareAmazon() {'use strict';
 		pagetext : 'Seite',
 		outof : 'von',
 		pagestat : 'Zeige {from} bis {to} von {total} Artikeln',
-		procmsg : 'Bitte warten...'
+		procmsg : 'Bitte warten...',
+		buttons : [{
+			name : 'Manuelles Schreiben auslösen',
+			bclass : 'pReload',
+			onpress : function(idOrName, gDiv) {
+				$.get('../api/execute/setItemsPriceSets', function() {
+					$('#amazonTable').flexReload();
+				});
+			}
+		}]
 	});
 }
 
