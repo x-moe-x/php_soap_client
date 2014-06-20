@@ -45,7 +45,8 @@ class ApiAmazon {
 	ItemsBase.Name AS SortName,
 	ItemsBase.ItemNo,
 	ItemsBase.Marking1ID,
-	PriceUpdate.NewPrice';
+	PriceUpdate.NewPrice,
+	PriceUpdateHistory.WrittenTimeStamp';
 
 	/**
 	 * @var string
@@ -333,6 +334,11 @@ LEFT JOIN PriceUpdateHistory
 				'PriceChange' => array(
 					'price' => $isChangePending ? $amazonPriceData['NewPrice'] : $amazonPriceData['Price'],
 					'isChangePending' => $isChangePending
+				),
+				'TimeData' => array(
+					'writtenTime' => '00.00.0000',
+					'targetDays' => 0,
+					'currentDays' => 0
 				)
 			);
 			 // @formatter:on
