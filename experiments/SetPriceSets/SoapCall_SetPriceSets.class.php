@@ -73,13 +73,34 @@ class SoapCall_SetPriceSets extends PlentySoapCall {
 
 	private function getQuery() {
 		return "SELECT
-	*
+	 PriceUpdate.ItemID,
+	 PriceUpdate.PriceID,
+	 PriceUpdate.PriceColumn,
+	 PriceUpdate.NewPrice,
+	 CASE PriceUpdate.PriceColumn
+		WHEN 0 THEN PriceSets.Price
+		WHEN 1 THEN PriceSets.Price1
+		WHEN 2 THEN PriceSets.Price2
+		WHEN 3 THEN PriceSets.Price3
+		WHEN 4 THEN PriceSets.Price4
+		WHEN 5 THEN PriceSets.Price5
+		WHEN 6 THEN PriceSets.Price6
+		WHEN 7 THEN PriceSets.Price7
+		WHEN 8 THEN PriceSets.Price8
+		WHEN 9 THEN PriceSets.Price9
+		WHEN 10 THEN PriceSets.Price10
+		WHEN 11 THEN PriceSets.Price11
+		WHEN 12 THEN PriceSets.Price12
+	 END AS OldPrice
 FROM
 	PriceUpdate
-WHERE
-	Written = 0
-ORDER BY
-	Written ASC";
+LEFT JOIN
+	PriceSets
+ON
+	(PriceUpdate.ItemID = PriceSets.ItemID)
+AND
+	(PriceUpdate.PriceID = PriceSets.PriceID)
+";
 	}
 
 }
