@@ -326,6 +326,8 @@ LEFT JOIN PriceUpdateHistory
 			$isWrittenTimeValid = !empty($amazonPriceData['WrittenTimeStamp']);
 			if ($isWrittenTimeValid){
 				$writtenDate = new DateTime('@' . $amazonPriceData['WrittenTimeStamp']);
+				$writtenDateToNowDifference = $writtenDate -> diff(new DateTime());
+				$currentDays = $writtenDateToNowDifference -> format('%a') + $writtenDateToNowDifference -> format('%h') / 24;
 			}
 
 			// @formatter:off		
@@ -343,7 +345,7 @@ LEFT JOIN PriceUpdateHistory
 				'TimeData' => array(
 					'writtenTime' => $isWrittenTimeValid ? $writtenDate->format('d.m.Y') : '-',
 					'targetDays' => $config['MeasuringTimeFrame'],
-					'currentDays' => 0
+					'currentDays' => $isWrittenTimeValid ? number_format($currentDays, 1) : '-'
 				)
 			);
 			 // @formatter:on
