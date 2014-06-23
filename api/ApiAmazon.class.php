@@ -304,6 +304,7 @@ LEFT JOIN PriceUpdateHistory
 		}
 
 		$data['total'] = DBQuery::getInstance() -> select(self::PRICE_DATA_SELECT_BASIC . self::PRICE_DATA_FROM_BASIC . self::PRICE_DATA_WHERE . $whereCondition) -> getNumRows();
+		$config = self::getConfig();
 
 		//TODO check for empty values to prevent errors!
 		$sort = "ORDER BY $sortByColumn $sortOrder\n";
@@ -341,7 +342,7 @@ LEFT JOIN PriceUpdateHistory
 				),
 				'TimeData' => array(
 					'writtenTime' => $isWrittenTimeValid ? $writtenDate->format('d.m.Y') : '-',
-					'targetDays' => 0,
+					'targetDays' => $config['MeasuringTimeFrame'],
 					'currentDays' => 0
 				)
 			);
