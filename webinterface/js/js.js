@@ -553,8 +553,18 @@ function prepareAmazon() {'use strict';
 			process: processMarking1ID
 		},{
 			display : 'Verkauf Stk. / 30 Tage<br>(vor) nach Änderung VK',
-			name : 'M'
-		},{
+			name : 'Quantities',
+			process : function(cellDiv, SKU) {'use strict';
+				var quantityData;
+				quantityData = $.parseJSON($(cellDiv).html());
+
+				$(cellDiv).html($('<span/>', {
+					html : '(' + quantityData.oldQuantity + ')'
+				})).append($('<span/>', {
+					html : quantityData.newQuantity
+				}));
+			}
+		}, {
 			display : 'durchschn. Marge / Stk. (mit aktuellen Kosten)<br>(vor) nach Änderung VK',
 			name : 'N'
 		},{
