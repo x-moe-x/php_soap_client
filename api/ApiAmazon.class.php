@@ -46,7 +46,8 @@ class ApiAmazon {
 	ItemsBase.ItemNo,
 	ItemsBase.Marking1ID,
 	PriceUpdate.NewPrice,
-	PriceUpdateHistory.WrittenTimeStamp';
+	PriceUpdateHistory.WrittenTimeStamp,
+	PriceUpdateQuantities.OldQuantity';
 
 	/**
 	 * @var string
@@ -63,7 +64,9 @@ LEFT JOIN AttributeValueSets
 LEFT JOIN PriceUpdate
 	ON (PriceSets.ItemID = PriceUpdate.ItemID) AND (PriceSets.PriceID = PriceUpdate.PriceID)
 LEFT JOIN PriceUpdateHistory
-	ON (PriceSets.ItemID = PriceUpdateHistory.ItemID) AND (PriceSets.PriceID = PriceUpdateHistory.PriceID)\n";
+	ON (PriceSets.ItemID = PriceUpdateHistory.ItemID) AND (PriceSets.PriceID = PriceUpdateHistory.PriceID)
+LEFT JOIN PriceUpdateQuantities
+	ON (PriceSets.ItemID = PriceUpdateQuantities.ItemID) AND (PriceSets.PriceID = PriceUpdateQuantities.PriceID)\n";
 
 	/**
 	 * @var string
@@ -346,6 +349,10 @@ LEFT JOIN PriceUpdateHistory
 					'writtenTime' => $isWrittenTimeValid ? $writtenDate->format('d.m.Y') : '-',
 					'targetDays' => $config['MeasuringTimeFrame'],
 					'currentDays' => $isWrittenTimeValid ? number_format($currentDays, 1) : '-'
+				),
+				'Quantities' => array(
+					'oldQuantity' => empty($amazonPriceData['OldQuantity']) ? 0 : $amazonPriceData['OldQuantity'],
+					'newQuantity' => 'xxx'
 				)
 			);
 			 // @formatter:on
