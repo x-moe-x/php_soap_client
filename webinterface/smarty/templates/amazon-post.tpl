@@ -24,7 +24,7 @@
 			<![CDATA[{$itemVariant.Quantities|@json_encode}]]>
 		</cell>
 		<cell>
-			<![CDATA[N]]>
+			<![CDATA[{$itemVariant.Marge|@json_encode}]]>
 		</cell>
 		<cell>
 			<![CDATA[O]]>

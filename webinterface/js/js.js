@@ -575,8 +575,28 @@ function prepareAmazon() {'use strict';
 			}
 		}, {
 			display : 'durchschn. Marge / Stk. (mit aktuellen Kosten)<br>(vor) nach Änderung VK',
-			name : 'N'
-		},{
+			name : 'Marge',
+			width: 120,
+			process : function(cellDiv, SKU) {
+				var margeData, valueQuality;
+				margeData = $.parseJSON($(cellDiv).html());
+
+				if (margeData.oldMarge <= margeData.newMarge) {
+					valueQuality = 'goodValue';
+				}
+				if (margeData.oldMarge > margeData.newMarge) {
+					valueQuality = 'badValue';
+				}
+
+				$(cellDiv).html($('<span/>', {
+					html : (margeData.oldMarge * 100).toFixed(2),
+					'class' : 'oldMarge'
+				})).append($('<span/>', {
+					html : (margeData.newMarge * 100).toFixed(2),
+					'class' : 'newMarge ' + valueQuality
+				}));
+			}
+		}, {
 			display : 'Trend Artikel<br>verkaufte Stk',
 			name : 'O'
 		},{
