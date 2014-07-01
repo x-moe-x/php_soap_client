@@ -47,7 +47,8 @@ class ApiAmazon {
 	ItemsBase.Marking1ID,
 	PriceUpdate.NewPrice,
 	PriceUpdateHistory.WrittenTimeStamp,
-	PriceUpdateQuantities.OldQuantity';
+	PriceUpdateQuantities.OldQuantity,
+	PriceUpdateQuantities.NewQuantity';
 
 	/**
 	 * @var string
@@ -374,7 +375,7 @@ LEFT JOIN PriceUpdateQuantities
 				),
 				'Quantities' => array(
 					'oldQuantity' => empty($amazonPriceData['OldQuantity']) ? 0 : $amazonPriceData['OldQuantity'],
-					'newQuantity' => 'xxx'
+					'newQuantity' => empty($amazonPriceData['NewQuantity']) ? 0 : $amazonPriceData['NewQuantity']
 				)
 			);
 			 // @formatter:on
