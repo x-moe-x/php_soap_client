@@ -380,4 +380,8 @@ tr:hover .notModifyable {
 .notModifyable {
 	background-color: #eee !important;
 }
+
+.invisible {
+	display: none !important;
+}
 /** end table styling **/

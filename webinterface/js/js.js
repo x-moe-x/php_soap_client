@@ -90,56 +90,6 @@ function elementPostProcessAmazonPrice(element, type, requestData, resultData) {
 	}
 }
 
-function elementPostProcessGeneralCosts(element, type, requestData, resultData) {'use strict';
-	var returnValue;
-	switch (type) {
-		case 'float':
-			if (resultData['warehouseID'] == -1) {
-				returnValue = resultData['value']['percentage'];
-			} else {
-				// clear corresponding percentage field
-				$('#' + 'warehouseCost_automatic_' + resultData['warehouseID'] + '_' + resultData['date']).html(resultData['value']['percentage']);
-				returnValue = resultData['value']['absolute'];
-			}
-			if (returnValue === null) {
-				return '';
-			} else {
-				returnValue = parseFloat(returnValue);
-				return isNaN(returnValue) ? 'error' : returnValue.toFixed(2);
-			}
-		default:
-			return 'error';
-	}
-}
-
-function elementProcessGeneralCosts(element, type) {'use strict';
-	var id, matches;
-	switch (type) {
-		case 'float':
-			element.checkFloatval();
-			if (!isNaN(element.val())) {
-				id = element.attr('id');
-				if ( matches = id.match(/generalCosts_manual_(\d{8})/)) {
-					return {
-						key : '-1/' + matches[1],
-						value : element.val()
-					};
-				} else if ( matches = id.match(/warehouseCost_manual_(\d+)_(\d{8})/)) {
-					return {
-						key : matches[1] + '/' + matches[2],
-						value : element.val()
-					};
-				} else {
-					return 'incorrect';
-				}
-			} else {
-				return 'incorrect';
-			}
-		default:
-			return 'incorrect';
-	}
-}
-
 function elementProcessAmazonPrice(element) {'use strict';
 	element.checkFloatval();
 	return isNaN(element.val()) ? 'incorrect' : {
@@ -708,9 +658,75 @@ function prepareAmazon() {'use strict';
 }
 
 function prepareGeneralCostConfig() {'use strict';
+	var colModel, processFunctions;
+
+	processFunctions = {
+		preProcess : function(element, type) {
+			var id, matches;
+
+			element.checkFloatval();
+			if (type !== 'float' || isNaN(element.val())) {
+				return 'incorrect';
+			}
+
+			id = element.attr('id');
+			if (( matches = id.match(/generalCosts_manual_(\d{8})/)) !== null) {
+				return {
+					key : '-1/' + matches[1],
+					value : element.val()
+				};
+			} else if (( matches = id.match(/warehouseCost_manual_(\d+)_(\d{8})/)) !== null) {
+				return {
+					key : matches[1] + '/' + matches[2],
+					value : element.val()
+				};
+			} else {
+				return 'incorrect';
+			}
+
+		},
+		postProcess : function(element, type, requestData, resultData) {
+			var returnValue;
+
+			if (type !== 'float') {
+				return 'error';
+			}
+
+			if (resultData.warehouseID === -1) {
+				returnValue = resultData.value.percentage;
+			} else {
+				returnValue = resultData.value.absolute;
+			}
+
+			if (returnValue === null) {
+				// clear corresponding percentage field
+				$('#' + 'warehouseCost_automatic_' + resultData.warehouseID + '_' + resultData.date).empty();
+
+				// hide unit
+				$('#' + 'warehouseCost_automatic_label_' + resultData.warehouseID + '_' + resultData.date).addClass('invisible');
+
+				// hide shipping hint
+				$('#' + 'warehouseCost_automatic_tooltip_' + resultData.warehouseID + '_' + resultData.date).addClass('invisible');
+				return '';
+			} else {
+				if (resultData.warehouseID !== -1) {
+					// fill corresponding percentage field
+					$('#' + 'warehouseCost_automatic_' + resultData.warehouseID + '_' + resultData.date).html(resultData.value.percentageShippingRevenueCleared.percentage);
+
+					// show unit
+					$('#' + 'warehouseCost_automatic_label_' + resultData.warehouseID + '_' + resultData.date).removeClass('invisible');
+
+					// adjust & show shipping hint
+					$('#' + 'warehouseCost_automatic_tooltip_' + resultData.warehouseID + '_' + resultData.date).removeClass('invisible').prop('title', 'Prozentwert wurde bereinigt um geschätzte ' + resultData.value.percentageShippingRevenueCleared.shipping + ' € Versandkosteneinnahmen');
+				}
+				returnValue = parseFloat(returnValue);
+				return isNaN(returnValue) ? 'error' : returnValue.toFixed(2);
+			}
+		}
+	};
 
 	// prepare col model
-	var colModel = [{
+	colModel = [{
 		display : 'Monat',
 		name : 'month',
 		align : 'left',
@@ -726,7 +742,7 @@ function prepareGeneralCostConfig() {'use strict';
 		process : function(celDiv, id) {
 			if (id !== 'Average') {
 				$(celDiv).insertInput('generalCosts_manual_' + id, '%', function(event) {
-					$(event.target).apiUpdate('../api/generalCost', 'float', elementProcessGeneralCosts, elementPostProcessGeneralCosts);
+					$(event.target).apiUpdate('../api/generalCost', 'float', processFunctions.preProcess, processFunctions.postProcess);
 				});
 			} else {
 				$(celDiv).addClass('notModifyable');
@@ -751,7 +767,7 @@ function prepareGeneralCostConfig() {'use strict';
 			process : function(celDiv, id) {
 				if (id !== 'Average') {
 					$(celDiv).insertInput('warehouseCost_manual_' + warehouse.id + '_' + id, '€', function(event) {
-						$(event.target).apiUpdate('../api/generalCost', 'float', elementProcessGeneralCosts, elementPostProcessGeneralCosts);
+						$(event.target).apiUpdate('../api/generalCost', 'float', processFunctions.preProcess, processFunctions.postProcess);
 					});
 				} else {
 					$(celDiv).addClass('notModifyable');
@@ -772,15 +788,42 @@ function prepareGeneralCostConfig() {'use strict';
 			align : 'center',
 			width : 110,
 			process : function(celDiv, id) {
+				var percentageData;
+
 				$(celDiv).addClass('notModifyable');
-				if ($(celDiv).text().trim() !== '') {
-					$(celDiv).wrapInner($('<span/>', {
+				if ($(celDiv).text().trim() !== 'null') {
+					percentageData = $.parseJSON($(celDiv).html());
+
+					$(celDiv).html($('<span/>', {
+						id : 'warehouseCost_automatic_' + warehouse.id + '_' + id,
+						'class' : 'automatic_value',
+						html : percentageData.percentage
+					})).append($('<label/>', {
+						id : 'warehouseCost_automatic_label_' + warehouse.id + '_' + id,
+						'class' : 'variableUnit',
+						html : '%'
+					})).append($('<span/>', {
+						id : 'warehouseCost_automatic_tooltip_' + warehouse.id + '_' + id,
+						html : '',
+						'class' : 'ui-icon ui-icon-help',
+						style : 'display: inline-block',
+						href : '#',
+						'title' : 'Prozentwert wurde bereinigt um geschätzte ' + percentageData.shipping + ' € Versandkosteneinnahmen'
+					})).tooltip();
+				} else {
+					$(celDiv).html($('<span/>', {
 						id : 'warehouseCost_automatic_' + warehouse.id + '_' + id,
 						'class' : 'automatic_value'
 					})).append($('<label/>', {
-						'class' : 'variableUnit',
+						id : 'warehouseCost_automatic_label_' + warehouse.id + '_' + id,
+						'class' : 'variableUnit invisible',
 						html : '%'
-					}));
+					})).append($('<span/>', {
+						id : 'warehouseCost_automatic_tooltip_' + warehouse.id + '_' + id,
+						'class' : 'ui-icon ui-icon-help invisible',
+						style : 'display: inline-block',
+						href : '#'
+					})).tooltip();
 				}
 			}
 		});
