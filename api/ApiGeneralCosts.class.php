@@ -125,21 +125,35 @@ class ApiGeneralCosts {
 		$dbResult = DBQuery::getInstance() -> select($query);
 		ob_end_clean();
 
-		// populate table
+		/* populate table:
+		 *
+		 * for every (month, warehouseID) ...
+		 */
 		while ($runningCostRecord = $dbResult -> fetchAssoc()) {
+			// ... perform sanity check
 			if (array_key_exists($runningCostRecord['WarehouseID'], $result) && array_key_exists($runningCostRecord['Date'], $result[$runningCostRecord['WarehouseID']])) {
+				// ... if we're considering general costs ...
 				if (intval($runningCostRecord['WarehouseID']) === -1) {
+					// ... ... then just store the unchanged percentage value taken from db
 					$result[$runningCostRecord['WarehouseID']][$runningCostRecord['Date']]['percentage'] = $runningCostRecord['Percentage'];
-				} else {
+				}
+				// ... or otherwise running costs per (date, warehouseID) ...
+				else {
+					// ... ... then just store the unchanged absolut value taken from db ...
 					$result[$runningCostRecord['WarehouseID']][$runningCostRecord['Date']]['absolute'] = $runningCostRecord['AbsoluteAmount'];
+
+					// ... ... and if it's a positive absolut value as well as a positive per warehouse netto amount ...
 					if ((floatval($runningCostRecord['AbsoluteAmount']) > 0) && (floatval($runningCostRecord['PerWarehouseNetto']) > 0)) {
+						// ... ... ... then calculate percentage value: absolut_amount / per_warehouse_netto (without shipping!)
 						$result[$runningCostRecord['WarehouseID']][$runningCostRecord['Date']]['percentage'] = number_format(100 * $runningCostRecord['AbsoluteAmount'] / ($runningCostRecord['PerWarehouseNetto']), 2);
 
 						// Quickfix to be able to display shipping-cleared running costs
 						$result[$runningCostRecord['WarehouseID']][$runningCostRecord['Date']]['percentageShippingRevenueCleared'] = array('percentage'=>number_format(100 * ($runningCostRecord['AbsoluteAmount'] - $runningCostRecord['PerWarehouseShipping']) / ($runningCostRecord['PerWarehouseNetto']), 2),'shipping'=>number_format($runningCostRecord['PerWarehouseShipping'], 2, '.', ''));
 					}
 
+					// ... ... and if we need total netto + shipping ...
 					if (self::isBitSet($mode, self::MODE_WITH_TOTAL_NETTO_AND_SHIPPING_VALUE)) {
+						// ... ... ... then calculate total: per_warehouse_netto + per_warehouse_shipping
 						$result[$runningCostRecord['WarehouseID']][$runningCostRecord['Date']]['total'] = $runningCostRecord['PerWarehouseNetto'] + $runningCostRecord['PerWarehouseShipping'];
 					}
 				}
