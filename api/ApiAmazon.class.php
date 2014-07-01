@@ -46,7 +46,9 @@ class ApiAmazon {
 	ItemsBase.ItemNo,
 	ItemsBase.Marking1ID,
 	PriceUpdate.NewPrice,
-	PriceUpdateHistory.WrittenTimeStamp';
+	PriceUpdateHistory.WrittenTimeStamp,
+	PriceUpdateQuantities.OldQuantity,
+	PriceUpdateQuantities.NewQuantity';
 
 	/**
 	 * @var string
@@ -63,7 +65,9 @@ LEFT JOIN AttributeValueSets
 LEFT JOIN PriceUpdate
 	ON (PriceSets.ItemID = PriceUpdate.ItemID) AND (PriceSets.PriceID = PriceUpdate.PriceID)
 LEFT JOIN PriceUpdateHistory
-	ON (PriceSets.ItemID = PriceUpdateHistory.ItemID) AND (PriceSets.PriceID = PriceUpdateHistory.PriceID)\n";
+	ON (PriceSets.ItemID = PriceUpdateHistory.ItemID) AND (PriceSets.PriceID = PriceUpdateHistory.PriceID)
+LEFT JOIN PriceUpdateQuantities
+	ON (PriceSets.ItemID = PriceUpdateQuantities.ItemID) AND (PriceSets.PriceID = PriceUpdateQuantities.PriceID)\n";
 
 	/**
 	 * @var string
@@ -135,7 +139,11 @@ LEFT JOIN PriceUpdateHistory
 		$result = array('success' => false, 'data' => NULL, 'error' => NULL);
 
 		try {
-			$result['data'] = self::getConfig($key);
+			if (is_array($key)) {
+				$result['data'] = self::getConfig($key);
+			} else {
+				$result['data'] = array($key => self::getConfig($key));
+			}
 			$result['success'] = true;
 		} catch(Exception $e) {
 			$result['error'] = $e -> getMessage();
@@ -159,22 +167,40 @@ LEFT JOIN PriceUpdateHistory
 		$dbResult = DBQuery::getInstance() -> select($query);
 		ob_end_clean();
 
-		$result = array();
-
-		while ($row = $dbResult -> fetchAssoc()) {
-			switch ($row['type']) {
-				case 'int' :
-					$result[$row['key']] = intval($row['value']);
-					break;
-				case 'float' :
-					$result[$row['key']] = floatval($row['value']);
-					break;
-				default :
-					throw new RuntimeException("ConfigType {$row['type']} not allowed");
+		// return single value
+		if ($dbResult -> getNumRows() === 1 && !is_array($key)) {
+			if ($row = $dbResult -> fetchAssoc()) {
+				switch ($row['type']) {
+					case 'int' :
+						return intval($row['value']);
+					case 'float' :
+						return floatval($row['value']);
+					default :
+						throw new RuntimeException("ConfigType {$row['type']} not allowed");
+				}
+			} else {
+				throw new RuntimeException("Could not fetch result for key $key");
 			}
 		}
+		// return multiple values
+		else {
+			$result = array();
 
-		return $result;
+			while ($row = $dbResult -> fetchAssoc()) {
+				switch ($row['type']) {
+					case 'int' :
+						$result[$row['key']] = intval($row['value']);
+						break;
+					case 'float' :
+						$result[$row['key']] = floatval($row['value']);
+						break;
+					default :
+						throw new RuntimeException("ConfigType {$row['type']} not allowed");
+				}
+			}
+
+			return $result;
+		}
 	}
 
 	public static function getPriceJSON($itemID) {
@@ -346,6 +372,10 @@ LEFT JOIN PriceUpdateHistory
 					'writtenTime' => $isWrittenTimeValid ? $writtenDate->format('d.m.Y') : '-',
 					'targetDays' => $config['MeasuringTimeFrame'],
 					'currentDays' => $isWrittenTimeValid ? number_format($currentDays, 1) : '-'
+				),
+				'Quantities' => array(
+					'oldQuantity' => empty($amazonPriceData['OldQuantity']) ? 0 : $amazonPriceData['OldQuantity'],
+					'newQuantity' => empty($amazonPriceData['NewQuantity']) ? 0 : $amazonPriceData['NewQuantity']
 				)
 			);
 			 // @formatter:on

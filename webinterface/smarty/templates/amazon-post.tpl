@@ -21,7 +21,7 @@
 			<![CDATA[{$itemVariant.Marking1ID}]]>
 		</cell>
 		<cell>
-			<![CDATA[M]]>
+			<![CDATA[{$itemVariant.Quantities|@json_encode}]]>
 		</cell>
 		<cell>
 			<![CDATA[N]]>

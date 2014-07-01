@@ -384,4 +384,30 @@ tr:hover .notModifyable {
 .invisible {
 	display: none !important;
 }
+
+.oldValue, .newValue {
+	display: inline-block;
+	width: 50%;
+	text-align: center;
+}
+
+.newValue {
+	font-weight: bold;
+}
+
+.oldValue:before {
+	content: '(';
+}
+
+.oldValue:after {
+	content: ')';
+}
+
+.goodValue {
+	color: green;
+}
+
+.badValue {
+	color: red;
+}
 /** end table styling **/

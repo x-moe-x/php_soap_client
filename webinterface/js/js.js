@@ -553,8 +553,27 @@ function prepareAmazon() {'use strict';
 			process: processMarking1ID
 		},{
 			display : 'Verkauf Stk. / 30 Tage<br>(vor) nach Änderung VK',
-			name : 'M'
-		},{
+			name : 'Quantities',
+			process : function(cellDiv, SKU) {
+				var quantityData, valueQuality;
+				quantityData = $.parseJSON($(cellDiv).html());
+
+				if (quantityData.oldQuantity <= quantityData.newQuantity) {
+					valueQuality = 'goodValue';
+				}
+				if (quantityData.oldQuantity > quantityData.newQuantity) {
+					valueQuality = 'badValue';
+				}
+
+				$(cellDiv).html($('<span/>', {
+					html : quantityData.oldQuantity,
+					'class' : 'oldValue'
+				})).append($('<span/>', {
+					html : quantityData.newQuantity,
+					'class' : 'newValue ' + valueQuality
+				}));
+			}
+		}, {
 			display : 'durchschn. Marge / Stk. (mit aktuellen Kosten)<br>(vor) nach Änderung VK',
 			name : 'N'
 		},{
