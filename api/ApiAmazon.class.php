@@ -48,7 +48,8 @@ class ApiAmazon {
 	PriceUpdate.NewPrice,
 	PriceUpdateHistory.WrittenTimeStamp,
 	PriceUpdateQuantities.OldQuantity,
-	PriceUpdateQuantities.NewQuantity';
+	PriceUpdateQuantities.NewQuantity,
+	PriceSets.PurchasePriceNet';
 
 	/**
 	 * @var string
@@ -376,6 +377,15 @@ LEFT JOIN PriceUpdateQuantities
 				'Quantities' => array(
 					'oldQuantity' => empty($amazonPriceData['OldQuantity']) ? 0 : $amazonPriceData['OldQuantity'],
 					'newQuantity' => empty($amazonPriceData['NewQuantity']) ? 0 : $amazonPriceData['NewQuantity']
+				),
+				/**
+				 * calculate Marge: (VK - (EK + VK * (BetriebsKostenAnteil + LagerKostenAnteil + AmazonProvision))) / VK
+				 *
+				 * simplifies to: 1 - (EK / VK + BetriebsKostenAnteil + LagerKostenAnteil + AmazonProvision)
+				 */
+				'Marge' => array(
+					'oldMarge' => 1 - ($amazonPriceData['PurchasePriceNet'] / $amazonPriceData['OldPrice'] + $config['ProvisionCosts'] + $config['CommonRunningCostsAmount'] + $config['WarehouseRunningCostsAmount']),
+					'newMarge' => 1 - ($amazonPriceData['PurchasePriceNet'] / $amazonPriceData['Price'] + $config['ProvisionCosts'] + $config['CommonRunningCostsAmount'] + $config['WarehouseRunningCostsAmount'])
 				)
 			);
 			 // @formatter:on
