@@ -385,13 +385,13 @@ tr:hover .notModifyable {
 	display: none !important;
 }
 
-.oldValue, .newValue {
+.oldValue, .newValue, .newMarge, .oldMarge {
 	display: inline-block;
 	width: 50%;
 	text-align: center;
 }
 
-.newValue {
+.newValue, .newMarge {
 	font-weight: bold;
 }
 
@@ -409,5 +409,19 @@ tr:hover .notModifyable {
 
 .badValue {
 	color: red;
+}
+
+.oldMarge:before {
+	content: '(';
+}
+
+.oldMarge:after {
+	content: ' %)';
+}
+
+.newMarge:after {
+	content: ' %';
+	color: #000;
+	font-weight: normal;
 }
 /** end table styling **/
