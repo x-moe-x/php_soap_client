@@ -69,35 +69,6 @@ function processMarking1ID(celDiv, sku) {'use strict';
 	}
 }
 
-function elementPostProcessAmazonPrice(element, type, requestData, resultData) {'use strict';
-	var returnValue;
-	switch (type) {
-		case 'float':
-			returnValue = parseFloat(resultData.NewPrice);
-			if (isNaN(returnValue)) {
-				return 'error';
-			} else {
-				if (resultData.isChangePending) {
-					element.parent().addClass('priceChanged');
-				} else {
-					element.parent().removeClass('priceChanged');
-				}
-				return returnValue.toFixed(2);
-			}
-			break;
-		default:
-			return 'error';
-	}
-}
-
-function elementProcessAmazonPrice(element) {'use strict';
-	element.checkFloatval();
-	return isNaN(element.val()) ? 'incorrect' : {
-		key : element.attr('id'),
-		value : element.val()
-	};
-}
-
 function elementProcessStockConfig(element, type) {'use strict';
 	switch (type) {
 		case 'int':
@@ -508,6 +479,34 @@ function prepareStock() {'use strict';
 }
 
 function prepareAmazon() {'use strict';
+	var processFunctions;
+
+	processFunctions = {
+		preProcess : function(element, type) {
+			element.checkFloatval();
+			return isNaN(element.val()) ? 'incorrect' : {
+				key : element.attr('id'),
+				value : element.val()
+			};
+		},
+		postProcess : function(element, type, requestData, resultData) {
+			var returnValue;
+
+			returnValue = parseFloat(resultData.NewPrice);
+			if (type !== 'float' || isNaN(returnValue)) {
+				return 'error';
+			}
+
+			if (resultData.isChangePending) {
+				element.parent().addClass('priceChanged');
+			} else {
+				element.parent().removeClass('priceChanged');
+			}
+			return returnValue.toFixed(2);
+
+		}
+	};
+
 	$.each([{
 		id : '#provisionCosts',
 		type : 'percent',
@@ -567,7 +566,7 @@ function prepareAmazon() {'use strict';
 		},{
 			display : 'Datum letzte Änderung VK<br>Zeitraum Trend (Soll / Ist)',
 			name : 'TimeData',
-			process : function(cellDiv, SKU) {'use strict';
+			process : function(cellDiv, SKU) {
 				var timeData;
 				timeData = $.parseJSON($(cellDiv).html());
 
@@ -582,7 +581,7 @@ function prepareAmazon() {'use strict';
 			name : 'Price',
 			align : 'center',
 			width : 120,
-			process : function(cellDiv, SKU) {'use strict';
+			process : function(cellDiv, SKU) {
 				var priceData, price;
 				priceData = $.parseJSON($(cellDiv).html());
 
@@ -614,7 +613,7 @@ function prepareAmazon() {'use strict';
 
 				// add input field with current price plus unit
 				$(cellDiv).insertInput(SKU, '€', function(event) {
-					$(event.target).apiUpdate('../api/amazonPrice', 'float', elementProcessAmazonPrice, elementPostProcessAmazonPrice);
+					$(event.target).apiUpdate('../api/amazonPrice', 'float', processFunctions.preProcess, processFunctions.postProcess);
 					$(cellDiv).addClass('priceChanged');
 				}, parseFloat(priceData.price).toFixed(2));
 
