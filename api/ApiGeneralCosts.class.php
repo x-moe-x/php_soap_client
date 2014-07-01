@@ -134,6 +134,9 @@ class ApiGeneralCosts {
 					$result[$runningCostRecord['WarehouseID']][$runningCostRecord['Date']]['absolute'] = $runningCostRecord['AbsoluteAmount'];
 					if ((floatval($runningCostRecord['AbsoluteAmount']) > 0) && (floatval($runningCostRecord['PerWarehouseNetto']) > 0)) {
 						$result[$runningCostRecord['WarehouseID']][$runningCostRecord['Date']]['percentage'] = number_format(100 * $runningCostRecord['AbsoluteAmount'] / ($runningCostRecord['PerWarehouseNetto']), 2);
+
+						// Quickfix to be able to display shipping-cleared running costs
+						$result[$runningCostRecord['WarehouseID']][$runningCostRecord['Date']]['percentageShippingRevenueCleared'] = array('percentage'=>number_format(100 * ($runningCostRecord['AbsoluteAmount'] - $runningCostRecord['PerWarehouseShipping']) / ($runningCostRecord['PerWarehouseNetto']), 2),'shipping'=>number_format($runningCostRecord['PerWarehouseShipping'], 2, '.', ''));
 					}
 
 					if (self::isBitSet($mode, self::MODE_WITH_TOTAL_NETTO_AND_SHIPPING_VALUE)) {

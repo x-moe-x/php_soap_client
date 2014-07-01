@@ -14,7 +14,7 @@
 		<cell><![CDATA[{$data[$warehouseID][$month].percentage}]]></cell>
 {else}
 		<cell><![CDATA[{$data[$warehouseID][$month].absolute}]]></cell>
-		<cell><![CDATA[{$data[$warehouseID][$month].percentage}]]></cell>
+		<cell><![CDATA[{$data[$warehouseID][$month].percentageShippingRevenueCleared|@json_encode}]]></cell>
 {/if}
 {/foreach}
 	</row>
