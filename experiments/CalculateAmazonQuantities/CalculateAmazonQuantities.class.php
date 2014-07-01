@@ -47,13 +47,21 @@ class CalculateAmazonQuantities {
 	 * @return void
 	 */
 	public function execute() {
-		$amazonMeasuringTimeFrame = ApiAmazon::getConfig('MeasuringTimeFrame'); // value J
+		$amazonMeasuringTimeFrame = ApiAmazon::getConfig('MeasuringTimeFrame');
+		// value J
 
-		// get all amazon quantities
-		$calculatedAmazonQuantitiesDBResult = DBQuery::getInstance() -> select($this -> getQuery($amazonMeasuringTimeFrame, ApiAmazon::AMAZON_REFERRER_ID));
-		while ($row = $calculatedAmazonQuantitiesDBResult -> fetchAssoc()) {
-			list(, $priceID, ) = SKU2Values($row['SKU']);
-			$this -> aQuantities[] = array('ItemID' => $row['ItemID'], 'PriceID' => $priceID, 'PriceColumn' => $row['PriceColumn'], 'OldQuantity' => $row['Quantity'], 'NewQuantity' => null);
+		// get all amazon pre-change-date quantities
+		$preChangeDateQuantitiesDBResult = DBQuery::getInstance() -> select($this -> getQuery($amazonMeasuringTimeFrame, ApiAmazon::AMAZON_REFERRER_ID));
+		while ($row = $preChangeDateQuantitiesDBResult -> fetchAssoc()) {
+			list($itemID, $priceID, ) = SKU2Values($row['SKU']);
+			$this -> aQuantities[Values2SKU($itemID, 0, $priceID)] = array('ItemID' => $itemID, 'PriceID' => $priceID, 'PriceColumn' => $row['PriceColumn'], 'OldQuantity' => ($row['Quantity'] / $amazonMeasuringTimeFrame) * self::DAYS_BACK_INTERAL_BEFORE_PRICE_CHANGE, 'NewQuantity' => null);
+		}
+
+		// get all amazon post-change-date quantities
+		$postChangeDateQuantitiesDBResult = DBQuery::getInstance() -> select($this -> getQuery($amazonMeasuringTimeFrame, ApiAmazon::AMAZON_REFERRER_ID, $this -> currentTime));
+		while ($row = $postChangeDateQuantitiesDBResult -> fetchAssoc()) {
+			list($itemID, $priceID, ) = SKU2Values($row['SKU']);
+			$this -> aQuantities[Values2SKU($itemID, 0, $priceID)]['NewQuantity'] = ($row['Quantity'] / $amazonMeasuringTimeFrame) * self::DAYS_BACK_INTERAL_BEFORE_PRICE_CHANGE;
 		}
 
 		$this -> storeToDB();
