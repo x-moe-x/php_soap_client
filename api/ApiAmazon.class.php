@@ -138,7 +138,11 @@ LEFT JOIN PriceUpdateQuantities
 		$result = array('success' => false, 'data' => NULL, 'error' => NULL);
 
 		try {
-			$result['data'] = self::getConfig($key);
+			if (is_array($key)) {
+				$result['data'] = self::getConfig($key);
+			} else {
+				$result['data'] = array($key => self::getConfig($key));
+			}
 			$result['success'] = true;
 		} catch(Exception $e) {
 			$result['error'] = $e -> getMessage();
@@ -162,22 +166,40 @@ LEFT JOIN PriceUpdateQuantities
 		$dbResult = DBQuery::getInstance() -> select($query);
 		ob_end_clean();
 
-		$result = array();
-
-		while ($row = $dbResult -> fetchAssoc()) {
-			switch ($row['type']) {
-				case 'int' :
-					$result[$row['key']] = intval($row['value']);
-					break;
-				case 'float' :
-					$result[$row['key']] = floatval($row['value']);
-					break;
-				default :
-					throw new RuntimeException("ConfigType {$row['type']} not allowed");
+		// return single value
+		if ($dbResult -> getNumRows() === 1 && !is_array($key)) {
+			if ($row = $dbResult -> fetchAssoc()) {
+				switch ($row['type']) {
+					case 'int' :
+						return intval($row['value']);
+					case 'float' :
+						return floatval($row['value']);
+					default :
+						throw new RuntimeException("ConfigType {$row['type']} not allowed");
+				}
+			} else {
+				throw new RuntimeException("Could not fetch result for key $key");
 			}
 		}
+		// return multiple values
+		else {
+			$result = array();
 
-		return $result;
+			while ($row = $dbResult -> fetchAssoc()) {
+				switch ($row['type']) {
+					case 'int' :
+						$result[$row['key']] = intval($row['value']);
+						break;
+					case 'float' :
+						$result[$row['key']] = floatval($row['value']);
+						break;
+					default :
+						throw new RuntimeException("ConfigType {$row['type']} not allowed");
+				}
+			}
+
+			return $result;
+		}
 	}
 
 	public static function getPriceJSON($itemID) {
