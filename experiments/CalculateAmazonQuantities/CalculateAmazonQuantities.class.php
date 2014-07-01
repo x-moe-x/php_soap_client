@@ -47,8 +47,10 @@ class CalculateAmazonQuantities {
 	 * @return void
 	 */
 	public function execute() {
+		$amazonMeasuringTimeFrame = ApiAmazon::getConfig('MeasuringTimeFrame'); // value J
+
 		// get all amazon quantities
-		$calculatedAmazonQuantitiesDBResult = DBQuery::getInstance() -> select($this -> getQuery(self::DAYS_BACK_INTERAL_BEFORE_PRICE_CHANGE, ApiAmazon::AMAZON_REFERRER_ID));
+		$calculatedAmazonQuantitiesDBResult = DBQuery::getInstance() -> select($this -> getQuery($amazonMeasuringTimeFrame, ApiAmazon::AMAZON_REFERRER_ID));
 		while ($row = $calculatedAmazonQuantitiesDBResult -> fetchAssoc()) {
 			list(, $priceID, ) = SKU2Values($row['SKU']);
 			$this -> aQuantities[] = array('ItemID' => $row['ItemID'], 'PriceID' => $priceID, 'PriceColumn' => $row['PriceColumn'], 'OldQuantity' => $row['Quantity'], 'NewQuantity' => null);
