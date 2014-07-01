@@ -77,7 +77,17 @@ class CalculateAmazonQuantities {
 	 * @param int $referrerID
 	 * @return string the query
 	 */
-	private function getQuery($daysBack, $referrerID) {
+	private function getQuery($daysBack, $referrerID, $fromTimeStamp = null) {
+		if (is_null($fromTimeStamp)) {
+			$timingCondition = "CASE WHEN (u.WrittenTimestamp IS null) THEN
+		(h.DoneTimestamp BETWEEN {$this -> currentTime} -( 86400 * $daysBack ) AND {$this -> currentTime})
+	ELSE
+		(h.DoneTimestamp BETWEEN u.WrittenTimestamp -( 86400 * $daysBack ) AND u.WrittenTimestamp )
+	END";
+		} else {
+			$timingCondition = "(h.DoneTimestamp BETWEEN $fromTimeStamp -( 86400 * $daysBack ) AND $fromTimeStamp)";
+		}
+
 		return "SELECT
 	i.ItemID,
 	i.SKU,
@@ -96,11 +106,7 @@ ON
 WHERE
 	OrderType = \"order\"
 AND
-	CASE WHEN (u.WrittenTimestamp IS null) THEN
-		(h.DoneTimestamp BETWEEN {$this -> currentTime} -( 86400 * $daysBack ) AND {$this -> currentTime})
-	ELSE
-		(h.DoneTimestamp BETWEEN u.WrittenTimestamp -( 86400 * $daysBack ) AND u.WrittenTimestamp )
-	END
+	$timingCondition
 AND
 	(h.OrderStatus < 8 OR h.OrderStatus >= 9)
 AND
