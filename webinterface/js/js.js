@@ -554,14 +554,23 @@ function prepareAmazon() {'use strict';
 		},{
 			display : 'Verkauf Stk. / 30 Tage<br>(vor) nach Änderung VK',
 			name : 'Quantities',
-			process : function(cellDiv, SKU) {'use strict';
-				var quantityData;
+			process : function(cellDiv, SKU) {
+				var quantityData, valueQuality;
 				quantityData = $.parseJSON($(cellDiv).html());
 
+				if (quantityData.oldQuantity <= quantityData.newQuantity) {
+					valueQuality = 'goodValue';
+				}
+				if (quantityData.oldQuantity > quantityData.newQuantity) {
+					valueQuality = 'badValue';
+				}
+
 				$(cellDiv).html($('<span/>', {
-					html : '(' + quantityData.oldQuantity + ')'
+					html : quantityData.oldQuantity,
+					'class' : 'oldValue'
 				})).append($('<span/>', {
-					html : quantityData.newQuantity
+					html : quantityData.newQuantity,
+					'class' : 'newValue ' + valueQuality
 				}));
 			}
 		}, {
