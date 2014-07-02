@@ -42,6 +42,9 @@
 			<![CDATA[{$itemVariant.MinPrice}]]>
 		</cell>
 		<cell>
+			<![CDATA[{$itemVariant.StandardPrice}]]>
+		</cell>
+		<cell>
 			<![CDATA[{$itemVariant.TargetMarge}]]>
 		</cell>
 		<cell>
