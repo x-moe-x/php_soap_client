@@ -42,7 +42,7 @@
 			<![CDATA[{$itemVariant.MinPrice}]]>
 		</cell>
 		<cell>
-			<![CDATA[T]]>
+			<![CDATA[{$itemVariant.TargetMarge}]]>
 		</cell>
 		<cell>
 			<![CDATA[{$itemVariant.PriceChange|@json_encode}]]>
