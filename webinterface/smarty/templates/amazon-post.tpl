@@ -27,10 +27,10 @@
 			<![CDATA[{$itemVariant.Marge|@json_encode}]]>
 		</cell>
 		<cell>
-			<![CDATA[O]]>
+			<![CDATA[{$itemVariant.Trend}]]>
 		</cell>
 		<cell>
-			<![CDATA[P]]>
+			<![CDATA[{$itemVariant.TrendProfit}]]>
 		</cell>
 		<cell>
 			<![CDATA[{$itemVariant.TimeData|@json_encode}]]>
