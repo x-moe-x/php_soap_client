@@ -667,8 +667,18 @@ function prepareAmazon() {'use strict';
 				})).addClass('amazonPrice');
 			}
 		}, {
-			display : 'Min.- Preis<br>€',
-			name : 'S'
+			display : 'Min.- Preis',
+			name : 'MinPrice',
+			process : function(cellDiv, SKU) {
+				var minPrice;
+
+				minPrice = parseFloat($(cellDiv).html()).toFixed(2);
+
+				$(cellDiv).html($('<span/>', {
+					'class' : 'minPrice',
+					html : minPrice
+				}));
+			}
 		}, {
 			display : '(Ziel-) Marge<br>%',
 			name : 'T'

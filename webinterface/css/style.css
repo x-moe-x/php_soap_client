@@ -397,7 +397,7 @@ tr:hover .notModifyable {
 	text-align: center;
 }
 
-.trendValue, .trendProfitValue {
+.trendValue, .trendProfitValue, .minPrice {
 	display: inline-block;
 	width: 100%;
 	text-align: center;
@@ -433,6 +433,10 @@ tr:hover .notModifyable {
 
 .oldMarge:after {
 	content: ' %)';
+}
+
+.minPrice:after {
+	content: ' €';
 }
 
 .newMarge:after, .trendValue:after, .trendProfitValue:after {
