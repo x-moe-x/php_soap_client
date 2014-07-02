@@ -679,6 +679,19 @@ function prepareAmazon() {'use strict';
 					html : minPrice
 				}));
 			}
+		},{
+			display : 'Standard Preis',
+			name : 'StandardPrice',
+			process : function(cellDiv, SKU) {
+				var standardPrice;
+
+				standardPrice = parseFloat($(cellDiv).html()).toFixed(2);
+
+				$(cellDiv).html($('<span/>', {
+					'class' : 'standardPrice',
+					html : standardPrice
+				}));
+			}
 		}, {
 			display : '(Ziel-) Marge<br>%',
 			name : 'TargetMarge',
