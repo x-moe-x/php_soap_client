@@ -681,7 +681,17 @@ function prepareAmazon() {'use strict';
 			}
 		}, {
 			display : '(Ziel-) Marge<br>%',
-			name : 'T'
+			name : 'TargetMarge',
+			process : function(cellDiv, SKU) {
+				var targetMarge;
+
+				targetMarge = (parseFloat($(cellDiv).html()) * 100).toFixed(2);
+
+				$(cellDiv).html($('<span/>', {
+					'class' : 'targetMarge',
+					html : targetMarge
+				}));
+			}
 		}, {
 			display : 'Preis ändern',
 			name : 'ChangePrice',
