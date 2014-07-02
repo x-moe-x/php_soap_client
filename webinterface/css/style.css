@@ -391,6 +391,12 @@ tr:hover .notModifyable {
 	text-align: center;
 }
 
+.trendValue, .trendProfitValue {
+	display: inline-block;
+	width: 100%;
+	text-align: center;
+}
+
 .newValue, .newMarge {
 	font-weight: bold;
 }
@@ -419,7 +425,7 @@ tr:hover .notModifyable {
 	content: ' %)';
 }
 
-.newMarge:after {
+.newMarge:after, .trendValue:after, .trendProfitValue:after {
 	content: ' %';
 	color: #000;
 	font-weight: normal;

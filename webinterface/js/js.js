@@ -598,11 +598,29 @@ function prepareAmazon() {'use strict';
 			}
 		}, {
 			display : 'Trend Artikel<br>verkaufte Stk',
-			name : 'O'
-		},{
+			name : 'Trend',
+			process : function(cellDiv, SKU) {
+				var trendValue;
+
+				trendValue = parseFloat($(cellDiv).html());
+				$(cellDiv).html($('<span/>', {
+					html : (trendValue * 100).toFixed(2),
+					'class' : 'trendValue ' + (trendValue >= 0 ? 'goodValue' : 'badValue')
+				}));
+			}
+		}, {
 			display : 'Trend Artikel(mit aktuellen Kosten))<br>Gewinn (Vgl. mit Herkunft + 1,8%)',
-			name : 'P'
-		},{
+			name : 'TrendProfit',
+			process : function(cellDiv, SKU) {
+				var trendProfitValue;
+
+				trendProfitValue = parseFloat($(cellDiv).html());
+				$(cellDiv).html($('<span/>', {
+					html : (trendProfitValue * 100).toFixed(2),
+					'class' : 'trendProfitValue ' + (trendProfitValue >= 0 ? 'goodValue' : 'badValue')
+				}));
+			}
+		}, {
 			display : 'Datum letzte Änderung VK<br>Zeitraum Trend (Soll / Ist)',
 			name : 'TimeData',
 			process : function(cellDiv, SKU) {
