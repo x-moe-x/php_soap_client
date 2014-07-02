@@ -39,7 +39,7 @@
 			<![CDATA[{$itemVariant.PriceOldCurrent|@json_encode}]]>
 		</cell>
 		<cell>
-			<![CDATA[S]]>
+			<![CDATA[{$itemVariant.MinPrice}]]>
 		</cell>
 		<cell>
 			<![CDATA[T]]>
