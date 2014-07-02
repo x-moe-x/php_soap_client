@@ -49,6 +49,7 @@ class ApiAmazon {
 	PriceUpdateHistory.WrittenTimeStamp,
 	PriceUpdateQuantities.OldQuantity,
 	PriceUpdateQuantities.NewQuantity,
+	PriceSets.Price / (1 + PriceSets.VAT / 100) AS StandardPrice,
 	PriceSets.PurchasePriceNet';
 
 	/**
@@ -362,6 +363,8 @@ LEFT JOIN PriceUpdateQuantities
 				$currentDays = $writtenDateToNowDifference -> format('%a') + $writtenDateToNowDifference -> format('%h') / 24;
 			}
 
+			$oldQuantity = empty($amazonPriceData['OldQuantity']) ? 0 : intval($amazonPriceData['OldQuantity']);
+			$newQuantity = empty($amazonPriceData['NewQuantity']) ? 0 : intval($amazonPriceData['NewQuantity']);
 			// @formatter:off		
 			$data['rows'][$sku] = array(
 				'RowID' => $sku,
@@ -380,8 +383,8 @@ LEFT JOIN PriceUpdateQuantities
 					'currentDays' => $isWrittenTimeValid ? number_format($currentDays, 1) : '-'
 				),
 				'Quantities' => array(
-					'oldQuantity' => empty($amazonPriceData['OldQuantity']) ? 0 : $amazonPriceData['OldQuantity'],
-					'newQuantity' => empty($amazonPriceData['NewQuantity']) ? 0 : $amazonPriceData['NewQuantity']
+					'oldQuantity' => $oldQuantity,
+					'newQuantity' => $newQuantity
 				),
 				/**
 				 * calculate Marge: (VK - (EK + VK * (BetriebsKostenAnteil + LagerKostenAnteil + AmazonProvision))) / VK
@@ -391,7 +394,12 @@ LEFT JOIN PriceUpdateQuantities
 				'Marge' => array(
 					'oldMarge' => 1 - ($amazonPriceData['PurchasePriceNet'] / $amazonPriceData['OldPrice'] + $config['ProvisionCosts'] + $config['CommonRunningCostsAmount'] + $config['WarehouseRunningCostsAmount']),
 					'newMarge' => 1 - ($amazonPriceData['PurchasePriceNet'] / $amazonPriceData['Price'] + $config['ProvisionCosts'] + $config['CommonRunningCostsAmount'] + $config['WarehouseRunningCostsAmount'])
-				)
+				),
+				'Trend' => $oldQuantity === 0 ? 0 : $newQuantity / $oldQuantity - 1,
+				'TrendProfit' => $oldQuantity === 0 ? 0 : ($newQuantity * $amazonPriceData['Price']) / ($oldQuantity * $amazonPriceData['OldPrice']) - 1,
+				'MinPrice' => $amazonPriceData['PurchasePriceNet'] / (1 - ($config['ProvisionCosts'] + $config['CommonRunningCostsAmount'] + $config['WarehouseRunningCostsAmount'] + $config['MinimumMarge'])),
+				'TargetMarge' => 1 - ($amazonPriceData['PurchasePriceNet'] / $amazonPriceData['Price'] + $config['ProvisionCosts'] + $config['CommonRunningCostsAmount'] + $config['WarehouseRunningCostsAmount']),
+				'StandardPrice' => $amazonPriceData['StandardPrice']
 			);
 			 // @formatter:on
 		}

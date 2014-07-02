@@ -391,6 +391,22 @@ tr:hover .notModifyable {
 	text-align: center;
 }
 
+.targetDaysValue, .currentDaysValue {
+	display: inline-block;
+	width: 40%;
+	text-align: center;
+}
+
+.trendValue, .trendProfitValue, .minPrice, .targetMarge, .standardPrice {
+	display: inline-block;
+	width: 100%;
+	text-align: center;
+}
+
+.changeDateValue {
+	text-decoration: none;
+}
+
 .newValue, .newMarge {
 	font-weight: bold;
 }
@@ -419,7 +435,11 @@ tr:hover .notModifyable {
 	content: ' %)';
 }
 
-.newMarge:after {
+.minPrice:after, .standardPrice:after {
+	content: ' €';
+}
+
+.newMarge:after, .trendValue:after, .trendProfitValue:after, .targetMarge:after {
 	content: ' %';
 	color: #000;
 	font-weight: normal;

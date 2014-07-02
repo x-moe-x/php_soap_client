@@ -27,10 +27,10 @@
 			<![CDATA[{$itemVariant.Marge|@json_encode}]]>
 		</cell>
 		<cell>
-			<![CDATA[O]]>
+			<![CDATA[{$itemVariant.Trend}]]>
 		</cell>
 		<cell>
-			<![CDATA[P]]>
+			<![CDATA[{$itemVariant.TrendProfit}]]>
 		</cell>
 		<cell>
 			<![CDATA[{$itemVariant.TimeData|@json_encode}]]>
@@ -39,10 +39,13 @@
 			<![CDATA[{$itemVariant.PriceOldCurrent|@json_encode}]]>
 		</cell>
 		<cell>
-			<![CDATA[S]]>
+			<![CDATA[{$itemVariant.MinPrice}]]>
 		</cell>
 		<cell>
-			<![CDATA[T]]>
+			<![CDATA[{$itemVariant.StandardPrice}]]>
+		</cell>
+		<cell>
+			<![CDATA[{$itemVariant.TargetMarge}]]>
 		</cell>
 		<cell>
 			<![CDATA[{$itemVariant.PriceChange|@json_encode}]]>
