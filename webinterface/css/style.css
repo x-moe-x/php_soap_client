@@ -391,10 +391,20 @@ tr:hover .notModifyable {
 	text-align: center;
 }
 
+.targetDaysValue, .currentDaysValue {
+	display: inline-block;
+	width: 40%;
+	text-align: center;
+}
+
 .trendValue, .trendProfitValue {
 	display: inline-block;
 	width: 100%;
 	text-align: center;
+}
+
+.changeDateValue {
+	text-decoration: none;
 }
 
 .newValue, .newMarge {
