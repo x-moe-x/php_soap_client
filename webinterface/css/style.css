@@ -356,7 +356,8 @@ body.loading .modal {
 .flexigrid div.bDiv input {
 	width: 80%;
 	margin-right: 5%;
-	border: 0;
+	border: 1px solid #ddd;
+	background-color: #f5f5f5;
 	padding: 0;
 	text-align: right;
 }
