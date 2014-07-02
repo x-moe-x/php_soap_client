@@ -626,13 +626,13 @@ function prepareAmazon() {'use strict';
 
 				$(cellDiv).html($('<span/>', {
 					'class' : 'price oldPrice',
-					html : priceData.oldPrice
+					html : parseFloat(priceData.oldPrice).toFixed(2)
 				})).append($('<span/>', {
 					'class' : 'valueDelimiter',
 					html : '/'
 				})).append($('<span/>', {
 					'class' : 'price currentPrice',
-					html : priceData.price
+					html : parseFloat(priceData.price).toFixed(2)
 				})).addClass('amazonPrice');
 			}
 		}, {

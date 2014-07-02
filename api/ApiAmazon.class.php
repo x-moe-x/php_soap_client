@@ -341,7 +341,12 @@ LEFT JOIN PriceUpdateQuantities
 		// get associated price id
 		$amazonStaticData = ApiHelper::getSalesOrderReferrer(self::AMAZON_REFERRER_ID);
 		$amazonPrice = 'Price' . $amazonStaticData['PriceColumn'];
-		$amazonPriceSelect = ",\n\tPriceSets.$amazonPrice AS Price,\n\tCASE WHEN (PriceUpdateHistory.OldPrice IS null) THEN\n\t\tPriceSets.$amazonPrice\n\tELSE\n\t\tPriceUpdateHistory.OldPrice\n\tEND OldPrice"; 
+		$amazonPriceSelect = ",\n\tPriceSets.$amazonPrice / (1 + PriceSets.VAT / 100) AS Price,
+	CASE WHEN (PriceUpdateHistory.OldPrice IS null) THEN
+		PriceSets.$amazonPrice / (1 + PriceSets.VAT / 100)
+	ELSE
+		PriceUpdateHistory.OldPrice
+	END OldPrice";
 		// add price id to select advanced clause
 		$query = self::PRICE_DATA_SELECT_BASIC . self::PRICE_DATA_SELECT_ADVANCED . $amazonPriceSelect . self::PRICE_DATA_FROM_BASIC . self::PRICE_DATA_FROM_ADVANCED . self::PRICE_DATA_WHERE . $whereCondition . $sort . $limit;
 		$amazonPriceDataDBResult = DBQuery::getInstance() -> select($query);
