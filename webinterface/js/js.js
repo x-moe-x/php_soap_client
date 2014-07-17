@@ -547,7 +547,8 @@ function prepareAmazon() {'use strict';
 			width : 90
 		}, {
 			display : 'Name',
-			name : 'ItemName'
+			name : 'ItemName',
+			width : 250
 		}, {
 			display : 'Markierung',
 			name : 'Marking1ID',
@@ -647,7 +648,7 @@ function prepareAmazon() {'use strict';
 				}).tooltip()));
 			}
 		}, {
-			display : 'alter Preis / aktueller Preis',
+			display : 'Preis: alt / aktuell',
 			name : 'Price',
 			align : 'center',
 			width : 120,
@@ -669,6 +670,7 @@ function prepareAmazon() {'use strict';
 		}, {
 			display : 'Min.- Preis',
 			name : 'MinPrice',
+			width: 70,
 			process : function(cellDiv, SKU) {
 				var minPrice;
 
@@ -679,9 +681,10 @@ function prepareAmazon() {'use strict';
 					html : minPrice
 				}));
 			}
-		},{
-			display : 'Standard Preis',
+		}, {
+			display : 'Std. Preis',
 			name : 'StandardPrice',
+			width: 70,
 			process : function(cellDiv, SKU) {
 				var standardPrice;
 
@@ -693,8 +696,9 @@ function prepareAmazon() {'use strict';
 				}));
 			}
 		}, {
-			display : '(Ziel-) Marge<br>%',
+			display : '(Ziel-) Marge',
 			name : 'TargetMarge',
+			width : 70,
 			process : function(cellDiv, SKU) {
 				var targetMarge;
 
