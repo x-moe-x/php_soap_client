@@ -10,7 +10,7 @@ require_once 'ApiHelper.class.php';
 
 class ApiAmazon {
 
-	const PRICE_COMPARISON_ACCURACY = 0.001;
+	const PRICE_COMPARISON_ACCURACY = 0.01;
 
 	/**
 	 * @var string
@@ -290,7 +290,7 @@ LEFT JOIN PriceUpdateQuantities
 		// ... and priceID
 		ob_start();
 		$priceString = "Price" . ($aPriceUpdate['PriceColumn'] === 0 ? '' : $aPriceUpdate['PriceColumn']);
-		$priceSetsDBResult = DBQuery::getInstance() -> select("SELECT PriceID, $priceString AS Price FROM PriceSets WHERE ItemID = $itemID");
+		$priceSetsDBResult = DBQuery::getInstance() -> select("SELECT PriceID, $priceString / (1 + VAT / 100) AS Price FROM PriceSets WHERE ItemID = $itemID");
 		ob_end_clean();
 
 		$isChangePending = false;
