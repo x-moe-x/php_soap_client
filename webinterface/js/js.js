@@ -751,6 +751,16 @@ function prepareAmazon() {'use strict';
 				}
 			}
 		}],
+		searchitems : [{
+			display : 'ItemID',
+			name : 'ItemID'
+		}, {
+			display : 'Artikel Nr.',
+			name : 'ItemNo'
+		}, {
+			display : 'Name (UND verknüpft!)',
+			name : 'ItemName'
+		}],
 		height : 'auto',
 		singleSelect : true,
 		striped : false,

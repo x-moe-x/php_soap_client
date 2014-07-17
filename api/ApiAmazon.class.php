@@ -322,13 +322,50 @@ LEFT JOIN PriceUpdateQuantities
 		return $aPriceUpdate + array('isChangePending' => $isChangePending);
 	}
 
-	public static function getAmazonPriceData($page = 1, $rowsPerPage = 10, $sortByColumn = 'ItemID', $sortOrder = 'ASC', $itemID = null) {
+	public static function getAmazonPriceData($page = 1, $rowsPerPage = 10, $sortByColumn = 'ItemID', $sortOrder = 'ASC', $itemID = null, $itemNo = null, $itemName = null) {
 		$data = array('page' => $page, 'total' => null, 'rows' => array());
 
 		ob_start();
 		$whereCondition = "";
+
+		// prepare filter conditions
 		if (!is_null($itemID)) {
-			$whereCondition = "AND\n\tItemsBase.ItemID = $itemID\n";
+			if (is_array($itemID)) {
+				$aItemIDs = $itemID;
+			} else {
+				$aItemIDS = array($itemID);
+			}
+			$whereCondition = "AND\n\tItemsBase.ItemID IN (" . implode(',', $aItemIDs) . ")\n";
+		} else if (!is_null($itemNo)) {
+			if (is_array($itemNo)) {
+				$aItemNos = $itemNo;
+			} else {
+				$aItemNos = array($itemNo);
+			}
+			$whereCondition = "AND\n\tItemsBase.ItemNo REGEXP '^" . implode('|^', $aItemNos) . "'\n";
+		} else if (!is_null($itemName)) {
+			if (is_array($itemName)) {
+				$aItemNames = $itemName;
+			} else {
+				$aItemNames = array($itemName);
+			}
+
+			foreach ($aItemNames as $name) {
+				$whereCondition .= "AND\n\tCONCAT(
+		CASE WHEN (ItemsBase.BundleType = \"bundle\") THEN
+			\"[Bundle] \"
+		WHEN (ItemsBase.BundleType = \"bundle_item\") THEN
+			\"[Bundle Artikel] \"
+		ELSE
+			\"\"
+		END,
+		ItemsBase.Name,
+		CASE WHEN (AttributeValueSets.AttributeValueSetID IS NOT null) THEN
+			CONCAT(\", \", AttributeValueSets.AttributeValueSetName)
+		ELSE
+			\"\"
+		END\n\t) LIKE \"%$name%\"\n";
+			}
 		}
 
 		$data['total'] = DBQuery::getInstance() -> select(self::PRICE_DATA_SELECT_BASIC . self::PRICE_DATA_FROM_BASIC . self::PRICE_DATA_WHERE . $whereCondition) -> getNumRows();
