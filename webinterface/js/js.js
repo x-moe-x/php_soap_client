@@ -704,10 +704,12 @@ function prepareAmazon() {'use strict';
 
 				targetMarge = (parseFloat($(cellDiv).html()) * 100).toFixed(2);
 
-				$(cellDiv).html($('<span/>', {
-					'class' : 'targetMarge',
-					html : targetMarge
-				}));
+				$(cellDiv).insertInput(SKU, '%', function(event) {
+					$(event.target).apiUpdate('../api/amazonMarge', 'percent', function() {
+					}, function() {
+					});
+					$(cellDiv).addClass('priceChanged');
+				}, targetMarge);
 			}
 		}, {
 			display : 'Preis ändern',
