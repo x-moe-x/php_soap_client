@@ -583,7 +583,16 @@ function prepareAmazon() {'use strict';
 			width : 120,
 			process : function(cellDiv, SKU) {
 				var margeData, valueQuality;
+
 				margeData = $.parseJSON($(cellDiv).html());
+
+				if (!margeData.isPriceValid) {
+					$(cellDiv).html($('<span/>', {
+						html : 'Invalid price',
+						'class' : 'badValue'
+					}));
+					return;
+				}
 
 				if (margeData.oldMarge <= margeData.newMarge) {
 					valueQuality = 'goodValue';
@@ -616,17 +625,27 @@ function prepareAmazon() {'use strict';
 			display : 'Trend Artikel(mit aktuellen Kosten))<br>Gewinn (Vgl. mit Herkunft + 1,8%)',
 			name : 'TrendProfit',
 			process : function(cellDiv, SKU) {
-				var trendProfitValue;
+				var trendProfitData;
 
-				trendProfitValue = parseFloat($(cellDiv).html());
+				trendProfitData = $.parseJSON($(cellDiv).html());
+
+				if (!trendProfitData.isPriceValid) {
+					$(cellDiv).html($('<span/>', {
+						html : 'Invalid price',
+						'class' : 'badValue'
+					}));
+					return;
+				}
+
 				$(cellDiv).html($('<span/>', {
-					html : (trendProfitValue * 100).toFixed(2),
-					'class' : 'trendProfitValue ' + (trendProfitValue >= 0 ? 'goodValue' : 'badValue')
+					html : (trendProfitData.TrendProfitValue * 100).toFixed(2),
+					'class' : 'trendProfitValue ' + (trendProfitData.TrendProfitValue >= 0 ? 'goodValue' : 'badValue')
 				}));
 			}
 		}, {
 			display : 'Datum letzte Änderung VK<br>Zeitraum Trend (Soll / Ist)',
 			name : 'TimeData',
+			sortable : true,
 			process : function(cellDiv, SKU) {
 				var timeData;
 

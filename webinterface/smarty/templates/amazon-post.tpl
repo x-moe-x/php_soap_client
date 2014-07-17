@@ -30,7 +30,7 @@
 			<![CDATA[{$itemVariant.Trend}]]>
 		</cell>
 		<cell>
-			<![CDATA[{$itemVariant.TrendProfit}]]>
+			<![CDATA[{$itemVariant.TrendProfit|@json_encode}]]>
 		</cell>
 		<cell>
 			<![CDATA[{$itemVariant.TimeData|@json_encode}]]>

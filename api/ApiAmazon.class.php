@@ -357,7 +357,9 @@ LEFT JOIN PriceUpdateQuantities
 			$sku = Values2SKU($amazonPriceData['ItemID'], $amazonPriceData['AttributeValueSetID']);
 			$isChangePending = !is_null($amazonPriceData['NewPrice']) && (abs($amazonPriceData['NewPrice'] - $amazonPriceData['Price']) > self::PRICE_COMPARISON_ACCURACY);
 			$isWrittenTimeValid = !empty($amazonPriceData['WrittenTimeStamp']);
-			if ($isWrittenTimeValid){
+			$isPriceValid = ($amazonPriceData['Price'] != 0) && ($amazonPriceData['OldPrice'] != 0);
+
+			if ($isWrittenTimeValid) {
 				$writtenDate = new DateTime('@' . $amazonPriceData['WrittenTimeStamp']);
 				$writtenDateToNowDifference = $writtenDate -> diff(new DateTime());
 				$currentDays = $writtenDateToNowDifference -> format('%a') + $writtenDateToNowDifference -> format('%h') / 24;
@@ -392,13 +394,17 @@ LEFT JOIN PriceUpdateQuantities
 				 * simplifies to: 1 - (EK / VK + BetriebsKostenAnteil + LagerKostenAnteil + AmazonProvision)
 				 */
 				'Marge' => array(
-					'oldMarge' => 1 - ($amazonPriceData['PurchasePriceNet'] / $amazonPriceData['OldPrice'] + $config['ProvisionCosts'] + $config['CommonRunningCostsAmount'] + $config['WarehouseRunningCostsAmount']),
-					'newMarge' => 1 - ($amazonPriceData['PurchasePriceNet'] / $amazonPriceData['Price'] + $config['ProvisionCosts'] + $config['CommonRunningCostsAmount'] + $config['WarehouseRunningCostsAmount'])
+					'isPriceValid' => $isPriceValid,
+					'oldMarge' => $isPriceValid ? (1 - ($amazonPriceData['PurchasePriceNet'] / $amazonPriceData['OldPrice'] + $config['ProvisionCosts'] + $config['CommonRunningCostsAmount'] + $config['WarehouseRunningCostsAmount'])) : 0,
+					'newMarge' => $isPriceValid ? (1 - ($amazonPriceData['PurchasePriceNet'] / $amazonPriceData['Price'] + $config['ProvisionCosts'] + $config['CommonRunningCostsAmount'] + $config['WarehouseRunningCostsAmount'])) : 0
 				),
 				'Trend' => $oldQuantity === 0 ? 0 : $newQuantity / $oldQuantity - 1,
-				'TrendProfit' => $oldQuantity === 0 ? 0 : ($newQuantity * $amazonPriceData['Price']) / ($oldQuantity * $amazonPriceData['OldPrice']) - 1,
+				'TrendProfit' => array(
+					'isPriceValid' => $isPriceValid,
+					'TrendProfitValue' => ($oldQuantity !== 0 && $isPriceValid) ? ($newQuantity * $amazonPriceData['Price']) / ($oldQuantity * $amazonPriceData['OldPrice']) - 1 : 0
+				),
 				'MinPrice' => $amazonPriceData['PurchasePriceNet'] / (1 - ($config['ProvisionCosts'] + $config['CommonRunningCostsAmount'] + $config['WarehouseRunningCostsAmount'] + $config['MinimumMarge'])),
-				'TargetMarge' => 1 - ($amazonPriceData['PurchasePriceNet'] / $amazonPriceData['Price'] + $config['ProvisionCosts'] + $config['CommonRunningCostsAmount'] + $config['WarehouseRunningCostsAmount']),
+				'TargetMarge' => $isPriceValid ? (1 - ($amazonPriceData['PurchasePriceNet'] / $amazonPriceData['Price'] + $config['ProvisionCosts'] + $config['CommonRunningCostsAmount'] + $config['WarehouseRunningCostsAmount'])) : 0,
 				'StandardPrice' => $amazonPriceData['StandardPrice']
 			);
 			 // @formatter:on
