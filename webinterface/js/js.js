@@ -659,7 +659,7 @@ function prepareAmazon() {'use strict';
 					html : '/'
 				})).after($('<span/>', {
 					html : timeData.currentDays,
-					'class' : 'currentDaysValue ' + (timeData.targetDays <= timeData.currentDays ? 'goodValue' : 'badValue')
+					'class' : 'currentDaysValue ' + (timeData.targetDays > timeData.currentDays ? 'goodValue' : 'badValue')
 				})).after($('<span/>', {
 					'class' : 'ui-icon ui-icon-help',
 					style : 'display: inline-block',
