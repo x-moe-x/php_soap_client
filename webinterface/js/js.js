@@ -548,6 +548,7 @@ function prepareAmazon() {'use strict';
 		}, {
 			display : 'Name',
 			name : 'ItemName',
+			sortable : true,
 			width : 250
 		}, {
 			display : 'Markierung',
@@ -718,6 +719,7 @@ function prepareAmazon() {'use strict';
 			display : '(Ziel-) Marge',
 			name : 'TargetMarge',
 			width : 70,
+			sortable : true,
 			process : function(cellDiv, SKU) {
 				var targetMarge;
 
@@ -734,6 +736,7 @@ function prepareAmazon() {'use strict';
 			display : 'Preis ändern',
 			name : 'ChangePrice',
 			width : 70,
+			sortable : true,
 			process : function(cellDiv, SKU) {
 				var priceData;
 

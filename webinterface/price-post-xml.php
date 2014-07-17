@@ -13,6 +13,27 @@ $filter_items = null;
 $filter_itemNumbers = null;
 $filter_itemNames = null;
 
+switch ($sortname) {
+	case 'ItemID' :
+		break;
+	case 'Marking1ID' :
+		break;
+	case 'ItemName' :
+		$sortname = 'Name';
+		break;
+	case 'TimeData' :
+		$sortname = 'WrittenTimeStamp';
+		break;
+	case 'ChangePrice' :
+		$sortname = 'NewPrice';
+		break;
+	case 'TargetMarge' :
+		$sortname = 'NewPrice';
+		break;
+	default :
+		throw new RuntimeException("Unknown sort name: $sortname");
+}
+
 if ($query && $qtype) {
 	switch ($qtype) {
 		case 'ItemID' :
