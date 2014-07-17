@@ -49,6 +49,7 @@ class ApiAmazon {
 	PriceUpdateHistory.WrittenTimeStamp,
 	PriceUpdateQuantities.OldQuantity,
 	PriceUpdateQuantities.NewQuantity,
+	PriceSets.PriceID,
 	PriceSets.Price / (1 + PriceSets.VAT / 100) AS StandardPrice,
 	PriceSets.PurchasePriceNet';
 
@@ -391,7 +392,7 @@ LEFT JOIN PriceUpdateQuantities
 		ob_end_clean();
 
 		while ($amazonPriceData = $amazonPriceDataDBResult -> fetchAssoc()) {
-			$sku = Values2SKU($amazonPriceData['ItemID'], $amazonPriceData['AttributeValueSetID']);
+			$sku = Values2SKU($amazonPriceData['ItemID'], $amazonPriceData['AttributeValueSetID'], $amazonPriceData['PriceID']);
 			$isChangePending = !is_null($amazonPriceData['NewPrice']) && (abs($amazonPriceData['NewPrice'] - $amazonPriceData['Price']) > self::PRICE_COMPARISON_ACCURACY);
 			$isWrittenTimeValid = !empty($amazonPriceData['WrittenTimeStamp']);
 			$isPriceValid = ($amazonPriceData['Price'] != 0) && ($amazonPriceData['OldPrice'] != 0);
