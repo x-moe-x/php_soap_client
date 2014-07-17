@@ -60,21 +60,21 @@ class SoapCall_SetPriceSets extends PlentySoapCall {
 
 					$currentPriceName = 'Price' . ($aUnwrittenUpdate['PriceColumn'] == 0 ? '' : $aUnwrittenUpdate['PriceColumn']);
 
-					$oRequest_SetPriceSets -> addPriceSet(array('PriceSetID' => $aUnwrittenUpdate['PriceID'], $currentPriceName => $aUnwrittenUpdate['NewPrice']));
+					$oRequest_SetPriceSets -> addPriceSet(array('PriceSetID' => $aUnwrittenUpdate['PriceID'], $currentPriceName => $aUnwrittenUpdate['NewPrice'] * (1 + $aUnwrittenUpdate['VAT'] / 100)));
 
 					// @formatter:off
 					$aPriceUpdateHistoryEntries[] = array(
 						'ItemID' =>				$aUnwrittenUpdate['ItemID'],
 						'PriceID' =>			$aUnwrittenUpdate['PriceID'],
 						'PriceColumn' =>		$aUnwrittenUpdate['PriceColumn'],
-						'OldPrice' =>			$aUnwrittenUpdate['OldPrice'],
+						'OldPrice' =>			$aUnwrittenUpdate['OldPrice'] * (1 + $aUnwrittenUpdate['VAT'] / 100),
 						'WrittenTimestamp' =>	$this->currentTimeStamp
 					);
 
 					$aPriceSetsEntries[] = array(
 						'ItemID' =>				$aUnwrittenUpdate['ItemID'],
 						'PriceID' =>			$aUnwrittenUpdate['PriceID'],
-						$currentPriceName =>	$aUnwrittenUpdate['NewPrice']
+						$currentPriceName =>	$aUnwrittenUpdate['NewPrice'] * (1 + $aUnwrittenUpdate['VAT'] / 100)
 					);
 					// @formatter:on
 
@@ -112,20 +112,21 @@ class SoapCall_SetPriceSets extends PlentySoapCall {
 	 PriceUpdate.PriceID,
 	 PriceUpdate.PriceColumn,
 	 PriceUpdate.NewPrice,
+	 PriceSets.VAT,
 	 CASE PriceUpdate.PriceColumn
-		WHEN 0 THEN PriceSets.Price
-		WHEN 1 THEN PriceSets.Price1
-		WHEN 2 THEN PriceSets.Price2
-		WHEN 3 THEN PriceSets.Price3
-		WHEN 4 THEN PriceSets.Price4
-		WHEN 5 THEN PriceSets.Price5
-		WHEN 6 THEN PriceSets.Price6
-		WHEN 7 THEN PriceSets.Price7
-		WHEN 8 THEN PriceSets.Price8
-		WHEN 9 THEN PriceSets.Price9
-		WHEN 10 THEN PriceSets.Price10
-		WHEN 11 THEN PriceSets.Price11
-		WHEN 12 THEN PriceSets.Price12
+		WHEN 0 THEN PriceSets.Price / (1 + PriceSets.VAT / 100)
+		WHEN 1 THEN PriceSets.Price1 / (1 + PriceSets.VAT / 100)
+		WHEN 2 THEN PriceSets.Price2 / (1 + PriceSets.VAT / 100)
+		WHEN 3 THEN PriceSets.Price3 / (1 + PriceSets.VAT / 100)
+		WHEN 4 THEN PriceSets.Price4 / (1 + PriceSets.VAT / 100)
+		WHEN 5 THEN PriceSets.Price5 / (1 + PriceSets.VAT / 100)
+		WHEN 6 THEN PriceSets.Price6 / (1 + PriceSets.VAT / 100)
+		WHEN 7 THEN PriceSets.Price7 / (1 + PriceSets.VAT / 100)
+		WHEN 8 THEN PriceSets.Price8 / (1 + PriceSets.VAT / 100)
+		WHEN 9 THEN PriceSets.Price9 / (1 + PriceSets.VAT / 100)
+		WHEN 10 THEN PriceSets.Price10 / (1 + PriceSets.VAT / 100)
+		WHEN 11 THEN PriceSets.Price11 / (1 + PriceSets.VAT / 100)
+		WHEN 12 THEN PriceSets.Price12 / (1 + PriceSets.VAT / 100)
 	 END AS OldPrice
 FROM
 	PriceUpdate
