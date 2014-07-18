@@ -445,4 +445,16 @@ tr:hover .notModifyable {
 	color: #000;
 	font-weight: normal;
 }
+
+.flexigrid div.nBtn {
+	height: 70px !important;
+}
+
+.flexigrid div.nBtn div {
+	height: 70px !important;
+}
+
+.flexigrid div.hDivBox th div {
+	height: 60px !important;
+}
 /** end table styling **/
