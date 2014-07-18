@@ -551,7 +551,7 @@ function prepareAmazon() {'use strict';
 				}));
 			}
 		}, {
-			display : 'durchschn. Marge / Stk. (mit aktuellen Kosten)<br>(vor) nach Änderung VK',
+			display : 'Marge / Stk. (mit aktuellen Kosten)<br>(vor) nach Änderung VK',
 			name : 'Marge',
 			width : 120,
 			process : function(cellDiv, SKU) {
