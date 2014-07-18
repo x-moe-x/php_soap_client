@@ -50,6 +50,7 @@ class ApiAmazon {
 	PriceUpdateQuantities.OldQuantity,
 	PriceUpdateQuantities.NewQuantity,
 	PriceSets.PriceID,
+	1 + PriceSets.VAT / 100 AS VAT,
 	PriceSets.Price / (1 + PriceSets.VAT / 100) AS StandardPrice,
 	PriceSets.PurchasePriceNet';
 
@@ -415,6 +416,9 @@ LEFT JOIN PriceUpdateQuantities
 				'PriceOldCurrent' => array('price' => $amazonPriceData['Price'], 'oldPrice' => $amazonPriceData['OldPrice']),
 				'PriceChange' => array(
 					'price' => $isChangePending ? $amazonPriceData['NewPrice'] : $amazonPriceData['Price'],
+					'purchasePrice' => $amazonPriceData['PurchasePriceNet'],
+					'fixedPercentage' => $config['ProvisionCosts'] + $config['CommonRunningCostsAmount'] + $config['WarehouseRunningCostsAmount'],
+					'vat' => $amazonPriceData['VAT'],
 					'isChangePending' => $isChangePending
 				),
 				'TimeData' => array(

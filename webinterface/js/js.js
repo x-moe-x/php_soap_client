@@ -479,34 +479,6 @@ function prepareStock() {'use strict';
 }
 
 function prepareAmazon() {'use strict';
-	var processFunctions;
-
-	processFunctions = {
-		preProcess : function(element, type) {
-			element.checkFloatval();
-			return isNaN(element.val()) ? 'incorrect' : {
-				key : element.attr('id'),
-				value : element.val()
-			};
-		},
-		postProcess : function(element, type, requestData, resultData) {
-			var returnValue;
-
-			returnValue = parseFloat(resultData.NewPrice);
-			if (type !== 'float' || isNaN(returnValue)) {
-				return 'error';
-			}
-
-			if (resultData.isChangePending) {
-				element.parent().addClass('priceChanged');
-			} else {
-				element.parent().removeClass('priceChanged');
-			}
-			return returnValue.toFixed(2);
-
-		}
-	};
-
 	$.each([{
 		id : '#provisionCosts',
 		type : 'percent',
@@ -721,36 +693,115 @@ function prepareAmazon() {'use strict';
 			width : 70,
 			sortable : true,
 			process : function(cellDiv, SKU) {
-				var targetMarge;
-
-				targetMarge = (parseFloat($(cellDiv).html()) * 100).toFixed(2);
-
-				$(cellDiv).insertInput(SKU, '%', function(event) {
-					$(event.target).apiUpdate('../api/amazonMarge', 'percent', function() {
-					}, function() {
-					});
-					$(cellDiv).addClass('priceChanged');
-				}, targetMarge);
+				$(cellDiv).empty().attr('id', 'changeMarge_' + SKU);
 			}
 		}, {
-			display : 'Preis ändern',
+			display : 'Preis ändern, netto',
+			name : 'ChangePrice',
+			width : 70,
+			sortable : true,
+			process : function(cellDiv, SKU) {
+				$(cellDiv).empty().attr('id', 'changeNetto_' + SKU);
+			}
+		}, {
+			display : 'Preis ändern, brutto',
 			name : 'ChangePrice',
 			width : 70,
 			sortable : true,
 			process : function(cellDiv, SKU) {
 				var priceData;
 
-				// extract current value
 				priceData = $.parseJSON($(cellDiv).html());
 
-				// add input field with current price plus unit
-				$(cellDiv).insertInput(SKU, '€', function(event) {
-					$(event.target).apiUpdate('../api/amazonPrice', 'float', processFunctions.preProcess, processFunctions.postProcess);
-					$(cellDiv).addClass('priceChanged');
+				$(cellDiv).empty().attr('id', 'changeBrutto_' + SKU);
+
+				// fill netto value
+				$('#changeNetto_' + SKU).insertInput('inputNetto_' + SKU, '€', function(event) {
+					$(event.target).apiUpdate('../api/amazonPrice', 'float', function(element, type) {
+						var SKUMatches;
+
+						element.checkFloatval();
+
+						if ((( SKUMatches = element.attr('id').match(/inputNetto_(\d+-\d+-\d+)/)) === null) || (type !== 'float') || isNaN(element.val())) {
+							return 'incorrect';
+						}
+
+						return {
+							key : SKUMatches[1],
+							value : element.val()
+						};
+					}, function(element, type, requestData, resultData) {
+						var returnValue;
+
+						returnValue = parseFloat(resultData.NewPrice);
+						if (type !== 'float' || isNaN(returnValue)) {
+							return 'error';
+						}
+
+						return returnValue.toFixed(2);
+					});
+					$('#amazonTable').flexReload();
 				}, parseFloat(priceData.price).toFixed(2));
 
+				// fill marge
+				$('#changeMarge_' + SKU).insertInput('inputMarge_' + SKU, '%', function(event) {
+					$(event.target).apiUpdate('../api/amazonPrice', 'percent', function(element, type) {
+						var SKUMatches;
+
+						element.checkFloatval();
+
+						if ((( SKUMatches = element.attr('id').match(/inputMarge_(\d+-\d+-\d+)/)) === null) || (type !== 'percent') || isNaN(element.val())) {
+							return 'incorrect';
+						}
+
+						return {
+							key : SKUMatches[1],
+							value : priceData.purchasePrice / (1 - (priceData.fixedPercentage + element.val() / 100))
+						};
+					}, function(element, type, requestData, resultData) {
+						var returnValue;
+
+						returnValue = parseFloat(resultData.NewPrice);
+						if (type !== 'percent' || isNaN(returnValue)) {
+							return 'error';
+						}
+
+						return parseFloat((1 - (priceData.purchasePrice / returnValue + priceData.fixedPercentage)) * 100).toFixed(2);
+					});
+					$('#amazonTable').flexReload();
+				}, parseFloat((1 - (priceData.purchasePrice / priceData.price + priceData.fixedPercentage)) * 100).toFixed(2));
+
+				// fill brutto
+				$(cellDiv).insertInput('inputBrutto_' + SKU, '€', function(event) {
+					$(event.target).apiUpdate('../api/amazonPrice', 'float', function(element, type) {
+						var SKUMatches;
+
+						element.checkFloatval();
+
+						if ((( SKUMatches = element.attr('id').match(/inputBrutto_(\d+-\d+-\d+)/)) === null) || (type !== 'float') || isNaN(element.val())) {
+							return 'incorrect';
+						}
+
+						return {
+							key : SKUMatches[1],
+							value : element.val() / priceData.vat
+						};
+					}, function(element, type, requestData, resultData) {
+						var returnValue;
+
+						returnValue = parseFloat(resultData.NewPrice);
+						if (type !== 'float' || isNaN(returnValue)) {
+							return 'error';
+						}
+
+						return parseFloat(returnValue * priceData.vat).toFixed(2);
+					});
+					$('#amazonTable').flexReload();
+				}, parseFloat(priceData.price * priceData.vat).toFixed(2));
+
+				// change row coloring
 				if (priceData.isChangePending) {
-					$(cellDiv).addClass('priceChanged');
+					$('#row' + SKU).addClass('priceChanged');
 				}
 			}
 		}],
