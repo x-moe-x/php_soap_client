@@ -479,34 +479,6 @@ function prepareStock() {'use strict';
 }
 
 function prepareAmazon() {'use strict';
-	var processFunctions;
-
-	processFunctions = {
-		preProcess : function(element, type) {
-			element.checkFloatval();
-			return isNaN(element.val()) ? 'incorrect' : {
-				key : element.attr('id'),
-				value : element.val()
-			};
-		},
-		postProcess : function(element, type, requestData, resultData) {
-			var returnValue;
-
-			returnValue = parseFloat(resultData.NewPrice);
-			if (type !== 'float' || isNaN(returnValue)) {
-				return 'error';
-			}
-
-			if (resultData.isChangePending) {
-				element.parent().addClass('priceChanged');
-			} else {
-				element.parent().removeClass('priceChanged');
-			}
-			return returnValue.toFixed(2);
-
-		}
-	};
-
 	$.each([{
 		id : '#provisionCosts',
 		type : 'percent',
@@ -721,37 +693,27 @@ function prepareAmazon() {'use strict';
 			width : 70,
 			sortable : true,
 			process : function(cellDiv, SKU) {
-				var targetMarge;
-
-				targetMarge = (parseFloat($(cellDiv).html()) * 100).toFixed(2);
-
-				$(cellDiv).insertInput(SKU, '%', function(event) {
-					$(event.target).apiUpdate('../api/amazonMarge', 'percent', function() {
-					}, function() {
-					});
-					$(cellDiv).addClass('priceChanged');
-				}, targetMarge);
+				$(cellDiv).empty().attr('id', 'changeMarge_' + SKU);
 			}
 		}, {
-			display : 'Preis ändern',
+			display : 'Preis ändern, netto',
+			name : 'ChangePrice',
+			width : 70,
+			sortable : true,
+			process : function(cellDiv, SKU) {
+				$(cellDiv).empty().attr('id', 'changeNetto_' + SKU);
+			}
+		}, {
+			display : 'Preis ändern, brutto',
 			name : 'ChangePrice',
 			width : 70,
 			sortable : true,
 			process : function(cellDiv, SKU) {
 				var priceData;
 
-				// extract current value
 				priceData = $.parseJSON($(cellDiv).html());
 
-				// add input field with current price plus unit
-				$(cellDiv).insertInput(SKU, '€', function(event) {
-					$(event.target).apiUpdate('../api/amazonPrice', 'float', processFunctions.preProcess, processFunctions.postProcess);
-					$(cellDiv).addClass('priceChanged');
-				}, parseFloat(priceData.price).toFixed(2));
-
-				if (priceData.isChangePending) {
-					$(cellDiv).addClass('priceChanged');
-				}
+				$(cellDiv).empty().attr('id', 'changeBrutto_' + SKU);
 			}
 		}],
 		searchitems : [{

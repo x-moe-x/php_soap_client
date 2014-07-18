@@ -45,7 +45,10 @@
 			<![CDATA[{$itemVariant.StandardPrice}]]>
 		</cell>
 		<cell>
-			<![CDATA[{$itemVariant.TargetMarge}]]>
+			<![CDATA[Marge-Dummy]]>
+		</cell>
+		<cell>
+			<![CDATA[Netto-Dummy]]>
 		</cell>
 		<cell>
 			<![CDATA[{$itemVariant.PriceChange|@json_encode}]]>
