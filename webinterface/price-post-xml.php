@@ -9,6 +9,7 @@ $sortname = isset($_POST['sortname']) && !empty($_POST['sortname']) ? $_POST['so
 $sortorder = isset($_POST['sortorder']) && !empty($_POST['sortorder']) ? $_POST['sortorder'] : 'ASC';
 $query = isset($_POST['query']) ? $_POST['query'] : false;
 $qtype = isset($_POST['qtype']) ? $_POST['qtype'] : false;
+$filter_marking1ID = (isset($_POST['filterMarking1D']) && $_POST['filterMarking1D'] != '') ? explode(',', $_POST['filterMarking1D']) : null;
 $filter_items = null;
 $filter_itemNumbers = null;
 $filter_itemNames = null;
@@ -61,6 +62,6 @@ if ($query && $qtype) {
 }
 
 header('Content-type: text/xml');
-$smarty -> assign('data', ApiAmazon::getAmazonPriceData($page, $rp, $sortname, $sortorder, $filter_items, $filter_itemNumbers, $filter_itemNames));
+$smarty -> assign('data', ApiAmazon::getAmazonPriceData($page, $rp, $sortname, $sortorder, $filter_items, $filter_itemNumbers, $filter_itemNames, $filter_marking1ID));
 $smarty -> display('amazon-post.tpl');
 ?>

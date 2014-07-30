@@ -324,27 +324,36 @@ LEFT JOIN PriceUpdateQuantities
 		return $aPriceUpdate + array('isChangePending' => $isChangePending);
 	}
 
-	public static function getAmazonPriceData($page = 1, $rowsPerPage = 10, $sortByColumn = 'ItemID', $sortOrder = 'ASC', $itemID = null, $itemNo = null, $itemName = null) {
+	public static function getAmazonPriceData($page = 1, $rowsPerPage = 10, $sortByColumn = 'ItemID', $sortOrder = 'ASC', $itemID = null, $itemNo = null, $itemName = null, $marking1ID = null) {
 		$data = array('page' => $page, 'total' => null, 'rows' => array());
 
 		ob_start();
 		$whereCondition = "";
 
 		// prepare filter conditions
+		if (!is_null($marking1ID)) {
+			if (is_array($marking1ID)) {
+				$aMarking1ID = $marking1ID;
+			} else {
+				$aMarking1ID = array($marking1ID);
+			}
+			$whereCondition .= "AND\n\tItemsBase.Marking1ID IN  (" . implode(',', $aMarking1ID) . ")\n";
+		}
+
 		if (!is_null($itemID)) {
 			if (is_array($itemID)) {
 				$aItemIDs = $itemID;
 			} else {
 				$aItemIDS = array($itemID);
 			}
-			$whereCondition = "AND\n\tItemsBase.ItemID IN (" . implode(',', $aItemIDs) . ")\n";
+			$whereCondition .= "AND\n\tItemsBase.ItemID IN (" . implode(',', $aItemIDs) . ")\n";
 		} else if (!is_null($itemNo)) {
 			if (is_array($itemNo)) {
 				$aItemNos = $itemNo;
 			} else {
 				$aItemNos = array($itemNo);
 			}
-			$whereCondition = "AND\n\tItemsBase.ItemNo REGEXP '^" . implode('|^', $aItemNos) . "'\n";
+			$whereCondition .= "AND\n\tItemsBase.ItemNo REGEXP '^" . implode('|^', $aItemNos) . "'\n";
 		} else if (!is_null($itemName)) {
 			if (is_array($itemName)) {
 				$aItemNames = $itemName;
