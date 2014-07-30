@@ -132,20 +132,6 @@ function dialogify(buttonData) {'use strict';
 }
 
 function prepareStock() {'use strict';
-	$('.config').accordion({
-		heightStyle : 'content',
-		collapsible : true,
-		active : false
-	});
-
-	$('.accordion').accordion({
-		heightStyle : 'content'
-	});
-
-	$('#tabs').tabs({
-		heightStyle : 'content'
-	});
-
 	$.each([{
 		id : '#calculationTimeA',
 		type : 'int',
@@ -1043,8 +1029,20 @@ function prepareGeneralCostConfig() {'use strict';
 
 $(document).ready(function() {'use strict';
 
+	$('.config').accordion({
+		heightStyle : 'content',
+		collapsible : true,
+		active : false
+	});
+
+	$('.accordion').accordion({
+		heightStyle : 'content'
+	});
+
+	$('#tabs').tabs({
+		heightStyle : 'content'
+	});
 	prepareStock();
 	prepareAmazon();
 	prepareGeneralCostConfig();
-
 });
