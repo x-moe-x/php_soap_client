@@ -16,6 +16,8 @@ $filter_itemNames = null;
 switch ($sortname) {
 	case 'ItemID' :
 		break;
+	case 'ItemNo' :
+		break;
 	case 'Marking1ID' :
 		break;
 	case 'ItemName' :
