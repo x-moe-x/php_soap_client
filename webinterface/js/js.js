@@ -1026,8 +1026,26 @@ function prepareGeneralCostConfig() {'use strict';
 	});
 }
 
+function initTab(tabNo, tabsInitialized) {'use strict';
+	switch(tabNo) {
+		case 0:
+			prepareStock();
+			break;
+		case 1:
+			prepareAmazon();
+			break;
+		case 2:
+			prepareGeneralCostConfig();
+			break;
+		default:
+	}
+	tabsInitialized[tabNo] = true;
+}
+
 
 $(document).ready(function() {'use strict';
+	var tabsInitialized;
+	tabsInitialized = [false, false, false];
 
 	$('.config').accordion({
 		heightStyle : 'content',
@@ -1040,9 +1058,14 @@ $(document).ready(function() {'use strict';
 	});
 
 	$('#tabs').tabs({
-		heightStyle : 'content'
+		heightStyle : 'content',
+		activate : function(event, ui) {
+			if (!tabsInitialized[ui.newTab.index()]) {
+				initTab(ui.newTab.index(), tabsInitialized);
+			}
+		},
+		create : function(event, ui) {
+			initTab(ui.tab.index(), tabsInitialized);
+		}
 	});
-	prepareStock();
-	prepareAmazon();
-	prepareGeneralCostConfig();
 });
