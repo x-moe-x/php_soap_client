@@ -1060,9 +1060,13 @@ $(document).ready(function() {'use strict';
 	$('#tabs').tabs({
 		heightStyle : 'content',
 		activate : function(event, ui) {
+			var scrollTop;
 			if (!tabsInitialized[ui.newTab.index()]) {
 				initTab(ui.newTab.index(), tabsInitialized);
 			}
+			scrollTop = $(document).scrollTop();
+			window.location.href = ui.newTab.context.hash;
+			$(document).scrollTop(scrollTop);
 		},
 		create : function(event, ui) {
 			initTab(ui.tab.index(), tabsInitialized);
