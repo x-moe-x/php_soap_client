@@ -446,15 +446,15 @@ tr:hover .notModifyable {
 	font-weight: normal;
 }
 
-.flexigrid div.nBtn {
+#amazonCalculation .flexigrid div.nBtn {
 	height: 70px !important;
 }
 
-.flexigrid div.nBtn div {
+#amazonCalculation .flexigrid div.nBtn div {
 	height: 70px !important;
 }
 
-.flexigrid div.hDivBox th div {
+#amazonCalculation .flexigrid div.hDivBox th div {
 	height: 60px !important;
 }
 /** end table styling **/
