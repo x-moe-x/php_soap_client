@@ -356,10 +356,9 @@ DROP TABLE IF EXISTS `soap_db`.`PriceUpdateQuantities`;
 CREATE TABLE `soap_db`.`PriceUpdateQuantities` (
 	`ItemID` int(11) NOT NULL,
 	`PriceID` int(11) NOT NULL,
-	`PriceColumn` int(11) NOT NULL,
 	`OldQuantity` int(11) DEFAULT NULL,
 	`NewQuantity` int(11) DEFAULT NULL,
-	PRIMARY KEY (`ItemID`,`PriceID`,`PriceColumn`)
+	PRIMARY KEY (`ItemID`,`PriceID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 DROP TABLE IF EXISTS `soap_db`.`PriceUpdateHistory`;

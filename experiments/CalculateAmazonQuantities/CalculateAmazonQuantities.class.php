@@ -54,7 +54,7 @@ class CalculateAmazonQuantities {
 		$preChangeDateQuantitiesDBResult = DBQuery::getInstance() -> select($this -> getQuery($amazonMeasuringTimeFrame, ApiAmazon::AMAZON_REFERRER_ID));
 		while ($row = $preChangeDateQuantitiesDBResult -> fetchAssoc()) {
 			list($itemID, $priceID, ) = SKU2Values($row['SKU']);
-			$this -> aQuantities[Values2SKU($itemID, 0, $priceID)] = array('ItemID' => $itemID, 'PriceID' => $priceID, 'PriceColumn' => $row['PriceColumn'], 'OldQuantity' => ($row['Quantity'] / $amazonMeasuringTimeFrame) * self::DAYS_BACK_INTERAL_BEFORE_PRICE_CHANGE, 'NewQuantity' => null);
+			$this -> aQuantities[Values2SKU($itemID, 0, $priceID)] = array('ItemID' => $itemID, 'PriceID' => $priceID, 'OldQuantity' => ($row['Quantity'] / $amazonMeasuringTimeFrame) * self::DAYS_BACK_INTERAL_BEFORE_PRICE_CHANGE, 'NewQuantity' => 0);
 		}
 
 		// get all amazon post-change-date quantities
@@ -99,7 +99,6 @@ class CalculateAmazonQuantities {
 		return "SELECT
 	i.ItemID,
 	i.SKU,
-	u.PriceColumn,
 	SUM(i.Quantity) AS Quantity
 FROM
 	OrderItem AS i
