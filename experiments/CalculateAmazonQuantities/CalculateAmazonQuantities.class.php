@@ -61,7 +61,11 @@ class CalculateAmazonQuantities {
 		$postChangeDateQuantitiesDBResult = DBQuery::getInstance() -> select($this -> getQuery($amazonMeasuringTimeFrame, ApiAmazon::AMAZON_REFERRER_ID, $this -> currentTime));
 		while ($row = $postChangeDateQuantitiesDBResult -> fetchAssoc()) {
 			list($itemID, $priceID, ) = SKU2Values($row['SKU']);
-			$this -> aQuantities[Values2SKU($itemID, 0, $priceID)]['NewQuantity'] = ($row['Quantity'] / $amazonMeasuringTimeFrame) * self::DAYS_BACK_INTERAL_BEFORE_PRICE_CHANGE;
+			if (array_key_exists(Values2SKU($itemID, 0, $priceID), $this -> aQuantities)) {
+				$this -> aQuantities[Values2SKU($itemID, 0, $priceID)]['NewQuantity'] = ($row['Quantity'] / $amazonMeasuringTimeFrame) * self::DAYS_BACK_INTERAL_BEFORE_PRICE_CHANGE;
+			} else {
+				$this -> aQuantities[Values2SKU($itemID, 0, $priceID)] = array('ItemID' => $itemID, 'PriceID' => $priceID, 'OldQuantity' => 0, 'NewQuantity' => ($row['Quantity'] / $amazonMeasuringTimeFrame) * self::DAYS_BACK_INTERAL_BEFORE_PRICE_CHANGE );
+			}
 		}
 
 		$this -> storeToDB();
