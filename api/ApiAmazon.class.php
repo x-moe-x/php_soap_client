@@ -449,7 +449,7 @@ LEFT JOIN PriceUpdateQuantities
 					'oldMarge' => $isPriceValid ? (1 - ($amazonPriceData['PurchasePriceNet'] / $amazonPriceData['OldPrice'] + $config['ProvisionCosts'] + $config['CommonRunningCostsAmount'] + $config['WarehouseRunningCostsAmount'])) : 0,
 					'newMarge' => $isPriceValid ? (1 - ($amazonPriceData['PurchasePriceNet'] / $amazonPriceData['Price'] + $config['ProvisionCosts'] + $config['CommonRunningCostsAmount'] + $config['WarehouseRunningCostsAmount'])) : 0
 				),
-				'Trend' => $oldQuantity === 0 ? 0 : $newQuantity / $oldQuantity - 1,
+				'Trend' => $oldQuantity === 0 ? ($newQuantity === 0 ? 0 : 'Infinity') : $newQuantity / $oldQuantity - 1,
 				'TrendProfit' => array(
 					'isPriceValid' => $isPriceValid,
 					'TrendProfitValue' => ($oldQuantity !== 0 && $isPriceValid) ? ($newQuantity * $amazonPriceData['Price']) / ($oldQuantity * $amazonPriceData['OldPrice']) - 1 : 0

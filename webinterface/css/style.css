@@ -398,7 +398,7 @@ tr:hover .notModifyable {
 	text-align: center;
 }
 
-.trendValue, .trendProfitValue, .minPrice, .standardPrice {
+.trendValue, .trendProfitValue, .minPrice, .standardPrice, .infinity {
 	display: inline-block;
 	width: 100%;
 	text-align: center;

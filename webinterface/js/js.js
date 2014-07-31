@@ -597,10 +597,17 @@ function prepareAmazon() {'use strict';
 				var trendValue;
 
 				trendValue = parseFloat($(cellDiv).html());
-				$(cellDiv).html($('<span/>', {
-					html : (trendValue * 100).toFixed(2),
-					'class' : 'trendValue ' + (trendValue >= 0 ? 'goodValue' : 'badValue')
-				}));
+				if (trendValue !== Infinity) {
+					$(cellDiv).html($('<span/>', {
+						html : (trendValue * 100).toFixed(2),
+						'class' : 'trendValue ' + (trendValue >= 0 ? 'goodValue' : 'badValue')
+					}));
+				} else {
+					$(cellDiv).html($('<span/>', {
+						html : '&infin;',
+						'class' : 'infinity goodValue'
+					}));
+				}
 			}
 		}, {
 			display : 'Trend Artikel(mit aktuellen Kosten))<br>Gewinn (Vgl. mit Herkunft + 1,8%)',
