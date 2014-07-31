@@ -30,6 +30,9 @@ if (Config::get('CalculationActive') === 1) {
 	// calculate write back data
 	NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'CalculateWriteBackData', 'CalculateWriteBackData'));
 
+	// calculate amazon quantites
+	NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'CalculateAmazonQuantities', 'CalculateAmazonQuantities'));
+
 	// determine write permissions
 	NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'DetermineWritePermissions', 'DetermineWritePermissions'));
 

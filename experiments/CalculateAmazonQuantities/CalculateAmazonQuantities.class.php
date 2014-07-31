@@ -72,7 +72,10 @@ class CalculateAmazonQuantities {
 	}
 
 	private function storeToDB() {
-		DBQuery::getInstance() -> insert('INSERT INTO PriceUpdateQuantities' . DBUtils2::buildMultipleInsertOnDuplikateKeyUpdate($this -> aQuantities));
+		if (($quantitiesCount = count($this -> aQuantities)) > 0) {
+			$this -> getLogger() -> info(__FUNCTION__ . " : storing $quantitiesCount amazon quantity records");
+			DBQuery::getInstance() -> insert('INSERT INTO PriceUpdateQuantities' . DBUtils2::buildMultipleInsertOnDuplikateKeyUpdate($this -> aQuantities));
+		}
 	}
 
 	/**
