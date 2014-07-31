@@ -518,7 +518,8 @@ function prepareAmazon() {'use strict';
 			display : 'Item ID',
 			name : 'ItemID',
 			sortable : true,
-			width : 35
+			width : 35,
+			align : 'center'
 		}, {
 			display : 'Artikel Nr',
 			name : 'ItemNo',
@@ -824,7 +825,7 @@ function prepareAmazon() {'use strict';
 		}],
 		height : 'auto',
 		singleSelect : true,
-		striped : false,
+		striped : true,
 		title : 'Kalkulation Amazon',
 		sortname : "ItemID",
 		sortorder : "asc",
