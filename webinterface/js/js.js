@@ -48,6 +48,63 @@ $.fn.insertInput = function(inputID, unitString, changeEventHandler, externalVal
 	return this;
 };
 
+function addMarking1IDFilter(g, status, params, identifyingClass) {'use strict';
+	if ($('.' + identifyingClass + ' input', g.tDiv).length === 0) {
+
+		// change formatting
+		$('.' + identifyingClass, g.tDiv).css({
+			'padding-left' : 0
+		})
+		// encapsulate existing stuff
+		.wrapInner($('<span/>', {
+			css : {
+				'padding' : '0'
+			}
+		}))
+		// append filter selection
+		.append(function() {
+			var filterSelection = $('<div/>', {
+				'class' : 'customButtonContent'
+			});
+
+			$.each(status, function(index, value) {
+				filterSelection.append($('<div/>', {
+					'class' : 'markingID_' + value,
+				})
+				// insert input ...
+				.append($('<input/>', {
+					id : 'markingID_' + value + '_field_' + identifyingClass,
+					type : 'checkbox',
+					on : {
+						change : function() {
+							var filterMarking1ID = [];
+
+							// collect all checked marking filters
+							$.each(status, function(index, value) {
+								if ($('.' + identifyingClass + ' #markingID_' + value + '_field_' + identifyingClass).is(':checked')) {
+									filterMarking1ID.push(value);
+								}
+							});
+
+							// adjust params
+							params[0].value = filterMarking1ID.join();
+
+							// update grid
+							g.populate();
+						}
+					}
+				}))
+				// ... and label
+				.append($('<label/>', {
+					'for' : 'markingID_' + value + '_field_' + identifyingClass
+				})));
+			});
+
+			return filterSelection;
+		});
+	}
+}
+
 function processMarking1ID(celDiv, sku) {'use strict';
 	var status, marking1ID;
 
@@ -318,7 +375,7 @@ function prepareStock() {'use strict';
 		}],
 		buttons : [{
 			name : 'Filter',
-			bclass : 'filter'
+			bclass : 'filter stockFilter'
 		}],
 		onSuccess : function(g) {
 			var colModel, status, params;
@@ -393,43 +450,7 @@ function prepareStock() {'use strict';
 				}
 			});
 
-			if ($('.filter input', g.tDiv).length === 0) {
-				// change formatting
-				$('.filter', g.tDiv).css({
-					'padding-left' : 0
-				});
-
-				// encapsulate existing stuff
-				$('.filter', g.tDiv).wrapInner('<span style="padding:0px"></span>');
-
-				// append filter selection
-				$('.filter', g.tDiv).append(function() {
-					var filterSelection = '<div class=\'customButtonContent\'>';
-
-					$.each(status, function(index, value) {
-						filterSelection += '<div id="markingID_' + value + '"><input type="checkbox" id="markingID_' + value + '_field"></input><label for="markingID_' + value + '_field"></label></div>';
-					});
-
-					return filterSelection + '</div>';
-				});
-
-				$('.filter input[type=checkbox]', g.tDiv).change(function() {
-					var filterMarking1D = [];
-
-					// collect all checked marking filters
-					$.each(status, function(index, value) {
-						if ($('.filter #markingID_' + value + '_field').is(':checked')) {
-							filterMarking1D.push(value);
-						}
-					});
-
-					// adjust params
-					params[0].value = filterMarking1D.join();
-
-					// update grid
-					g.populate();
-				});
-			}
+			addMarking1IDFilter(g, status, params, 'stockFilter');
 		},
 		searchitems : [{
 			display : 'ItemID',
@@ -815,7 +836,15 @@ function prepareAmazon() {'use strict';
 		outof : 'von',
 		pagestat : 'Zeige {from} bis {to} von {total} Artikeln',
 		procmsg : 'Bitte warten...',
+		status : [4, 9, 12, 16, 20],
+		params : [{
+			name : 'filterMarking1D',
+			value : ''
+		}],
 		buttons : [{
+			name : 'Filter',
+			bclass : 'filter amazonFilter'
+		}, {
 			name : 'Manuelles Schreiben auslösen',
 			bclass : 'pInitAction',
 			onpress : function(idOrName, gDiv) {
@@ -831,7 +860,10 @@ function prepareAmazon() {'use strict';
 					$('#amazonTable').flexReload();
 				});
 			}
-		}]
+		}],
+		onSuccess : function(g) {'use strict';
+			addMarking1IDFilter(g, this.status, this.params, 'amazonFilter');
+		}
 	});
 }
 

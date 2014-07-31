@@ -239,23 +239,23 @@ body.loading .modal {
 	opacity: 1;
 }
 
-#markingID_4 > label {
+.markingID_4 > label {
 	background: url("../images/marking1d_4.png") no-repeat scroll center center transparent;
 }
 
-#markingID_9 > label {
+.markingID_9 > label {
 	background: url("../images/marking1d_9.png") no-repeat scroll center center transparent;
 }
 
-#markingID_12 > label {
+.markingID_12 > label {
 	background: url("../images/marking1d_12.png") no-repeat scroll center center transparent;
 }
 
-#markingID_16 > label {
+.markingID_16 > label {
 	background: url("../images/marking1d_16.png") no-repeat scroll center center transparent;
 }
 
-#markingID_20 > label {
+.markingID_20 > label {
 	background: url("../images/marking1d_20.png") no-repeat scroll center center transparent;
 }
 
