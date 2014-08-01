@@ -392,66 +392,8 @@ LEFT JOIN PriceUpdateQuantities
 		PriceUpdateHistory.OldPrice
 	END OldPrice";
 
-		switch ($sortByColumn) {
-			case 'SortTrend':
-				$sortByColumn = "\n\tCASE
-		WHEN
-			(
-				(PriceUpdateQuantities.OldQuantity IS null OR PriceUpdateQuantities.OldQuantity = 0) AND
-				(PriceUpdateQuantities.NewQuantity IS null OR PriceUpdateQuantities.NewQuantity = 0)
-			) THEN
-			0
-		WHEN
-			(
-				(PriceUpdateQuantities.OldQuantity IS null OR PriceUpdateQuantities.OldQuantity = 0) AND
-				PriceUpdateQuantities.NewQuantity IS NOT null AND
-				PriceUpdateQuantities.NewQuantity != 0
-			) THEN
-			99999 * PriceUpdateQuantities.NewQuantity
-	ELSE
-		PriceUpdateQuantities.NewQuantity / PriceUpdateQuantities.OldQuantity - 1
-	END";
-				break;
-			case 'SortTrendProfit' :
-				$sortByColumn = "\n\tCASE
-		WHEN
-			(
-				PriceUpdateQuantities.OldQuantity IS NOT null AND
-				PriceUpdateQuantities.OldQuantity != 0 AND
-				PriceSets.$amazonPrice != 0 AND
-				PriceUpdateHistory.OldPrice IS NOT null
-			) THEN
-			PriceUpdateQuantities.NewQuantity * PriceSets.$amazonPrice / (1 + PriceSets.VAT / 100) / (PriceUpdateQuantities.OldQuantity * PriceUpdateHistory.OldPrice) - 1
-		WHEN
-			(
-				PriceUpdateQuantities.OldQuantity IS NOT null AND
-				PriceUpdateQuantities.OldQuantity != 0 AND
-				PriceSets.$amazonPrice != 0 AND
-				PriceUpdateHistory.OldPrice IS null
-			) THEN
-			PriceUpdateQuantities.NewQuantity / PriceUpdateQuantities.OldQuantity - 1
-		WHEN
-			(
-				PriceSets.$amazonPrice = 0 OR (PriceUpdateHistory.OldPrice IS NOT null AND PriceUpdateHistory.OldPrice = 0)
-			) THEN
-			-99999
-		WHEN
-			(
-				(PriceUpdateQuantities.OldQuantity IS null OR PriceUpdateQuantities.OldQuantity = 0) AND
-				PriceUpdateQuantities.NewQuantity IS NOT null AND
-				PriceUpdateQuantities.NewQuantity != 0
-			) THEN
-			99999 * PriceUpdateQuantities.NewQuantity
-	ELSE
-		0
-	END";
-				break;
-			default :
-				break;
-		}
-
 		//TODO check for empty values to prevent errors!
-		$sort = "ORDER BY $sortByColumn $sortOrder\n";
+		$sort = 'ORDER BY ' . self::sanitizeSortingColumn($sortByColumn, $amazonPrice) . " $sortOrder\n";
 		$start = (($page - 1) * $rowsPerPage);
 		$limit = "LIMIT $start,$rowsPerPage";
 
@@ -525,6 +467,78 @@ LEFT JOIN PriceUpdateQuantities
 			 // @formatter:on
 		}
 		return $data;
+	}
+
+	private static function sanitizeSortingColumn($sortByColumn, $amazonPrice) {
+		switch ($sortByColumn) {
+			case 'ItemID' :
+			case 'ItemNo' :
+			case 'Marking1ID' :
+			case 'StandardPrice' :
+				return $sortByColumn;
+			case 'ChangePrice' :
+			case 'TargetMarge' :
+				return 'NewPrice';
+			case 'ItemName' :
+				return 'Name';
+			case 'TimeData' :
+				return 'WrittenTimeStamp';
+			case 'MinPrice' :
+				return 'PurchasePriceNet';
+			case 'Trend' :
+				return "\n\tCASE
+		WHEN
+			(
+				(PriceUpdateQuantities.OldQuantity IS null OR PriceUpdateQuantities.OldQuantity = 0) AND
+				(PriceUpdateQuantities.NewQuantity IS null OR PriceUpdateQuantities.NewQuantity = 0)
+			) THEN
+			0
+		WHEN
+			(
+				(PriceUpdateQuantities.OldQuantity IS null OR PriceUpdateQuantities.OldQuantity = 0) AND
+				PriceUpdateQuantities.NewQuantity IS NOT null AND
+				PriceUpdateQuantities.NewQuantity != 0
+			) THEN
+			99999 * PriceUpdateQuantities.NewQuantity
+	ELSE
+		PriceUpdateQuantities.NewQuantity / PriceUpdateQuantities.OldQuantity - 1
+	END";
+			case 'TrendProfit' :
+				return "\n\tCASE
+		WHEN
+			(
+				PriceUpdateQuantities.OldQuantity IS NOT null AND
+				PriceUpdateQuantities.OldQuantity != 0 AND
+				PriceSets.$amazonPrice != 0 AND
+				PriceUpdateHistory.OldPrice IS NOT null
+			) THEN
+			PriceUpdateQuantities.NewQuantity * PriceSets.$amazonPrice / (1 + PriceSets.VAT / 100) / (PriceUpdateQuantities.OldQuantity * PriceUpdateHistory.OldPrice) - 1
+		WHEN
+			(
+				PriceUpdateQuantities.OldQuantity IS NOT null AND
+				PriceUpdateQuantities.OldQuantity != 0 AND
+				PriceSets.$amazonPrice != 0 AND
+				PriceUpdateHistory.OldPrice IS null
+			) THEN
+			PriceUpdateQuantities.NewQuantity / PriceUpdateQuantities.OldQuantity - 1
+		WHEN
+			(
+				PriceSets.$amazonPrice = 0 OR (PriceUpdateHistory.OldPrice IS NOT null AND PriceUpdateHistory.OldPrice = 0)
+			) THEN
+			-99999
+		WHEN
+			(
+				(PriceUpdateQuantities.OldQuantity IS null OR PriceUpdateQuantities.OldQuantity = 0) AND
+				PriceUpdateQuantities.NewQuantity IS NOT null AND
+				PriceUpdateQuantities.NewQuantity != 0
+			) THEN
+			99999 * PriceUpdateQuantities.NewQuantity
+	ELSE
+		0
+	END";
+			default :
+				throw new RuntimeException("Unknown sort name: $sortByColumn");
+		}
 	}
 
 }
