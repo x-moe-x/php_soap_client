@@ -593,6 +593,7 @@ function prepareAmazon() {'use strict';
 		}, {
 			display : 'Trend Artikel<br>verkaufte Stk',
 			name : 'Trend',
+			sortable: true,
 			process : function(cellDiv, SKU) {
 				var trendValue;
 

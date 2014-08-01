@@ -32,6 +32,9 @@ switch ($sortname) {
 		break;
 	case 'StandardPrice' :
 		break;
+	case 'Trend' :
+		$sortname = 'SortTrend';
+		break;
 	/*case 'ChangePrice' :
 		$sortname = 'NewPrice';
 		break;

@@ -52,7 +52,16 @@ class ApiAmazon {
 	PriceSets.PriceID,
 	1 + PriceSets.VAT / 100 AS VAT,
 	PriceSets.Price / (1 + PriceSets.VAT / 100) AS StandardPrice,
-	PriceSets.PurchasePriceNet';
+	PriceSets.PurchasePriceNet,
+	CASE WHEN (PriceUpdateQuantities.OldQuantity IS null OR PriceUpdateQuantities.OldQuantity = 0) THEN
+		CASE WHEN (PriceUpdateQuantities.NewQuantity IS null OR PriceUpdateQuantities.NewQuantity = 0) THEN
+			0
+		ELSE
+			99999
+		END
+	ELSE
+		PriceUpdateQuantities.NewQuantity / PriceUpdateQuantities.OldQuantity - 1
+	END AS SortTrend';
 
 	/**
 	 * @var string
