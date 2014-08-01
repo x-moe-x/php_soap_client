@@ -536,6 +536,19 @@ LEFT JOIN PriceUpdateQuantities
 	ELSE
 		0
 	END";
+			case 'Marge' :
+				return "\n\tCASE
+		WHEN
+			(
+				PriceSets.$amazonPrice = 0
+			) THEN
+			0
+	ELSE
+		1 - PriceSets.PurchasePriceNet / PriceSets.$amazonPrice
+	END";
+			case 'Quantities' :
+				return 'PriceUpdateQuantities.NewQuantity';
+
 			default :
 				throw new RuntimeException("Unknown sort name: $sortByColumn");
 		}

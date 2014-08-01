@@ -539,6 +539,7 @@ function prepareAmazon() {'use strict';
 		}, {
 			display : 'Verkauf Stk. / 30 Tage<br>(vor) nach Änderung VK',
 			name : 'Quantities',
+			sortable : true,
 			process : function(cellDiv, SKU) {
 				var quantityData, valueQuality;
 				quantityData = $.parseJSON($(cellDiv).html());
@@ -561,6 +562,7 @@ function prepareAmazon() {'use strict';
 		}, {
 			display : 'Marge / Stk. (mit aktuellen Kosten)<br>(vor) nach Änderung VK',
 			name : 'Marge',
+			sortable : true,
 			width : 120,
 			process : function(cellDiv, SKU) {
 				var margeData, valueQuality;
