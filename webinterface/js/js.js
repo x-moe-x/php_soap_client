@@ -691,6 +691,7 @@ function prepareAmazon() {'use strict';
 			display : 'Min.- Preis',
 			name : 'MinPrice',
 			width: 70,
+			sortable : true,
 			process : function(cellDiv, SKU) {
 				var minPrice;
 
@@ -705,6 +706,7 @@ function prepareAmazon() {'use strict';
 			display : 'Std. Preis',
 			name : 'StandardPrice',
 			width: 70,
+			sortable : true,
 			process : function(cellDiv, SKU) {
 				var standardPrice;
 

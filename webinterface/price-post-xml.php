@@ -27,6 +27,11 @@ switch ($sortname) {
 	case 'TimeData' :
 		$sortname = 'WrittenTimeStamp';
 		break;
+	case 'MinPrice' :
+		$sortname = 'PurchasePriceNet';
+		break;
+	case 'StandardPrice' :
+		break;
 	/*case 'ChangePrice' :
 		$sortname = 'NewPrice';
 		break;
