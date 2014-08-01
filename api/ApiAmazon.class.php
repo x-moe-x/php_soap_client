@@ -391,11 +391,6 @@ LEFT JOIN PriceUpdateQuantities
 		$data['total'] = DBQuery::getInstance() -> select(self::PRICE_DATA_SELECT_BASIC . self::PRICE_DATA_FROM_BASIC . self::PRICE_DATA_WHERE . $whereCondition) -> getNumRows();
 		$config = self::getConfig();
 
-		//TODO check for empty values to prevent errors!
-		$sort = "ORDER BY $sortByColumn $sortOrder\n";
-		$start = (($page - 1) * $rowsPerPage);
-		$limit = "LIMIT $start,$rowsPerPage";
-
 		// get associated price id
 		$amazonStaticData = ApiHelper::getSalesOrderReferrer(self::AMAZON_REFERRER_ID);
 		$amazonPrice = 'Price' . $amazonStaticData['PriceColumn'];
@@ -405,6 +400,52 @@ LEFT JOIN PriceUpdateQuantities
 	ELSE
 		PriceUpdateHistory.OldPrice
 	END OldPrice";
+
+		switch ($sortByColumn) {
+			case 'SortTrendProfit' :
+				$sortByColumn = "
+	CASE
+		WHEN
+			(
+				PriceUpdateQuantities.OldQuantity IS NOT null AND
+				PriceUpdateQuantities.OldQuantity != 0 AND
+				PriceSets.$amazonPrice != 0 AND
+				PriceUpdateHistory.OldPrice IS NOT null
+			) THEN
+			PriceUpdateQuantities.NewQuantity * PriceSets.$amazonPrice / (1 + PriceSets.VAT / 100) / (PriceUpdateQuantities.OldQuantity * PriceUpdateHistory.OldPrice) - 1
+		WHEN
+			(
+				PriceUpdateQuantities.OldQuantity IS NOT null AND
+				PriceUpdateQuantities.OldQuantity != 0 AND
+				PriceSets.$amazonPrice != 0 AND
+				PriceUpdateHistory.OldPrice IS null
+			) THEN
+			PriceUpdateQuantities.NewQuantity / PriceUpdateQuantities.OldQuantity - 1
+		WHEN
+			(
+				PriceSets.$amazonPrice = 0 OR (PriceUpdateHistory.OldPrice IS NOT null AND PriceUpdateHistory.OldPrice = 0)
+			) THEN
+			-99999
+		WHEN
+			(
+				(PriceUpdateQuantities.OldQuantity IS null OR PriceUpdateQuantities.OldQuantity = 0) AND
+				PriceUpdateQuantities.NewQuantity IS NOT null AND
+				PriceUpdateQuantities.NewQuantity != 0
+			) THEN
+			99999
+	ELSE
+		0
+	END";
+				break;
+			default :
+				break;
+		}
+
+		//TODO check for empty values to prevent errors!
+		$sort = "ORDER BY $sortByColumn $sortOrder\n";
+		$start = (($page - 1) * $rowsPerPage);
+		$limit = "LIMIT $start,$rowsPerPage";
+
 		// add price id to select advanced clause
 		$query = self::PRICE_DATA_SELECT_BASIC . self::PRICE_DATA_SELECT_ADVANCED . $amazonPriceSelect . self::PRICE_DATA_FROM_BASIC . self::PRICE_DATA_FROM_ADVANCED . self::PRICE_DATA_WHERE . $whereCondition . $sort . $limit;
 		$amazonPriceDataDBResult = DBQuery::getInstance() -> select($query);

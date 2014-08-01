@@ -35,6 +35,9 @@ switch ($sortname) {
 	case 'Trend' :
 		$sortname = 'SortTrend';
 		break;
+	case 'TrendProfit' :
+		$sortname = 'SortTrendProfit';
+		break;
 	/*case 'ChangePrice' :
 		$sortname = 'NewPrice';
 		break;

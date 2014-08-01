@@ -613,6 +613,7 @@ function prepareAmazon() {'use strict';
 		}, {
 			display : 'Trend Artikel(mit aktuellen Kosten))<br>Gewinn (Vgl. mit Herkunft + 1,8%)',
 			name : 'TrendProfit',
+			sortable: true,
 			process : function(cellDiv, SKU) {
 				var trendProfitData;
 
