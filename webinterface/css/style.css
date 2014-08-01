@@ -197,6 +197,10 @@ body.loading .modal {
 	background-color: #cfc;
 }
 
+.flexigrid tr.erow.priceChanged td {
+	background-color: #bfb;
+}
+
 /** end amazon specific styling **/
 
 /** start table styling **/
