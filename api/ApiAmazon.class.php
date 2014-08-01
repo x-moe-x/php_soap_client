@@ -57,7 +57,7 @@ class ApiAmazon {
 		CASE WHEN (PriceUpdateQuantities.NewQuantity IS null OR PriceUpdateQuantities.NewQuantity = 0) THEN
 			0
 		ELSE
-			99999
+			99999 * PriceUpdateQuantities.NewQuantity
 		END
 	ELSE
 		PriceUpdateQuantities.NewQuantity / PriceUpdateQuantities.OldQuantity - 1
@@ -432,7 +432,7 @@ LEFT JOIN PriceUpdateQuantities
 				PriceUpdateQuantities.NewQuantity IS NOT null AND
 				PriceUpdateQuantities.NewQuantity != 0
 			) THEN
-			99999
+			99999 * PriceUpdateQuantities.NewQuantity
 	ELSE
 		0
 	END";
