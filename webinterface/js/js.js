@@ -622,13 +622,18 @@ function prepareAmazon() {'use strict';
 						html : 'Invalid price',
 						'class' : 'badValue'
 					}));
-					return;
+				} else if (parseFloat(trendProfitData.TrendProfitValue) !== Infinity){
+					$(cellDiv).html($('<span/>', {
+						html : (trendProfitData.TrendProfitValue * 100).toFixed(2),
+						'class' : 'trendProfitValue ' + (trendProfitData.TrendProfitValue >= 0 ? 'goodValue' : 'badValue')
+					}));
+				} else {
+					$(cellDiv).html($('<span/>', {
+						html : '&infin;',
+						'class' : 'infinity goodValue'
+					}));
 				}
 
-				$(cellDiv).html($('<span/>', {
-					html : (trendProfitData.TrendProfitValue * 100).toFixed(2),
-					'class' : 'trendProfitValue ' + (trendProfitData.TrendProfitValue >= 0 ? 'goodValue' : 'badValue')
-				}));
 			}
 		}, {
 			display : 'Datum letzte Änderung VK<br>Zeitraum Trend (Soll / Ist)',
