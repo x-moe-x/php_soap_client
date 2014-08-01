@@ -684,8 +684,8 @@ function prepareAmazon() {'use strict';
 				minPrice = parseFloat($(cellDiv).html()).toFixed(2);
 
 				$(cellDiv).html($('<span/>', {
-					'class' : 'minPrice',
-					html : minPrice
+					'class' : 'minPrice' + (minPrice > 0 ? '' : ' badValue'),
+					html : minPrice > 0 ? minPrice : 'no EK given'
 				}));
 			}
 		}, {
@@ -698,8 +698,8 @@ function prepareAmazon() {'use strict';
 				standardPrice = parseFloat($(cellDiv).html()).toFixed(2);
 
 				$(cellDiv).html($('<span/>', {
-					'class' : 'standardPrice',
-					html : standardPrice
+					'class' : 'standardPrice' + (standardPrice > 0 ? '' : ' badValue'),
+					html : standardPrice > 0 ? standardPrice : 'no StandardPrice given'
 				}));
 			}
 		}, {
