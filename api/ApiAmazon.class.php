@@ -52,16 +52,7 @@ class ApiAmazon {
 	PriceSets.PriceID,
 	1 + PriceSets.VAT / 100 AS VAT,
 	PriceSets.Price / (1 + PriceSets.VAT / 100) AS StandardPrice,
-	PriceSets.PurchasePriceNet,
-	CASE WHEN (PriceUpdateQuantities.OldQuantity IS null OR PriceUpdateQuantities.OldQuantity = 0) THEN
-		CASE WHEN (PriceUpdateQuantities.NewQuantity IS null OR PriceUpdateQuantities.NewQuantity = 0) THEN
-			0
-		ELSE
-			99999 * PriceUpdateQuantities.NewQuantity
-		END
-	ELSE
-		PriceUpdateQuantities.NewQuantity / PriceUpdateQuantities.OldQuantity - 1
-	END AS SortTrend';
+	PriceSets.PurchasePriceNet';
 
 	/**
 	 * @var string
@@ -402,9 +393,27 @@ LEFT JOIN PriceUpdateQuantities
 	END OldPrice";
 
 		switch ($sortByColumn) {
+			case 'SortTrend':
+				$sortByColumn = "\n\tCASE
+		WHEN
+			(
+				(PriceUpdateQuantities.OldQuantity IS null OR PriceUpdateQuantities.OldQuantity = 0) AND
+				(PriceUpdateQuantities.NewQuantity IS null OR PriceUpdateQuantities.NewQuantity = 0)
+			) THEN
+			0
+		WHEN
+			(
+				(PriceUpdateQuantities.OldQuantity IS null OR PriceUpdateQuantities.OldQuantity = 0) AND
+				PriceUpdateQuantities.NewQuantity IS NOT null AND
+				PriceUpdateQuantities.NewQuantity != 0
+			) THEN
+			99999 * PriceUpdateQuantities.NewQuantity
+	ELSE
+		PriceUpdateQuantities.NewQuantity / PriceUpdateQuantities.OldQuantity - 1
+	END";
+				break;
 			case 'SortTrendProfit' :
-				$sortByColumn = "
-	CASE
+				$sortByColumn = "\n\tCASE
 		WHEN
 			(
 				PriceUpdateQuantities.OldQuantity IS NOT null AND
