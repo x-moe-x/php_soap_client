@@ -27,12 +27,12 @@ switch ($sortname) {
 	case 'TimeData' :
 		$sortname = 'WrittenTimeStamp';
 		break;
-	case 'ChangePrice' :
+	/*case 'ChangePrice' :
 		$sortname = 'NewPrice';
 		break;
 	case 'TargetMarge' :
 		$sortname = 'NewPrice';
-		break;
+		break;*/
 	default :
 		throw new RuntimeException("Unknown sort name: $sortname");
 }

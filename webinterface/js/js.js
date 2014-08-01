@@ -719,7 +719,7 @@ function prepareAmazon() {'use strict';
 			display : '(Ziel-) Marge',
 			name : 'TargetMarge',
 			width : 70,
-			sortable : true,
+			//sortable : true,
 			process : function(cellDiv, SKU) {
 				$(cellDiv).empty().attr('id', 'changeMarge_' + SKU);
 			}
@@ -727,7 +727,7 @@ function prepareAmazon() {'use strict';
 			display : 'Preis ändern, netto',
 			name : 'ChangePrice',
 			width : 70,
-			sortable : true,
+			//sortable : true,
 			process : function(cellDiv, SKU) {
 				$(cellDiv).empty().attr('id', 'changeNetto_' + SKU);
 			}
@@ -735,7 +735,7 @@ function prepareAmazon() {'use strict';
 			display : 'Preis ändern, brutto',
 			name : 'ChangePrice',
 			width : 70,
-			sortable : true,
+			//sortable : true,
 			process : function(cellDiv, SKU) {
 				var priceData;
 
