@@ -756,7 +756,7 @@ function prepareAmazon() {'use strict';
 						return returnValue.toFixed(2);
 					});
 					$('#amazonTable').flexReload();
-				}, parseFloat(priceData.price).toFixed(2));
+				}, priceData.isPriceValid ? parseFloat(priceData.price).toFixed(2) : '');
 
 				// fill marge
 				$('#changeMarge_' + SKU).insertInput('inputMarge_' + SKU, '%', function(event) {
@@ -784,7 +784,7 @@ function prepareAmazon() {'use strict';
 						return parseFloat((1 - (priceData.purchasePrice / returnValue + priceData.fixedPercentage)) * 100).toFixed(2);
 					});
 					$('#amazonTable').flexReload();
-				}, parseFloat((1 - (priceData.purchasePrice / priceData.price + priceData.fixedPercentage)) * 100).toFixed(2));
+				}, priceData.isPriceValid ? parseFloat((1 - (priceData.purchasePrice / priceData.price + priceData.fixedPercentage)) * 100).toFixed(2) : '');
 
 				// fill brutto
 				$(cellDiv).insertInput('inputBrutto_' + SKU, '€', function(event) {
@@ -812,7 +812,7 @@ function prepareAmazon() {'use strict';
 						return parseFloat(returnValue * priceData.vat).toFixed(2);
 					});
 					$('#amazonTable').flexReload();
-				}, parseFloat(priceData.price * priceData.vat).toFixed(2));
+				}, priceData.isPriceValid ? parseFloat(priceData.price * priceData.vat).toFixed(2) : '');
 
 				// change row coloring
 				if (priceData.isChangePending) {

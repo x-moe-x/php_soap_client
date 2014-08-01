@@ -424,6 +424,7 @@ LEFT JOIN PriceUpdateQuantities
 				'Marking1ID' => $amazonPriceData['Marking1ID'],
 				'PriceOldCurrent' => array('price' => $amazonPriceData['Price'], 'oldPrice' => $amazonPriceData['OldPrice']),
 				'PriceChange' => array(
+					'isPriceValid' => $isPriceValid,
 					'price' => $isChangePending ? $amazonPriceData['NewPrice'] : $amazonPriceData['Price'],
 					'purchasePrice' => $amazonPriceData['PurchasePriceNet'],
 					'fixedPercentage' => $config['ProvisionCosts'] + $config['CommonRunningCostsAmount'] + $config['WarehouseRunningCostsAmount'],
