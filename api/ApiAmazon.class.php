@@ -422,7 +422,11 @@ LEFT JOIN PriceUpdateQuantities
 				'ItemNo' => $amazonPriceData['ItemNo'],
 				'Name' => $amazonPriceData['Name'],
 				'Marking1ID' => $amazonPriceData['Marking1ID'],
-				'PriceOldCurrent' => array('price' => $amazonPriceData['Price'], 'oldPrice' => $amazonPriceData['OldPrice']),
+				'PriceOldCurrent' => array(
+					'isPriceValid' => $isPriceValid,
+					'price' => $amazonPriceData['Price'],
+					'oldPrice' => $amazonPriceData['OldPrice']
+				),
 				'PriceChange' => array(
 					'isPriceValid' => $isPriceValid,
 					'price' => $isChangePending ? $amazonPriceData['NewPrice'] : $amazonPriceData['Price'],

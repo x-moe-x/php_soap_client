@@ -663,6 +663,14 @@ function prepareAmazon() {'use strict';
 				var priceData, price;
 				priceData = $.parseJSON($(cellDiv).html());
 
+				if (!priceData.isPriceValid) {
+					$(cellDiv).html($('<span/>', {
+						html : 'Invalid price',
+						'class' : 'badValue'
+					}));
+					return;
+				}
+
 				$(cellDiv).html($('<span/>', {
 					'class' : 'price oldPrice',
 					html : parseFloat(priceData.oldPrice).toFixed(2)
