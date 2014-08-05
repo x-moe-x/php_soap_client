@@ -853,7 +853,7 @@ function prepareAmazon() {'use strict';
 			display : 'Name (UND verknüpft!)',
 			name : 'ItemName'
 		}],
-		height : 'auto',
+		height : '500',
 		singleSelect : true,
 		striped : true,
 		title : 'Kalkulation Amazon',
