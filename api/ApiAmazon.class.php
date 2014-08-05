@@ -382,11 +382,6 @@ LEFT JOIN PriceUpdateQuantities
 		$data['total'] = DBQuery::getInstance() -> select(self::PRICE_DATA_SELECT_BASIC . self::PRICE_DATA_FROM_BASIC . self::PRICE_DATA_WHERE . $whereCondition) -> getNumRows();
 		$config = self::getConfig();
 
-		//TODO check for empty values to prevent errors!
-		$sort = "ORDER BY $sortByColumn $sortOrder\n";
-		$start = (($page - 1) * $rowsPerPage);
-		$limit = "LIMIT $start,$rowsPerPage";
-
 		// get associated price id
 		$amazonStaticData = ApiHelper::getSalesOrderReferrer(self::AMAZON_REFERRER_ID);
 		$amazonPrice = 'Price' . $amazonStaticData['PriceColumn'];
@@ -396,6 +391,12 @@ LEFT JOIN PriceUpdateQuantities
 	ELSE
 		PriceUpdateHistory.OldPrice
 	END OldPrice";
+
+		//TODO check for empty values to prevent errors!
+		$sort = 'ORDER BY ' . self::sanitizeSortingColumn($sortByColumn, $sortOrder, $amazonPrice) . " $sortOrder\n";
+		$start = (($page - 1) * $rowsPerPage);
+		$limit = "LIMIT $start,$rowsPerPage";
+
 		// add price id to select advanced clause
 		$query = self::PRICE_DATA_SELECT_BASIC . self::PRICE_DATA_SELECT_ADVANCED . $amazonPriceSelect . self::PRICE_DATA_FROM_BASIC . self::PRICE_DATA_FROM_ADVANCED . self::PRICE_DATA_WHERE . $whereCondition . $sort . $limit;
 		$amazonPriceDataDBResult = DBQuery::getInstance() -> select($query);
@@ -422,8 +423,13 @@ LEFT JOIN PriceUpdateQuantities
 				'ItemNo' => $amazonPriceData['ItemNo'],
 				'Name' => $amazonPriceData['Name'],
 				'Marking1ID' => $amazonPriceData['Marking1ID'],
-				'PriceOldCurrent' => array('price' => $amazonPriceData['Price'], 'oldPrice' => $amazonPriceData['OldPrice']),
+				'PriceOldCurrent' => array(
+					'isPriceValid' => $isPriceValid,
+					'price' => $amazonPriceData['Price'],
+					'oldPrice' => $amazonPriceData['OldPrice']
+				),
 				'PriceChange' => array(
+					'isPriceValid' => $isPriceValid,
 					'price' => $isChangePending ? $amazonPriceData['NewPrice'] : $amazonPriceData['Price'],
 					'purchasePrice' => $amazonPriceData['PurchasePriceNet'],
 					'fixedPercentage' => $config['ProvisionCosts'] + $config['CommonRunningCostsAmount'] + $config['WarehouseRunningCostsAmount'],
@@ -452,7 +458,7 @@ LEFT JOIN PriceUpdateQuantities
 				'Trend' => $oldQuantity === 0 ? ($newQuantity === 0 ? 0 : 'Infinity') : $newQuantity / $oldQuantity - 1,
 				'TrendProfit' => array(
 					'isPriceValid' => $isPriceValid,
-					'TrendProfitValue' => ($oldQuantity !== 0 && $isPriceValid) ? ($newQuantity * $amazonPriceData['Price']) / ($oldQuantity * $amazonPriceData['OldPrice']) - 1 : 0
+					'TrendProfitValue' => ($oldQuantity !== 0 && $isPriceValid) ? ($newQuantity * $amazonPriceData['Price']) / ($oldQuantity * $amazonPriceData['OldPrice']) - 1 : ($newQuantity !== 0 && $isPriceValid? 'Infinity' : 0)
 				),
 				'MinPrice' => $amazonPriceData['PurchasePriceNet'] / (1 - ($config['ProvisionCosts'] + $config['CommonRunningCostsAmount'] + $config['WarehouseRunningCostsAmount'] + $config['MinimumMarge'])),
 				'TargetMarge' => $isPriceValid ? (1 - ($amazonPriceData['PurchasePriceNet'] / $amazonPriceData['Price'] + $config['ProvisionCosts'] + $config['CommonRunningCostsAmount'] + $config['WarehouseRunningCostsAmount'])) : 0,
@@ -461,6 +467,110 @@ LEFT JOIN PriceUpdateQuantities
 			 // @formatter:on
 		}
 		return $data;
+	}
+
+	private static function sanitizeSortingColumn($sortByColumn, $sortOrder, $amazonPrice) {
+		switch ($sortByColumn) {
+			case 'ItemID' :
+			case 'ItemNo' :
+			case 'Marking1ID' :
+			case 'StandardPrice' :
+				return $sortByColumn;
+			case 'ChangePrice' :
+			case 'ChangePriceBrutto' :
+				return "NewPrice $sortOrder, PriceSets.$amazonPrice";
+			case 'TargetMarge' :
+				return "\n\tCASE
+		WHEN
+			(
+				PriceUpdate.NewPrice IS NOT null AND
+				PriceUpdate.NewPrice != 0
+			) THEN
+			1 - PriceSets.PurchasePriceNet / PriceUpdate.NewPrice
+		ELSE
+			0
+		END $sortOrder, CASE
+		WHEN
+			(
+				PriceSets.$amazonPrice = 0
+			) THEN
+			0
+	ELSE
+		1 - PriceSets.PurchasePriceNet / PriceSets.$amazonPrice
+	END";
+			case 'ItemName' :
+				return 'Name';
+			case 'TimeData' :
+				return 'WrittenTimeStamp';
+			case 'MinPrice' :
+				return 'PurchasePriceNet';
+			case 'Trend' :
+				return "\n\tCASE
+		WHEN
+			(
+				(PriceUpdateQuantities.OldQuantity IS null OR PriceUpdateQuantities.OldQuantity = 0) AND
+				(PriceUpdateQuantities.NewQuantity IS null OR PriceUpdateQuantities.NewQuantity = 0)
+			) THEN
+			0
+		WHEN
+			(
+				(PriceUpdateQuantities.OldQuantity IS null OR PriceUpdateQuantities.OldQuantity = 0) AND
+				PriceUpdateQuantities.NewQuantity IS NOT null AND
+				PriceUpdateQuantities.NewQuantity != 0
+			) THEN
+			99999 * PriceUpdateQuantities.NewQuantity
+	ELSE
+		PriceUpdateQuantities.NewQuantity / PriceUpdateQuantities.OldQuantity - 1
+	END";
+			case 'TrendProfit' :
+				return "\n\tCASE
+		WHEN
+			(
+				PriceUpdateQuantities.OldQuantity IS NOT null AND
+				PriceUpdateQuantities.OldQuantity != 0 AND
+				PriceSets.$amazonPrice != 0 AND
+				PriceUpdateHistory.OldPrice IS NOT null
+			) THEN
+			PriceUpdateQuantities.NewQuantity * PriceSets.$amazonPrice / (1 + PriceSets.VAT / 100) / (PriceUpdateQuantities.OldQuantity * PriceUpdateHistory.OldPrice) - 1
+		WHEN
+			(
+				PriceUpdateQuantities.OldQuantity IS NOT null AND
+				PriceUpdateQuantities.OldQuantity != 0 AND
+				PriceSets.$amazonPrice != 0 AND
+				PriceUpdateHistory.OldPrice IS null
+			) THEN
+			PriceUpdateQuantities.NewQuantity / PriceUpdateQuantities.OldQuantity - 1
+		WHEN
+			(
+				PriceSets.$amazonPrice = 0 OR (PriceUpdateHistory.OldPrice IS NOT null AND PriceUpdateHistory.OldPrice = 0)
+			) THEN
+			-99999
+		WHEN
+			(
+				(PriceUpdateQuantities.OldQuantity IS null OR PriceUpdateQuantities.OldQuantity = 0) AND
+				PriceUpdateQuantities.NewQuantity IS NOT null AND
+				PriceUpdateQuantities.NewQuantity != 0
+			) THEN
+			99999 * PriceUpdateQuantities.NewQuantity
+	ELSE
+		0
+	END";
+			case 'Marge' :
+				return "\n\tCASE
+		WHEN
+			(
+				PriceSets.$amazonPrice = 0
+			) THEN
+			0
+	ELSE
+		1 - PriceSets.PurchasePriceNet / PriceSets.$amazonPrice
+	END";
+			case 'Quantities' :
+				return 'PriceUpdateQuantities.NewQuantity';
+
+			default :
+				throw new RuntimeException("Unknown sort name: $sortByColumn");
+		}
 	}
 
 }

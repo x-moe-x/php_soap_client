@@ -539,6 +539,7 @@ function prepareAmazon() {'use strict';
 		}, {
 			display : 'Verkauf Stk. / 30 Tage<br>(vor) nach Änderung VK',
 			name : 'Quantities',
+			sortable : true,
 			process : function(cellDiv, SKU) {
 				var quantityData, valueQuality;
 				quantityData = $.parseJSON($(cellDiv).html());
@@ -561,6 +562,7 @@ function prepareAmazon() {'use strict';
 		}, {
 			display : 'Marge / Stk. (mit aktuellen Kosten)<br>(vor) nach Änderung VK',
 			name : 'Marge',
+			sortable : true,
 			width : 120,
 			process : function(cellDiv, SKU) {
 				var margeData, valueQuality;
@@ -593,6 +595,7 @@ function prepareAmazon() {'use strict';
 		}, {
 			display : 'Trend Artikel<br>verkaufte Stk',
 			name : 'Trend',
+			sortable: true,
 			process : function(cellDiv, SKU) {
 				var trendValue;
 
@@ -612,6 +615,7 @@ function prepareAmazon() {'use strict';
 		}, {
 			display : 'Trend Artikel(mit aktuellen Kosten))<br>Gewinn (Vgl. mit Herkunft + 1,8%)',
 			name : 'TrendProfit',
+			sortable: true,
 			process : function(cellDiv, SKU) {
 				var trendProfitData;
 
@@ -622,13 +626,18 @@ function prepareAmazon() {'use strict';
 						html : 'Invalid price',
 						'class' : 'badValue'
 					}));
-					return;
+				} else if (parseFloat(trendProfitData.TrendProfitValue) !== Infinity){
+					$(cellDiv).html($('<span/>', {
+						html : (trendProfitData.TrendProfitValue * 100).toFixed(2),
+						'class' : 'trendProfitValue ' + (trendProfitData.TrendProfitValue >= 0 ? 'goodValue' : 'badValue')
+					}));
+				} else {
+					$(cellDiv).html($('<span/>', {
+						html : '&infin;',
+						'class' : 'infinity goodValue'
+					}));
 				}
 
-				$(cellDiv).html($('<span/>', {
-					html : (trendProfitData.TrendProfitValue * 100).toFixed(2),
-					'class' : 'trendProfitValue ' + (trendProfitData.TrendProfitValue >= 0 ? 'goodValue' : 'badValue')
-				}));
 			}
 		}, {
 			display : 'Datum letzte Änderung VK<br>Zeitraum Trend (Soll / Ist)',
@@ -663,6 +672,14 @@ function prepareAmazon() {'use strict';
 				var priceData, price;
 				priceData = $.parseJSON($(cellDiv).html());
 
+				if (!priceData.isPriceValid) {
+					$(cellDiv).html($('<span/>', {
+						html : 'Invalid price',
+						'class' : 'badValue'
+					}));
+					return;
+				}
+
 				$(cellDiv).html($('<span/>', {
 					'class' : 'price oldPrice',
 					html : parseFloat(priceData.oldPrice).toFixed(2)
@@ -678,51 +695,56 @@ function prepareAmazon() {'use strict';
 			display : 'Min.- Preis',
 			name : 'MinPrice',
 			width: 70,
+			sortable : true,
 			process : function(cellDiv, SKU) {
 				var minPrice;
 
 				minPrice = parseFloat($(cellDiv).html()).toFixed(2);
 
 				$(cellDiv).html($('<span/>', {
-					'class' : 'minPrice',
-					html : minPrice
+					'class' : 'minPrice' + (minPrice > 0 ? '' : ' badValue'),
+					html : minPrice > 0 ? minPrice : 'no EK given'
 				}));
 			}
 		}, {
 			display : 'Std. Preis',
 			name : 'StandardPrice',
 			width: 70,
+			sortable : true,
 			process : function(cellDiv, SKU) {
 				var standardPrice;
 
 				standardPrice = parseFloat($(cellDiv).html()).toFixed(2);
 
 				$(cellDiv).html($('<span/>', {
-					'class' : 'standardPrice',
-					html : standardPrice
+					'class' : 'standardPrice' + (standardPrice > 0 ? '' : ' badValue'),
+					html : standardPrice > 0 ? standardPrice : 'no StandardPrice given'
 				}));
 			}
 		}, {
 			display : '(Ziel-) Marge',
 			name : 'TargetMarge',
-			width : 70,
 			sortable : true,
+			width : 70,
+			//sortable : true,
 			process : function(cellDiv, SKU) {
 				$(cellDiv).empty().attr('id', 'changeMarge_' + SKU);
 			}
 		}, {
 			display : 'Preis ändern, netto',
 			name : 'ChangePrice',
-			width : 70,
 			sortable : true,
+			width : 70,
+			//sortable : true,
 			process : function(cellDiv, SKU) {
 				$(cellDiv).empty().attr('id', 'changeNetto_' + SKU);
 			}
 		}, {
 			display : 'Preis ändern, brutto',
-			name : 'ChangePrice',
-			width : 70,
+			name : 'ChangePriceBrutto',
 			sortable : true,
+			width : 70,
+			//sortable : true,
 			process : function(cellDiv, SKU) {
 				var priceData;
 
@@ -756,7 +778,7 @@ function prepareAmazon() {'use strict';
 						return returnValue.toFixed(2);
 					});
 					$('#amazonTable').flexReload();
-				}, parseFloat(priceData.price).toFixed(2));
+				}, priceData.isPriceValid ? parseFloat(priceData.price).toFixed(2) : '');
 
 				// fill marge
 				$('#changeMarge_' + SKU).insertInput('inputMarge_' + SKU, '%', function(event) {
@@ -784,7 +806,7 @@ function prepareAmazon() {'use strict';
 						return parseFloat((1 - (priceData.purchasePrice / returnValue + priceData.fixedPercentage)) * 100).toFixed(2);
 					});
 					$('#amazonTable').flexReload();
-				}, parseFloat((1 - (priceData.purchasePrice / priceData.price + priceData.fixedPercentage)) * 100).toFixed(2));
+				}, priceData.isPriceValid ? parseFloat((1 - (priceData.purchasePrice / priceData.price + priceData.fixedPercentage)) * 100).toFixed(2) : '');
 
 				// fill brutto
 				$(cellDiv).insertInput('inputBrutto_' + SKU, '€', function(event) {
@@ -812,7 +834,7 @@ function prepareAmazon() {'use strict';
 						return parseFloat(returnValue * priceData.vat).toFixed(2);
 					});
 					$('#amazonTable').flexReload();
-				}, parseFloat(priceData.price * priceData.vat).toFixed(2));
+				}, priceData.isPriceValid ? parseFloat(priceData.price * priceData.vat).toFixed(2) : '');
 
 				// change row coloring
 				if (priceData.isChangePending) {
