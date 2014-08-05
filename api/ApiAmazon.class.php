@@ -479,6 +479,25 @@ LEFT JOIN PriceUpdateQuantities
 			case 'ChangePrice' :
 			case 'ChangePriceBrutto' :
 				return "NewPrice $sortOrder, PriceSets.$amazonPrice";
+			case 'TargetMarge' :
+				return "\n\tCASE
+		WHEN
+			(
+				PriceUpdate.NewPrice IS NOT null AND
+				PriceUpdate.NewPrice != 0
+			) THEN
+			1 - PriceSets.PurchasePriceNet / PriceUpdate.NewPrice
+		ELSE
+			0
+		END $sortOrder, CASE
+		WHEN
+			(
+				PriceSets.$amazonPrice = 0
+			) THEN
+			0
+	ELSE
+		1 - PriceSets.PurchasePriceNet / PriceSets.$amazonPrice
+	END";
 			case 'ItemName' :
 				return 'Name';
 			case 'TimeData' :

@@ -724,6 +724,7 @@ function prepareAmazon() {'use strict';
 		}, {
 			display : '(Ziel-) Marge',
 			name : 'TargetMarge',
+			sortable : true,
 			width : 70,
 			//sortable : true,
 			process : function(cellDiv, SKU) {
