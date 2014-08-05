@@ -451,6 +451,7 @@ function prepareStock() {'use strict';
 			});
 
 			addMarking1IDFilter(g, status, params, 'stockFilter');
+			$('.pSearch', g.pDiv).click();
 		},
 		searchitems : [{
 			display : 'ItemID',
@@ -893,6 +894,7 @@ function prepareAmazon() {'use strict';
 		}],
 		onSuccess : function(g) {'use strict';
 			addMarking1IDFilter(g, this.status, this.params, 'amazonFilter');
+			$('.pSearch', g.pDiv).click();
 		}
 	});
 }
