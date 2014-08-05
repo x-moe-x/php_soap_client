@@ -732,6 +732,7 @@ function prepareAmazon() {'use strict';
 		}, {
 			display : 'Preis ändern, netto',
 			name : 'ChangePrice',
+			sortable : true,
 			width : 70,
 			//sortable : true,
 			process : function(cellDiv, SKU) {
@@ -739,7 +740,8 @@ function prepareAmazon() {'use strict';
 			}
 		}, {
 			display : 'Preis ändern, brutto',
-			name : 'ChangePrice',
+			name : 'ChangePriceBrutto',
+			sortable : true,
 			width : 70,
 			//sortable : true,
 			process : function(cellDiv, SKU) {

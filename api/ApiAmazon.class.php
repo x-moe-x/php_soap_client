@@ -393,7 +393,7 @@ LEFT JOIN PriceUpdateQuantities
 	END OldPrice";
 
 		//TODO check for empty values to prevent errors!
-		$sort = 'ORDER BY ' . self::sanitizeSortingColumn($sortByColumn, $amazonPrice) . " $sortOrder\n";
+		$sort = 'ORDER BY ' . self::sanitizeSortingColumn($sortByColumn, $sortOrder, $amazonPrice) . " $sortOrder\n";
 		$start = (($page - 1) * $rowsPerPage);
 		$limit = "LIMIT $start,$rowsPerPage";
 
@@ -469,7 +469,7 @@ LEFT JOIN PriceUpdateQuantities
 		return $data;
 	}
 
-	private static function sanitizeSortingColumn($sortByColumn, $amazonPrice) {
+	private static function sanitizeSortingColumn($sortByColumn, $sortOrder, $amazonPrice) {
 		switch ($sortByColumn) {
 			case 'ItemID' :
 			case 'ItemNo' :
@@ -477,8 +477,8 @@ LEFT JOIN PriceUpdateQuantities
 			case 'StandardPrice' :
 				return $sortByColumn;
 			case 'ChangePrice' :
-			case 'TargetMarge' :
-				return 'NewPrice';
+			case 'ChangePriceBrutto' :
+				return "NewPrice $sortOrder, PriceSets.$amazonPrice";
 			case 'ItemName' :
 				return 'Name';
 			case 'TimeData' :
