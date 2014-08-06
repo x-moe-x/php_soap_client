@@ -415,3 +415,19 @@ CREATE TABLE `soap_db`.`PriceSets` (
 	`WidthInMM` int(11) DEFAULT NULL,
 	PRIMARY KEY (`ItemID`,`PriceID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+DROP TABLE IF EXISTS `soap_db`.`WarehouseGroups`;
+
+CREATE TABLE `soap_db`.`WarehouseGroups` (
+	`GroupID` int(11) NOT NULL AUTO_INCREMENT,
+	`GroupName` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	PRIMARY KEY (`GroupID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+DROP TABLE IF EXISTS `soap_db`.`WarehouseGroupMapping`;
+
+CREATE TABLE `soap_db`.`WarehouseGroups` (
+	`WarehouseID` int(11) NOT NULL,
+	`GroupID` int(11) NOT NULL,
+	PRIMARY KEY (`WarehouseID`,`GroupID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
