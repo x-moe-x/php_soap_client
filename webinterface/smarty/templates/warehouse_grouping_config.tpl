@@ -39,24 +39,13 @@
 		}).tooltip({
 			position : {
 				my : "left center",
-				at : "right+220% center"
-			}
-		});
-		$('.buttonRenameGroup').button({
-			text : false,
-			icons : {
-				primary : "ui-icon-pencil"
-			}
-		}).tooltip({
-			position : {
-				my : "left center",
 				at : "right+120% center"
 			}
 		});
 		$('.buttonDeleteGroup').button({
 			text : false,
 			icons : {
-				primary : "ui-icon-circle-close"
+				primary : "ui-icon-trash"
 			}
 		}).tooltip({
 			position : {
@@ -77,7 +66,6 @@
 					<span class='groupName'>Net-Xpress</span>
 					<div class='groupConfigButtonSet'>
 						<a class='buttonMarkStandardGroup'>Als Standardgruppe markieren</a>
-						<a class='buttonRenameGroup'>Gruppe umbenennen</a>
 						<a class='buttonDeleteGroup'>Gruppe löschen</a>
 					</div>
 				</li>
@@ -85,7 +73,6 @@
 					<span class='groupName'>Jansen</span>
 					<div class='groupConfigButtonSet'>
 						<a class='buttonMarkStandardGroup'>Als Standardgruppe markieren</a>
-						<a class='buttonRenameGroup'>Gruppe umbenennen</a>
 						<a class='buttonDeleteGroup'>Gruppe löschen</a>
 					</div>
 				</li>
@@ -93,7 +80,6 @@
 					<span class='groupName'>Schmidt</span>
 					<div class='groupConfigButtonSet'>
 						<a class='buttonMarkStandardGroup'>Als Standardgruppe markieren</a>
-						<a class='buttonRenameGroup'>Gruppe umbenennen</a>
 						<a class='buttonDeleteGroup'>Gruppe löschen</a>
 					</div>
 				</li>
@@ -101,7 +87,6 @@
 					<span class='groupName'>Plakatshop24</span>
 					<div class='groupConfigButtonSet'>
 						<a class='buttonMarkStandardGroup'>Als Standardgruppe markieren</a>
-						<a class='buttonRenameGroup'>Gruppe umbenennen</a>
 						<a class='buttonDeleteGroup'>Gruppe löschen</a>
 					</div>
 				</li>
