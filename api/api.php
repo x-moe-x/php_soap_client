@@ -5,6 +5,7 @@ require_once 'ApiStock.class.php';
 require_once 'ApiGeneralCosts.class.php';
 require_once 'ApiAmazon.class.php';
 require_once 'ApiExecute.class.php';
+require_once 'ApiWarehouseGrouping.class.php';
 
 Epi::setSetting('exceptions', true);
 Epi::init('route');
@@ -30,6 +31,10 @@ getRoute() -> put('/config/amazon/(\w+)/(\w+|\d+|\d+\.\d+)', array('ApiAmazon', 
 getRoute() -> get('/amazonPrice/(\d+)-\d+-\d+', array('ApiAmazon', 'getPriceJSON'));
 getRoute() -> get('/amazonPrice/(\d+)', array('ApiAmazon', 'getPriceJSON'));
 getRoute() -> put('/amazonPrice/(\d+)-\d+-\d+/(\w+|\d+|\d+\.\d+)', array('ApiAmazon', 'setPriceJSON'));
+
+// register warehouse grouping api calls
+getRoute() -> get('/warehouseGrouping', array('ApiWarehouseGrouping', 'getGroupsJSON'));
+
 
 try {
 	getRoute() -> run();
