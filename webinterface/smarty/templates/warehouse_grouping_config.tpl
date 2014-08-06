@@ -13,12 +13,12 @@
 		display: inline;
 	}
 
-	.buttonMarkStandardGroup.StandardGroup .ui-icon {
-		background-image: url("images/ui-icons_004000_256x240.png");
+	.buttonMarkStandardGroup.standardGroup .ui-icon {
+		background-image: url("images/ui-icons_008000_256x240.png");
 	}
 
 	.buttonMarkStandardGroup.ui-state-active .ui-icon, .buttonMarkStandardGroup.ui-state-hover .ui-icon {
-		background-image: url("images/ui-icons_008000_256x240.png");
+		background-image: url("images/ui-icons_00a000_256x240.png");
 	}
 
 	.buttonDeleteGroup .ui-icon {
