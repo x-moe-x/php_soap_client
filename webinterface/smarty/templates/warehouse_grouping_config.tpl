@@ -62,36 +62,21 @@
 		<div>
 			<h3>Aktuelle Gruppen:</h3>
 			<ul class='warehouseGrouping_GroupList'>
-				<li>
-					<span class='groupName'>Net-Xpress</span>
+				{foreach $warehouseGroups.groupData as $group}
+				<li id='warehouseGroupingGroup_{$group.id}'>
+					<span class='groupName'>
+						<input value='{$group.name}'>
+					</span>
 					<div class='groupConfigButtonSet'>
-						<a class='buttonMarkStandardGroup'>Als Standardgruppe markieren</a>
+						<a class='buttonMarkStandardGroup{if $warehouseGroups.standardGroupID == $group.id} standardGroup{/if}'>Als Standardgruppe markieren</a>
 						<a class='buttonDeleteGroup'>Gruppe löschen</a>
 					</div>
 				</li>
+				{/foreach}
 				<li>
-					<span class='groupName'>Jansen</span>
-					<div class='groupConfigButtonSet'>
-						<a class='buttonMarkStandardGroup'>Als Standardgruppe markieren</a>
-						<a class='buttonDeleteGroup'>Gruppe löschen</a>
-					</div>
-				</li>
-				<li>
-					<span class='groupName'>Schmidt</span>
-					<div class='groupConfigButtonSet'>
-						<a class='buttonMarkStandardGroup'>Als Standardgruppe markieren</a>
-						<a class='buttonDeleteGroup'>Gruppe löschen</a>
-					</div>
-				</li>
-				<li>
-					<span class='groupName'>Plakatshop24</span>
-					<div class='groupConfigButtonSet'>
-						<a class='buttonMarkStandardGroup'>Als Standardgruppe markieren</a>
-						<a class='buttonDeleteGroup'>Gruppe löschen</a>
-					</div>
-				</li>
-				<li>
-					<span class='groupName'><input value='Neue Gruppe erstellen'></span>
+					<span class='groupName'>
+						<input value='Neue Gruppe erstellen'>
+					</span>
 				</li>
 			</ul>
 		</div>
