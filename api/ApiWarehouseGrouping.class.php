@@ -22,7 +22,7 @@ class ApiWarehouseGrouping {
 	}
 
 	public static function getGroups() {
-		$query = 'SELECT `GroupID` AS `id`, `GroupName` AS `name` FROM WarehouseGroups';
+		$query = 'SELECT `GroupID` AS `id`, `GroupName` AS `name` FROM WarehouseGroups ORDER BY `id`';
 
 		ob_start();
 		$dbResult = DBQuery::getInstance() -> select($query);
