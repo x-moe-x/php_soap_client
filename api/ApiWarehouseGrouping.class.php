@@ -36,5 +36,45 @@ class ApiWarehouseGrouping {
 		return $result;
 	}
 
+	public static function createGroupJSON($name){
+		header('Content-Type: application/json');
+		$result = array('success' => false, 'data' => NULL, 'error' => NULL);
+
+		try {
+			$result['data'] = self::createGroup($name);
+			$result['success'] = true;
+		} catch(Exception $e) {
+			$result['error'] = $e -> getMessage();
+		}
+		echo json_encode($result);
+	}
+
+	public static function createGroup($name) {
+		$insertQuery = 'INSERT INTO WarehouseGroups' . DBUtils::buildInsert(array('GroupID' => 'NULL', 'GroupName' => $name));
+		$checkInsertQuery = "SELECT `GroupID` AS `id`, `GroupName` AS `name` FROM WarehouseGroups WHERE `GroupName` LIKE '$name'";
+
+		$wasCheckSuccessfull = false;
+		$newGroupData = null;
+
+		ob_start();
+		DBQuery::getInstance() -> begin();
+		$wasInsertSuccessfull = DBQuery::getInstance() -> insert($insertQuery) === 1;
+		$checkInsertResult = DBQuery::getInstance() -> select($checkInsertQuery);
+
+		if ($wasInsertSuccessfull && ($checkInsertResult -> getNumRows() === 1) && ($newGroupData = $checkInsertResult -> fetchAssoc())) {
+			DBQuery::getInstance() -> commit();
+			$wasCheckSuccessfull = true;
+		} else {
+			DBQuery::getInstance() -> rollback();
+		}
+		ob_end_clean();
+
+		if ($wasInsertSuccessfull && $wasCheckSuccessfull) {
+			return $newGroupData;
+		} else {
+			throw new RuntimeException("Unable to create group $name");
+		}
+	}
+
 }
 ?>
