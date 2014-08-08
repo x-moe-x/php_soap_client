@@ -158,6 +158,7 @@
 						value : element.val().replace(' ', '_')
 					};
 				}, function(element, type, requestData, resultData) {
+					populateWarehouseGroupingGroupList();
 				});
 			}))));
 		}, 'json');
