@@ -36,12 +36,12 @@ class ApiWarehouseGrouping {
 		return $result;
 	}
 
-	public static function createGroupJSON($name){
+	public static function createGroupJSON($name) {
 		header('Content-Type: application/json');
 		$result = array('success' => false, 'data' => NULL, 'error' => NULL);
 
 		try {
-			$result['data'] = self::createGroup($name);
+			$result['data'] = self::createGroup(str_replace('_',' ',$name));
 			$result['success'] = true;
 		} catch(Exception $e) {
 			$result['error'] = $e -> getMessage();
