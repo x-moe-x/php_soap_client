@@ -33,6 +33,8 @@ getRoute() -> get('/amazonPrice/(\d+)', array('ApiAmazon', 'getPriceJSON'));
 getRoute() -> put('/amazonPrice/(\d+)-\d+-\d+/(\w+|\d+|\d+\.\d+)', array('ApiAmazon', 'setPriceJSON'));
 
 // register warehouse grouping api calls
+getRoute() -> get('/config/warehouseGrouping/(\w+)', array('ApiWarehouseGrouping', 'getConfigJSON'));
+
 getRoute() -> get('/warehouseGrouping', array('ApiWarehouseGrouping', 'getGroupsJSON'));
 getRoute() -> put('/warehouseGrouping/(\w+)', array('ApiWarehouseGrouping', 'createGroupJSON'));
 
