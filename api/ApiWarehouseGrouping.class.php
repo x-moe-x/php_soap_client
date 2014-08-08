@@ -50,29 +50,37 @@ class ApiWarehouseGrouping {
 	}
 
 	public static function createGroup($name) {
-		$insertQuery = 'INSERT INTO WarehouseGroups' . DBUtils::buildInsert(array('GroupID' => 'NULL', 'GroupName' => $name));
+		$insertQuery = "INSERT INTO WarehouseGroups (`GroupID`, `GroupName`) VALUES('NULL','$name')";
 		$checkInsertQuery = "SELECT `GroupID` AS `id`, `GroupName` AS `name` FROM WarehouseGroups WHERE `GroupName` LIKE '$name'";
 
 		$wasCheckSuccessfull = false;
+		$wasInsertSuccessfull = false;
 		$newGroupData = null;
+		$errorMessage = null;
 
 		ob_start();
-		DBQuery::getInstance() -> begin();
-		$wasInsertSuccessfull = DBQuery::getInstance() -> insert($insertQuery) === 1;
-		$checkInsertResult = DBQuery::getInstance() -> select($checkInsertQuery);
+		try {
+			DBQuery::getInstance() -> begin();
+			$wasInsertSuccessfull = DBQuery::getInstance() -> insert($insertQuery) === 1;
+			$checkInsertResult = DBQuery::getInstance() -> select($checkInsertQuery);
 
-		if ($wasInsertSuccessfull && ($checkInsertResult -> getNumRows() === 1) && ($newGroupData = $checkInsertResult -> fetchAssoc())) {
-			DBQuery::getInstance() -> commit();
-			$wasCheckSuccessfull = true;
-		} else {
-			DBQuery::getInstance() -> rollback();
+			if ($wasInsertSuccessfull && ($checkInsertResult -> getNumRows() === 1)) {
+				DBQuery::getInstance() -> commit();
+				$newGroupData = $checkInsertResult -> fetchAssoc();
+				$wasCheckSuccessfull = true;
+			} else {
+				DBQuery::getInstance() -> rollback();
+				$errorMessage = "Unable to create group $name";
+			}
+		} catch(Exception $e) {
+			$errorMessage = $e->getMessage();
 		}
 		ob_end_clean();
 
 		if ($wasInsertSuccessfull && $wasCheckSuccessfull) {
 			return $newGroupData;
 		} else {
-			throw new RuntimeException("Unable to create group $name");
+			throw new RuntimeException($errorMessage);
 		}
 	}
 
