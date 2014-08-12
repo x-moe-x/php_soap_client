@@ -11,6 +11,29 @@ class ApiWarehouseGrouping {
 
 	const WAREHOUSE_GROUPING_DOMAIN = 'warehouseGrouping';
 
+	public static function deleteGroupJSON($groupID) {
+		header('Content-Type: application/json');
+		$result = array('success' => false, 'data' => NULL, 'error' => NULL);
+
+		try {
+			$result['data'] = self::deleteGroup($groupID);
+			$result['success'] = true;
+		} catch(Exception $e) {
+			$result['error'] = $e -> getMessage();
+		}
+		echo json_encode($result);
+	}
+
+	public static function deleteGroup($groupID){
+		$deleteGroupQuery = "DELETE FROM WarehouseGroups WHERE GroupID = $groupID";
+
+		ob_start();
+		DBQuery::getInstance()->delete($deleteGroupQuery);
+		ob_end_clean();
+
+		return array('deletedGroupID' => $groupID);
+	}
+
 	public static function changeGroupJSON($groupID, $newName) {
 		header('Content-Type: application/json');
 		$result = array('success' => false, 'data' => NULL, 'error' => NULL);
