@@ -158,8 +158,15 @@
 						buttons : [{
 							text : 'Ja',
 							click : function() {
+								$(this).apiUpdate('../api', 'int', function(element, type) {
+									return {
+										key : 'warehouseGrouping/delete',
+										value : group.id
+									};
+								}, function(element, type, requestData, resultData) {
+									$('#warehouseGrouping_GroupList_Group_' + group.id).remove();
+								});
 								$(this).dialog("close");
-								alert("Not yet implemented!");
 							}
 						}, {
 							text : 'Nein',
