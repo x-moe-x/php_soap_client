@@ -110,7 +110,7 @@ class ApiWarehouseGrouping {
 		$dbResult = DBQuery::getInstance() -> select($query);
 		ob_end_clean();
 
-		$result = array('standardGroupID' => 1, 'groupData' => array());
+		$result = array('standardGroupID' => self::getConfig('standardGroup'), 'groupData' => array());
 		while ($aGroup = $dbResult -> fetchAssoc()) {
 			array_push($result['groupData'], $aGroup);
 		}

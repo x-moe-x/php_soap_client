@@ -66,7 +66,19 @@
 						delay : 500
 					}
 				}).click(function(event) {
-					alert('Not yet implemented!');
+					$(this).apiUpdate('../api', 'int', function(element, type) {
+						return {
+							key : 'config/warehouseGrouping/standardGroup',
+							value : group.id
+						};
+					}, function(element, type, requestData, resultData) {
+						if (resultData.standardGroup === group.id) {
+							$('.standardGroup').removeClass('standardGroup');
+							$(event.currentTarget).addClass('standardGroup');
+						} else {
+							populateWarehouseGroupingGroupList();
+						}
+					});
 				})).append(
 				// ... a renaming button ...
 				$('<a/>', {
