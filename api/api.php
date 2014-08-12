@@ -37,7 +37,7 @@ getRoute() -> get('/config/warehouseGrouping/(\w+)', array('ApiWarehouseGrouping
 getRoute() -> put('/config/warehouseGrouping/(\w+)/(\d+)', array('ApiWarehouseGrouping', 'setConfigJSON'));
 
 getRoute() -> get('/warehouseGrouping', array('ApiWarehouseGrouping', 'getGroupsJSON'));
-getRoute() -> put('/warehouseGrouping/(\w+)', array('ApiWarehouseGrouping', 'createGroupJSON'));
+getRoute() -> put('/warehouseGrouping/([\w-]+)', array('ApiWarehouseGrouping', 'createGroupJSON'));
 
 
 try {
