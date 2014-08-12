@@ -38,7 +38,9 @@
 			$.each(result.data.groupData, function(index, group) {
 
 				// ... add a list item, which contains ...
-				warehouseGroupingGroupList.append($('<li/>').append(
+				warehouseGroupingGroupList.append($('<li/>',{
+					id : 'warehouseGrouping_GroupList_Group_' + group.id
+				}).append(
 				// ... the group name
 				$('<span/>', {
 					'class' : 'groupName',
@@ -101,13 +103,26 @@
 					$('<div/>').append($('<p/>', {
 						html : 'Umbenennen von Gruppe ' + group.id + ':'
 					})).append($('<input/>', {
-						value : group.name
+						value : group.name,
+						on : {
+							change : function(eventObject){
+								group.name = $(eventObject.target).val();
+							}
+						}
 					})).dialog({
 						buttons : [{
 							text : 'Ok',
 							click : function() {
+								$(this).apiUpdate('../api', 'int', function(element, type) {
+									return {
+										key : 'warehouseGrouping/' + group.id,
+										value : group.name
+									};
+								}, function(element, type, requestData, resultData) {
+									//populateWarehouseGroupingGroupList();
+									$('#warehouseGrouping_GroupList_Group_' + group.id + ' .groupName').html(group.name);
+								});
 								$(this).dialog("close");
-								alert("Not yet implemented!");
 							}
 						}, {
 							text : 'Abbrechen',
