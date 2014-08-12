@@ -34,6 +34,7 @@ getRoute() -> put('/amazonPrice/(\d+)-\d+-\d+/(\w+|\d+|\d+\.\d+)', array('ApiAma
 
 // register warehouse grouping api calls
 getRoute() -> get('/config/warehouseGrouping/(\w+)', array('ApiWarehouseGrouping', 'getConfigJSON'));
+getRoute() -> put('/config/warehouseGrouping/(\w+)/(\d+)', array('ApiWarehouseGrouping', 'setConfigJSON'));
 
 getRoute() -> get('/warehouseGrouping', array('ApiWarehouseGrouping', 'getGroupsJSON'));
 getRoute() -> put('/warehouseGrouping/(\w+)', array('ApiWarehouseGrouping', 'createGroupJSON'));
