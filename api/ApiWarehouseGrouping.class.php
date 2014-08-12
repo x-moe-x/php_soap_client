@@ -8,6 +8,17 @@ require_once ROOT . 'lib/db/DBQuery.class.php';
 require_once 'ApiHelper.class.php';
 
 class ApiWarehouseGrouping {
+
+	const WAREHOUSE_GROUPING_DOMAIN = 'warehouseGrouping';
+
+	public static function setConfigJSON($key, $value) {
+		return ApiHelper::setConfigJSON($key, $value, self::WAREHOUSE_GROUPING_DOMAIN);
+	}
+
+	public static function setConfig($key, $value) {
+		return ApiHelper::setConfig($key, $value, self::WAREHOUSE_GROUPING_DOMAIN);
+	}
+
 	public static function getConfigJSON($key) {
 		header('Content-Type: application/json');
 		$result = array('success' => false, 'data' => NULL, 'error' => NULL);
