@@ -11,6 +11,62 @@ class ApiWarehouseGrouping {
 
 	const WAREHOUSE_GROUPING_DOMAIN = 'warehouseGrouping';
 
+	public static function changeGroupJSON($groupID, $newName) {
+		header('Content-Type: application/json');
+		$result = array('success' => false, 'data' => NULL, 'error' => NULL);
+
+		try {
+			$result['data'] = self::changeGroup($groupID, str_replace('_', ' ', $newName));
+			$result['success'] = true;
+		} catch(Exception $e) {
+			$result['error'] = $e -> getMessage();
+		}
+		echo json_encode($result);
+	}
+
+	public static function changeGroup($groupID, $newName) {
+		$checkGroupAvailabilityQuery = "SELECT `GroupID` AS id, `GroupName` AS name FROM WarehouseGroups WHERE GroupID = $groupID";
+		$updateGroupQuery = "UPDATE WarehouseGroups SET `GroupID` = $groupID, `GroupName` = '$newName' WHERE GroupID = $groupID";
+
+		$wasCheckSuccessfull = false;
+		$wasUpdateSuccessfull = false;
+		$errorMessage = null;
+		$changedGroupData = null;
+
+		ob_start();
+		try {
+			// check if group is available
+			$checkGroupAvailabilityDBResult = DBQuery::getInstance() -> select($checkGroupAvailabilityQuery);
+			if (($checkGroupAvailabilityDBResult -> getNumRows() === 1) && ($group = $checkGroupAvailabilityDBResult -> fetchAssoc())) {
+				// then change name
+				$wasUpdateSuccessfull = DBQuery::getInstance() -> update($updateGroupQuery) === 1 || $group['name'] === $newName;
+				$checkInsertResult = DBQuery::getInstance() -> select($checkGroupAvailabilityQuery);
+
+				if ($wasUpdateSuccessfull && ($checkInsertResult -> getNumRows() === 1)) {
+					DBQuery::getInstance() -> commit();
+					$changedGroupData = $checkInsertResult -> fetchAssoc();
+					$wasCheckSuccessfull = true;
+				} else {
+					DBQuery::getInstance() -> rollback();
+					$errorMessage = "Unable to update group $groupID";
+				}
+			} else {
+				DBQuery::getInstance() -> rollback();
+				$errorMessage = "Trying to update non-existing group $groupID";
+			}
+		} catch (Exception $e) {
+			DBQuery::getInstance() -> rollback();
+			$errorMessage = $e -> getMessage();
+		}
+		ob_end_clean();
+
+		if ($wasUpdateSuccessfull && $wasCheckSuccessfull) {
+			return $changedGroupData;
+		} else {
+			throw new RuntimeException($errorMessage);
+		}
+	}
+
 	public static function setConfigJSON($key, $value) {
 		return ApiHelper::setConfigJSON($key, $value, self::WAREHOUSE_GROUPING_DOMAIN);
 	}
