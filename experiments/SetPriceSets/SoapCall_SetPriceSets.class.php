@@ -67,7 +67,7 @@ class SoapCall_SetPriceSets extends PlentySoapCall {
 						'ItemID' =>				$aUnwrittenUpdate['ItemID'],
 						'PriceID' =>			$aUnwrittenUpdate['PriceID'],
 						'PriceColumn' =>		$aUnwrittenUpdate['PriceColumn'],
-						'OldPrice' =>			$aUnwrittenUpdate['OldPrice'] * (1 + $aUnwrittenUpdate['VAT'] / 100),
+						'OldPrice' =>			$aUnwrittenUpdate['OldPrice'],
 						'WrittenTimestamp' =>	$this->currentTimeStamp
 					);
 
