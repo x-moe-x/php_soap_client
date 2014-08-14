@@ -596,7 +596,7 @@ function prepareAmazon() {'use strict';
 		}, {
 			display : 'Trend Artikel<br>verkaufte Stk',
 			name : 'Trend',
-			sortable: true,
+			sortable : true,
 			process : function(cellDiv, SKU) {
 				var trendValue;
 
@@ -616,7 +616,7 @@ function prepareAmazon() {'use strict';
 		}, {
 			display : 'Trend Artikel(mit aktuellen Kosten)<br>Gewinn',
 			name : 'TrendProfit',
-			sortable: true,
+			sortable : true,
 			process : function(cellDiv, SKU) {
 				var trendProfitData;
 
@@ -627,7 +627,7 @@ function prepareAmazon() {'use strict';
 						html : 'Invalid price',
 						'class' : 'badValue'
 					}));
-				} else if (parseFloat(trendProfitData.TrendProfitValue) !== Infinity){
+				} else if (parseFloat(trendProfitData.TrendProfitValue) !== Infinity) {
 					$(cellDiv).html($('<span/>', {
 						html : (trendProfitData.TrendProfitValue * 100).toFixed(2),
 						'class' : 'trendProfitValue ' + (trendProfitData.TrendProfitValue >= 0 ? 'goodValue' : 'badValue')
@@ -695,7 +695,7 @@ function prepareAmazon() {'use strict';
 		}, {
 			display : 'Min.- Preis',
 			name : 'MinPrice',
-			width: 70,
+			width : 70,
 			sortable : true,
 			process : function(cellDiv, SKU) {
 				var minPrice;
@@ -710,7 +710,7 @@ function prepareAmazon() {'use strict';
 		}, {
 			display : 'Std. Preis',
 			name : 'StandardPrice',
-			width: 70,
+			width : 70,
 			sortable : true,
 			process : function(cellDiv, SKU) {
 				var standardPrice;
@@ -1112,14 +1112,34 @@ $(document).ready(function() {'use strict';
 	tabsInitialized = [false, false, false];
 
 	$('.config').accordion({
+		active : 0,
+		animate : {},
+		collapsible : false,
+		disabled : false,
+		event : 'click',
+		header : '> li > :first-child,> :not(li):even',
 		heightStyle : 'content',
-		collapsible : true,
-		active : false
+		icons : {
+			'header' : 'ui-icon-triangle-1-e',
+			'activeHeader' : 'ui-icon-triangle-1-s'
+		}
 	});
 
 	$('.accordion').accordion({
-		heightStyle : 'content'
+		active : 0,
+		animate : {},
+		collapsible : false,
+		disabled : false,
+		event : 'click',
+		header : '> li > :first-child,> :not(li):even',
+		heightStyle : 'content',
+		icons : {
+			'header' : 'ui-icon-triangle-1-e',
+			'activeHeader' : 'ui-icon-triangle-1-s'
+		}
 	});
+	
+	$('.accordion .ui-accordion-content').show();
 
 	$('#tabs').tabs({
 		heightStyle : 'content',

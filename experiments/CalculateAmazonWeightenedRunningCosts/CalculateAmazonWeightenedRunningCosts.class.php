@@ -1,4 +1,7 @@
 <?php
+ini_set('display_errors',1);
+ini_set('display_startup_errors',1);
+error_reporting(-1);
 require_once ROOT . 'lib/db/DBQuery.class.php';
 require_once ROOT . 'api/ApiGeneralCosts.class.php';
 require_once ROOT . 'api/ApiAmazon.class.php';
@@ -40,7 +43,8 @@ class CalculateAmazonWeightenedRunningCosts {
 		$now = new DateTime();
 
 		$this -> oStartDate = new DateTime($now -> format('Y-m-01'));
-
+		//$this -> oStartDate = new DateTime("2014-05-01");
+		
 		$this -> oInterval = new DateInterval('P' . self::DEFAULT_AMAZON_NR_OF_MONTHS_BACKWARDS . 'M');
 	}
 

@@ -215,7 +215,7 @@ class ApiWarehouseGrouping {
 		$result = array('success' => false, 'data' => NULL, 'error' => NULL);
 
 		try {
-			$result['data'] = self::createGroup(str_replace('_',' ',$name));
+			$result['data'] = self::createGroup(str_replace('_', ' ', $name));
 			$result['success'] = true;
 		} catch(Exception $e) {
 			$result['error'] = $e -> getMessage();
@@ -247,7 +247,7 @@ class ApiWarehouseGrouping {
 				$errorMessage = "Unable to create group $name";
 			}
 		} catch(Exception $e) {
-			$errorMessage = $e->getMessage();
+			$errorMessage = $e -> getMessage();
 		}
 		ob_end_clean();
 
