@@ -86,12 +86,12 @@ class ApiHelper {
 
 	public static function getWarehouseList() {
 		ob_start();
-		$resultWarehouseList = DBQuery::getInstance() -> select('SELECT * FROM `WarehouseList` ORDER BY WarehouseID ASC');
+		$resultWarehouseList = DBQuery::getInstance() -> select('SELECT WarehouseList.WarehouseID, WarehouseList.Name, WarehouseGroupMapping.GroupID FROM WarehouseList LEFT JOIN WarehouseGroupMapping ON WarehouseList.WarehouseID = WarehouseGroupMapping.WarehouseID ORDER BY WarehouseID ASC');
 		ob_end_clean();
 
 		$result = array();
 		while ($warehouse = $resultWarehouseList -> fetchAssoc()) {
-			$result[$warehouse['WarehouseID']] = array('id' => $warehouse['WarehouseID'], 'name' => $warehouse['Name']);
+			$result[$warehouse['WarehouseID']] = array('id' => $warehouse['WarehouseID'], 'name' => $warehouse['Name'], 'groupID' => $warehouse['GroupID']);
 		}
 		return $result;
 	}
