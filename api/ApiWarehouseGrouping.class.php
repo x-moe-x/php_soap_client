@@ -11,6 +11,19 @@ class ApiWarehouseGrouping {
 
 	const WAREHOUSE_GROUPING_DOMAIN = 'warehouseGrouping';
 
+	public static function getWarehouseListJSON(){
+		header('Content-Type: application/json');
+		$result = array('success' => false, 'data' => NULL, 'error' => NULL);
+
+		try {
+			$result['data'] = array_values(ApiHelper::getWarehouseList());
+			$result['success'] = true;
+		} catch(Exception $e) {
+			$result['error'] = $e -> getMessage();
+		}
+		echo json_encode($result);
+	}
+
 	public static function deleteGroupJSON($groupID) {
 		header('Content-Type: application/json');
 		$result = array('success' => false, 'data' => NULL, 'error' => NULL);
