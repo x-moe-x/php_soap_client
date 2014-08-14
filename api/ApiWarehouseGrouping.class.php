@@ -204,6 +204,7 @@ class ApiWarehouseGrouping {
 
 		$result = array('standardGroupID' => self::getConfig('standardGroup'), 'groupData' => array());
 		while ($aGroup = $dbResult -> fetchAssoc()) {
+			$aGroup['id'] = intval($aGroup['id']);
 			array_push($result['groupData'], $aGroup);
 		}
 

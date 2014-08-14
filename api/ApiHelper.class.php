@@ -45,6 +45,14 @@ class ApiHelper {
 					if (($updatedRow = $checkUpdateDBResult -> fetchAssoc()) && ($updatedRow['value'] == $value)) {
 						DBQuery::getInstance() -> commit();
 						$success = true;
+						switch ($updatedRow['type']) {
+							case 'int' :
+							$value = intval($value);
+								break;
+							case 'float' :
+							$value = floatval($value);
+								break;
+						}
 					} else {
 						DBQuery::getInstance() -> rollback();
 						$errorMessage = "Unable to update key $key, value is still {$updatedRow['value']}";
