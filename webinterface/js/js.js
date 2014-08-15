@@ -1406,10 +1406,10 @@ function initTab(tabNo, tabsInitialized) {'use strict';
 			prepareAmazon();
 			break;
 		case 2:
-			prepareGeneralCostConfig();
+			populateWarehouseGrouping();
 			break;
 		case 3:
-			populateWarehouseGrouping();
+			prepareGeneralCostConfig();
 			break;
 		default:
 	}
