@@ -47,10 +47,10 @@ class ApiHelper {
 						$success = true;
 						switch ($updatedRow['type']) {
 							case 'int' :
-							$value = intval($value);
+								$value = intval($value);
 								break;
 							case 'float' :
-							$value = floatval($value);
+								$value = floatval($value);
 								break;
 						}
 					} else {
@@ -99,7 +99,7 @@ class ApiHelper {
 
 		$result = array();
 		while ($warehouse = $resultWarehouseList -> fetchAssoc()) {
-			$result[$warehouse['WarehouseID']] = array('id' => $warehouse['WarehouseID'], 'name' => $warehouse['Name'], 'groupID' => $warehouse['GroupID']);
+			$result[$warehouse['WarehouseID']] = array('id' => intval($warehouse['WarehouseID']), 'name' => $warehouse['Name'], 'groupID' => (isset($warehouse['GroupID']) ? intval($warehouse['GroupID']) : null));
 		}
 		return $result;
 	}
