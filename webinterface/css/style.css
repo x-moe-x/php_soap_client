@@ -462,3 +462,74 @@ tr:hover .notModifyable {
 	height: 60px !important;
 }
 /** end table styling **/
+
+.warehouseGrouping_GroupList li {
+	margin: 0 0 1em;
+}
+
+.groupName {
+	display: inline-block;
+	width: 200px;
+}
+
+.groupConfigButtonSet {
+	display: inline;
+}
+
+.buttonMarkStandardGroup.standardGroup .ui-icon {
+	background-image: url("../images/ui-icons_008000_256x240.png") !important;
+}
+
+.buttonMarkStandardGroup.ui-state-active .ui-icon, .buttonMarkStandardGroup.ui-state-hover .ui-icon {
+	background-image: url("../images/ui-icons_00a000_256x240.png") !important;
+}
+
+.buttonDeleteGroup .ui-icon {
+	background-image: url("../images/ui-icons_990000_256x240.png") !important;
+}
+
+.buttonDeleteGroup.ui-state-active .ui-icon, .buttonDeleteGroup.ui-state-hover .ui-icon {
+	background-image: url("../images/ui-icons_ff0000_256x240.png") !important;
+}
+
+.warehouseGrouping_AssociationContainment .groupName {
+	display: block;
+	width: auto;
+}
+
+.warehouseGrouping_AssociationContainment h3 {
+	border-radius: 5px 5px 0 0;
+	margin: 0;
+	padding: 0.2em;
+}
+
+.warehouseGrouping_AssociationContainment ul {
+	border-radius: 0 0 5px 5px;
+	margin: 0;
+	padding: 1em;
+}
+
+.warehouseGrouping_WarehouseList {
+	margin: 1em 0 0;
+	padding: 1em;
+}
+
+.tableWrapper {
+	display: table;
+	width: 100%;
+	border-spacing: 1em 0;
+}
+
+.warehouseGrouping_AssociationContainment {
+	display: table-row;
+}
+
+.warehouseGrouping_GroupAssociation, .warehouseGrouping_WarehouseList {
+	display: table-cell;
+	padding: 0 !important;
+	width: 50%;
+}
+
+.warehouseGrouping_GroupAssociation > li {
+	margin: 1em 0 0;
+}
