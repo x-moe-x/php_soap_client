@@ -47,19 +47,24 @@
 	}
 
 	.warehouseGrouping_WarehouseList {
-		margin: 2em 0 0;
+		margin: 1em 0 0;
+		padding: 1em;
+	}
+
+	.tableWrapper {
+		display: table;
+		width: 100%;
+		border-spacing: 1em 0;
+	}
+
+	.warehouseGrouping_AssociationContainment {
+		display: table-row;
 	}
 
 	.warehouseGrouping_GroupAssociation, .warehouseGrouping_WarehouseList {
-		width: 47%;
-	}
-
-	.warehouseGrouping_GroupAssociation {
-		float: left;
-	}
-
-	.warehouseGrouping_WarehouseList {
-		float: right;
+		display: table-cell;
+		padding: 0 !important;
+		width: 50%;
 	}
 
 	.warehouseGrouping_GroupAssociation > li {
@@ -336,11 +341,15 @@
 			<ul class='warehouseGrouping_GroupList'></ul>
 		</div>
 		<h2>Lagergruppenzuordnung</h2>
-		<div class='warehouseGrouping_AssociationContainment'>
-			<ul class='warehouseGrouping_GroupAssociation'></ul>
-			<div class='warehouseGrouping_WarehouseList' id='warehouseGrouping_GroupAssociation_Group_NoGroup'>
-				<h3 class='ui-widget-header'>Nicht zugeordnete Lager</h3>
-				<ul class='ui-widget-content' ></ul>
+		<div>
+			<div class='tableWrapper'>
+				<div class='warehouseGrouping_AssociationContainment'>
+					<ul class='warehouseGrouping_GroupAssociation'></ul>
+					<div class='warehouseGrouping_WarehouseList' id='warehouseGrouping_GroupAssociation_Group_NoGroup' style="display:none">
+						<h3 class='ui-widget-header'>Nicht zugeordnete Lager</h3>
+						<ul class='ui-widget-content' ></ul>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>
