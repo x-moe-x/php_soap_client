@@ -1112,34 +1112,15 @@ $(document).ready(function() {'use strict';
 	tabsInitialized = [false, false, false];
 
 	$('.config').accordion({
-		active : 0,
-		animate : {},
-		collapsible : false,
-		disabled : false,
-		event : 'click',
-		header : '> li > :first-child,> :not(li):even',
-		heightStyle : 'content',
-		icons : {
-			'header' : 'ui-icon-triangle-1-e',
-			'activeHeader' : 'ui-icon-triangle-1-s'
-		}
+		active: false,
+		collapsible : true,
+		heightStyle : 'content'
 	});
 
 	$('.accordion').accordion({
-		active : 0,
-		animate : {},
 		collapsible : false,
-		disabled : false,
-		event : 'click',
-		header : '> li > :first-child,> :not(li):even',
-		heightStyle : 'content',
-		icons : {
-			'header' : 'ui-icon-triangle-1-e',
-			'activeHeader' : 'ui-icon-triangle-1-s'
-		}
+		heightStyle : 'content'
 	});
-	
-	$('.accordion .ui-accordion-content').show();
 
 	$('#tabs').tabs({
 		heightStyle : 'content',
