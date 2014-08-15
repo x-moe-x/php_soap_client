@@ -427,8 +427,8 @@ CREATE TABLE `soap_db`.`WarehouseGroups` (
 
 DROP TABLE IF EXISTS `soap_db`.`WarehouseGroupMapping`;
 
-CREATE TABLE `soap_db`.`WarehouseGroups` (
+CREATE TABLE `soap_db`.`WarehouseGroupMapping` (
 	`WarehouseID` int(11) NOT NULL,
-	`GroupID` int(11) NOT NULL,
-	PRIMARY KEY (`WarehouseID`,`GroupID`)
+	`GroupID` int(11) DEFAULT NULL,
+	PRIMARY KEY (`WarehouseID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
