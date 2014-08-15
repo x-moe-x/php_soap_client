@@ -118,11 +118,13 @@ class ApiWarehouseGrouping {
 		echo json_encode($result);
 	}
 
-	public static function deleteGroup($groupID){
+	public static function deleteGroup($groupID) {
 		$deleteGroupQuery = "DELETE FROM WarehouseGroups WHERE GroupID = $groupID";
+		$deleteAssociatedWarehousesQuery = "DELETE FROM WarehouseGroupMapping WHERE GroupID = $groupID";
 
 		ob_start();
-		DBQuery::getInstance()->delete($deleteGroupQuery);
+		DBQuery::getInstance() -> delete($deleteGroupQuery);
+		DBQuery::getInstance() -> delete($deleteAssociatedWarehousesQuery);
 		ob_end_clean();
 
 		return array('deletedGroupID' => $groupID);
