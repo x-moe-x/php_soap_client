@@ -11,7 +11,65 @@ class ApiWarehouseGrouping {
 
 	const WAREHOUSE_GROUPING_DOMAIN = 'warehouseGrouping';
 
-	public static function getWarehouseListJSON(){
+	public static function addWarehouseToGroupJSON($warehouseID, $groupID) {
+		header('Content-Type: application/json');
+		$result = array('success' => false, 'data' => NULL, 'error' => NULL);
+
+		try {
+			$result['data'] = self::addWarehouseToGroup($warehouseID, $groupID);
+			$result['success'] = true;
+		} catch(Exception $e) {
+			$result['error'] = $e -> getMessage();
+		}
+		echo json_encode($result);
+	}
+
+	public static function addWarehouseToGroup($warehouseID, $groupID) {
+		$checkGroupAvailabilityQuery = "SELECT `GroupID` FROM WarehouseGroups WHERE GroupID = $groupID";
+		$selectGroupAssociationQuery = "SELECT `WarehouseID`, `GroupID` FROM WarehouseGroupMapping WHERE `WarehouseID` = $warehouseID";
+		$changeGroupAssociationQuery = "INSERT INTO WarehouseGroupMapping (`WarehouseID`, `GroupID`) VALUES($warehouseID, $groupID) ON DUPLICATE KEY UPDATE `WarehouseID` = $warehouseID, `GroupID` = $groupID";
+
+		//TODO check if warehouse is available!
+
+		$success = false;
+		$errorMessage = null;
+
+		ob_start();
+		try {
+			// if group exists ...
+			$checkGroupAvailabilityDBResult = DBQuery::getInstance() -> select($checkGroupAvailabilityQuery);
+			if ($checkGroupAvailabilityDBResult -> getNumRows() === 1) {
+				// ... then if key is already set ...
+				$selectGroupAssociationDBResult = DBQuery::getInstance() -> select($selectGroupAssociationQuery);
+				if ($selectGroupAssociationDBResult -> getNumRows() === 1 && ($currentGroupAssociation = $selectGroupAssociationDBResult -> fetchAssoc()) && ($currentGroupAssociation['GroupID'] === $groupID)) {
+					// ... then skip update
+					$success = true;
+				} else {
+					// ... otherwise change warehouse associated group for given warehouse to given group
+					if (DBQuery::getInstance() -> insert($changeGroupAssociationQuery) > 0) {
+						$success = true;
+					} else {
+						$errorMessage = "Unable to associate warehouse $warehouseID with group $groupID";
+					}
+				}
+			} else {
+				// ... otherwise: error
+				$errorMessage = "Trying to associate warehouse $warehouseID with non-existing group $groupID";
+			}
+
+		} catch(Exception $e) {
+			$errorMessage = $e -> getMessage();
+		}
+		ob_end_clean();
+
+		if ($success) {
+			return array('warehouseID' => $warehouseID, 'groupID' => $groupID);
+		} else {
+			throw new RuntimeException($errorMessage);
+		}
+	}
+
+	public static function getWarehouseListJSON() {
 		header('Content-Type: application/json');
 		$result = array('success' => false, 'data' => NULL, 'error' => NULL);
 

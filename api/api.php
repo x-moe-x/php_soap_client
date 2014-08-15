@@ -42,7 +42,7 @@ getRoute() -> put('/warehouseGrouping/([\w-]+)', array('ApiWarehouseGrouping', '
 
 getRoute() -> put('/warehouseGrouping/(\d+)/([\w-]+)', array('ApiWarehouseGrouping', 'changeGroupJSON'));
 getRoute() -> put('/warehouseGrouping/delete/(\d+)', array('ApiWarehouseGrouping', 'deleteGroupJSON'));
-
+getRoute() -> put('/warehouseGrouping/warehouseToGroup/(\d+)/(\d+)', array('ApiWarehouseGrouping', 'addWarehouseToGroupJSON'));
 
 try {
 	getRoute() -> run();
