@@ -2,8 +2,41 @@
 require_once realpath(dirname(__FILE__) . '/../') . '/config/basic.inc.php';
 require_once ROOT . 'lib/db/DBQuery.class.php';
 require_once 'ApiHelper.class.php';
+require_once 'ApiWarehouseGrouping.class.php';
 
 class ApiRunningCosts {
+
+	const DEFAULT_NR_OF_MONTHS_BACKWARDS = 6;
+
+	private static function getPrepopulatedTable($months, $groups) {
+		$table = array();
+		foreach ($months as $month) {
+			$table[$month] = array();
+			foreach ($groups['groupData'] as $group) {
+				$table[$month][$group['id']] = null;
+			}
+		}
+		return $table;
+	}
+
+	public static function getRunningCostsTable() {
+		$months = ApiHelper::getMonthDates(new DateTime(), self::DEFAULT_NR_OF_MONTHS_BACKWARDS);
+		$tableQuery = "SELECT rc.Date AS `date`, rc.GroupID AS `groupID`, rc.AbsoluteCosts AS `costs`, SUM(wr.PerWarehouseNetto) AS `nettoRevenue`, SUM(wr.PerWarehouseShipping) AS `shippingRevenue` FROM RunningCostsNew AS rc LEFT JOIN WarehouseGroupMapping AS gm ON gm.GroupID = rc.GroupID LEFT JOIN PerWarehouseRevenue AS wr ON (wr.Date = rc.Date) AND (wr.WarehouseID = gm.WarehouseID) WHERE rc.Date IN (" . implode(',', $months) . ") GROUP BY rc.Date, rc.GroupID";
+
+		$tableDBResult = DBQuery::getInstance() -> select($tableQuery);
+
+		// pre populate result
+		$table = self::getPrepopulatedTable($months, ApiWarehouseGrouping::getGroups());
+
+		while ($row = $tableDBResult -> fetchAssoc()) {
+			if (array_key_exists($row['date'], $table) && array_key_exists($row['groupID'], $table[$row['date']])) {
+				$table[$row['date']][$row['groupID']] = array('costs' => $row['costs'], 'nettoRevenue' => $row['nettoRevenue'], 'shippingRevenue' => $row['shippingRevenue']);
+			} else {
+				echo "skipping row ({$row['date']} -> {$row['groupID']})\n";
+			}
+		}
+		return $table;
+	}
 
 	public static function setRunningCostsJSON($groupID, $date, $value) {
 		header('Content-Type: application/json');
