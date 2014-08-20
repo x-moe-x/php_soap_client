@@ -30,7 +30,7 @@ class ApiRunningCosts {
 
 		while ($row = $tableDBResult -> fetchAssoc()) {
 			if (array_key_exists($row['date'], $table) && array_key_exists($row['groupID'], $table[$row['date']])) {
-				$table[$row['date']][$row['groupID']] = array('costs' => $row['costs'], 'nettoRevenue' => $row['nettoRevenue'], 'shippingRevenue' => $row['shippingRevenue']);
+				$table[$row['date']][$row['groupID']] = array('costs' => floatval($row['costs']), 'nettoRevenue' => floatval($row['nettoRevenue']), 'shippingRevenue' => floatval($row['shippingRevenue']));
 			} else {
 				echo "skipping row ({$row['date']} -> {$row['groupID']})\n";
 			}
