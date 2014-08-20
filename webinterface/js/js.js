@@ -69,7 +69,7 @@ function addMarking1IDFilter(g, status, params, identifyingClass) {'use strict';
 
 			$.each(status, function(index, value) {
 				filterSelection.append($('<div/>', {
-					'class' : 'markingID_' + value,
+					'class' : 'markingID_' + value
 				})
 				// insert input ...
 				.append($('<input/>', {
@@ -154,13 +154,13 @@ function elementProcessStockConfig(element, type) {'use strict';
 		default:
 			return 'incorrect';
 	}
-};
+}
 
 function elementPostProcessStockConfig(element, type, requestData, resultData) {'use strict';
 	var returnValue;
 	switch (type) {
 		case 'int':
-			returnValue = parseInt(resultData[requestData.key]);
+			returnValue = parseInt(resultData[requestData.key], 10);
 			return isNaN(returnValue) ? 'error' : returnValue;
 		case 'float':
 			returnValue = parseFloat(resultData[requestData.key]);
@@ -175,6 +175,12 @@ function elementPostProcessStockConfig(element, type, requestData, resultData) {
 
 function prepareStock() {'use strict';
 
+	function loadSuccess(result) {
+		$('body').removeClass("loading");
+		$('#stockTable').flexReload();
+		$('#errorMessages').append('<p> ' + result + '</p>');
+	}
+
 	function dialogify(buttonData) {
 		$.each(buttonData, function(index, button) {
 			$(button.id).dialogify(button.title, button.descr, button.type, function() {
@@ -182,12 +188,6 @@ function prepareStock() {'use strict';
 				$.get('../api/execute/' + button.task, loadSuccess);
 			});
 		});
-	}
-
-	function loadSuccess(result) {
-		$('body').removeClass("loading");
-		$('#stockTable').flexReload();
-		$('#errorMessages').append('<p> ' + result + '</p>');
 	}
 
 
@@ -894,7 +894,7 @@ function prepareAmazon() {'use strict';
 				});
 			}
 		}],
-		onSuccess : function(g) {'use strict';
+		onSuccess : function(g) {
 			addMarking1IDFilter(g, this.status, this.params, 'amazonFilter');
 			$('.pSearch', g.pDiv).click();
 		}
@@ -919,14 +919,14 @@ function prepareGeneralCostConfig() {'use strict';
 					key : '-1/' + matches[1],
 					value : element.val()
 				};
-			} else if (( matches = id.match(/warehouseCost_manual_(\d+)_(\d{8})/)) !== null) {
+			}
+			if (( matches = id.match(/warehouseCost_manual_(\d+)_(\d{8})/)) !== null) {
 				return {
 					key : matches[1] + '/' + matches[2],
 					value : element.val()
 				};
-			} else {
-				return 'incorrect';
 			}
+			return 'incorrect';
 
 		},
 		postProcess : function(element, type, requestData, resultData) {
@@ -952,20 +952,21 @@ function prepareGeneralCostConfig() {'use strict';
 				// hide shipping hint
 				$('#' + 'warehouseCost_automatic_tooltip_' + resultData.warehouseID + '_' + resultData.date).addClass('invisible');
 				return '';
-			} else {
-				if (resultData.warehouseID !== -1) {
-					// fill corresponding percentage field
-					$('#' + 'warehouseCost_automatic_' + resultData.warehouseID + '_' + resultData.date).html(resultData.value.percentageShippingRevenueCleared.percentage);
-
-					// show unit
-					$('#' + 'warehouseCost_automatic_label_' + resultData.warehouseID + '_' + resultData.date).removeClass('invisible');
-
-					// adjust & show shipping hint
-					$('#' + 'warehouseCost_automatic_tooltip_' + resultData.warehouseID + '_' + resultData.date).removeClass('invisible').prop('title', 'Prozentwert wurde bereinigt um geschätzte ' + resultData.value.percentageShippingRevenueCleared.shipping + ' € Versandkosteneinnahmen');
-				}
-				returnValue = parseFloat(returnValue);
-				return isNaN(returnValue) ? 'error' : returnValue.toFixed(2);
 			}
+
+			if (resultData.warehouseID !== -1) {
+				// fill corresponding percentage field
+				$('#' + 'warehouseCost_automatic_' + resultData.warehouseID + '_' + resultData.date).html(resultData.value.percentageShippingRevenueCleared.percentage);
+
+				// show unit
+				$('#' + 'warehouseCost_automatic_label_' + resultData.warehouseID + '_' + resultData.date).removeClass('invisible');
+
+				// adjust & show shipping hint
+				$('#' + 'warehouseCost_automatic_tooltip_' + resultData.warehouseID + '_' + resultData.date).removeClass('invisible').prop('title', 'Prozentwert wurde bereinigt um geschätzte ' + resultData.value.percentageShippingRevenueCleared.shipping + ' € Versandkosteneinnahmen');
+			}
+			returnValue = parseFloat(returnValue);
+			return isNaN(returnValue) ? 'error' : returnValue.toFixed(2);
+
 		}
 	};
 
@@ -1002,6 +1003,7 @@ function prepareGeneralCostConfig() {'use strict';
 		}
 	}];
 
+	/*global warehouses */
 	$.each(warehouses, function(index, warehouse) {
 		colModel.push({
 			display : 'Transp./Lager<br>' + warehouse.name,
@@ -1093,23 +1095,21 @@ function prepareGeneralCostConfig() {'use strict';
 }
 
 function prepareRunningCosts() {'use strict';
-	var draggableOptions, groupData, warehouseData, standardGroupID;
-
-	draggableOptions = {
+	var draggableOptions = {
 		containment : ".warehouseGrouping_AssociationContainment",
 		scroll : false,
 		cursor : "move",
 		revert : true
-	};
+	}, groupData, warehouseData, standardGroupID;
 
 	function dropWarehouse(event, ui) {
 		// if source and destination are the same ...
-		if ($(event.target)[0] === $(ui.draggable).parent()[0]) {
+		if ($(event.target)[0] === ui.draggable.parent()[0]) {
 			// ... then skip dropping (will revert automatically)
 			return;
 		}
 
-		var warehouse, groupIDMatches, warehouseID = parseInt(ui.draggable.attr('id').replace('warehouseID_', ''));
+		var warehouse, groupIDMatches, warehouseID = parseInt(ui.draggable.attr('id').replace(/^warehouseID_(\d+)$/, '$1'), 10);
 
 		// identify warehouse data
 		$.each(warehouseData, function(index, currentWarehouse) {
@@ -1119,20 +1119,20 @@ function prepareRunningCosts() {'use strict';
 		});
 
 		// if destination valid ...
-		if ( groupIDMatches = $(event.target).parent().attr('id').match(/^warehouseGrouping_GroupAssociation_Group_(\d+|NoGroup)$/)) {
+		if (( groupIDMatches = $(event.target).parent().attr('id').match(/^warehouseGrouping_GroupAssociation_Group_(\d+|NoGroup)$/)) !== null) {
 			// ... and not 'NoGroup'
 			if (groupIDMatches[1] !== 'NoGroup') {
 				// ... perform group change
-				$(this).apiUpdate('../api', 'int', function(element, type) {
+				$(event.target).apiUpdate('../api', 'int', function(element, type) {
 					// remove old element
-					$(ui.draggable).remove();
+					ui.draggable.remove();
 
 					return {
 						key : 'warehouseGrouping/warehouseToGroup/' + warehouse.id,
 						value : groupIDMatches[1]
 					};
 				}, function(element, type, requestData, resultData) {
-					warehouse.groupID = parseInt(groupIDMatches[1]);
+					warehouse.groupID = parseInt(groupIDMatches[1], 10);
 
 					// create identical element in new list
 					$(event.target).append($('<li/>', {
@@ -1142,11 +1142,11 @@ function prepareRunningCosts() {'use strict';
 				});
 			} else {
 				// ... otherwise perform delete action
-				$(this).apiUpdate('../api', 'int', function(element, type) {
+				$(event.target).apiUpdate('../api', 'int', function(element, type) {
 					warehouse.groupID = null;
 
 					// remove old element
-					$(ui.draggable).remove();
+					ui.draggable.remove();
 
 					// create identical element in new list
 					$(event.target).append($('<li/>', {
@@ -1397,7 +1397,7 @@ function prepareRunningCosts() {'use strict';
 			}
 		});
 	});
-};
+}
 
 $(function() {'use strict';
 	var panelStatus = [{
