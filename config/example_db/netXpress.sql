@@ -321,14 +321,13 @@ CREATE TABLE `soap_db`.`SalesOrderReferrer` (
 	UNIQUE KEY `Name` (`Name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
-DROP TABLE IF EXISTS `soap_db`.`RunningCosts`;
+DROP TABLE IF EXISTS `soap_db`.`RunningCostsNew`;
 
-CREATE TABLE `soap_db`.`RunningCosts` (
+CREATE TABLE `soap_db`.`RunningCostsNew` (
 	`Date` int(11) NOT NULL,
-	`WarehouseID` int(11) NOT NULL,
-	`AbsoluteAmount` decimal(8,2) DEFAULT NULL,
-	`Percentage` decimal(8,2) DEFAULT NULL,
-	PRIMARY KEY (`Date`,`WarehouseID`)
+	`GroupID` int(11) NOT NULL,
+	`AbsoluteCosts` decimal(8,2) DEFAULT NULL,
+	PRIMARY KEY (`Date`,`GroupID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 DROP TABLE IF EXISTS `soap_db`.`PerWarehouseRevenue`;

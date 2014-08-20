@@ -3,6 +3,7 @@ require_once realpath(dirname(__FILE__) . '/../') . '/config/basic.inc.php';
 require_once ROOT . 'submodules/epiphany/src/Epi.php';
 require_once 'ApiStock.class.php';
 require_once 'ApiGeneralCosts.class.php';
+require_once 'ApiRunningCosts.class.php';
 require_once 'ApiAmazon.class.php';
 require_once 'ApiExecute.class.php';
 require_once 'ApiWarehouseGrouping.class.php';
@@ -22,6 +23,9 @@ getRoute() -> put('/config/stock/(\w+)/(\w+|\d+|\d+\.\d+)', array('ApiStock', 's
 // register general costs api calls
 getRoute() -> get('/generalCost/(\d+|-\d+)/(\d+)', array('ApiGeneralCosts', 'getCostsJSON'));
 getRoute() -> put('/generalCost/(\d+|-\d+)/(\d+)/(\w+|\d+|\d+\.\d+)', array('ApiGeneralCosts', 'setCostsJSON'));
+
+// register running costs api calls
+getRoute() -> put('/runningCosts/(\d+)/(\d+)/(\d+|\d+\.\d+)', array('ApiRunningCosts', 'setRunningCostsJSON'));
 
 // register amazon api calls
 getRoute() -> get('/config/amazon', array('ApiAmazon', 'getConfigJSON'));
