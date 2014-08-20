@@ -45,7 +45,7 @@ $.fn.apiUpdate = function(path, type, elementPreprocess, elementPostprocess) {'u
 				// ... and try to get original value ...
 				$.ajax({
 					type : 'GET',
-					url : path + '/' + data.key,
+					url : path + '/' + data.key
 				}).done(function(getResult) {
 					// when done: check for success ...
 					if (getResult.success) {
