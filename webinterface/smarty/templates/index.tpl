@@ -24,6 +24,9 @@
 				<li>
 					<a href='#generalCostConfiguration'>Konfiguration Kosten</a>
 				</li>
+				<li>
+					<a href='#generalCostConfigurationOld'>Konfiguration Kosten (alt)</a>
+				</li>
 			</ul>
 			<div id='dialog'>
 				<p>
@@ -43,8 +46,11 @@
 					<!-- -->
 				</table>
 			</div>
-			<div id='generalCostConfiguration'>
+			<div id='generalCostConfigurationOld'>
 				{include file='general_cost_config.tpl'}
+			</div>
+			<div id='generalCostConfiguration'>
+				{include file='warehouse_grouping_config.tpl'}
 			</div>
 		</div>
 		<div class="modal">

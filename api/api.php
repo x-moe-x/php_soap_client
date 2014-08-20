@@ -5,6 +5,7 @@ require_once 'ApiStock.class.php';
 require_once 'ApiGeneralCosts.class.php';
 require_once 'ApiAmazon.class.php';
 require_once 'ApiExecute.class.php';
+require_once 'ApiWarehouseGrouping.class.php';
 
 Epi::setSetting('exceptions', true);
 Epi::init('route');
@@ -30,6 +31,19 @@ getRoute() -> put('/config/amazon/(\w+)/(\w+|\d+|\d+\.\d+)', array('ApiAmazon', 
 getRoute() -> get('/amazonPrice/(\d+)-\d+-\d+', array('ApiAmazon', 'getPriceJSON'));
 getRoute() -> get('/amazonPrice/(\d+)', array('ApiAmazon', 'getPriceJSON'));
 getRoute() -> put('/amazonPrice/(\d+)-\d+-\d+/(\w+|\d+|\d+\.\d+)', array('ApiAmazon', 'setPriceJSON'));
+
+// register warehouse grouping api calls
+getRoute() -> get('/config/warehouseGrouping/(\w+)', array('ApiWarehouseGrouping', 'getConfigJSON'));
+getRoute() -> put('/config/warehouseGrouping/(\w+)/(\d+)', array('ApiWarehouseGrouping', 'setConfigJSON'));
+
+getRoute() -> get('/warehouseGrouping/warehouses', array('ApiWarehouseGrouping', 'getWarehouseListJSON'));
+getRoute() -> get('/warehouseGrouping', array('ApiWarehouseGrouping', 'getGroupsJSON'));
+getRoute() -> put('/warehouseGrouping/([\w-]+)', array('ApiWarehouseGrouping', 'createGroupJSON'));
+
+getRoute() -> put('/warehouseGrouping/(\d+)/([\w-]+)', array('ApiWarehouseGrouping', 'changeGroupJSON'));
+getRoute() -> put('/warehouseGrouping/delete/(\d+)', array('ApiWarehouseGrouping', 'deleteGroupJSON'));
+getRoute() -> put('/warehouseGrouping/warehouseToGroup/(\d+)/(\d+)', array('ApiWarehouseGrouping', 'addWarehouseToGroupJSON'));
+getRoute() -> put('/warehouseGrouping/warehouseToGroup/delete/(\d+)', array('ApiWarehouseGrouping', 'deleteWarehouseGroupAssociationJSON'));
 
 try {
 	getRoute() -> run();
