@@ -1397,29 +1397,33 @@ function populateWarehouseGrouping() {'use strict';
 	});
 };
 
-function initTab(tabNo, tabsInitialized) {'use strict';
-	switch(tabNo) {
-		case 0:
-			prepareStock();
-			break;
-		case 1:
-			prepareAmazon();
-			break;
-		case 2:
-			populateWarehouseGrouping();
-			break;
-		case 3:
-			prepareGeneralCostConfig();
-			break;
-		default:
+$(function() {'use strict';
+	var panelStatus = [{
+		id : 'amazonCalculation',
+		isInitialized : false,
+		initialize : prepareAmazon
+	}, {
+		id : 'reorderStockCalculation',
+		isInitialized : false,
+		initialize : prepareStock
+	}, {
+		id : 'generalCostConfigurationOld',
+		isInitialized : false,
+		initialize : prepareGeneralCostConfig
+	}, {
+		id : 'generalCostConfiguration',
+		isInitialized : false,
+		initialize : populateWarehouseGrouping
+	}];
+
+	function initPanel(panel) {
+		$.each(panelStatus, function(index, currentPanel) {
+			if (currentPanel.id === $(panel).attr('id') && !currentPanel.isInitialized){
+				currentPanel.initialize();
+				currentPanel.isInitialized = true;
+			}
+		});
 	}
-	tabsInitialized[tabNo] = true;
-}
-
-
-$(document).ready(function() {'use strict';
-	var tabsInitialized;
-	tabsInitialized = [false, false, false, false];
 
 	$('.config').accordion({
 		active : false,
@@ -1435,16 +1439,15 @@ $(document).ready(function() {'use strict';
 	$('#tabs').tabs({
 		heightStyle : 'content',
 		activate : function(event, ui) {
-			var scrollTop;
-			if (!tabsInitialized[ui.newTab.index()]) {
-				initTab(ui.newTab.index(), tabsInitialized);
-			}
-			scrollTop = $(document).scrollTop();
+			var scrollTop = $(document).scrollTop();
+
+			initPanel(ui.newPanel);
+
 			window.location.href = ui.newTab.context.hash;
 			$(document).scrollTop(scrollTop);
 		},
 		create : function(event, ui) {
-			initTab(ui.tab.index(), tabsInitialized);
+			initPanel(ui.panel);
 		}
 	});
 });
