@@ -5,6 +5,60 @@ require_once 'ApiHelper.class.php';
 
 class ApiGeneralCosts {
 
+	public static function setGeneralCostsJSON($date, $value) {
+		header('Content-Type: application/json');
+		$result = array('success' => false, 'data' => NULL, 'error' => NULL);
+
+		if (!is_null($date) && !is_null($value)) {
+			try {
+				$result['data'] =  self::setGeneralCosts($date, $value);
+				$result['success'] = true;
+			} catch(Exception $e) {
+				$result['error'] = $e -> getMessage();
+			}
+		} else {
+			$result['error'] = "Missing parameter warehouse id or date\n";
+		}
+		echo json_encode($result);
+	}
+
+	public static function setGeneralCosts($date, $value) {
+		$insertValueQuery = "INSERT INTO GeneralCosts (`Date`, `RelativeCosts`) VALUES($date, $value) ON DUPLICATE KEY UPDATE `Date` = $date, `RelativeCosts` = $value";
+		$checkValueQuery = "SELECT `Date` AS `date`, `RelativeCosts` AS `value` FROM GeneralCosts WHERE `Date` = $date";
+
+		$isInsertSuccessful = false;
+		$returnValue = null;
+		$errorMessage = null;
+
+		ob_start();
+		try {
+			DBQuery::getInstance() -> begin();
+			DBQuery::getInstance() -> insert($insertValueQuery);
+			$checkValueDBResult = DBQuery::getInstance() -> select($checkValueQuery);
+			// ... if insert successful ...
+			if ($checkValueDBResult -> getNumRows() === 1 && ($returnValue = $checkValueDBResult -> fetchAssoc()) && ($returnValue['value'] == $value)) {
+				// ... success
+				$isInsertSuccessful = true;
+				DBQuery::getInstance() -> commit();
+			} else {
+				// ... otherwise 'insertion failed' error
+				$errorMessage = "Update of $date -> $value failed";
+				DBQuery::getInstance() -> rollback();
+			}
+		} catch(Exception $e) {
+			$isInsertSuccessful = false;
+			DBQuery::getInstance() -> rollback();
+			$errorMessage = $e -> getMessage();
+		}
+		ob_end_clean();
+
+		if ($isInsertSuccessful) {
+			return $returnValue;
+		} else {
+			throw new RuntimeException($errorMessage);
+		}
+	}
+
 	const MODE_WITH_GENERAL_COSTS = 0x1;
 
 	const MODE_WITH_AVERAGE = 0x2;
