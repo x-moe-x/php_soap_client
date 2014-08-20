@@ -173,22 +173,24 @@ function elementPostProcessStockConfig(element, type, requestData, resultData) {
 	}
 }
 
-function loadSuccess(result) {'use strict';
-	$('body').removeClass("loading");
-	$('#stockTable').flexReload();
-	$('#errorMessages').append('<p> ' + result + '</p>');
-}
-
-function dialogify(buttonData) {'use strict';
-	$.each(buttonData, function(index, button) {
-		$(button.id).dialogify(button.title, button.descr, button.type, function() {
-			$('body').addClass('loading');
-			$.get('../api/execute/' + button.task, loadSuccess);
-		});
-	});
-}
-
 function prepareStock() {'use strict';
+
+	function dialogify(buttonData) {
+		$.each(buttonData, function(index, button) {
+			$(button.id).dialogify(button.title, button.descr, button.type, function() {
+				$('body').addClass('loading');
+				$.get('../api/execute/' + button.task, loadSuccess);
+			});
+		});
+	}
+
+	function loadSuccess(result) {
+		$('body').removeClass("loading");
+		$('#stockTable').flexReload();
+		$('#errorMessages').append('<p> ' + result + '</p>');
+	}
+
+
 	$.each([{
 		id : '#calculationTimeA',
 		type : 'int',
@@ -1090,7 +1092,7 @@ function prepareGeneralCostConfig() {'use strict';
 	});
 }
 
-function populateWarehouseGrouping() {'use strict';
+function prepareRunningCosts() {'use strict';
 	var draggableOptions, groupData, warehouseData, standardGroupID;
 
 	draggableOptions = {
@@ -1207,7 +1209,7 @@ function populateWarehouseGrouping() {'use strict';
 					$('.standardGroup').removeClass('standardGroup');
 					$(event.currentTarget).addClass('standardGroup');
 				} else {
-					populateWarehouseGrouping();
+					prepareRunningCosts();
 				}
 			});
 		})).append(
@@ -1376,7 +1378,7 @@ function populateWarehouseGrouping() {'use strict';
 					value : element.val().replace(' ', '_')
 				};
 			}, function(element, type, requestData, resultData) {
-				populateWarehouseGrouping();
+				prepareRunningCosts();
 			});
 		}))));
 
@@ -1413,17 +1415,18 @@ $(function() {'use strict';
 	}, {
 		id : 'generalCostConfiguration',
 		isInitialized : false,
-		initialize : populateWarehouseGrouping
+		initialize : prepareRunningCosts
 	}];
 
 	function initPanel(panel) {
 		$.each(panelStatus, function(index, currentPanel) {
-			if (currentPanel.id === $(panel).attr('id') && !currentPanel.isInitialized){
+			if (currentPanel.id === $(panel).attr('id') && !currentPanel.isInitialized) {
 				currentPanel.initialize();
 				currentPanel.isInitialized = true;
 			}
 		});
 	}
+
 
 	$('.config').accordion({
 		active : false,
