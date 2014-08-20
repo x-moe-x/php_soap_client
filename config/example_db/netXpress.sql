@@ -330,6 +330,14 @@ CREATE TABLE `soap_db`.`RunningCostsNew` (
 	PRIMARY KEY (`Date`,`GroupID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+DROP TABLE IF EXISTS `soap_db`.`GeneralCosts`;
+
+CREATE TABLE `soap_db`.`GeneralCosts` (
+	`Date` int(11) NOT NULL,
+	`RelativeCosts` decimal(10,4) DEFAULT NULL,
+	PRIMARY KEY (`Date`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 DROP TABLE IF EXISTS `soap_db`.`PerWarehouseRevenue`;
 
 CREATE TABLE `soap_db`.`PerWarehouseRevenue` (
