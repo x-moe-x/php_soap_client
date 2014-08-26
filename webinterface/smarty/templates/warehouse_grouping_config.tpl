@@ -10,7 +10,15 @@
 				name : 'month'
 			}, {
 				display : 'Allg. Betriebskosten',
-				name : 'generalCosts'
+				name : 'generalCosts',
+				width : 100,
+				process : function(cell, month) {
+					var data = $.parseJSON(cell.innerHTML);
+
+					$(cell).addClass('noTableCell').insertInput('generalCosts_' + month, '%', function(event) {
+						alert('Not implemented, yet!');
+					}, ( data ? (data.relativeCosts * 100).toFixed(2) : ''));
+				}
 			}];
 
 			$.each(groupData, function(index, group) {

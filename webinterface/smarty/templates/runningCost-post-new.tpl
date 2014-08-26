@@ -9,7 +9,7 @@
 {foreach $data as $month => $row}
 	<row id='{$month}'>
 		<cell><![CDATA[{$months.$month}]]></cell>
-		<cell><![CDATA[{$generalCosts.$month}]]></cell>
+		<cell><![CDATA[{$generalCosts.$month|@json_encode}]]></cell>
 {foreach $row as $warehouseID => $values}
 		<cell><![CDATA[{$values|@json_encode}]]></cell>
 {/foreach}
