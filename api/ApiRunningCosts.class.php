@@ -45,12 +45,9 @@ class ApiRunningCosts {
 		$table = self::getPrepopulatedTable($months, ApiWarehouseGrouping::getGroups());
 
 		while ($row = $tableDBResult -> fetchAssoc()) {
-			if (array_key_exists($row['date'], $table) && array_key_exists($row['groupID'], $table[$row['date']])) {
-				$table[$row['date']][$row['groupID']] = array('costs' => floatval($row['costs']), 'nettoRevenue' => floatval($row['nettoRevenue']), 'shippingRevenue' => floatval($row['shippingRevenue']));
-			} else {
-				echo "skipping row ({$row['date']} -> {$row['groupID']})\n";
-			}
+			$table[$row['date']][$row['groupID']] = array('absoluteCosts' => (isset($row['absoluteCosts']) ? floatval($row['absoluteCosts']) : null), 'nettoRevenue' => floatval($row['nettoRevenue']), 'shippingRevenue' => floatval($row['shippingRevenue']));
 		}
+
 		return $table;
 	}
 
