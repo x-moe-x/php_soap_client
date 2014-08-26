@@ -6,12 +6,20 @@ require_once 'ApiHelper.class.php';
 class ApiGeneralCosts {
 
 	public static function getGeneralCosts($months) {
-		$selectResult = DBQuery::getInstance()->select("SELECT * FROM GeneralCosts WHERE Date IN (".implode(',', $months).")");
-		$result = array();
-		while ($row = $selectResult->fetchAssoc()){
-			$result[$row['Date']] = floatval($row['RelativeCosts']);
+		$selectDBResult = DBQuery::getInstance() -> select("SELECT gc.Date AS `date`, gc.RelativeCosts AS `relativeCosts` FROM GeneralCosts AS gc WHERE Date IN (" . implode(',', $months) . ")");
+
+		$table = array();
+
+		// prepopulate result array
+		foreach ($months as $month) {
+			$table[$month] = null;
 		}
-		return $result;
+
+		while ($row = $selectDBResult -> fetchAssoc()) {
+			$table[$row['date']] = array('relativeCosts' => floatval($row['relativeCosts']));
+		}
+
+		return $table;
 	}
 
 	public static function setGeneralCostsJSON($date, $value) {
