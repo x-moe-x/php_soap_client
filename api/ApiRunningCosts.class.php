@@ -20,7 +20,7 @@ class ApiRunningCosts {
 	}
 
 	public static function getRunningCostsTable() {
-		$months = ApiHelper::getMonthDates(new DateTime(), self::DEFAULT_NR_OF_MONTHS_BACKWARDS);
+		$months = ApiHelper::getMonthDates(new DateTime(), self::DEFAULT_NR_OF_MONTHS_BACKWARDS, /* omit current month */true);
 
 		/* tableQuery:
 		 *
