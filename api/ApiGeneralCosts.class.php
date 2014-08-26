@@ -5,6 +5,15 @@ require_once 'ApiHelper.class.php';
 
 class ApiGeneralCosts {
 
+	public static function getGeneralCosts($months) {
+		$selectResult = DBQuery::getInstance()->select("SELECT * FROM GeneralCosts WHERE Date IN (".implode(',', $months).")");
+		$result = array();
+		while ($row = $selectResult->fetchAssoc()){
+			$result[$row['Date']] = floatval($row['RelativeCosts']);
+		}
+		return $result;
+	}
+
 	public static function setGeneralCostsJSON($date, $value) {
 		header('Content-Type: application/json');
 		$result = array('success' => false, 'data' => NULL, 'error' => NULL);
