@@ -544,3 +544,27 @@ tr:hover .notModifyable {
     margin-bottom: 0.5em;
     padding: 0.3em;
 }
+
+.table {
+	display: table;
+}
+
+.tableRow {
+	display : table-row;
+}
+
+.tableCell {
+	display : table-cell;
+}
+
+#generalCostConfiguration .noTableCell {
+	padding: 7px 5px 5px;
+}
+
+#generalCostConfiguration .tableCell {
+	padding: 0;
+}
+
+#generalCostConfiguration .tableCell:first-child {
+	width: 60%;
+}
