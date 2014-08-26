@@ -380,7 +380,7 @@ function prepareStock() {'use strict';
 			bclass : 'filter stockFilter'
 		}],
 		onSuccess : function(g) {
-			var colModel, status, params;
+			var colModel, status, params, pSearch;
 
 			colModel = this.colModel;
 			status = this.status;
@@ -453,7 +453,13 @@ function prepareStock() {'use strict';
 			});
 
 			addMarking1IDFilter(g, status, params, 'stockFilter');
-			$('.pSearch', g.pDiv).click();
+
+			// start with searchbar visible
+			pSearch = $('.pSearch', g.pDiv);
+			if (!pSearch.data('initialized')) {
+				pSearch.click();
+				pSearch.data('initialized', true);
+			}
 		},
 		searchitems : [{
 			display : 'ItemID',
@@ -895,8 +901,16 @@ function prepareAmazon() {'use strict';
 			}
 		}],
 		onSuccess : function(g) {
+			var pSearch;
+
 			addMarking1IDFilter(g, this.status, this.params, 'amazonFilter');
-			$('.pSearch', g.pDiv).click();
+
+			// start with searchbar visible
+			pSearch = $('.pSearch', g.pDiv);
+			if (!pSearch.data('initialized')) {
+				pSearch.click();
+				pSearch.data('initialized', true);
+			}
 		}
 	});
 }
