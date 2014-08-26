@@ -21,7 +21,23 @@ class ApiRunningCosts {
 
 	public static function getRunningCostsTable() {
 		$months = ApiHelper::getMonthDates(new DateTime(), self::DEFAULT_NR_OF_MONTHS_BACKWARDS);
-		$tableQuery = "SELECT rc.Date AS `date`, rc.GroupID AS `groupID`, rc.AbsoluteCosts AS `costs`, SUM(wr.PerWarehouseNetto) AS `nettoRevenue`, SUM(wr.PerWarehouseShipping) AS `shippingRevenue` FROM RunningCostsNew AS rc LEFT JOIN WarehouseGroupMapping AS gm ON gm.GroupID = rc.GroupID LEFT JOIN PerWarehouseRevenue AS wr ON (wr.Date = rc.Date) AND (wr.WarehouseID = gm.WarehouseID) WHERE rc.Date IN (" . implode(',', $months) . ") GROUP BY rc.Date, rc.GroupID";
+
+		/* tableQuery:
+		 *
+		 * wr(date  |wid|[netto]|[shipping])
+		 *     |      |
+		 *     |      V
+		 *     |  gm(wid|[gid])
+		 *     |           |
+		 *     V           V
+		 * rc(date  |     gid|[abs])
+		 *
+		 * -------------------------
+		 *
+		 * tableQuery(date|gid|[abs]|SUM[netto]|SUM[shipping])		 *
+		 */
+
+		$tableQuery = "SELECT wr.Date AS `date`, gm.GroupID AS `groupID`, rc.AbsoluteCosts AS `absoluteCosts`, SUM(wr.PerWarehouseNetto) AS `nettoRevenue`, SUM(wr.PerWarehouseShipping) AS `shippingRevenue` FROM PerWarehouseRevenue AS wr JOIN WarehouseGroupMapping AS gm ON wr.WarehouseID = gm.WarehouseID LEFT JOIN RunningCostsNew AS rc ON (gm.GroupID = rc.GroupID) AND (wr.Date = rc.Date) WHERE wr.Date IN (" . implode(',', $months) . ") GROUP BY wr.Date, gm.GroupID";
 
 		$tableDBResult = DBQuery::getInstance() -> select($tableQuery);
 
