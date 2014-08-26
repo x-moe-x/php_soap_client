@@ -24,7 +24,48 @@
 			$.each(groupData, function(index, group) {
 				colModel.push({
 					display : group.name,
-					name : 'groupID_' + group.id
+					name : 'groupID_' + group.id,
+					align : 'center',
+					width : 180,
+					process : function(cell, month) {
+						var data = $.parseJSON(cell.innerHTML);
+
+						$(cell).addClass('table').html($('<div/>', {
+							'class' : 'tableRow'
+						})
+						// first cell: input field
+						.append($('<div/>', {
+							'class' : 'tableCell'
+						}).insertInput('runningCosts_' + month + '_' + group.id, '€', function(event) {
+							alert('Not implemented, yet!');
+						}, (data.absoluteCosts ? data.absoluteCosts.toFixed(2) : '')))
+						// second cell: display percentage
+						.append($('<div/>', {
+							id : 'runningCosts_' + month + '_' + group.id + '_percentage',
+							'class' : 'tableCell',
+							css : {
+								'visibility' : (data.absoluteCosts ? 'visible' : 'hidden')
+							}
+						}).append($('<span/>', {
+							// fill percentage field with: (costs - shippingRevenue) / nettoRevenue
+							html : ( data ? (100 * (data.absoluteCosts - data.shippingRevenue) / data.nettoRevenue).toFixed(2) : '')
+						})).append($('<label/>', {
+							'class' : 'variableUnit',
+							html : '%'
+						})).append($('<span/>', {
+							'class' : 'ui-icon ui-icon-help',
+							style : 'display: inline-block',
+							'title' : 'Prozentwert wurde um geschätzte ' + data.shippingRevenue.toFixed(2) + ' € Versandkosteneinnahmen bereinigt'
+						})).tooltip({
+							position : {
+								my : "left center",
+								at : "right center"
+							},
+							show : {
+								delay : 500
+							}
+						})));
+					}
 				});
 			});
 
