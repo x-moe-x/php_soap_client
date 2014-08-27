@@ -48,7 +48,7 @@
 					align : 'center',
 					width : 180,
 					process : function(cell, month) {
-						var data = $.parseJSON(cell.innerHTML);
+						var data = $.parseJSON(cell.innerHTML), percentSpan;
 
 						// make table ...
 						$(cell).addClass('table')
@@ -56,8 +56,39 @@
 						.html($('<div/>', {
 							'class' : 'tableRow'
 						})
-						// ... add first cell: input field
+						// ... add second cell: display percentage
 						.append($('<div/>', {
+							id : 'runningCosts_' + month + '_' + group.id + '_percentage',
+							'class' : 'tableCell',
+							css : {
+								'visibility' : (data.absoluteCosts ? 'visible' : 'hidden')
+							}
+						}).append( percentSpan = $('<span/>', {
+							// fill percentage field with: (costs - shippingRevenue) / nettoRevenue
+							html : ( data ? (100 * (data.absoluteCosts - data.shippingRevenue) / data.nettoRevenue).toFixed(2) : ''),
+							on : {
+								change : function(event) {
+									$(this).html(( data ? (100 * (data.absoluteCosts - data.shippingRevenue) / data.nettoRevenue).toFixed(2) : '')).parent().css('visibility', (data.absoluteCosts ? 'visible' : 'hidden'));
+								}
+							}
+						})).append($('<label/>', {
+							'class' : 'variableUnit',
+							html : '%'
+						})).append($('<span/>', {
+							'class' : 'ui-icon ui-icon-help',
+							style : 'display: inline-block',
+							'title' : 'Prozentwert wurde um geschätzte ' + data.shippingRevenue.toFixed(2) + ' € Versandkosteneinnahmen bereinigt'
+						})).tooltip({
+							position : {
+								my : "left center",
+								at : "right center"
+							},
+							show : {
+								delay : 500
+							}
+						}))
+						// ... add first cell: input field
+						.prepend($('<div/>', {
 							id : 'runningCosts_' + month + '_' + group.id + '_absolute',
 							'class' : 'tableCell'
 						}).insertInput('runningCosts_' + month + '_' + group.id, '€', function(event) {
@@ -80,35 +111,10 @@
 								return 'incorrect';
 							}, function(element, type, requestData, resultData) {
 								data.absoluteCosts = resultData.value;
-								return data.absoluteCosts.toFixed(2);
+								percentSpan.change();
+								return (data.absoluteCosts ? data.absoluteCosts.toFixed(2) : '');
 							});
-						}, (data.absoluteCosts ? data.absoluteCosts.toFixed(2) : '')))
-						// ... add second cell: display percentage
-						.append($('<div/>', {
-							id : 'runningCosts_' + month + '_' + group.id + '_percentage',
-							'class' : 'tableCell',
-							css : {
-								'visibility' : (data.absoluteCosts ? 'visible' : 'hidden')
-							}
-						}).append($('<span/>', {
-							// fill percentage field with: (costs - shippingRevenue) / nettoRevenue
-							html : ( data ? (100 * (data.absoluteCosts - data.shippingRevenue) / data.nettoRevenue).toFixed(2) : '')
-						})).append($('<label/>', {
-							'class' : 'variableUnit',
-							html : '%'
-						})).append($('<span/>', {
-							'class' : 'ui-icon ui-icon-help',
-							style : 'display: inline-block',
-							'title' : 'Prozentwert wurde um geschätzte ' + data.shippingRevenue.toFixed(2) + ' € Versandkosteneinnahmen bereinigt'
-						})).tooltip({
-							position : {
-								my : "left center",
-								at : "right center"
-							},
-							show : {
-								delay : 500
-							}
-						})));
+						}, (data.absoluteCosts ? data.absoluteCosts.toFixed(2) : ''))));
 					}
 				});
 			});
