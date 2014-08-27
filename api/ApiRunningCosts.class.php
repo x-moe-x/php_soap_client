@@ -8,6 +8,37 @@ class ApiRunningCosts {
 
 	const DEFAULT_NR_OF_MONTHS_BACKWARDS = 6;
 
+	public static function getAverageRunningCosts(array $aRunningCostsTable = null){
+		if (is_null($aRunningCostsTable)){
+			$aRunningCostsTable = self::getRunningCostsTable();
+		}
+
+		$standardGroup = ApiWarehouseGrouping::getConfig('standardGroup');
+		$averageElements = count($aRunningCostsTable);
+		$monthsReverse = array_reverse(array_keys($aRunningCostsTable));
+
+		// determine how many elements are to be averaged
+		foreach ($monthsReverse as $month) {
+			if (is_null($aRunningCostsTable[$month][$standardGroup]['absoluteCosts'])){
+				$averageElements--;
+			} else {
+				break;
+			}
+		}
+
+		$average = array();
+		for(reset($aRunningCostsTable), $idx = 0, $month = current($aRunningCostsTable);$idx < $averageElements; $idx++, $month = next($aRunningCostsTable)){
+			foreach ($month as $groupID => $values) {
+				if (!isset($average[$groupID])){
+					$average[$groupID] = 0.0;
+				}
+				$average[$groupID] += $values['absoluteCosts'] / $averageElements;
+			}
+		}
+
+		return $average;
+	}
+
 	private static function getPrepopulatedTable($months, $groups) {
 		$table = array();
 		foreach ($months as $month) {
