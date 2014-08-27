@@ -89,6 +89,8 @@ class ApiRunningCosts {
 				// ... if insert successful ...
 				if ($checkValueDBResult -> getNumRows() === 1 && ($returnValue = $checkValueDBResult -> fetchAssoc()) && ($returnValue['value'] == $value)) {
 					// ... success
+					$returnValue['groupID'] = intval($returnValue['groupID']);
+					$returnValue['value'] = floatval($returnValue['value']);
 					$isInsertSuccessful = true;
 					DBQuery::getInstance() -> commit();
 				} else {
