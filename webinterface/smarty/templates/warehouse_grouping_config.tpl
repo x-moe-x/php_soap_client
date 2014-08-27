@@ -30,17 +30,20 @@
 					process : function(cell, month) {
 						var data = $.parseJSON(cell.innerHTML);
 
-						$(cell).addClass('table').html($('<div/>', {
+						// make table ...
+						$(cell).addClass('table')
+						// ... add row ...
+						.html($('<div/>', {
 							'class' : 'tableRow'
 						})
-						// first cell: input field
+						// ... add first cell: input field
 						.append($('<div/>', {
 							id : 'runningCosts_' + month + '_' + group.id + '_absolute',
 							'class' : 'tableCell'
 						}).insertInput('runningCosts_' + month + '_' + group.id, '€', function(event) {
 							alert('Not implemented, yet!');
 						}, (data.absoluteCosts ? data.absoluteCosts.toFixed(2) : '')))
-						// second cell: display percentage
+						// ... add second cell: display percentage
 						.append($('<div/>', {
 							id : 'runningCosts_' + month + '_' + group.id + '_percentage',
 							'class' : 'tableCell',
