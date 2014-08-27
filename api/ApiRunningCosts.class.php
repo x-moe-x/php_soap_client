@@ -72,10 +72,11 @@ class ApiRunningCosts {
 	public static function setRunningCosts($groupID, $date, $value) {
 		$groupAvailabilityCheckQuery = "SELECT `GroupID` FROM WarehouseGroups WHERE `GroupID` = $groupID";
 		$insertValueQuery = "INSERT INTO RunningCostsNew (`Date`, `GroupID`, `AbsoluteCosts`) VALUES($date, $groupID, $value) ON DUPLICATE KEY UPDATE `Date` = $date, `GroupID` = $groupID, `AbsoluteCosts` = $value";
+		$deleteOnZeroQuery = "DELETE FROM RunningCostsNew WHERE `Date` = $date AND `GroupID` = $groupID";
 		$checkValueQuery = "SELECT `Date` AS `date`, `GroupID` AS `groupID`, `AbsoluteCosts` AS `value` FROM RunningCostsNew WHERE `Date` = $date AND `GroupID` = $groupID";
 
-		$isInsertSuccessful = false;
-		$returnValue = null;
+		$success = false;
+		$returnValue = array('groupID'=> $groupID, 'date' => $date, 'value' => null);
 		$errorMessage = null;
 
 		ob_start();
@@ -83,20 +84,35 @@ class ApiRunningCosts {
 			DBQuery::getInstance() -> begin();
 			// if group is available ...
 			if (DBQuery::getInstance() -> select($groupAvailabilityCheckQuery) -> getNumRows() === 1) {
-				// ... insert value
-				DBQuery::getInstance() -> insert($insertValueQuery);
-				$checkValueDBResult = DBQuery::getInstance() -> select($checkValueQuery);
-				// ... if insert successful ...
-				if ($checkValueDBResult -> getNumRows() === 1 && ($returnValue = $checkValueDBResult -> fetchAssoc()) && ($returnValue['value'] == $value)) {
-					// ... success
-					$returnValue['groupID'] = intval($returnValue['groupID']);
-					$returnValue['value'] = floatval($returnValue['value']);
-					$isInsertSuccessful = true;
-					DBQuery::getInstance() -> commit();
+				// ... if value is positive
+				if ($value > 0) {
+					// ... insert value
+					DBQuery::getInstance() -> insert($insertValueQuery);
+					$checkValueDBResult = DBQuery::getInstance() -> select($checkValueQuery);
+					// ... if insert successful ...
+					if ($checkValueDBResult -> getNumRows() === 1 && ($row = $checkValueDBResult -> fetchAssoc()) && ($row['value'] == $value)) {
+						// ... success
+						$returnValue['value'] = floatval($row['value']);
+						$success = true;
+						DBQuery::getInstance() -> commit();
+					} else {
+						// ... otherwise 'insertion failed' error
+						$errorMessage = "Update of ($groupID -> $date) = $value failed";
+						DBQuery::getInstance() -> rollback();
+					}
 				} else {
-					// ... otherwise 'insertion failed' error
-					$errorMessage = "Update of ($groupID -> $date) = $value failed";
-					DBQuery::getInstance() -> rollback();
+					// ... delete value
+					DBQuery::getInstance() -> delete($deleteOnZeroQuery);
+					$checkValueDBResult = DBQuery::getInstance() -> select($checkValueQuery);
+					// ... if delete successful ...
+					if ($checkValueDBResult -> getNumRows() === 0){
+						$success = true;
+						DBQuery::getInstance() -> commit();
+					} else {
+						// ... otherwise 'deletion failed' error
+						$errorMessage = "Deleting of ($groupID -> $date) failed";
+						DBQuery::getInstance() -> rollback();
+					}
 				}
 			} else {
 				// ... otherwise 'unknown group' error
@@ -104,13 +120,13 @@ class ApiRunningCosts {
 				DBQuery::getInstance() -> rollback();
 			}
 		} catch(Exception $e) {
-			$isInsertSuccessful = false;
+			$success = false;
 			DBQuery::getInstance() -> rollback();
 			$errorMessage = $e -> getMessage();
 		}
 		ob_end_clean();
 
-		if ($isInsertSuccessful) {
+		if ($success) {
 			return $returnValue;
 		} else {
 			throw new RuntimeException($errorMessage);
