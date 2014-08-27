@@ -51,6 +51,9 @@
 			</div>
 			<div id='generalCostConfiguration'>
 				{include file='warehouse_grouping_config.tpl'}
+				<table id='runningCostConfigurationNew' style='display:none'>
+					<!-- -->
+				</table>
 			</div>
 		</div>
 		<div class="modal">

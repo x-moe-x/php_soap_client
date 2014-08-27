@@ -13,10 +13,9 @@ foreach (array_keys($data) as $date) {
 	$currentDate = new DateTime($date);
 	$months[$date] = $currentDate -> format('M. Y');	
 }
-$generalCosts = ApiGeneralCosts::getGeneralCosts(array_keys($data));
 
 $smarty -> assign('months', $months);
-$smarty -> assign('generalCosts', $generalCosts);
+$smarty -> assign('generalCosts', ApiGeneralCosts::getGeneralCosts(array_keys($data)));
 $smarty -> assign('data', $data);
 
 header('Content-type: text/xml');
