@@ -61,7 +61,27 @@
 							id : 'runningCosts_' + month + '_' + group.id + '_absolute',
 							'class' : 'tableCell'
 						}).insertInput('runningCosts_' + month + '_' + group.id, '€', function(event) {
-							alert('Not implemented, yet!');
+							$(event.target).apiUpdate('../api/runningCosts', 'float', function(element, type) {
+								var id, dateGroupMatch;
+
+								element.checkFloatval();
+								if (type !== 'float' || isNaN(element.val())) {
+									return 'incorrect';
+								}
+
+								id = element.attr('id');
+								if (( dateGroupMatch = id.match(/runningCosts_(\d{ldelim}8{rdelim})_(\d+)/)) !== null) {
+									return {
+										key : dateGroupMatch[2] + '/' + dateGroupMatch[1],
+										value : element.val()
+									};
+								}
+
+								return 'incorrect';
+							}, function(element, type, requestData, resultData) {
+								data.absoluteCosts = resultData.value;
+								return data.absoluteCosts.toFixed(2);
+							});
 						}, (data.absoluteCosts ? data.absoluteCosts.toFixed(2) : '')))
 						// ... add second cell: display percentage
 						.append($('<div/>', {
