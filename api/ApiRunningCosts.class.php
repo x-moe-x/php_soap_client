@@ -32,7 +32,10 @@ class ApiRunningCosts {
 				if (!isset($average[$groupID])){
 					$average[$groupID] = 0.0;
 				}
-				$average[$groupID] += $values['absoluteCosts'] / $averageElements;
+
+				if (isset($values['absoluteCosts'])) {
+					$average[$groupID] += ($values['absoluteCosts'] - $values['shippingRevenue']) / ($averageElements * $values['nettoRevenue']);
+				}
 			}
 		}
 
