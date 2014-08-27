@@ -30,8 +30,8 @@
 			</ul>
 			<div id='dialog'>
 				<p>
-					<span id='dialogIcon'></span>
-					<span id='dialogText'></span>
+					<span id='dialogIcon'><!-- --></span>
+					<span id='dialogText'><!-- --></span>
 				</p>
 			</div>
 			<div id='amazonCalculation'>
