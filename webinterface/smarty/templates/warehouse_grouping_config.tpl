@@ -128,7 +128,7 @@
 				// create table
 				$('#runningCostConfigurationNew').flexigrid({
 					url : 'runningCost-post-xml-new.php',
-					 dataType : 'xml',
+					dataType : 'xml',
 					colModel : generateColModel(warehouseGroupingResult.data.groupData),
 					height : 'auto',
 					singleSelect : true,
