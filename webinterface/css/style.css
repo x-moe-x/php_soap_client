@@ -366,6 +366,14 @@ body.loading .modal {
 	text-align: right;
 }
 
+#generalCostConfiguration .flexigrid div.bDiv input {
+	margin: 0;
+}
+
+#generalCostConfiguration .flexigrid div.bDiv .variableUnit {
+	margin: 0 5px;
+}
+
 .flexigrid div.bDiv .trSelected input {
 	background: url("../images/hl.png") repeat-x scroll center -5px #D5EFFC !important
 }
@@ -563,8 +571,10 @@ tr:hover .notModifyable {
 
 #generalCostConfiguration .tableCell {
 	padding: 0;
+	text-align: right;
 }
 
 #generalCostConfiguration .tableCell:first-child {
 	width: 60%;
+	text-align: left;
 }
