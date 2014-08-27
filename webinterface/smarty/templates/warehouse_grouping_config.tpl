@@ -35,6 +35,7 @@
 						})
 						// first cell: input field
 						.append($('<div/>', {
+							id : 'runningCosts_' + month + '_' + group.id + '_absolute',
 							'class' : 'tableCell'
 						}).insertInput('runningCosts_' + month + '_' + group.id, '€', function(event) {
 							alert('Not implemented, yet!');
