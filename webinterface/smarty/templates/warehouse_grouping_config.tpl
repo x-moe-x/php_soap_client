@@ -16,7 +16,27 @@
 					var data = $.parseJSON(cell.innerHTML);
 
 					$(cell).addClass('noTableCell').insertInput('generalCosts_' + month, '%', function(event) {
-						alert('Not implemented, yet!');
+						$(event.target).apiUpdate('../api/generalCosts', 'percent', function(element, type) {
+							var id, dateMatch;
+
+							element.checkFloatval();
+							if (type !== 'percent' || isNaN(element.val())) {
+								return 'incorrect';
+							}
+
+							id = element.attr('id');
+							if (( dateMatch = id.match(/generalCosts_(\d{ldelim}8{rdelim})/)) !== null) {
+								return {
+									key : dateMatch[1],
+									value : (element.val() / 100).toFixed(4)
+								};
+							}
+
+							return 'incorrect';
+						}, function(element, type, requestData, resultData) {
+							data.relativeCosts = resultData.value;
+							return (data.relativeCosts * 100).toFixed(2);
+						});
 					}, ( data ? (data.relativeCosts * 100).toFixed(2) : ''));
 				}
 			}];
