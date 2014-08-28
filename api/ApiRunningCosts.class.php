@@ -86,7 +86,9 @@ class ApiRunningCosts {
 
 		$tableQuery = "SELECT wr.Date AS `date`, gm.GroupID AS `groupID`, rc.AbsoluteCosts AS `absoluteCosts`, SUM(wr.PerWarehouseNetto) AS `nettoRevenue`, SUM(wr.PerWarehouseShipping) AS `shippingRevenue` FROM PerWarehouseRevenue AS wr JOIN WarehouseGroupMapping AS gm ON wr.WarehouseID = gm.WarehouseID LEFT JOIN RunningCostsNew AS rc ON (gm.GroupID = rc.GroupID) AND (wr.Date = rc.Date) WHERE wr.Date IN (" . implode(',', $months) . ") GROUP BY wr.Date, gm.GroupID";
 
+		ob_start();
 		$tableDBResult = DBQuery::getInstance() -> select($tableQuery);
+		ob_end_clean();
 
 		// pre populate result
 		$table = self::getPrepopulatedTable($months, ApiWarehouseGrouping::getGroups());
