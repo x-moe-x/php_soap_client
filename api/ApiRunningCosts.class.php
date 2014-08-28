@@ -42,19 +42,20 @@ class ApiRunningCosts {
 		$average = array();
 		for(reset($aRunningCostsTable), $idx = 0, $month = current($aRunningCostsTable);$idx < $averageElements; $idx++, $month = next($aRunningCostsTable)){
 			foreach ($month as $groupID => $values) {
-				if (!isset($average[$groupID])){
-					$average[$groupID] = 0.0;
+				if (!isset($average[$groupID])) {
+					$average[$groupID] = array('absoluteCosts' => 0.0, 'relativeCosts' => 0.0);
 				}
 
 				if (isset($values['absoluteCosts'])) {
-					$average[$groupID] += ($values['absoluteCosts'] - $values['shippingRevenue']) / ($averageElements * $values['nettoRevenue']);
+					$average[$groupID]['relativeCosts'] += ($values['absoluteCosts'] - $values['shippingRevenue']) / ($averageElements * $values['nettoRevenue']);
+					$average[$groupID]['absoluteCosts'] += $values['absoluteCosts'] / $averageElements;
 				}
 			}
 		}
 
 		$averageResult = array();
 		foreach ($average as $groupID => $value) {
-			$averageResult[] = array('isAverage' => true, 'groupID' => $groupID, 'average' => $value);
+			$averageResult[] = array('isAverage' => true, 'groupID' => $groupID, 'absoluteCosts' => $value['absoluteCosts'], 'relativeCosts' => $value['relativeCosts']);
 		}
 		return $averageResult;
 	}
