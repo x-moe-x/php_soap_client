@@ -12,11 +12,11 @@ class ApiGeneralCosts {
 
 		// prepopulate result array
 		foreach ($months as $month) {
-			$table[$month] = null;
+			$table[$month] = array('relativeCosts' => null);
 		}
 
 		while ($row = $selectDBResult -> fetchAssoc()) {
-			$table[$row['date']] = array('relativeCosts' => floatval($row['relativeCosts']));
+			$table[$row['date']]['relativeCosts'] = floatval($row['relativeCosts']);
 		}
 
 		return $table;
@@ -41,26 +41,44 @@ class ApiGeneralCosts {
 
 	public static function setGeneralCosts($date, $value) {
 		$insertValueQuery = "INSERT INTO GeneralCosts (`Date`, `RelativeCosts`) VALUES($date, $value) ON DUPLICATE KEY UPDATE `Date` = $date, `RelativeCosts` = $value";
+		$deleteOnZeroQuery = "DELETE FROM GeneralCosts WHERE `Date` = $date";
 		$checkValueQuery = "SELECT `Date` AS `date`, `RelativeCosts` AS `value` FROM GeneralCosts WHERE `Date` = $date";
 
 		$isInsertSuccessful = false;
-		$returnValue = null;
+		$returnValue = array('date'=> $date, 'value' => null);
 		$errorMessage = null;
 
 		ob_start();
 		try {
 			DBQuery::getInstance() -> begin();
-			DBQuery::getInstance() -> insert($insertValueQuery);
-			$checkValueDBResult = DBQuery::getInstance() -> select($checkValueQuery);
-			// ... if insert successful ...
-			if ($checkValueDBResult -> getNumRows() === 1 && ($returnValue = $checkValueDBResult -> fetchAssoc()) && ($returnValue['value'] == $value)) {
-				// ... success
-				$isInsertSuccessful = true;
-				DBQuery::getInstance() -> commit();
+
+			if ($value > 0) {
+				DBQuery::getInstance() -> insert($insertValueQuery);
+				$checkValueDBResult = DBQuery::getInstance() -> select($checkValueQuery);
+				// ... if insert successful ...
+				if ($checkValueDBResult -> getNumRows() === 1 && ($row = $checkValueDBResult -> fetchAssoc()) && ($row['value'] == $value)) {
+					// ... success
+					$isInsertSuccessful = true;
+					$returnValue['value'] = floatval($row['value']);
+					DBQuery::getInstance() -> commit();
+				} else {
+					// ... otherwise 'insertion failed' error
+					$errorMessage = "Update of $date -> $value failed";
+					DBQuery::getInstance() -> rollback();
+				}
 			} else {
-				// ... otherwise 'insertion failed' error
-				$errorMessage = "Update of $date -> $value failed";
-				DBQuery::getInstance() -> rollback();
+				DBQuery::getInstance() -> delete($deleteOnZeroQuery);
+				$checkValueDBResult = DBQuery::getInstance() -> select($checkValueQuery);
+				// ... if delete successful ...
+				if ($checkValueDBResult -> getNumRows() === 0) {
+					// ... success
+					$isInsertSuccessful = true;
+					DBQuery::getInstance() -> commit();
+				} else {
+					// ... otherwise 'insertion failed' error
+					$errorMessage = "Delete of $date failed";
+					DBQuery::getInstance() -> rollback();
+				}
 			}
 		} catch(Exception $e) {
 			$isInsertSuccessful = false;
