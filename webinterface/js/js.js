@@ -1409,7 +1409,30 @@ function prepareRunningCosts() {'use strict';
 				process : function(cell, month) {
 					var data = $.parseJSON(cell.innerHTML), percentSpan;
 					if (data.isAverage) {
-						// do average things ...
+						// make table ...
+						$(cell).addClass('table')
+						// ... add row ...
+						.html($('<div/>', {
+							'class' : 'tableRow'
+						})
+						// ... add first cell
+						.append($('<div/>', {
+							'class' : 'tableCell',
+						}).append($('<span/>', {
+							html : data.absoluteCosts.toFixed(2)
+						})).append($('<label/>', {
+							'class' : 'variableUnit',
+							html : '€'
+						})))
+						// ... add second cell
+						.append($('<div/>', {
+							'class' : 'tableCell',
+						}).append($('<span/>', {
+							html : (data.relativeCosts * 100).toFixed(2)
+						})).append($('<label/>', {
+							'class' : 'variableUnit',
+							html : '%'
+						}))));
 					} else {
 						// make table ...
 						$(cell).addClass('table')
