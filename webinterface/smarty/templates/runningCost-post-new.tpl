@@ -18,7 +18,7 @@
 	<row id='average'>
 		<cell><![CDATA[Durchschnitt]]></cell>
 		<cell><![CDATA[{ldelim}"isAverage":true,"average":"xxx"{rdelim}]]></cell>
-{foreach $averageRunningCosts as $value}
+{foreach $averageCosts as $value}
 		<cell><![CDATA[{$value|@json_encode}]]></cell>
 {/foreach}
 	</row>

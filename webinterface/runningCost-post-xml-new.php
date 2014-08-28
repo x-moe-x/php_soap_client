@@ -15,7 +15,7 @@ foreach (array_keys($data) as $date) {
 }
 
 $smarty -> assign('months', $months);
-$smarty -> assign('averageRunningCosts', ApiRunningCosts::getAverageRunningCosts($data));
+$smarty -> assign('averageCosts', ApiHelper::getAverageCosts($data));
 $smarty -> assign('generalCosts', ApiGeneralCosts::getGeneralCosts(array_keys($data)));
 $smarty -> assign('data', $data);
 
