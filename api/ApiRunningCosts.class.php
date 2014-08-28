@@ -52,7 +52,11 @@ class ApiRunningCosts {
 			}
 		}
 
-		return $average;
+		$averageResult = array();
+		foreach ($average as $groupID => $value) {
+			$averageResult[] = array('isAverage' => true, 'groupID' => $groupID, 'average' => $value);
+		}
+		return $averageResult;
 	}
 
 	private static function getPrepopulatedTable($months, $groups) {
@@ -94,7 +98,7 @@ class ApiRunningCosts {
 		$table = self::getPrepopulatedTable($months, ApiWarehouseGrouping::getGroups());
 
 		while ($row = $tableDBResult -> fetchAssoc()) {
-			$table[$row['date']][$row['groupID']] = array('absoluteCosts' => (isset($row['absoluteCosts']) ? floatval($row['absoluteCosts']) : null), 'nettoRevenue' => floatval($row['nettoRevenue']), 'shippingRevenue' => floatval($row['shippingRevenue']));
+			$table[$row['date']][$row['groupID']] = array('isAverage' => false, 'absoluteCosts' => (isset($row['absoluteCosts']) ? floatval($row['absoluteCosts']) : null), 'nettoRevenue' => floatval($row['nettoRevenue']), 'shippingRevenue' => floatval($row['shippingRevenue']));
 		}
 
 		return $table;
