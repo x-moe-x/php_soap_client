@@ -1114,7 +1114,7 @@ function prepareRunningCosts() {'use strict';
 		scroll : false,
 		cursor : "move",
 		revert : true
-	}, groupData, warehouseData, standardGroupID;
+	}, groupData, warehouseData, standardGroupID, costsTable = null;
 
 	function dropWarehouse(event, ui) {
 		// if source and destination are the same ...
@@ -1264,6 +1264,7 @@ function prepareRunningCosts() {'use strict';
 								value : group.name
 							};
 						}, function(element, type, requestData, resultData) {
+							initCostsTable();
 							$('#warehouseGrouping_GroupList_Group_' + group.id + ' .groupName, #warehouseGrouping_GroupAssociation_Group_' + group.id + ' .groupName').html(group.name);
 						});
 						$(this).dialog("close");
@@ -1507,6 +1508,28 @@ function prepareRunningCosts() {'use strict';
 		return colModel;
 	}
 
+	function initCostsTable() {
+		var parameters = {
+			url : 'runningCost-post-xml-new.php',
+			dataType : 'xml',
+			colModel : generateColModel(groupData),
+			height : 'auto',
+			singleSelect : true,
+			striped : false,
+			title : 'Betriebskosten'
+		};
+
+		if (!costsTable) {
+			costsTable = $('#runningCostConfigurationNew').flexigrid(parameters);
+		} else {
+			costsTable.empty().appendTo($('#generalCostConfiguration', costsTable.parents()));
+			$('#generalCostConfiguration .flexigrid').remove();
+			costsTable[0].grid = null;
+			costsTable = $('#runningCostConfigurationNew').flexigrid(parameters);
+		}
+
+	}
+
 	// start asnycronous requests ...
 	$.when($.get('../api/warehouseGrouping', function(result, textStatus, jqXHR) {
 		groupData = result.data.groupData;
@@ -1566,15 +1589,7 @@ function prepareRunningCosts() {'use strict';
 		});
 
 		// create table
-		$('#runningCostConfigurationNew').flexigrid({
-			url : 'runningCost-post-xml-new.php',
-			dataType : 'xml',
-			colModel : generateColModel(groupData),
-			height : 'auto',
-			singleSelect : true,
-			striped : false,
-			title : 'Betriebskosten'
-		});
+		initCostsTable();
 	});
 }
 
