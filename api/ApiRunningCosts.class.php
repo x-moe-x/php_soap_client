@@ -8,6 +8,19 @@ class ApiRunningCosts {
 
 	const DEFAULT_NR_OF_MONTHS_BACKWARDS = 6;
 
+	public static function getAverageRunningCostsJSON() {
+		header('Content-Type: application/json');
+		$result = array('success' => false, 'data' => NULL, 'error' => NULL);
+
+		try {
+			$result['data'] = self::getAverageRunningCosts();
+			$result['success'] = true;
+		} catch(Exception $e) {
+			$result['error'] = $e -> getMessage();
+		}
+		echo json_encode($result);
+	}
+
 	public static function getAverageRunningCosts(array $aRunningCostsTable = null){
 		if (is_null($aRunningCostsTable)){
 			$aRunningCostsTable = self::getRunningCostsTable();

@@ -28,6 +28,7 @@ getRoute() -> put('/generalCost/(\d+|-\d+)/(\d+)/(\w+|\d+|\d+\.\d+)', array('Api
 getRoute() -> put('/generalCosts/(\d+)/(\d+|\d+\.\d+)', array('ApiGeneralCosts', 'setGeneralCostsJSON'));
 
 // register running costs api calls
+getRoute() -> get('/runningCosts/average', array('ApiRunningCosts', 'getAverageRunningCostsJSON'));
 getRoute() -> put('/runningCosts/(\d+)/(\d+)/(\d+|\d+\.\d+)', array('ApiRunningCosts', 'setRunningCostsJSON'));
 
 // register amazon api calls
