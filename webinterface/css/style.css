@@ -578,3 +578,10 @@ tr:hover .notModifyable {
 	width: 60%;
 	text-align: left;
 }
+
+#rowaverage .noTableCell span {
+	border: 1px solid transparent;
+	display: inline-block;
+	text-align: right;
+	width: 80%;
+}
