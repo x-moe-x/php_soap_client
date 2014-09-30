@@ -1462,7 +1462,7 @@ function prepareRunningCosts() {'use strict';
 						})).append($('<span/>', {
 							'class' : 'ui-icon ui-icon-help',
 							style : 'display: inline-block',
-							'title' : 'Prozentwert wurde um geschätzte ' + data.shippingRevenue.toFixed(2) + ' € Versandkosteneinnahmen bereinigt'
+							'title' : 'Von den Lagerkosten wurden Versandkosteneinnahmen in Höhe von ' + data.shippingRevenue.toFixed(2) + ' € bereits abgezogen.'
 						})).tooltip({
 							position : {
 								my : "left center",
