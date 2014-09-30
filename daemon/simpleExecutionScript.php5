@@ -33,6 +33,9 @@ if (Config::get('CalculationActive') === 1) {
 	// calculate amazon quantites
 	NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'CalculateAmazonQuantities', 'CalculateAmazonQuantities'));
 
+	// calculate amazon value k
+	NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'CalculateAmazonWeightenedRunningCosts', 'CalculateAmazonWeightenedRunningCosts'));
+
 	// determine write permissions
 	NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'DetermineWritePermissions', 'DetermineWritePermissions'));
 
