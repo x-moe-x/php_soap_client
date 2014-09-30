@@ -9,9 +9,9 @@ $data = ApiRunningCosts::getRunningCostsTable();
 ob_end_clean();
 
 $months = array();
-foreach (array_keys($data) as $date) {
-	$currentDate = new DateTime($date);
-	$months[$date] = $currentDate -> format('M. Y');	
+foreach ($data as $month => $row) {
+	$currentDate = new DateTime($month);
+	$months[$month] = $currentDate -> format('M. Y');
 }
 
 $smarty -> assign('months', $months);
