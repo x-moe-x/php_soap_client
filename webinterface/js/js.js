@@ -1368,7 +1368,7 @@ function prepareRunningCosts() {'use strict';
 				if (data.isAverage) {
 					// do average things ...
 					$(cell).addClass('noTableCell').html($('<span/>', {
-						html : data.average
+						html : (data.average * 100).toFixed(2)
 					})).append($('<label/>', {
 						'class' : 'variableUnit',
 						html : '%'

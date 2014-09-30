@@ -81,17 +81,11 @@ class CalculateAmazonWeightenedRunningCosts {
 	public function execute() {
 		$groups = $this -> prepareGroups();
 
-		// 1. get amazon specific total shipping: shipping_ratio[date] = total_netto / total_charged_shipping_costs
+		// 1. get amazon specific total netto and shipping revenue
 		$amazonTotalNettoAndShipping = $this -> getAmazonTotalNettoAndShippingByDate();
 
 		// 2. get global cost-revenue-ration per month, per group
 		$cRRatData = ApiRunningCosts::getRunningCostsTable($this -> oStartDate, self::DEFAULT_AMAZON_NR_OF_MONTHS_BACKWARDS);
-
-		if (!$this -> arePrequisitesMet($cRRatData)) {
-			// std group is not filled properly
-			$this -> getLogger() -> info(__FUNCTION__ . ' prequisites for value k calculation not met. Please fill standard group running costs fields');
-			return;
-		}
 
 		// 3. get amazon specific per group total
 		$aNData = $this -> prepareANData($groups);
@@ -150,18 +144,19 @@ class CalculateAmazonWeightenedRunningCosts {
 			return $sumTotal / self::DEFAULT_AMAZON_NR_OF_MONTHS_BACKWARDS;
 		};
 
-		$generalCosts = ApiGeneralCosts::getGeneralCosts($months);
-		$averageGeneralCosts = 0.0;
-		foreach ($generalCosts as $generalCost) {
-			$averageGeneralCosts += $generalCost['relativeCosts'] / self::DEFAULT_AMAZON_NR_OF_MONTHS_BACKWARDS;
-		}
+		$averageCosts = ApiHelper::getAverageCosts($cRRatData);
 
 		try {
-			$valueK = $aWRat();
-			ApiAmazon::setConfig('WarehouseRunningCostsAmount', number_format($valueK, 10));
-			$this -> getLogger() -> info(__FUNCTION__ . ' storing to config WarehouseRunningCostsAmount = ' . number_format($valueK, 10));
-			ApiAmazon::setConfig('CommonRunningCostsAmount', number_format($averageGeneralCosts, 4));
-			$this -> getLogger() -> info(__FUNCTION__ . ' storing to config CommonRunningCostsAmount = ' . number_format($averageGeneralCosts, 4));
+			if ($this -> arePrequisitesMet($cRRatData)) {
+				$valueK = $aWRat();
+				ApiAmazon::setConfig('WarehouseRunningCostsAmount', number_format($valueK, 10));
+				$this -> getLogger() -> info(__FUNCTION__ . ' storing to config WarehouseRunningCostsAmount = ' . number_format($valueK, 10));
+			} else {
+				// std group is not filled properly
+				$this -> getLogger() -> info(__FUNCTION__ . ' prequisites for value k calculation not met. Please fill standard group running costs fields');
+			}
+			ApiAmazon::setConfig('CommonRunningCostsAmount', number_format($averageCosts['generalCosts']['average'], 4));
+			$this -> getLogger() -> info(__FUNCTION__ . ' storing to config CommonRunningCostsAmount = ' . number_format($averageCosts['generalCosts']['average'], 4));
 		} catch(Exception $e) {
 			$this -> getLogger() -> debug(__FUNCTION__ . ' Error: ' . $e -> getMessage());
 		}
