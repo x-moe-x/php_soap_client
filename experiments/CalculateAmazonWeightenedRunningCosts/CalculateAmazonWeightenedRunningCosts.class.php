@@ -130,11 +130,9 @@ class CalculateAmazonWeightenedRunningCosts {
 			}
 		};
 
-		$aWRat = function() use (&$groups, &$aN, &$cRRat, &$aTS, &$aTN, &$cRRatData) {
+		$months = array_keys($cRRatData);
 
-			//TODO check if std group is filled from $this -> oStartDate on...
-			$months = array_keys($cRRatData);
-
+		$aWRat = function() use (&$groups, &$aN, &$cRRat, &$aTS, &$aTN, &$months) {
 			$sumTotal = 0.0;
 			foreach ($months as $t_month) {
 				$sumAWCRRat = 0.0;
@@ -152,12 +150,18 @@ class CalculateAmazonWeightenedRunningCosts {
 			return $sumTotal / self::DEFAULT_AMAZON_NR_OF_MONTHS_BACKWARDS;
 		};
 
+		$generalCosts = ApiGeneralCosts::getGeneralCosts($months);
+		$averageGeneralCosts = 0.0;
+		foreach ($generalCosts as $generalCost) {
+			$averageGeneralCosts += $generalCost['relativeCosts'] / self::DEFAULT_AMAZON_NR_OF_MONTHS_BACKWARDS;
+		}
+
 		try {
 			$valueK = $aWRat();
 			ApiAmazon::setConfig('WarehouseRunningCostsAmount', number_format($valueK, 10));
 			$this -> getLogger() -> info(__FUNCTION__ . ' storing to config WarehouseRunningCostsAmount = ' . number_format($valueK, 10));
-			//	ApiAmazon::setConfig('CommonRunningCostsAmount', number_format($overallPerWarehouseTotalAndPercentage[-1]['average']['percentage'] / 100, 4));
-			//	$this -> getLogger() -> info(__FUNCTION__ . ' storing to config CommonRunningCostsAmount = ' . number_format($overallPerWarehouseTotalAndPercentage[-1]['average']['percentage'] / 100, 4));
+			ApiAmazon::setConfig('CommonRunningCostsAmount', number_format($averageGeneralCosts, 4));
+			$this -> getLogger() -> info(__FUNCTION__ . ' storing to config CommonRunningCostsAmount = ' . number_format($averageGeneralCosts, 4));
 		} catch(Exception $e) {
 			$this -> getLogger() -> debug(__FUNCTION__ . ' Error: ' . $e -> getMessage());
 		}
