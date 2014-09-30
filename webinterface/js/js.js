@@ -1603,10 +1603,6 @@ $(function() {'use strict';
 		isInitialized : false,
 		initialize : prepareStock
 	}, {
-		id : 'generalCostConfigurationOld',
-		isInitialized : false,
-		initialize : prepareGeneralCostConfig
-	}, {
 		id : 'generalCostConfiguration',
 		isInitialized : false,
 		initialize : prepareRunningCosts
