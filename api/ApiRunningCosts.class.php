@@ -19,8 +19,16 @@ class ApiRunningCosts {
 		return $table;
 	}
 
-	public static function getRunningCostsTable() {
-		$months = ApiHelper::getMonthDates(new DateTime(), self::DEFAULT_NR_OF_MONTHS_BACKWARDS, /* omit current month */true);
+	public static function getRunningCostsTable($startAt = null, $nrOfMonthsBackwards = null) {
+		if (is_null($startAt)){
+			$startAt = new DateTime();
+		}
+
+		if (is_null($nrOfMonthsBackwards)){
+			$nrOfMonthsBackwards = self::DEFAULT_NR_OF_MONTHS_BACKWARDS;
+		}
+
+		$months = ApiHelper::getMonthDates($startAt, $nrOfMonthsBackwards, /* omit current month */true);
 
 		/* tableQuery:
 		 *
