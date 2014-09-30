@@ -48,19 +48,30 @@ class CalculateAmazonWeightenedRunningCosts {
 		$this -> oInterval = new DateInterval('P' . self::DEFAULT_AMAZON_NR_OF_MONTHS_BACKWARDS . 'M');
 	}
 
-	public static function arePrequisitesMet() {
-		$netxpressWarehouseID = 1;
-		$now = new DateTime();
-		$startDate = new DateTime($now -> format('Y-m-01'));
-		$months = ApiHelper::getMonthDates($startDate, CalculateAmazonWeightenedRunningCosts::DEFAULT_AMAZON_NR_OF_MONTHS_BACKWARDS, true);
-		$generalCostsNetxpressWarehouse = ApiGeneralCosts::getCostsTotal(ApiGeneralCosts::MODE_WITH_GENERAL_COSTS, array(1 => array('id' => $netxpressWarehouseID, 'name' => null)), $months, null, null);
+	private function prepareGroups() {
+		$warehouses = ApiHelper::getWarehouseList();
+		$groups = array();
 
-		// at least net-xpress warhouse and general costs are necessary
-		foreach ($months as $date) {
-			if ((!$generalCostsNetxpressWarehouse[$netxpressWarehouseID][$date]['absolute'] > 0) && (!$generalCostsNetxpressWarehouse[-1][$date]['percentage'] > 0)) {
+		foreach ($warehouses as $warehouse) {
+			if (!isset($groups[$warehouse['groupID']])) {
+				$groups[$warehouse['groupID']] = array();
+			}
+			$groups[$warehouse['groupID']][] = $warehouse['id'];
+		}
+
+		return $groups;
+	}
+
+	private function arePrequisitesMet(&$cRRatData) {
+		$standardGroup = ApiWarehouseGrouping::getConfig('standardGroup');
+
+		// check if standard group fields are filled properly
+		foreach ($cRRatData as $month => $month_data) {
+			if (!isset($month_data[$standardGroup]['absoluteCosts'])) {
 				return false;
 			}
 		}
+
 		return true;
 	}
 
@@ -68,69 +79,85 @@ class CalculateAmazonWeightenedRunningCosts {
 	 * @return void
 	 */
 	public function execute() {
-		$amazonPerDatePerWarehouseWeightedPercentage = array();
+		$groups = $this -> prepareGroups();
 
 		// 1. get amazon specific total shipping: shipping_ratio[date] = total_netto / total_charged_shipping_costs
 		$amazonTotalNettoAndShipping = $this -> getAmazonTotalNettoAndShippingByDate();
 
-		// 2. get overall per warehouse total and shipping costs as well as percentage of absolut amount from total
-		$overallPerWarehouseTotalAndPercentage = ApiGeneralCosts::getCostsTotal(ApiGeneralCosts::MODE_WITH_TOTAL_NETTO_AND_SHIPPING_VALUE | ApiGeneralCosts::MODE_WITH_GENERAL_COSTS | ApiGeneralCosts::MODE_WITH_AVERAGE, null, null, $this -> oStartDate, self::DEFAULT_AMAZON_NR_OF_MONTHS_BACKWARDS);
+		// 2. get global cost-revenue-ration per month, per group
+		$cRRatData = ApiRunningCosts::getRunningCostsTable($this -> oStartDate, self::DEFAULT_AMAZON_NR_OF_MONTHS_BACKWARDS);
 
-		// 3. get amazon specific per warehouse total
-		$amazonPerWarehouseNettoDBResult = DBQuery::getInstance() -> select(TotalNettoQuery::getPerWarehouseNettoQuery($this -> oStartDate, $this -> oInterval, ApiAmazon::AMAZON_REFERRER_ID));
-		while ($amazonPerWarehouseNetto = $amazonPerWarehouseNettoDBResult -> fetchAssoc()) {
-			$warehouseID = $amazonPerWarehouseNetto['WarehouseID'];
-			$date = $amazonPerWarehouseNetto['Date'];
-
-			if (!key_exists($date, $amazonPerDatePerWarehouseWeightedPercentage)) {
-				$amazonPerDatePerWarehouseWeightedPercentage[$date] = array();
-			}
-
-			/*
-			 * Perform the following calculation:
-			 *
-			 * first calculate weight:
-			 * amazon_weight[date][warehouseID] = amazonPerWarehouseNetto / amazonTotalNetto
-			 *
-			 * then apply weight:
-			 * amazon_weighted_percentage[date][warehouseID] = amazon_weight[date][warehouseID] * general_cost[warehouseID][date][percentage]
-			 */
-
-			if ($amazonTotalNettoAndShipping[$date]['TotalNetto'] > 0) {
-				$amazonPerDatePerWarehouseWeightedPercentage[$date][$warehouseID] = $amazonPerWarehouseNetto['PerWarehouseNetto'] / $amazonTotalNettoAndShipping[$date]['TotalNetto'] * $overallPerWarehouseTotalAndPercentage[$warehouseID][$date]['percentage'] / 100;
-			}
+		if (!$this -> arePrequisitesMet($cRRatData)) {
+			// std group is not filled properly
+			$this -> getLogger() -> info(__FUNCTION__ . ' prequisites for value k calculation not met. Please fill standard group running costs fields');
+			return;
 		}
 
-		// 4. adjust percentage with charged shipping costs and amazon provision
-		$amazonWeightedPercentage = 0;
-		foreach (array_keys($amazonPerDatePerWarehouseWeightedPercentage) as $date) {
+		// 3. get amazon specific per group total
+		$aNData = $this -> prepareANData($groups);
 
-			/*
-			 * Perform the following calculation:
-			 *
-			 * amazon_weighted_percentage[date] = (costs - shippingRevenue) / amazonTotalNetto
-			 *
-			 * with: term costs = SUM(for all warehouse id's: amazon_weighted_percentage[date][id]) * amazonTotalNetto
-			 *
-			 * simplifies to:
-			 * amazon_weighted_percentage[date] = SUM(for all warehouse id's: amazon_weighted_percentage[date][id])
-			 * 									  * amazonTotalShipping / amazonTotalNetto
-			 *
-			 */
-
-			if ($amazonTotalNettoAndShipping[$date]['TotalNetto'] > 0) {
-				$amazonWeightedPercentage += (array_sum($amazonPerDatePerWarehouseWeightedPercentage[$date]) - $amazonTotalNettoAndShipping[$date]['TotalShippingNetto'] / $amazonTotalNettoAndShipping[$date]['TotalNetto']) / 2;
+		$aTN = function($month) use (&$amazonTotalNettoAndShipping) {
+			// for all warehouses: sum netto(month,w,amazon);
+			if (isset($amazonTotalNettoAndShipping[$month])) {
+				return $amazonTotalNettoAndShipping[$month]['amazonTotalNetto'];
 			} else {
-				$this -> getLogger() -> debug(__FUNCTION__ . ' Error: TotalNetto ' . $amazonTotalNettoAndShipping[$date]['TotalNetto'] . ' <= 0');
-				return;
+				return 0.0;
 			}
-		}
+		};
+
+		$aTS = function($month) use (&$amazonTotalNettoAndShipping) {
+			// shipping(month,amazon);
+			if (isset($amazonTotalNettoAndShipping[$month])) {
+				return $amazonTotalNettoAndShipping[$month]['amazonTotalShipping'];
+			} else {
+				return 0.0;
+			}
+		};
+
+		$cRRat = function($month, $group) use (&$cRRatData) {
+			if (isset($cRRatData[$month][$group]) && $cRRatData[$month][$group]['nettoRevenue'] > 0) {
+				return $cRRatData[$month][$group]['absoluteCosts'] / $cRRatData[$month][$group]['nettoRevenue'];
+			} else {
+				return 'NaN';
+			}
+		};
+
+		$aN = function($month, $group) use (&$aNData) {
+			if (isset($aNData[$month][$group])) {
+				return $aNData[$month][$group];
+			} else {
+				return 0.0;
+			}
+		};
+
+		$aWRat = function() use (&$groups, &$aN, &$cRRat, &$aTS, &$aTN, &$cRRatData) {
+
+			//TODO check if std group is filled from $this -> oStartDate on...
+			$months = array_keys($cRRatData);
+
+			$sumTotal = 0.0;
+			foreach ($months as $t_month) {
+				$sumAWCRRat = 0.0;
+				foreach ($groups as $group => $groupList) {
+					$cRRat_int = floatval($cRRat($t_month, $group));
+					if (!is_nan($cRRat_int)) {
+						$sumAWCRRat += $aN($t_month, $group) * $cRRat_int;
+					}
+				}
+				$aTN_int = $aTN($t_month);
+				if ($aTN_int > 0) {
+					$sumTotal += ($sumAWCRRat - $aTS($t_month)) / $aTN_int;
+				}
+			}
+			return $sumTotal / self::DEFAULT_AMAZON_NR_OF_MONTHS_BACKWARDS;
+		};
 
 		try {
-			ApiAmazon::setConfig('WarehouseRunningCostsAmount', number_format($amazonWeightedPercentage, 10));
-			$this -> getLogger() -> info(__FUNCTION__ . ' storing to config WarehouseRunningCostsAmount = ' . number_format($amazonWeightedPercentage, 10));
-			ApiAmazon::setConfig('CommonRunningCostsAmount', number_format($overallPerWarehouseTotalAndPercentage[-1]['average']['percentage'] / 100, 4));
-			$this -> getLogger() -> info(__FUNCTION__ . ' storing to config CommonRunningCostsAmount = ' . number_format($overallPerWarehouseTotalAndPercentage[-1]['average']['percentage'] / 100, 4));
+			$valueK = $aWRat();
+			ApiAmazon::setConfig('WarehouseRunningCostsAmount', number_format($valueK, 10));
+			$this -> getLogger() -> info(__FUNCTION__ . ' storing to config WarehouseRunningCostsAmount = ' . number_format($valueK, 10));
+			//	ApiAmazon::setConfig('CommonRunningCostsAmount', number_format($overallPerWarehouseTotalAndPercentage[-1]['average']['percentage'] / 100, 4));
+			//	$this -> getLogger() -> info(__FUNCTION__ . ' storing to config CommonRunningCostsAmount = ' . number_format($overallPerWarehouseTotalAndPercentage[-1]['average']['percentage'] / 100, 4));
 		} catch(Exception $e) {
 			$this -> getLogger() -> debug(__FUNCTION__ . ' Error: ' . $e -> getMessage());
 		}
@@ -145,10 +172,38 @@ class CalculateAmazonWeightenedRunningCosts {
 		$amazonTotalNettoAndShippingDBResult = DBQuery::getInstance() -> select(TotalNettoQuery::getTotalNettoAndShippingCostsQuery($this -> oStartDate, $this -> oInterval, ApiAmazon::AMAZON_REFERRER_ID));
 
 		while ($amazonTotalNettoAndShipping = $amazonTotalNettoAndShippingDBResult -> fetchAssoc()) {
-			$amazonTotalNettoAndShippingResult[$amazonTotalNettoAndShipping['Date']] = array('TotalNetto' => floatval($amazonTotalNettoAndShipping['TotalNetto']), 'TotalShippingNetto' => floatval($amazonTotalNettoAndShipping['TotalShippingNetto']));
+			$amazonTotalNettoAndShippingResult[$amazonTotalNettoAndShipping['Date']] = array('amazonTotalNetto' => floatval($amazonTotalNettoAndShipping['TotalNetto']), 'amazonTotalShipping' => floatval($amazonTotalNettoAndShipping['TotalShippingNetto']));
 		}
 
 		return $amazonTotalNettoAndShippingResult;
+	}
+
+	private function prepareANData(&$groups) {
+		$amazonPerWarehouseNettoDBResult = DBQuery::getInstance() -> select(TotalNettoQuery::getPerWarehouseNettoQuery($this -> oStartDate, $this -> oInterval, ApiAmazon::AMAZON_REFERRER_ID));
+		$aNData = array();
+		while ($amazonPerWarehouseNetto = $amazonPerWarehouseNettoDBResult -> fetchAssoc()) {
+			$groupID = null;
+			foreach ($groups as $groupID_int => $groupList_int) {
+				if (in_array($amazonPerWarehouseNetto['WarehouseID'], $groupList_int)) {
+					$groupID = $groupID_int;
+					break;
+				}
+			}
+
+			$date = $amazonPerWarehouseNetto['Date'];
+
+			if (!isset($aNData[$date])) {
+				$aNData[$date] = array();
+			}
+
+			if (!isset($aNData[$date][$groupID])) {
+				$aNData[$date][$groupID] = 0.0;
+			}
+
+			$aNData[$date][$groupID] += floatval($amazonPerWarehouseNetto['PerWarehouseNetto']);
+		}
+
+		return $aNData;
 	}
 
 	/**
