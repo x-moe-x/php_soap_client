@@ -47,8 +47,8 @@ class CalculateAmazonWeightenedRunningCosts {
 
 		$now = new DateTime();
 
-		//$this -> oStartDate = new DateTime($now -> format('Y-m-01'));
-		$this -> oStartDate = new DateTime("2014-07-01");
+		$this -> oStartDate = new DateTime($now -> format('Y-m-01'));
+		//$this -> oStartDate = new DateTime("2014-07-01");
 
 		$this -> nrOfDataMonths = ApiRunningCosts::DEFAULT_NR_OF_MONTHS_BACKWARDS;
 
