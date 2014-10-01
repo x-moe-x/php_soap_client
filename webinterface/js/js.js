@@ -1114,7 +1114,7 @@ function prepareRunningCosts() {'use strict';
 		scroll : false,
 		cursor : "move",
 		revert : true
-	}, groupData, warehouseData, standardGroupID;
+	}, groupData, warehouseData, standardGroupID, costsTable = null;
 
 	function dropWarehouse(event, ui) {
 		// if source and destination are the same ...
@@ -1264,6 +1264,7 @@ function prepareRunningCosts() {'use strict';
 								value : group.name
 							};
 						}, function(element, type, requestData, resultData) {
+							initCostsTable();
 							$('#warehouseGrouping_GroupList_Group_' + group.id + ' .groupName, #warehouseGrouping_GroupAssociation_Group_' + group.id + ' .groupName').html(group.name);
 						});
 						$(this).dialog("close");
@@ -1364,29 +1365,39 @@ function prepareRunningCosts() {'use strict';
 			process : function(cell, month) {
 				var data = $.parseJSON(cell.innerHTML);
 
-				$(cell).addClass('noTableCell').insertInput('generalCosts_' + month, '%', function(event) {
-					$(event.target).apiUpdate('../api/generalCosts', 'percent', function(element, type) {
-						var id, dateMatch;
+				if (data.isAverage) {
+					// do average things ...
+					$(cell).addClass('noTableCell').html($('<span/>', {
+						html : (data.average * 100).toFixed(2)
+					})).append($('<label/>', {
+						'class' : 'variableUnit',
+						html : '%'
+					}));
+				} else {
+					$(cell).addClass('noTableCell').insertInput('generalCosts_' + month, '%', function(event) {
+						$(event.target).apiUpdate('../api/generalCosts', 'percent', function(element, type) {
+							var id, dateMatch;
 
-						element.checkFloatval();
-						if (type !== 'percent' || isNaN(element.val())) {
+							element.checkFloatval();
+							if (type !== 'percent' || isNaN(element.val())) {
+								return 'incorrect';
+							}
+
+							id = element.attr('id');
+							if (( dateMatch = id.match(/generalCosts_(\d{8})/)) !== null) {
+								return {
+									key : dateMatch[1],
+									value : (element.val() / 100).toFixed(4)
+								};
+							}
+
 							return 'incorrect';
-						}
-
-						id = element.attr('id');
-						if (( dateMatch = id.match(/generalCosts_(\d{8})/)) !== null) {
-							return {
-								key : dateMatch[1],
-								value : (element.val() / 100).toFixed(4)
-							};
-						}
-
-						return 'incorrect';
-					}, function(element, type, requestData, resultData) {
-						data.relativeCosts = resultData.value;
-						return (data.relativeCosts * 100).toFixed(2);
-					});
-				}, ( data ? (data.relativeCosts * 100).toFixed(2) : ''));
+						}, function(element, type, requestData, resultData) {
+							data.relativeCosts = resultData.value;
+							return (data.relativeCosts ? (data.relativeCosts * 100).toFixed(2) : '');
+						});
+					}, (data.relativeCosts ? (data.relativeCosts * 100).toFixed(2) : ''));
+				}
 			}
 		}];
 
@@ -1398,77 +1409,125 @@ function prepareRunningCosts() {'use strict';
 				width : 180,
 				process : function(cell, month) {
 					var data = $.parseJSON(cell.innerHTML), percentSpan;
-
-					// make table ...
-					$(cell).addClass('table')
-					// ... add row ...
-					.html($('<div/>', {
-						'class' : 'tableRow'
-					})
-					// ... add second cell: display percentage
-					.append($('<div/>', {
-						id : 'runningCosts_' + month + '_' + group.id + '_percentage',
-						'class' : 'tableCell',
-						css : {
-							'visibility' : (data.absoluteCosts ? 'visible' : 'hidden')
-						}
-					}).append( percentSpan = $('<span/>', {
-						// fill percentage field with: (costs - shippingRevenue) / nettoRevenue
-						html : ( data ? (100 * (data.absoluteCosts - data.shippingRevenue) / data.nettoRevenue).toFixed(2) : ''),
-						on : {
-							change : function(event) {
-								$(this).html(( data ? (100 * (data.absoluteCosts - data.shippingRevenue) / data.nettoRevenue).toFixed(2) : '')).parent().css('visibility', (data.absoluteCosts ? 'visible' : 'hidden'));
+					if (data.isAverage) {
+						// make table ...
+						$(cell).addClass('table')
+						// ... add row ...
+						.html($('<div/>', {
+							'class' : 'tableRow'
+						})
+						// ... add first cell
+						.append($('<div/>', {
+							'class' : 'tableCell',
+						}).append($('<span/>', {
+							html : data.absoluteCosts.toFixed(2)
+						})).append($('<label/>', {
+							'class' : 'variableUnit',
+							html : '€'
+						})))
+						// ... add second cell
+						.append($('<div/>', {
+							'class' : 'tableCell',
+						}).append($('<span/>', {
+							html : (data.relativeCosts * 100).toFixed(2)
+						})).append($('<label/>', {
+							'class' : 'variableUnit',
+							html : '%'
+						}))));
+					} else {
+						// make table ...
+						$(cell).addClass('table')
+						// ... add row ...
+						.html($('<div/>', {
+							'class' : 'tableRow'
+						})
+						// ... add second cell: display percentage
+						.append($('<div/>', {
+							id : 'runningCosts_' + month + '_' + group.id + '_percentage',
+							'class' : 'tableCell',
+							css : {
+								'visibility' : (data.absoluteCosts ? 'visible' : 'hidden')
 							}
-						}
-					})).append($('<label/>', {
-						'class' : 'variableUnit',
-						html : '%'
-					})).append($('<span/>', {
-						'class' : 'ui-icon ui-icon-help',
-						style : 'display: inline-block',
-						'title' : 'Prozentwert wurde um geschätzte ' + data.shippingRevenue.toFixed(2) + ' € Versandkosteneinnahmen bereinigt'
-					})).tooltip({
-						position : {
-							my : "left center",
-							at : "right center"
-						},
-						show : {
-							delay : 500
-						}
-					}))
-					// ... add first cell: input field
-					.prepend($('<div/>', {
-						id : 'runningCosts_' + month + '_' + group.id + '_absolute',
-						'class' : 'tableCell'
-					}).insertInput('runningCosts_' + month + '_' + group.id, '€', function(event) {
-						$(event.target).apiUpdate('../api/runningCosts', 'float', function(element, type) {
-							var id, dateGroupMatch;
+						}).append( percentSpan = $('<span/>', {
+							// fill percentage field with: (costs - shippingRevenue) / nettoRevenue
+							html : ( data ? (100 * (data.absoluteCosts - data.shippingRevenue) / data.nettoRevenue).toFixed(2) : ''),
+							on : {
+								change : function(event) {
+									$(this).html(( data ? (100 * (data.absoluteCosts - data.shippingRevenue) / data.nettoRevenue).toFixed(2) : '')).parent().css('visibility', (data.absoluteCosts ? 'visible' : 'hidden'));
+								}
+							}
+						})).append($('<label/>', {
+							'class' : 'variableUnit',
+							html : '%'
+						})).append($('<span/>', {
+							'class' : 'ui-icon ui-icon-help',
+							style : 'display: inline-block',
+							'title' : 'Von den Lagerkosten wurden Versandkosteneinnahmen in Höhe von ' + data.shippingRevenue.toFixed(2) + ' € bereits abgezogen.'
+						})).tooltip({
+							position : {
+								my : "left center",
+								at : "right center"
+							},
+							show : {
+								delay : 500
+							}
+						}))
+						// ... add first cell: input field
+						.prepend($('<div/>', {
+							id : 'runningCosts_' + month + '_' + group.id + '_absolute',
+							'class' : 'tableCell'
+						}).insertInput('runningCosts_' + month + '_' + group.id, '€', function(event) {
+							$(event.target).apiUpdate('../api/runningCosts', 'float', function(element, type) {
+								var id, dateGroupMatch;
 
-							element.checkFloatval();
-							if (type !== 'float' || isNaN(element.val())) {
+								element.checkFloatval();
+								if (type !== 'float' || isNaN(element.val())) {
+									return 'incorrect';
+								}
+
+								id = element.attr('id');
+								if (( dateGroupMatch = id.match(/runningCosts_(\d{8})_(\d+)/)) !== null) {
+									return {
+										key : dateGroupMatch[2] + '/' + dateGroupMatch[1],
+										value : element.val()
+									};
+								}
+
 								return 'incorrect';
-							}
-
-							id = element.attr('id');
-							if (( dateGroupMatch = id.match(/runningCosts_(\d{8})_(\d+)/)) !== null) {
-								return {
-									key : dateGroupMatch[2] + '/' + dateGroupMatch[1],
-									value : element.val()
-								};
-							}
-
-							return 'incorrect';
-						}, function(element, type, requestData, resultData) {
-							data.absoluteCosts = resultData.value;
-							percentSpan.change();
-							return (data.absoluteCosts ? data.absoluteCosts.toFixed(2) : '');
-						});
-					}, (data.absoluteCosts ? data.absoluteCosts.toFixed(2) : ''))));
+							}, function(element, type, requestData, resultData) {
+								data.absoluteCosts = resultData.value;
+								percentSpan.change();
+								return (data.absoluteCosts ? data.absoluteCosts.toFixed(2) : '');
+							});
+						}, (data.absoluteCosts ? data.absoluteCosts.toFixed(2) : ''))));
+					}
 				}
 			});
 		});
 
 		return colModel;
+	}
+
+	function initCostsTable() {
+		var parameters = {
+			url : 'runningCost-post-xml-new.php',
+			dataType : 'xml',
+			colModel : generateColModel(groupData),
+			height : 'auto',
+			singleSelect : true,
+			striped : false,
+			title : 'Betriebskosten'
+		};
+
+		if (!costsTable) {
+			costsTable = $('#runningCostConfigurationNew').flexigrid(parameters);
+		} else {
+			costsTable.empty().appendTo($('#generalCostConfiguration', costsTable.parents()));
+			$('#generalCostConfiguration .flexigrid').remove();
+			costsTable[0].grid = null;
+			costsTable = $('#runningCostConfigurationNew').flexigrid(parameters);
+		}
+
 	}
 
 	// start asnycronous requests ...
@@ -1530,15 +1589,7 @@ function prepareRunningCosts() {'use strict';
 		});
 
 		// create table
-		$('#runningCostConfigurationNew').flexigrid({
-			url : 'runningCost-post-xml-new.php',
-			dataType : 'xml',
-			colModel : generateColModel(groupData),
-			height : 'auto',
-			singleSelect : true,
-			striped : false,
-			title : 'Betriebskosten'
-		});
+		initCostsTable();
 	});
 }
 
@@ -1551,10 +1602,6 @@ $(function() {'use strict';
 		id : 'reorderStockCalculation',
 		isInitialized : false,
 		initialize : prepareStock
-	}, {
-		id : 'generalCostConfigurationOld',
-		isInitialized : false,
-		initialize : prepareGeneralCostConfig
 	}, {
 		id : 'generalCostConfiguration',
 		isInitialized : false,

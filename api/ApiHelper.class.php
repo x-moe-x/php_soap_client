@@ -1,6 +1,81 @@
 <?php
+require_once 'ApiRunningCosts.class.php';
 
 class ApiHelper {
+
+	public static function getAverageCostsJSON() {
+		header('Content-Type: application/json');
+		$result = array('success' => false, 'data' => NULL, 'error' => NULL);
+
+		try {
+			$result['data'] = self::getAverageRunningCosts();
+			$result['success'] = true;
+		} catch(Exception $e) {
+			$result['error'] = $e -> getMessage();
+		}
+		echo json_encode($result);
+	}
+
+	public static function getAverageCosts(array $aRunningCostsTable = null, array $aGeneralCostsTable = null) {
+		if (is_null($aRunningCostsTable)) {
+			$aRunningCostsTable = ApiRunningCosts::getRunningCostsTable();
+			$aGeneralCostsTable = ApiGeneralCosts::getGeneralCosts(array_keys($aRunningCostsTable));
+		}
+		
+		if (is_null($aGeneralCostsTable)){
+			$aGeneralCostsTable = ApiGeneralCosts::getGeneralCosts(array_keys($aRunningCostsTable));
+		}
+
+		$standardGroup = ApiWarehouseGrouping::getConfig('standardGroup');
+		$averageElements = count($aRunningCostsTable);
+		$monthsReverse = array_reverse(array_keys($aRunningCostsTable));
+
+		// determine how many elements are to be averaged
+		foreach ($monthsReverse as $month) {
+			if (is_null($aRunningCostsTable[$month][$standardGroup]['absoluteCosts'])) {
+				$averageElements--;
+			} else {
+				break;
+			}
+		}
+
+		$average = array();
+		for (reset($aRunningCostsTable), $idx = 0, $month = current($aRunningCostsTable); $idx < $averageElements; $idx++, $month = next($aRunningCostsTable)) {
+			foreach ($month as $groupID => $values) {
+				if (!isset($average[$groupID])) {
+					$average[$groupID] = array('absoluteCosts' => 0.0, 'relativeCosts' => 0.0);
+				}
+
+				if (isset($values['absoluteCosts'])) {
+					$average[$groupID]['relativeCosts'] += ($values['absoluteCosts'] - $values['shippingRevenue']) / ($averageElements * $values['nettoRevenue']);
+					$average[$groupID]['absoluteCosts'] += $values['absoluteCosts'] / $averageElements;
+				}
+			}
+		}
+
+		$averageGeneralCostsElements = count($aGeneralCostsTable);
+		$monthsReverseGC = array_reverse(array_keys($aRunningCostsTable));
+		
+		foreach ($monthsReverseGC as $month) {
+			if (is_null($aGeneralCostsTable[$month]['relativeCosts'])){
+				$averageGeneralCostsElements--;
+			} else {
+				break;
+			}
+		}
+		
+		$averageGeneralCosts = 0.0;
+		for (reset($aGeneralCostsTable), $idx = 0, $month = current($aGeneralCostsTable); $idx < $averageGeneralCostsElements; $idx++, $month = next($aGeneralCostsTable)) {
+			$averageGeneralCosts += $month['relativeCosts'] / $averageGeneralCostsElements;
+		}
+
+		$averageResult = array('generalCosts' => array('isAverage' => true, 'average' => $averageGeneralCosts), 'runningCosts' => array());
+		foreach ($average as $groupID => $value) {
+			$averageResult['runningCosts'][] = array('isAverage' => true, 'groupID' => $groupID, 'absoluteCosts' => $value['absoluteCosts'], 'relativeCosts' => $value['relativeCosts']);
+		}
+		return $averageResult;
+	}
+
 	public static function setConfigJSON($key, $value, $domain) {
 		header('Content-Type: application/json');
 		$result = array('success' => false, 'data' => NULL, 'error' => NULL);

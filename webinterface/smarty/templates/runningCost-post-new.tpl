@@ -10,9 +10,16 @@
 	<row id='{$month}'>
 		<cell><![CDATA[{$months.$month}]]></cell>
 		<cell><![CDATA[{$generalCosts.$month|@json_encode}]]></cell>
-{foreach $row as $warehouseID => $values}
+{foreach $row as $groupID => $values}
 		<cell><![CDATA[{$values|@json_encode}]]></cell>
 {/foreach}
 	</row>
 {/foreach}
+	<row id='average'>
+		<cell><![CDATA[Durchschnitt]]></cell>
+		<cell><![CDATA[{$averageCosts.generalCosts|@json_encode}]]></cell>
+{foreach $averageCosts.runningCosts as $value}
+		<cell><![CDATA[{$value|@json_encode}]]></cell>
+{/foreach}
+	</row>
 </rows>

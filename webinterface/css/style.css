@@ -578,3 +578,22 @@ tr:hover .notModifyable {
 	width: 60%;
 	text-align: left;
 }
+
+#rowaverage .noTableCell span, #rowaverage .tableCell:first-child span {
+	border: 1px solid transparent;
+	display: inline-block;
+	text-align: right;
+	width: 80%;
+}
+
+#rowaverage .noTableCell {
+    padding: 5px;
+}
+
+#rowaverage .variableUnit {
+    margin-right: 21px !important;
+}
+
+#rowaverage, #runningCostConfigurationNew td:first-child {
+    background: #ccc;
+}

@@ -24,14 +24,11 @@
 				<li>
 					<a href='#generalCostConfiguration'>Konfiguration Kosten</a>
 				</li>
-				<li>
-					<a href='#generalCostConfigurationOld'>Konfiguration Kosten (alt)</a>
-				</li>
 			</ul>
 			<div id='dialog'>
 				<p>
-					<span id='dialogIcon'></span>
-					<span id='dialogText'></span>
+					<span id='dialogIcon'><!-- --></span>
+					<span id='dialogText'><!-- --></span>
 				</p>
 			</div>
 			<div id='amazonCalculation'>
@@ -45,9 +42,6 @@
 				<table id='stockTable' style='display:none'>
 					<!-- -->
 				</table>
-			</div>
-			<div id='generalCostConfigurationOld'>
-				{include file='general_cost_config.tpl'}
 			</div>
 			<div id='generalCostConfiguration'>
 				{include file='warehouse_grouping_config.tpl'}

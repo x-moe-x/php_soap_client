@@ -19,8 +19,16 @@ class ApiRunningCosts {
 		return $table;
 	}
 
-	public static function getRunningCostsTable() {
-		$months = ApiHelper::getMonthDates(new DateTime(), self::DEFAULT_NR_OF_MONTHS_BACKWARDS, /* omit current month */true);
+	public static function getRunningCostsTable($startAt = null, $nrOfMonthsBackwards = null) {
+		if (is_null($startAt)){
+			$startAt = new DateTime();
+		}
+
+		if (is_null($nrOfMonthsBackwards)){
+			$nrOfMonthsBackwards = self::DEFAULT_NR_OF_MONTHS_BACKWARDS;
+		}
+
+		$months = ApiHelper::getMonthDates($startAt, $nrOfMonthsBackwards, /* omit current month */true);
 
 		/* tableQuery:
 		 *
@@ -39,13 +47,15 @@ class ApiRunningCosts {
 
 		$tableQuery = "SELECT wr.Date AS `date`, gm.GroupID AS `groupID`, rc.AbsoluteCosts AS `absoluteCosts`, SUM(wr.PerWarehouseNetto) AS `nettoRevenue`, SUM(wr.PerWarehouseShipping) AS `shippingRevenue` FROM PerWarehouseRevenue AS wr JOIN WarehouseGroupMapping AS gm ON wr.WarehouseID = gm.WarehouseID LEFT JOIN RunningCostsNew AS rc ON (gm.GroupID = rc.GroupID) AND (wr.Date = rc.Date) WHERE wr.Date IN (" . implode(',', $months) . ") GROUP BY wr.Date, gm.GroupID";
 
+		ob_start();
 		$tableDBResult = DBQuery::getInstance() -> select($tableQuery);
+		ob_end_clean();
 
 		// pre populate result
 		$table = self::getPrepopulatedTable($months, ApiWarehouseGrouping::getGroups());
 
 		while ($row = $tableDBResult -> fetchAssoc()) {
-			$table[$row['date']][$row['groupID']] = array('absoluteCosts' => (isset($row['absoluteCosts']) ? floatval($row['absoluteCosts']) : null), 'nettoRevenue' => floatval($row['nettoRevenue']), 'shippingRevenue' => floatval($row['shippingRevenue']));
+			$table[$row['date']][$row['groupID']] = array('isAverage' => false, 'absoluteCosts' => (isset($row['absoluteCosts']) ? floatval($row['absoluteCosts']) : null), 'nettoRevenue' => floatval($row['nettoRevenue']), 'shippingRevenue' => floatval($row['shippingRevenue']));
 		}
 
 		return $table;
