@@ -25,9 +25,14 @@ class CalculateAmazonWeightenedRunningCosts {
 	private $oStartDate;
 
 	/**
-	 * @var DateInterval
+	 * @var int
 	 */
-	private $oInterval;
+	private $nrOfDataMonths;
+
+	/**
+	 * @var int
+	 */
+	private $nrOfCalculationMonths;
 
 	/**
 	 * @var int
@@ -42,10 +47,13 @@ class CalculateAmazonWeightenedRunningCosts {
 
 		$now = new DateTime();
 
-		$this -> oStartDate = new DateTime($now -> format('Y-m-01'));
-		//$this -> oStartDate = new DateTime("2014-05-01");
-		
-		$this -> oInterval = new DateInterval('P' . self::DEFAULT_AMAZON_NR_OF_MONTHS_BACKWARDS . 'M');
+		//$this -> oStartDate = new DateTime($now -> format('Y-m-01'));
+		$this -> oStartDate = new DateTime("2014-07-01");
+
+		$this -> nrOfDataMonths = ApiRunningCosts::DEFAULT_NR_OF_MONTHS_BACKWARDS;
+
+		$this -> nrOfCalculationMonths = self::DEFAULT_AMAZON_NR_OF_MONTHS_BACKWARDS;
+
 	}
 
 	private function prepareGroups() {
@@ -75,6 +83,48 @@ class CalculateAmazonWeightenedRunningCosts {
 		return true;
 	}
 
+	private function getRelevantMonths(&$cRRatData) {
+		// get all months that could be considered
+		$aConsideredMonths = array_reverse(array_keys($cRRatData));
+
+		$standardGroup = ApiWarehouseGrouping::getConfig('standardGroup');
+
+		// find first one with actual content
+		for (reset($aConsideredMonths), $idx = 0, $month = current($aConsideredMonths); (key($aConsideredMonths) !== null) && ($idx < $this -> nrOfDataMonths - $this -> nrOfCalculationMonths); $month = next($aConsideredMonths), $idx++) {
+			if (!is_null($cRRatData[$month][$standardGroup]['absoluteCosts'])) {
+				// found one!
+				return array($month, next($aConsideredMonths));
+			}
+		}
+
+		// found none...
+
+		throw new RuntimeException('Found no sufficient running cost data within ' . $this -> nrOfDataMonths . ' months, cannot comupte value K');
+	}
+
+	private function getAverageGeneralCosts(&$cRRatData) {
+		// get all months that could be considered
+		$aConsideredMonths = array_reverse(array_keys($cRRatData));
+
+		$aGeneralCosts = ApiGeneralCosts::getGeneralCosts($aConsideredMonths);
+
+		// find first one with actual content
+		for (reset($aConsideredMonths), $idx = 0, $month = current($aConsideredMonths); (key($aConsideredMonths) !== null) && ($idx < $this -> nrOfDataMonths - $this -> nrOfCalculationMonths); $month = next($aConsideredMonths), $idx++) {
+			if (!is_null($aGeneralCosts[$month]['relativeCosts'])) {
+				// found one!
+				$averageGeneralCosts = 0.0;
+				for ($i = 0; $i < $this -> nrOfCalculationMonths; $i++, $month = next($aConsideredMonths)) {
+					$averageGeneralCosts += $aGeneralCosts[$month]['relativeCosts'] / $this -> nrOfCalculationMonths;
+				}
+				return $averageGeneralCosts;
+			}
+		}
+
+		// found none...
+
+		throw new RuntimeException('Found no sufficient general cost data within ' . $this -> nrOfDataMonths . ' months, cannot comute value L');
+	}
+
 	/**
 	 * @return void
 	 */
@@ -85,7 +135,7 @@ class CalculateAmazonWeightenedRunningCosts {
 		$amazonTotalNettoAndShipping = $this -> getAmazonTotalNettoAndShippingByDate();
 
 		// 2. get global cost-revenue-ration per month, per group
-		$cRRatData = ApiRunningCosts::getRunningCostsTable($this -> oStartDate, self::DEFAULT_AMAZON_NR_OF_MONTHS_BACKWARDS);
+		$cRRatData = ApiRunningCosts::getRunningCostsTable($this -> oStartDate, $this -> nrOfDataMonths);
 
 		// 3. get amazon specific per group total
 		$aNData = $this -> prepareANData($groups);
@@ -124,7 +174,7 @@ class CalculateAmazonWeightenedRunningCosts {
 			}
 		};
 
-		$months = array_keys($cRRatData);
+		$months = $this -> getRelevantMonths($cRRatData);
 
 		$aWRat = function() use (&$groups, &$aN, &$cRRat, &$aTS, &$aTN, &$months) {
 			$sumTotal = 0.0;
@@ -144,19 +194,15 @@ class CalculateAmazonWeightenedRunningCosts {
 			return $sumTotal / self::DEFAULT_AMAZON_NR_OF_MONTHS_BACKWARDS;
 		};
 
-		$averageCosts = ApiHelper::getAverageCosts($cRRatData);
 
 		try {
-			if ($this -> arePrequisitesMet($cRRatData)) {
-				$valueK = $aWRat();
-				ApiAmazon::setConfig('WarehouseRunningCostsAmount', number_format($valueK, 10));
-				$this -> getLogger() -> info(__FUNCTION__ . ' storing to config WarehouseRunningCostsAmount = ' . number_format($valueK, 10));
-			} else {
-				// std group is not filled properly
-				$this -> getLogger() -> info(__FUNCTION__ . ' prequisites for value k calculation not met. Please fill standard group running costs fields');
-			}
-			ApiAmazon::setConfig('CommonRunningCostsAmount', number_format($averageCosts['generalCosts']['average'], 4));
-			$this -> getLogger() -> info(__FUNCTION__ . ' storing to config CommonRunningCostsAmount = ' . number_format($averageCosts['generalCosts']['average'], 4));
+
+			$valueK = $aWRat();
+			$averageCosts = $this -> getAverageGeneralCosts($cRRatData);
+			ApiAmazon::setConfig('WarehouseRunningCostsAmount', number_format($valueK, 10));
+			$this -> getLogger() -> info(__FUNCTION__ . ' storing to config WarehouseRunningCostsAmount = ' . number_format($valueK, 10));
+			ApiAmazon::setConfig('CommonRunningCostsAmount', number_format($averageCosts, 4));
+			$this -> getLogger() -> info(__FUNCTION__ . ' storing to config CommonRunningCostsAmount = ' . number_format($averageCosts, 4));
 		} catch(Exception $e) {
 			$this -> getLogger() -> debug(__FUNCTION__ . ' Error: ' . $e -> getMessage());
 		}
@@ -168,7 +214,7 @@ class CalculateAmazonWeightenedRunningCosts {
 	private function getAmazonTotalNettoAndShippingByDate() {
 		$amazonTotalNettoAndShippingResult = array();
 
-		$amazonTotalNettoAndShippingDBResult = DBQuery::getInstance() -> select(TotalNettoQuery::getTotalNettoAndShippingCostsQuery($this -> oStartDate, $this -> oInterval, ApiAmazon::AMAZON_REFERRER_ID));
+		$amazonTotalNettoAndShippingDBResult = DBQuery::getInstance() -> select(TotalNettoQuery::getTotalNettoAndShippingCostsQuery($this -> oStartDate, new DateInterval('P' . $this -> nrOfDataMonths . 'M'), ApiAmazon::AMAZON_REFERRER_ID));
 
 		while ($amazonTotalNettoAndShipping = $amazonTotalNettoAndShippingDBResult -> fetchAssoc()) {
 			$amazonTotalNettoAndShippingResult[$amazonTotalNettoAndShipping['Date']] = array('amazonTotalNetto' => floatval($amazonTotalNettoAndShipping['TotalNetto']), 'amazonTotalShipping' => floatval($amazonTotalNettoAndShipping['TotalShippingNetto']));
@@ -178,7 +224,7 @@ class CalculateAmazonWeightenedRunningCosts {
 	}
 
 	private function prepareANData(&$groups) {
-		$amazonPerWarehouseNettoDBResult = DBQuery::getInstance() -> select(TotalNettoQuery::getPerWarehouseNettoQuery($this -> oStartDate, $this -> oInterval, ApiAmazon::AMAZON_REFERRER_ID));
+		$amazonPerWarehouseNettoDBResult = DBQuery::getInstance() -> select(TotalNettoQuery::getPerWarehouseNettoQuery($this -> oStartDate, new DateInterval('P' . $this -> nrOfDataMonths . 'M'), ApiAmazon::AMAZON_REFERRER_ID));
 		$aNData = array();
 		while ($amazonPerWarehouseNetto = $amazonPerWarehouseNettoDBResult -> fetchAssoc()) {
 			$groupID = null;
