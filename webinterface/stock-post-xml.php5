@@ -34,6 +34,7 @@ class StaticData {
 		$this -> reorderLevel = intval($row['ReorderLevel']);
 		$this -> supplierMinimumPurchase = intval($row['SupplierMinimumPurchase']);
 		$this -> maximumStock = intval($row['MaximumStock']);
+		$this -> currentStock = intval($row['NetStock']);
 	}
 
 }
@@ -107,6 +108,9 @@ switch ($sortname) {
 	case 'Name' :
 		$sortname = 'SortName';
 		break;
+	case 'CurrentStock' :
+		$sortname = 'NetStock';
+		break;
 	default :
 		break;
 }
@@ -174,7 +178,8 @@ $select_advanced = $select_basic . ',
     WriteBackSuggestion.SupplierMinimumPurchaseError,
     WriteBackSuggestion.ReorderLevel AS ProposedReorderLevel,
     WriteBackSuggestion.SupplierMinimumPurchase AS ProposedSupplierMinimumPurchase,
-    WriteBackSuggestion.MaximumStock  AS ProposedMaximumStock' . PHP_EOL;
+    WriteBackSuggestion.MaximumStock  AS ProposedMaximumStock,
+    CurrentStocks.NetStock' . PHP_EOL;
 
 $from_basic = 'FROM ItemsBase
 LEFT JOIN AttributeValueSets
@@ -209,7 +214,15 @@ LEFT JOIN WriteBackSuggestion
         "0"
     ELSE
         AttributeValueSets.AttributeValueSetID
-    END = WriteBackSuggestion.AttributeValueSetID' . PHP_EOL;
+    END = WriteBackSuggestion.AttributeValueSetID
+LEFT JOIN CurrentStocks
+	ON ItemsBase.ItemID = CurrentStocks.ItemID
+	AND CASE WHEN (AttributeValueSets.AttributeValueSetID IS null) THEN
+        "0"
+    ELSE
+        AttributeValueSets.AttributeValueSetID
+    END = CurrentStocks.AttributeValueSetID
+    AND ItemsBase.MainWarehouseID = CurrentStocks.WarehouseID' . PHP_EOL;
 
 $where = 'WHERE
 	ItemsBase.Inactive = 0' . PHP_EOL;

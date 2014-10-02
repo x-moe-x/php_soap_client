@@ -2,6 +2,7 @@
 require_once ROOT . 'lib/soap/call/PlentySoapCall.abstract.php';
 require_once 'Request_GetCurrentStocks.class.php';
 require_once ROOT . 'includes/SKUHelper.php';
+require_once ROOT . 'includes/DBUtils2.class.php';
 require_once ROOT . 'api/ApiHelper.class.php';
 
 class SoapCall_GetCurrentStocks extends PlentySoapCall {

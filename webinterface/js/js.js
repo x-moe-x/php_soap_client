@@ -335,7 +335,7 @@ function prepareStock() {'use strict';
 			sortable : true,
 			align : 'right'
 		}, {
-			display : 'Bestand',
+			display : 'Nettobestand<br>Hauptlager',
 			name : 'CurrentStock',
 			width : 60,
 			sortable : true,
