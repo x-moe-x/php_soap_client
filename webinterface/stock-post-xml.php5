@@ -21,6 +21,7 @@ class StaticData {
 	public $reorderLevel = -1;
 	public $supplierMinimumPurchase = -1;
 	public $maximumStock = -1;
+	public $currentStock = -1;
 
 	public function __construct($row) {
 		$this -> itemID = intval($row['ItemID']);
@@ -288,6 +289,7 @@ while ($row = $result -> fetchAssoc()) {
         <cell><![CDATA[$dynamicData->rawDataB]]></cell>
         <cell><![CDATA[$monthlyNeed_string]]></cell>
         <cell><![CDATA[$dailyNeed_string]]></cell>
+        <cell><![CDATA[$staticData->currentStock]]></cell>
         <cell><![CDATA[$staticData->marking1ID]]></cell>
         <cell><![CDATA[{$dynamicData->writePermissionPrefix}:{$reorderLevel_string}]]></cell>
         <cell><![CDATA[{$dynamicData->writePermissionPrefix}:{$maxStockSuggestion_string}]]></cell>

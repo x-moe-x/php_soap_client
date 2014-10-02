@@ -335,6 +335,12 @@ function prepareStock() {'use strict';
 			sortable : true,
 			align : 'right'
 		}, {
+			display : 'Bestand',
+			name : 'CurrentStock',
+			width : 60,
+			sortable : true,
+			align : 'right'
+		}, {
 			display : 'Markierung',
 			name : 'Marking',
 			width : 60,
