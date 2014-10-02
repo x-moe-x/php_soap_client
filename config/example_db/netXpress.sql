@@ -432,6 +432,30 @@ CREATE TABLE `soap_db`.`WarehouseGroups` (
 	UNIQUE KEY `GroupName` (`GroupName`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+DROP TABLE IF EXISTS `soap_db`.`CurrentStocks`;
+
+CREATE TABLE `soap_db`.`CurrentStocks` (
+	`ItemID` int(11) NOT NULL,
+	`AttributeValueSetID` int(11) NOT NULL,
+	`WarehouseID` int(11) NOT NULL,
+	`AveragePrice` decimal(10,4) DEFAULT NULL,
+	`EAN` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`EAN2` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`EAN3` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`EAN4` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`NetStock` decimal(10,4) DEFAULT NULL,
+	`PhysicalStock` decimal(10,4) DEFAULT NULL,
+	`StorageLocationID` int(11) DEFAULT NULL,
+	`StorageLocationName` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`StorageLocationStock` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`VariantEAN` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`VariantEAN2` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`VariantEAN3` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`VariantEAN4` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`WarehouseType` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	PRIMARY KEY (`ItemID`, `AttributeValueSetID`, `WarehouseID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 DROP TABLE IF EXISTS `soap_db`.`WarehouseGroupMapping`;
 
 CREATE TABLE `soap_db`.`WarehouseGroupMapping` (
