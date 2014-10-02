@@ -106,7 +106,15 @@ class SoapCall_GetCurrentStocks extends PlentySoapCall {
 	}
 
 	private function storeToDB() {
-		print_r($this->aStockRecords);
+		// insert stock records
+		$countStockRecords = count($this -> aStockRecords);
+
+		if ($countStockRecords > 0) {
+			$this -> getLogger() -> info(__FUNCTION__ . " : storing $countStockRecords stock records ...");
+			DBQuery::getInstance() -> insert('INSERT INTO `CurrentStocks`' . DBUtils2::buildMultipleInsertOnDuplikateKeyUpdate($this -> aStockRecords));
+		}
+
+		$this->aStockRecords = array();
 	}
 
 	private function processStockRecord($oPlentySoapObject_GetCurrentStocks) {
