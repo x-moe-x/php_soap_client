@@ -2,6 +2,7 @@
 require_once ROOT . 'lib/soap/call/PlentySoapCall.abstract.php';
 require_once 'Request_GetCurrentStocks.class.php';
 require_once ROOT . 'includes/SKUHelper.php';
+require_once ROOT . 'api/ApiHelper.class.php';
 
 class SoapCall_GetCurrentStocks extends PlentySoapCall {
 
@@ -37,8 +38,18 @@ class SoapCall_GetCurrentStocks extends PlentySoapCall {
 	}
 
 	public function execute() {
+		$warehouses = ApiHelper::getWarehouseList();
 
-		//TODO do this for every warehouse!
+		foreach ($warehouses as $warehouse) {
+			$this -> page = 0;
+			$this -> pages = -1;
+			$this -> startAtPage = 0;
+			$this -> executeForWarehouse($warehouse['id']);
+		}
+	}
+
+	private function executeForWarehouse($warehouseID) {
+
 		//TODO add: list($lastUpdate, $currentTime, $this -> startAtPage) = lastUpdateStart(__CLASS__);
 		$lastUpdate = 0;
 
@@ -47,7 +58,7 @@ class SoapCall_GetCurrentStocks extends PlentySoapCall {
 
 				$oRequest_GetCurrentStocks = new Request_GetCurrentStocks();
 
-				$this -> oPlentySoapRequest_GetCurrentStocks = $oRequest_GetCurrentStocks -> getRequest($lastUpdate, $this -> startAtPage, 1);
+				$this -> oPlentySoapRequest_GetCurrentStocks = $oRequest_GetCurrentStocks -> getRequest($lastUpdate, $this -> startAtPage, $warehouseID);
 
 				if ($this -> startAtPage > 0) {
 					$this -> getLogger() -> debug(__FUNCTION__ . " Starting at page " . $this -> startAtPage);
