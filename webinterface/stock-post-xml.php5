@@ -222,7 +222,7 @@ LEFT JOIN CurrentStocks
     ELSE
         AttributeValueSets.AttributeValueSetID
     END = CurrentStocks.AttributeValueSetID
-    AND ItemsBase.MainWarehouseID = CurrentStocks.WarehouseID' . PHP_EOL;
+    AND CurrentStocks.WarehouseID = 1' . PHP_EOL;
 
 $where = 'WHERE
 	ItemsBase.Inactive = 0' . PHP_EOL;
