@@ -1,0 +1,55 @@
+<?xml version='1.0' encoding='utf-8'?>
+<rows>
+	<page>
+		{$data.page}
+	</page>
+	<total>
+		{$data.total}
+	</total>
+{foreach $data.rows as $itemVariant}
+	<row id='{$itemVariant.rowID}'>
+        <cell>
+        	<![CDATA[{$itemVariant.itemID}]]>
+        </cell>
+        <cell>
+        	<![CDATA[{$itemVariant.itemNo}]]>
+        </cell>
+        <cell>
+        	<![CDATA[{$itemVariant.name}]]>
+        </cell>
+        <cell>
+        	<![CDATA[RawDataA-Dummy]]>
+        </cell>
+        <cell>
+        	<![CDATA[{$itemVariant.rawData|@json_encode}]]>
+        </cell>
+        <cell>
+        	<![CDATA[MonthlyNeed-Dummy]]>
+        </cell>
+        <cell>
+        	<![CDATA[{$itemVariant.dailyNeed}]]>
+        </cell>
+        <cell>
+        	<![CDATA[{$itemVariant.currentStock}]]>
+        </cell>
+        <cell>
+        	<![CDATA[{$itemVariant.marking1ID}]]>
+        </cell>
+        <cell>
+        	<![CDATA[ReorderLevel-Dummy]]>
+        </cell>
+        <cell>
+        	<![CDATA[MaxStockSugestion-Dummy]]>
+        </cell>
+        <cell>
+        	<![CDATA[{$itemVariant.writeBackData|@json_encode}]]>
+        </cell>
+        <cell>
+        	<![CDATA[{$itemVariant.vpe}]]>
+        </cell>
+        <cell>
+        	<![CDATA[{$itemVariant.lastUpdate}]]>
+        </cell>
+	</row>
+{/foreach}
+</rows>
