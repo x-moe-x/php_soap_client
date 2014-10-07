@@ -53,7 +53,6 @@
 		<cell>
 			<![CDATA[{$itemVariant.PriceChange|@json_encode}]]>
 		</cell>
-
 	</row>
 {/foreach}
 </rows>
