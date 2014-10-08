@@ -438,14 +438,16 @@
 				if (p.dataType == 'json') {
 					$.each(data.rows, function (i, row) {
 						var tr = document.createElement('tr');
+						var jtr = $(tr);
 						if (row.name) tr.name = row.name;
 						if (row.color) {
-							$(tr).css('background',row.color);
+							jtr.css('background',row.color);
 						} else {
 							if (i % 2 && p.striped) tr.className = 'erow';
 						}
 						if (row[p.idProperty]) {
 							tr.id = 'row' + row[p.idProperty];
+							jtr.attr('data-id', row[p.idProperty]);
 						}
 						$('thead tr:first th', g.hDiv).each( //add cell
 							function () {
@@ -584,7 +586,7 @@
 			buildpager: function () { //rebuild pager based on new properties
 				$('.pcontrol input', this.pDiv).val(p.page);
 				$('.pcontrol span', this.pDiv).html(p.pages);
-				var r1 = (p.page - 1) * p.rp + 1;
+				var r1 = p.total == 0 ? 0 : (p.page - 1) * p.rp + 1;
 				var r2 = r1 + p.rp - 1;
 				if (p.total < r2) {
 					r2 = p.total;
@@ -963,7 +965,7 @@
 		g.hTable = document.createElement('table');
 		g.gDiv.className = 'flexigrid';
 		if (p.width != 'auto') {
-			g.gDiv.style.width = p.width + isNaN(p.width) ? '' : 'px';
+			g.gDiv.style.width = p.width + (isNaN(p.width) ? '' : 'px');
 		} 
 		//add conditional classes
 		if (browser.msie) {
@@ -1541,7 +1543,33 @@
 			});
 		}
 	}; //end noSelect
-  $.fn.flexSearch = function(p) { // function to search grid
-	return this.each( function() { if (this.grid&&this.p.searchitems) this.grid.doSearch(); });
-  }; //end flexSearch
+	$.fn.flexSearch = function(p) { // function to search grid
+		return this.each( function() { if (this.grid&&this.p.searchitems) this.grid.doSearch(); });
+	}; //end flexSearch
+	$.fn.selectedRows = function (p) { // Returns the selected rows as an array, taken and adapted from http://stackoverflow.com/questions/11868404/flexigrid-get-selected-row-columns-values
+		var arReturn = [];
+		var arRow = [];
+		var selector = $(this.selector + ' .trSelected');
+
+
+		$(selector).each(function (i, row) {
+			arRow = [];
+			var idr = $(row).data('id');
+			$.each(row.cells, function (c, cell) {
+				var col = cell.abbr;
+				var val = cell.firstChild.innerHTML;
+				if (val == '&nbsp;') val = '';      // Trim the content
+					var idx = cell.cellIndex;
+
+				arRow.push({
+					Column: col,        // Column identifier
+					Value: val,         // Column value
+					CellIndex: idx,     // Cell index
+					RowIdentifier: idr  // Identifier of this row element
+				});
+			});
+			arReturn.push(arRow);
+		});
+		return arReturn;
+	};
 })(jQuery);
