@@ -173,9 +173,12 @@ function elementPostProcessStockConfig(element, type, requestData, resultData) {
 	}
 }
 
-
-
 function prepareAmazon() {'use strict';
+	var dummyCells = {
+		TargetMarge : null,
+		ChangePrice : null
+	}, amazonTable = $('#amazonTable');
+
 	$.each([{
 		id : '#provisionCosts',
 		type : 'percent',
@@ -201,7 +204,7 @@ function prepareAmazon() {'use strict';
 	});
 
 	// create table
-	$('#amazonTable').flexigrid({
+	amazonTable.flexigrid({
 		url : 'price-post-xml.php',
 		dataType : 'xml',
 		colModel : [{
@@ -376,7 +379,7 @@ function prepareAmazon() {'use strict';
 				})).append($('<span/>', {
 					'class' : 'valueDelimiter',
 					html : '/'
-				})).append($('<span/>', {
+				}), $('<span/>', {
 					'class' : 'price currentPrice',
 					html : parseFloat(priceData.price).toFixed(2)
 				})).addClass('amazonPrice');
@@ -418,7 +421,7 @@ function prepareAmazon() {'use strict';
 			width : 70,
 			//sortable : true,
 			process : function(cellDiv, SKU) {
-				$(cellDiv).empty().attr('id', 'changeMarge_' + SKU);
+				dummyCells.TargetMarge = cellDiv;
 			}
 		}, {
 			display : 'Preis ändern, netto',
@@ -427,7 +430,7 @@ function prepareAmazon() {'use strict';
 			width : 70,
 			//sortable : true,
 			process : function(cellDiv, SKU) {
-				$(cellDiv).empty().attr('id', 'changeNetto_' + SKU);
+				dummyCells.ChangePrice = cellDiv;
 			}
 		}, {
 			display : 'Preis ändern, brutto',
@@ -440,10 +443,8 @@ function prepareAmazon() {'use strict';
 
 				priceData = $.parseJSON($(cellDiv).html());
 
-				$(cellDiv).empty().attr('id', 'changeBrutto_' + SKU);
-
 				// fill netto value
-				$('#changeNetto_' + SKU).insertInput('inputNetto_' + SKU, '€', function(event) {
+				$(dummyCells.ChangePrice).empty().insertInput('inputNetto_' + SKU, '€', function(event) {
 					$(event.target).apiUpdate('../api/amazonPrice', 'float', function(element, type) {
 						var SKUMatches;
 
@@ -467,11 +468,11 @@ function prepareAmazon() {'use strict';
 
 						return returnValue.toFixed(2);
 					});
-					$('#amazonTable').flexReload();
+					amazonTable.flexReload();
 				}, priceData.isPriceValid ? parseFloat(priceData.price).toFixed(2) : '');
 
 				// fill marge
-				$('#changeMarge_' + SKU).insertInput('inputMarge_' + SKU, '%', function(event) {
+				$(dummyCells.TargetMarge).empty().insertInput('inputMarge_' + SKU, '%', function(event) {
 					$(event.target).apiUpdate('../api/amazonPrice', 'percent', function(element, type) {
 						var SKUMatches;
 
@@ -495,11 +496,11 @@ function prepareAmazon() {'use strict';
 
 						return parseFloat((1 - (priceData.purchasePrice / returnValue + priceData.fixedPercentage)) * 100).toFixed(2);
 					});
-					$('#amazonTable').flexReload();
+					amazonTable.flexReload();
 				}, priceData.isPriceValid ? parseFloat((1 - (priceData.purchasePrice / priceData.price + priceData.fixedPercentage)) * 100).toFixed(2) : '');
 
 				// fill brutto
-				$(cellDiv).insertInput('inputBrutto_' + SKU, '€', function(event) {
+				$(cellDiv).empty().insertInput('inputBrutto_' + SKU, '€', function(event) {
 					$(event.target).apiUpdate('../api/amazonPrice', 'float', function(element, type) {
 						var SKUMatches;
 
@@ -523,7 +524,7 @@ function prepareAmazon() {'use strict';
 
 						return parseFloat(returnValue * priceData.vat).toFixed(2);
 					});
-					$('#amazonTable').flexReload();
+					amazonTable.flexReload();
 				}, priceData.isPriceValid ? parseFloat(priceData.price * priceData.vat).toFixed(2) : '');
 
 				// change row coloring
@@ -569,7 +570,7 @@ function prepareAmazon() {'use strict';
 			bclass : 'pInitAction',
 			onpress : function(idOrName, gDiv) {
 				$.get('../api/execute/setItemsPriceSets', function() {
-					$('#amazonTable').flexReload();
+					amazonTable.flexReload();
 				});
 			}
 		}, {
@@ -577,7 +578,7 @@ function prepareAmazon() {'use strict';
 			bclass : 'pInitAction',
 			onpress : function(idOrName, gDiv) {
 				$.get('../api/execute/resetPriceUpdates', function() {
-					$('#amazonTable').flexReload();
+					amazonTable.flexReload();
 				});
 			}
 		}],
@@ -603,7 +604,7 @@ function prepareStock() {'use strict';
 		reorderLevelSuggestion : null,
 		maxStockSuggestion : null,
 		currentStock : null
-	};
+	}, stockTable = $('#stockTable');
 
 	function processWriteBackData(data, isWritingPermitted) {
 		var result = $('<span/>', {
@@ -658,7 +659,7 @@ function prepareStock() {'use strict';
 
 	function loadSuccess(result) {
 		$('body').removeClass("loading");
-		$('#stockTable').flexReload();
+		stockTable.flexReload();
 		$('#errorMessages').append('<p> ' + result + '</p>');
 	}
 
@@ -770,7 +771,7 @@ function prepareStock() {'use strict';
 		type : 'danger'
 	}]);
 
-	$('#stockTable').flexigrid({
+	stockTable.flexigrid({
 		url : 'stock-post-xml-new.php5',
 		dataType : 'xml',
 		colModel : [{
@@ -1396,7 +1397,7 @@ function prepareRunningCosts() {'use strict';
 			costsTable.empty().appendTo($('#generalCostConfiguration', costsTable.parents()));
 			$('#generalCostConfiguration .flexigrid').remove();
 			costsTable[0].grid = null;
-			costsTable = $('#runningCostConfigurationNew').flexigrid(parameters);
+			costsTable.flexigrid(parameters);
 		}
 
 	}
@@ -1447,7 +1448,7 @@ function prepareRunningCosts() {'use strict';
 		// place warehouses
 		$.each(warehouseData, function(index, warehouse) {
 			if (warehouse.groupID === null) {
-				$(warehouseGroupingWarehouseListUl).append($('<li/>', {
+				warehouseGroupingWarehouseListUl.append($('<li/>', {
 					html : warehouse.name,
 					id : 'warehouseID_' + warehouse.id
 				}).draggable(draggableOptions));
