@@ -341,17 +341,17 @@ function prepareAmazon() {'use strict';
 				$(cellDiv).html($('<span/>', {
 					html : timeData.targetDays,
 					'class' : 'targetDaysValue'
-				}).after($('<span/>', {
+				})).append($('<span/>', {
 					'class' : 'valueDelimiter',
 					html : '/'
-				})).after($('<span/>', {
+				}), $('<span/>', {
 					html : timeData.currentDays,
 					'class' : 'currentDaysValue ' + (timeData.targetDays > timeData.currentDays ? 'goodValue' : 'badValue')
-				})).after($('<span/>', {
+				}), $('<span/>', {
 					'class' : 'ui-icon ui-icon-help',
 					style : 'display: inline-block',
 					title : 'Änderungsdatum: ' + timeData.writtenTime
-				}).tooltip()));
+				}).tooltip());
 			}
 		}, {
 			display : 'Preis: alt / aktuell',

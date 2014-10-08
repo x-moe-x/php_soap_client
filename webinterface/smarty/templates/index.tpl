@@ -6,8 +6,12 @@
 		<link rel='stylesheet' type='text/css' href='css/style.css'/>
 		<link rel='stylesheet' type='text/css' href='css/flexigrid.pack.css'/>
 		<link rel='stylesheet' type='text/css' href='//code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css'/>
-		<script src='http://code.jquery.com/jquery-1.8.3.min.js'></script>
-		<script src='http://code.jquery.com/ui/1.10.3/jquery-ui.js'></script>
+		<!--
+			<script src='http://code.jquery.com/jquery-1.8.3.min.js'></script>
+			preferr newer jQuery version over 1.8.3 which was used in flexigrid examples
+		-->
+		<script src='http://code.jquery.com/jquery-2.1.1.min.js'></script>
+		<script src='http://code.jquery.com/ui/1.11.1/jquery-ui.js'></script>
 		<script src='js/flexigrid.js'></script>
 		<script src='js/apiAdapter.js'></script>
 		<script src='js/js.js'></script>
