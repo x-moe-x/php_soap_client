@@ -173,326 +173,7 @@ function elementPostProcessStockConfig(element, type, requestData, resultData) {
 	}
 }
 
-function prepareStock() {'use strict';
 
-	function loadSuccess(result) {
-		$('body').removeClass("loading");
-		$('#stockTable').flexReload();
-		$('#errorMessages').append('<p> ' + result + '</p>');
-	}
-
-	function dialogify(buttonData) {
-		$.each(buttonData, function(index, button) {
-			$(button.id).dialogify(button.title, button.descr, button.type, function() {
-				$('body').addClass('loading');
-				$.get('../api/execute/' + button.task, loadSuccess);
-			});
-		});
-	}
-
-
-	$.each([{
-		id : '#calculationTimeA',
-		type : 'int',
-		path : '../api/config/stock',
-		preprocess : elementProcessStockConfig,
-		postprocess : elementPostProcessStockConfig
-	}, {
-		id : '#calculationTimeB',
-		type : 'int',
-		path : '../api/config/stock',
-		preprocess : elementProcessStockConfig,
-		postprocess : elementPostProcessStockConfig
-	}, {
-		id : '#minimumToleratedSpikesA',
-		type : 'int',
-		path : '../api/config/stock',
-		preprocess : elementProcessStockConfig,
-		postprocess : elementPostProcessStockConfig
-	}, {
-		id : '#minimumToleratedSpikesB',
-		type : 'int',
-		path : '../api/config/stock',
-		preprocess : elementProcessStockConfig,
-		postprocess : elementPostProcessStockConfig
-	}, {
-		id : '#minimumOrdersA',
-		type : 'int',
-		path : '../api/config/stock',
-		preprocess : elementProcessStockConfig,
-		postprocess : elementPostProcessStockConfig
-	}, {
-		id : '#minimumOrdersB',
-		type : 'int',
-		path : '../api/config/stock',
-		preprocess : elementProcessStockConfig,
-		postprocess : elementPostProcessStockConfig
-	}, {
-		id : '#standardDeviationFactor',
-		type : 'float',
-		path : '../api/config/stock',
-		preprocess : elementProcessStockConfig,
-		postprocess : elementPostProcessStockConfig
-	}, {
-		id : '#spikeTolerance',
-		type : 'percent',
-		path : '../api/config/stock',
-		preprocess : elementProcessStockConfig,
-		postprocess : elementPostProcessStockConfig
-	}, {
-		id : '#calculationActive',
-		type : 'select',
-		path : '../api/config/stock',
-		preprocess : elementProcessStockConfig,
-		postprocess : elementPostProcessStockConfig
-	}, {
-		id : '#writebackActive',
-		type : 'select',
-		path : '../api/config/stock',
-		preprocess : elementProcessStockConfig,
-		postprocess : elementPostProcessStockConfig
-	}], function(index, input) {
-		$(input.id).change(function() {
-			$(this).apiUpdate(input.path, input.type, input.preprocess, input.postprocess);
-		});
-	});
-
-	dialogify([{
-		id : '#buttonManualUpdate',
-		task : 'updateAll',
-		title : 'Manuelle Aktualisierung anstossen?',
-		descr : 'Aktualisierung der Artikel- und Rechnungsdaten. Dieser Vorgang kann einige Minuten in Anspruch nehmen.',
-		type : 'normal'
-	}, {
-		id : '#buttonManualCalculate',
-		task : 'calculateAll',
-		title : 'Manuelle Kalkulation anstossen?',
-		descr : 'Ermittelung des spitzenbreinigten Tagesbedarfes, der Rückschreibedaten sowie der Schreibberechtigungen. Dieser Vorgang kann einige Minuten in Anspruch nehmen.',
-		type : 'normal'
-	}, {
-		id : '#buttonManualWriteBack',
-		task : 'setAll',
-		title : 'Manuelles Rückschreiben anstossen?',
-		descr : 'Rückschreiben der Lieferanten- und Lagerdaten für schreibberechtigte Artikel',
-		type : 'normal'
-	}, {
-		id : '#buttonResetArticles',
-		task : 'resetArticles',
-		title : 'Artikeldaten zurücksetzen?',
-		descr : '<strong>Achtung:</strong><p>Wirklich alle Artikeldaten löschen?<br><br>Diese Aktion löscht ausschliesslich die Artikeldaten und stösst kein erneutes Update an!<p>',
-		type : 'danger'
-	}, {
-		id : '#buttonResetOrders',
-		task : 'resetOrders',
-		title : 'Rechnugnsdaten zurücksetzen?',
-		descr : 'Wirklich alle Rechnungsdaten löschen?<br><br>Diese Aktion löscht ausschliesslich die Rechnungsdaten und stösst kein erneutes Update an!',
-		type : 'danger'
-	}]);
-
-	$('#stockTable').flexigrid({
-		url : 'stock-post-xml.php5',
-		dataType : 'xml',
-		colModel : [{
-			display : 'Item ID',
-			name : 'ItemID',
-			width : 40,
-			sortable : true,
-			align : 'center'
-		}, {
-			display : 'Artikel Nr',
-			name : 'ItemNo',
-			width : 80,
-			sortable : true,
-			align : 'left'
-		}, {
-			display : 'Name',
-			name : 'Name',
-			width : 500,
-			sortable : true,
-			align : 'left'
-		}, {
-			display : 'Rohdaten A',
-			name : 'RawDataA',
-			width : 120,
-			sortable : false,
-			align : 'left'
-		}, {
-			display : 'Rohdaten B',
-			name : 'RawDataB',
-			width : 120,
-			sortable : false,
-			align : 'left'
-		}, {
-			display : 'Ø Bedarf / Monat',
-			name : 'MonthlyNeed',
-			width : 60,
-			sortable : true,
-			align : 'right'
-		}, {
-			display : 'Ø Bedarf / Tag',
-			name : 'DailyNeed',
-			width : 60,
-			sortable : true,
-			align : 'right'
-		}, {
-			display : 'Markierung',
-			name : 'Marking',
-			width : 60,
-			sortable : true,
-			align : 'center',
-			process : processMarking1ID
-		}, {
-			display : 'Meldebest.<br>(neu / alt)',
-			name : 'reorder_level_suggestion',
-			width : 60,
-			sortable : false,
-			align : 'right'
-		}, {
-			display : 'Max.best.<br>(neu / alt)',
-			name : 'max_stock_suggestion',
-			width : 80,
-			sortable : false,
-			align : 'right',
-			hide : false
-		}, {
-			display : 'Mindesabn.<br>(neu / alt)',
-			name : 'min_purchase_order_suggestion',
-			width : 60,
-			sortable : false,
-			align : 'right',
-			hide : false
-		}, {
-			display : 'VPE',
-			name : 'vpe',
-			width : 40,
-			sortable : false,
-			align : 'right',
-			hide : false
-		}, {
-			display : 'Datum',
-			name : 'Date',
-			width : 100,
-			sortable : true,
-			align : 'right'
-		}],
-		buttons : [{
-			name : 'Filter',
-			bclass : 'filter stockFilter'
-		}],
-		onSuccess : function(g) {
-			var colModel, status, params, pSearch;
-
-			colModel = this.colModel;
-			status = this.status;
-			params = this.params;
-
-			// post-processing of cells
-			$('tbody tr td div', g.bDiv).each(function(index, newCell) {
-				var colName;
-
-				colName = colModel[index % colModel.length].name;
-
-				// visualize rawdata
-				if ((colName === 'RawDataA') || (colName === 'RawDataB')) {( function() {
-
-							var dataTokens, skipped, data, totalSum, dataString;
-
-							dataTokens = $(newCell).text().split(':');
-							if (dataTokens.length === 2) {
-
-								// extract # of skipped orders
-								skipped = parseInt(dataTokens[0], 10);
-
-								// extract per-order-quantities
-								data = dataTokens[1].split(',');
-
-								// prepare output
-								totalSum = 0;
-								dataString = '<ul>';
-
-								// for each of the pre-order-quantities ...
-								$.each(data, function(index, value) {
-									// ... add it's value to the prepared output
-									dataString += '<li class="' + (index < skipped ? 'skipped' : 'counted') + '">' + value + '</li>';
-									totalSum += parseInt(value, 10);
-								});
-
-								$(newCell).html('<span class="totalSum">' + totalSum + ' = </span>' + dataString + '</ul>');
-							}
-
-						}());
-
-					// adjust suggestions to visualize permissions and errors
-				} else if ((colName === 'reorder_level_suggestion') || (colName === 'max_stock_suggestion') || (colName === 'min_purchase_order_suggestion')) {( function() {
-							var dataTokens, suggestionClass;
-							dataTokens = $(newCell).text().split(':');
-							if (dataTokens.length === 2) {
-								if (dataTokens[0] === 'e') {
-									suggestionClass = 'writePermissionError';
-								} else {
-									suggestionClass = 'noSuggestion';
-								}
-								$(newCell).html('<span class="' + suggestionClass + '">' + dataTokens[1] + '</span>');
-							} else if (dataTokens.length === 3) {
-								if (dataTokens[0] === 'w') {
-									suggestionClass = 'writePermission';
-								} else if (dataTokens[0] === 'x') {
-									if (dataTokens[1] === dataTokens[2]) {
-										suggestionClass = 'noSuggestion';
-									} else {
-										suggestionClass = 'noWritePermission';
-									}
-								} else {
-									// dataTokens[0] === 'e' or anything else
-									suggestionClass = 'writePermissionError';
-								}
-								$(newCell).html('<span class="' + suggestionClass + '">' + dataTokens[1] + '</span> / ' + dataTokens[2]);
-							}
-						}());
-				}
-			});
-
-			addMarking1IDFilter(g, status, params, 'stockFilter');
-
-			// start with searchbar visible
-			pSearch = $('.pSearch', g.pDiv);
-			if (!pSearch.data('initialized')) {
-				pSearch.click();
-				pSearch.data('initialized', true);
-			}
-		},
-		searchitems : [{
-			display : 'ItemID',
-			name : 'ItemID'
-		}, {
-			display : 'Artikel Nr',
-			name : 'ItemNo'
-		}, {
-			display : 'Name',
-			name : 'Name',
-			isdefault : true
-		}],
-		params : [{
-			name : 'filterMarking1D',
-			value : ''
-		}],
-		status : [4, 9, 12, 16, 20],
-		sortname : "ItemID",
-		sortorder : "asc",
-		usepager : true,
-		singleSelect : true,
-		title : 'Bestandsautomatik',
-		useRp : true,
-		height : 500,
-		rp : 20,
-		rpOptions : [10, 20, 30, 50, 100, 200],
-		showTableToggleBtn : false,
-		pagetext : 'Seite',
-		outof : 'von',
-		pagestat : 'Zeige {from} bis {to} von {total} Artikeln',
-		procmsg : 'Bitte warten...'
-	});
-}
 
 function prepareAmazon() {'use strict';
 	$.each([{
@@ -915,196 +596,386 @@ function prepareAmazon() {'use strict';
 	});
 }
 
-function prepareGeneralCostConfig() {'use strict';
-	var colModel, processFunctions;
-
-	processFunctions = {
-		preProcess : function(element, type) {
-			var id, matches;
-
-			element.checkFloatval();
-			if (type !== 'float' || isNaN(element.val())) {
-				return 'incorrect';
-			}
-
-			id = element.attr('id');
-			if (( matches = id.match(/generalCosts_manual_(\d{8})/)) !== null) {
-				return {
-					key : '-1/' + matches[1],
-					value : element.val()
-				};
-			}
-			if (( matches = id.match(/warehouseCost_manual_(\d+)_(\d{8})/)) !== null) {
-				return {
-					key : matches[1] + '/' + matches[2],
-					value : element.val()
-				};
-			}
-			return 'incorrect';
-
-		},
-		postProcess : function(element, type, requestData, resultData) {
-			var returnValue;
-
-			if (type !== 'float') {
-				return 'error';
-			}
-
-			if (resultData.warehouseID === -1) {
-				returnValue = resultData.value.percentage;
-			} else {
-				returnValue = resultData.value.absolute;
-			}
-
-			if (returnValue === null) {
-				// clear corresponding percentage field
-				$('#' + 'warehouseCost_automatic_' + resultData.warehouseID + '_' + resultData.date).empty();
-
-				// hide unit
-				$('#' + 'warehouseCost_automatic_label_' + resultData.warehouseID + '_' + resultData.date).addClass('invisible');
-
-				// hide shipping hint
-				$('#' + 'warehouseCost_automatic_tooltip_' + resultData.warehouseID + '_' + resultData.date).addClass('invisible');
-				return '';
-			}
-
-			if (resultData.warehouseID !== -1) {
-				// fill corresponding percentage field
-				$('#' + 'warehouseCost_automatic_' + resultData.warehouseID + '_' + resultData.date).html(resultData.value.percentageShippingRevenueCleared.percentage);
-
-				// show unit
-				$('#' + 'warehouseCost_automatic_label_' + resultData.warehouseID + '_' + resultData.date).removeClass('invisible');
-
-				// adjust & show shipping hint
-				$('#' + 'warehouseCost_automatic_tooltip_' + resultData.warehouseID + '_' + resultData.date).removeClass('invisible').prop('title', 'Prozentwert wurde bereinigt um geschätzte ' + resultData.value.percentageShippingRevenueCleared.shipping + ' € Versandkosteneinnahmen');
-			}
-			returnValue = parseFloat(returnValue);
-			return isNaN(returnValue) ? 'error' : returnValue.toFixed(2);
-
-		}
+function prepareStock() {'use strict';
+	var dummyCells = {
+		rawDataA : null,
+		monthlyNeed : null,
+		reorderLevelSuggestion : null,
+		maxStockSuggestion : null,
+		currentStock : null
 	};
 
-	// prepare col model
-	colModel = [{
-		display : 'Monat',
-		name : 'month',
-		align : 'left',
-		width : 60,
-		process : function(celDiv, id) {
-			$(celDiv).addClass('notModifyable');
-		}
-	}, {
-		display : 'Allg. Betriebskosten',
-		name : 'generalCosts_manual',
-		align : 'right',
-		width : 75,
-		process : function(celDiv, id) {
-			if (id !== 'Average') {
-				$(celDiv).insertInput('generalCosts_manual_' + id, '%', function(event) {
-					$(event.target).apiUpdate('../api/generalCost', 'float', processFunctions.preProcess, processFunctions.postProcess);
-				});
+	function processWriteBackData(data, isWritingPermitted) {
+		var result = $('<span/>', {
+			'class' : 'writeBackData'
+		}), old, current;
+
+		if (!data.error) {
+			old = $('<span/>', {
+				html : data.old
+			});
+			current = $('<span/>', {
+				html : data.current
+			});
+
+			if (isWritingPermitted) {
+				// writting permitted
+				current.addClass('writePermission');
+			} else if (!isWritingPermitted && data.old !== data.current) {
+				// writting not permitted, but there's a suggestion
+				current.addClass('noWritePermission');
 			} else {
-				$(celDiv).addClass('notModifyable');
-				if ($(celDiv).text().trim() !== '') {
-					$(celDiv).wrapInner($('<span/>', {
-						'class' : 'automatic_value'
-					})).append($('<label/>', {
-						'class' : 'variableUnit',
-						html : '%'
-					}));
-				}
+				// no suggestion
+				current.addClass('noSuggestion');
 			}
+			result.append(current).append(' / ').append(old);
+		} else {
+			// error
+			result.append($('<span/>', {
+				'class' : 'badValue',
+				html : data.error
+			}));
 		}
-	}];
+		return result;
+	}
 
-	/*global warehouses */
-	$.each(warehouses, function(index, warehouse) {
-		colModel.push({
-			display : 'Transp./Lager<br>' + warehouse.name,
-			name : 'warehouseCost_manual_' + warehouse.id,
-			align : 'right',
-			width : 110,
-			process : function(celDiv, id) {
-				if (id !== 'Average') {
-					$(celDiv).insertInput('warehouseCost_manual_' + warehouse.id + '_' + id, '€', function(event) {
-						$(event.target).apiUpdate('../api/generalCost', 'float', processFunctions.preProcess, processFunctions.postProcess);
-					});
-				} else {
-					$(celDiv).addClass('notModifyable');
-					if ($(celDiv).text().trim() !== '') {
-						$(celDiv).wrapInner($('<span/>', {
-							'class' : 'automatic_value'
-						})).append($('<label/>', {
-							'class' : 'variableUnit',
-							html : '€'
-						}));
-					}
-				}
-			}
+	function processRawData(data) {
+		var totalSum = 0, ul = $('<ul/>');
+
+		$.each(data.quantities, function(index, quantity) {
+			totalSum += quantity;
+			ul.append($('<li/>', {
+				'class' : index < data.skipped ? 'badValue' : 'goodValue',
+				html : quantity
+			}));
 		});
-		colModel.push({
-			display : 'Anteil Gesamtlstg.<br>' + warehouse.name,
-			name : 'warehouseCost_automatic_' + warehouse.id,
-			align : 'center',
-			width : 110,
-			process : function(celDiv, id) {
-				var percentageData;
 
-				$(celDiv).addClass('notModifyable');
-				if ($(celDiv).text().trim() !== 'null') {
-					percentageData = $.parseJSON($(celDiv).html());
+		return $('<span/>').append($('<span/>', {
+			'class' : 'totalSum',
+			html : totalSum
+		})).append(ul);
+	}
 
-					$(celDiv).html($('<span/>', {
-						id : 'warehouseCost_automatic_' + warehouse.id + '_' + id,
-						'class' : 'automatic_value',
-						html : percentageData.percentage
-					})).append($('<label/>', {
-						id : 'warehouseCost_automatic_label_' + warehouse.id + '_' + id,
-						'class' : 'variableUnit',
-						html : '%'
-					})).append($('<span/>', {
-						id : 'warehouseCost_automatic_tooltip_' + warehouse.id + '_' + id,
-						html : '',
-						'class' : 'ui-icon ui-icon-help',
-						style : 'display: inline-block',
-						href : '#',
-						'title' : 'Prozentwert wurde bereinigt um geschätzte ' + percentageData.shipping + ' € Versandkosteneinnahmen'
-					})).tooltip();
-				} else {
-					$(celDiv).html($('<span/>', {
-						id : 'warehouseCost_automatic_' + warehouse.id + '_' + id,
-						'class' : 'automatic_value'
-					})).append($('<label/>', {
-						id : 'warehouseCost_automatic_label_' + warehouse.id + '_' + id,
-						'class' : 'variableUnit invisible',
-						html : '%'
-					})).append($('<span/>', {
-						id : 'warehouseCost_automatic_tooltip_' + warehouse.id + '_' + id,
-						'class' : 'ui-icon ui-icon-help invisible',
-						style : 'display: inline-block',
-						href : '#'
-					})).tooltip();
-				}
-			}
+	function loadSuccess(result) {
+		$('body').removeClass("loading");
+		$('#stockTable').flexReload();
+		$('#errorMessages').append('<p> ' + result + '</p>');
+	}
+
+	function dialogify(buttonData) {
+		$.each(buttonData, function(index, button) {
+			$(button.id).dialogify(button.title, button.descr, button.type, function() {
+				$('body').addClass('loading');
+				$.get('../api/execute/' + button.task, loadSuccess);
+			});
+		});
+	}
+
+
+	$.each([{
+		id : '#calculationTimeA',
+		type : 'int',
+		path : '../api/config/stock',
+		preprocess : elementProcessStockConfig,
+		postprocess : elementPostProcessStockConfig
+	}, {
+		id : '#calculationTimeB',
+		type : 'int',
+		path : '../api/config/stock',
+		preprocess : elementProcessStockConfig,
+		postprocess : elementPostProcessStockConfig
+	}, {
+		id : '#minimumToleratedSpikesA',
+		type : 'int',
+		path : '../api/config/stock',
+		preprocess : elementProcessStockConfig,
+		postprocess : elementPostProcessStockConfig
+	}, {
+		id : '#minimumToleratedSpikesB',
+		type : 'int',
+		path : '../api/config/stock',
+		preprocess : elementProcessStockConfig,
+		postprocess : elementPostProcessStockConfig
+	}, {
+		id : '#minimumOrdersA',
+		type : 'int',
+		path : '../api/config/stock',
+		preprocess : elementProcessStockConfig,
+		postprocess : elementPostProcessStockConfig
+	}, {
+		id : '#minimumOrdersB',
+		type : 'int',
+		path : '../api/config/stock',
+		preprocess : elementProcessStockConfig,
+		postprocess : elementPostProcessStockConfig
+	}, {
+		id : '#standardDeviationFactor',
+		type : 'float',
+		path : '../api/config/stock',
+		preprocess : elementProcessStockConfig,
+		postprocess : elementPostProcessStockConfig
+	}, {
+		id : '#spikeTolerance',
+		type : 'percent',
+		path : '../api/config/stock',
+		preprocess : elementProcessStockConfig,
+		postprocess : elementPostProcessStockConfig
+	}, {
+		id : '#calculationActive',
+		type : 'select',
+		path : '../api/config/stock',
+		preprocess : elementProcessStockConfig,
+		postprocess : elementPostProcessStockConfig
+	}, {
+		id : '#writebackActive',
+		type : 'select',
+		path : '../api/config/stock',
+		preprocess : elementProcessStockConfig,
+		postprocess : elementPostProcessStockConfig
+	}], function(index, input) {
+		$(input.id).change(function() {
+			$(this).apiUpdate(input.path, input.type, input.preprocess, input.postprocess);
 		});
 	});
 
-	// create table
-	$('#runningCostConfiguration').flexigrid({
-		url : 'runningCost-post-xml.php',
+	dialogify([{
+		id : '#buttonManualUpdate',
+		task : 'updateAll',
+		title : 'Manuelle Aktualisierung anstossen?',
+		descr : 'Aktualisierung der Artikel- und Rechnungsdaten. Dieser Vorgang kann einige Minuten in Anspruch nehmen.',
+		type : 'normal'
+	}, {
+		id : '#buttonManualCalculate',
+		task : 'calculateAll',
+		title : 'Manuelle Kalkulation anstossen?',
+		descr : 'Ermittelung des spitzenbreinigten Tagesbedarfes, der Rückschreibedaten sowie der Schreibberechtigungen. Dieser Vorgang kann einige Minuten in Anspruch nehmen.',
+		type : 'normal'
+	}, {
+		id : '#buttonManualWriteBack',
+		task : 'setAll',
+		title : 'Manuelles Rückschreiben anstossen?',
+		descr : 'Rückschreiben der Lieferanten- und Lagerdaten für schreibberechtigte Artikel',
+		type : 'normal'
+	}, {
+		id : '#buttonResetArticles',
+		task : 'resetArticles',
+		title : 'Artikeldaten zurücksetzen?',
+		descr : '<strong>Achtung:</strong><p>Wirklich alle Artikeldaten löschen?<br><br>Diese Aktion löscht ausschliesslich die Artikeldaten und stösst kein erneutes Update an!<p>',
+		type : 'danger'
+	}, {
+		id : '#buttonResetOrders',
+		task : 'resetOrders',
+		title : 'Rechnugnsdaten zurücksetzen?',
+		descr : 'Wirklich alle Rechnungsdaten löschen?<br><br>Diese Aktion löscht ausschliesslich die Rechnungsdaten und stösst kein erneutes Update an!',
+		type : 'danger'
+	}]);
+
+	$('#stockTable').flexigrid({
+		url : 'stock-post-xml-new.php5',
 		dataType : 'xml',
-		colModel : colModel,
-		height : 'auto',
-		singleSelect : true,
-		striped : false,
-		title : 'Betriebskosten',
-		buttons : [{
-			name : 'Update',
-			bclass : 'pReload',
-			onpress : function(idOrName, gDiv) {
-				$('#runningCostConfiguration').flexReload();
+		colModel : [{
+			display : 'Item ID',
+			name : 'ItemID',
+			width : 40,
+			sortable : true,
+			align : 'center'
+		}, {
+			display : 'Artikel Nr',
+			name : 'ItemNo',
+			width : 80,
+			sortable : true,
+			align : 'left'
+		}, {
+			display : 'Name',
+			name : 'Name',
+			width : 500,
+			sortable : true,
+			align : 'left'
+		}, {
+			display : 'Rohdaten A',
+			name : 'RawDataA',
+			width : 120,
+			sortable : false,
+			align : 'left',
+			process : function(cellDiv, SKU) {
+				dummyCells.rawDataA = cellDiv;
 			}
-		}]
+		}, {
+			display : 'Rohdaten B',
+			name : 'RawDataB',
+			width : 120,
+			sortable : false,
+			align : 'left',
+			process : function(cellDiv, SKU) {
+				var rawData = $.parseJSON($(cellDiv).html());
+
+				if (rawData.A.isValid) {
+					$(dummyCells.rawDataA).html(processRawData(rawData.A));
+				} else {
+					$(dummyCells.rawDataA).empty();
+				}
+
+				if (rawData.B.isValid) {
+					$(cellDiv).html(processRawData(rawData.B));
+				} else {
+					$(cellDiv).empty();
+				}
+			}
+		}, {
+			display : 'Ø Bedarf / Monat',
+			name : 'MonthlyNeed',
+			width : 60,
+			sortable : true,
+			align : 'right',
+			process : function(cellDiv, SKU) {
+				dummyCells.monthlyNeed = cellDiv;
+			}
+		}, {
+			display : 'Ø Bedarf / Tag',
+			name : 'DailyNeed',
+			width : 60,
+			sortable : true,
+			align : 'right',
+			process : function(cellDiv, SKU) {
+				var dailyNeedValue = parseFloat($(cellDiv).html());
+
+				// process both monthly need and daily need
+				if (Math.abs(dailyNeedValue) > 0.01) {
+					// adjust decimal place
+					$(cellDiv).html(dailyNeedValue.toFixed(2));
+					$(dummyCells.monthlyNeed).html((dailyNeedValue * 30).toFixed(2));
+				} else {
+					// or skip empty
+					$(cellDiv).empty();
+					$(dummyCells.monthlyNeed).empty();
+				}
+			}
+		}, {
+			display : 'Nettobestand<br>net-xpress',
+			name : 'CurrentStock',
+			width : 60,
+			sortable : true,
+			align : 'right',
+			process : function(cellDiv, SKU) {
+				dummyCells.currentStock = cellDiv;
+			}
+		}, {
+			display : 'Markierung',
+			name : 'Marking',
+			width : 60,
+			sortable : true,
+			align : 'center',
+			process : processMarking1ID
+		}, {
+			display : 'Meldebest.<br>(neu / alt)',
+			name : 'reorder_level_suggestion',
+			width : 60,
+			sortable : false,
+			align : 'right',
+			process : function(cellDiv, SKU) {
+				dummyCells.reorderLevelSuggestion = cellDiv;
+			}
+		}, {
+			display : 'Max.best.<br>(neu / alt)',
+			name : 'max_stock_suggestion',
+			width : 80,
+			sortable : false,
+			align : 'right',
+			hide : false,
+			process : function(cellDiv, SKU) {
+				dummyCells.maxStockSuggestion = cellDiv;
+			}
+		}, {
+			display : 'Mindesabn.<br>(neu / alt)',
+			name : 'min_purchase_order_suggestion',
+			width : 60,
+			sortable : false,
+			align : 'right',
+			hide : false,
+			process : function(cellDiv, SKU) {
+				var writeBackData = $.parseJSON($(cellDiv).html()), currentStock = parseInt($(dummyCells.currentStock).html(), 10), monthlyNeed = parseFloat($(dummyCells.monthlyNeed).html());
+
+				// process reorderlevel
+				$(dummyCells.reorderLevelSuggestion).html(processWriteBackData(writeBackData.reorderLevel, writeBackData.isWritingPermitted));
+
+				// process max stock suggestion
+				$(dummyCells.maxStockSuggestion).html(processWriteBackData(writeBackData.maxStockSuggestion, writeBackData.isWritingPermitted));
+
+				// process min purchase order suggestion
+				$(cellDiv).html(processWriteBackData(writeBackData.supplierMinimumPurchase, writeBackData.isWritingPermitted));
+
+				// adjust current stock coloring
+				if (currentStock !== 0) {
+					if (currentStock > writeBackData.maxStockSuggestion.current) {
+						$(dummyCells.currentStock).addClass('badValue');
+					} else if (currentStock > monthlyNeed) {
+						$(dummyCells.currentStock).addClass('blueValue');
+					}
+				} else {
+					// skip empty
+					$(dummyCells.currentStock).empty();
+				}
+			}
+		}, {
+			display : 'VPE',
+			name : 'vpe',
+			width : 20,
+			sortable : false,
+			align : 'right',
+			hide : false
+		}, {
+			display : 'Datum',
+			name : 'Date',
+			width : 100,
+			sortable : true,
+			align : 'right'
+		}],
+		buttons : [{
+			name : 'Filter',
+			bclass : 'filter stockFilter'
+		}],
+		onSuccess : function(g) {
+			var pSearch;
+
+			addMarking1IDFilter(g, this.status, this.params, 'stockFilter');
+
+			// start with searchbar visible
+			pSearch = $('.pSearch', g.pDiv);
+			if (!pSearch.data('initialized')) {
+				pSearch.click();
+				pSearch.data('initialized', true);
+			}
+		},
+		searchitems : [{
+			display : 'ItemID',
+			name : 'ItemID'
+		}, {
+			display : 'Artikel Nr',
+			name : 'ItemNo'
+		}, {
+			display : 'Name',
+			name : 'Name',
+			isdefault : true
+		}],
+		params : [{
+			name : 'filterMarking1D',
+			value : ''
+		}],
+		status : [4, 9, 12, 16, 20],
+		sortname : "ItemID",
+		sortorder : "asc",
+		usepager : true,
+		singleSelect : true,
+		title : 'Bestandsautomatik',
+		useRp : true,
+		height : 500,
+		rp : 20,
+		rpOptions : [10, 20, 30, 50, 100, 200],
+		showTableToggleBtn : false,
+		pagetext : 'Seite',
+		outof : 'von',
+		pagestat : 'Zeige {from} bis {to} von {total} Artikeln',
+		procmsg : 'Bitte warten...'
 	});
 }
 

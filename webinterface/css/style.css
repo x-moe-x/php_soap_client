@@ -343,6 +343,10 @@ body.loading .modal {
 	min-width: 3em;
 }
 
+.totalSum:after {
+    content: " =";
+}
+
 .flexigrid div.bDiv .automatic_value {
 	margin-right: 5%;
 	font-size: 1em;
@@ -438,6 +442,10 @@ tr:hover .notModifyable {
 
 .badValue {
 	color: red;
+}
+
+.blueValue {
+	color: blue;
 }
 
 .oldMarge:before {

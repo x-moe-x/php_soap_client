@@ -17,6 +17,9 @@ if (Config::get('CalculationActive') === 1) {
 	// update warehouse db
 	NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'GetWarehouseList'));
 
+	// update stocks
+	NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'GetCurrentStocks'));
+
 	// update sales order referrer db
 	NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'GetSalesOrderReferrer'));
 
