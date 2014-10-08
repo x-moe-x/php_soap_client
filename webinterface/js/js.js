@@ -986,7 +986,7 @@ function prepareRunningCosts() {'use strict';
 		scroll : false,
 		cursor : "move",
 		revert : true
-	}, groupData, warehouseData, standardGroupID, costsTable = null;
+	}, groupData, warehouseData, standardGroupID, costsTable = null, costsTableData = null;
 
 	function dropWarehouse(event, ui) {
 		// if source and destination are the same ...
@@ -1382,7 +1382,7 @@ function prepareRunningCosts() {'use strict';
 
 	function initCostsTable() {
 		var parameters = {
-			url : 'runningCost-post-xml-new.php',
+			//url : 'runningCost-post-xml-new.php',
 			dataType : 'xml',
 			colModel : generateColModel(groupData),
 			height : 'auto',
@@ -1392,14 +1392,17 @@ function prepareRunningCosts() {'use strict';
 		};
 
 		if (!costsTable) {
-			costsTable = $('#runningCostConfigurationNew').flexigrid(parameters);
+			costsTable = $('#runningCostConfigurationNew').flexigrid(parameters).flexAddData(costsTableData);
 		} else {
-			costsTable.empty().appendTo($('#generalCostConfiguration', costsTable.parents()));
-			$('#generalCostConfiguration .flexigrid').remove();
-			costsTable[0].grid = null;
-			costsTable.flexigrid(parameters);
+			$.when($.post('runningCost-post-xml-new.php', function(result, textStatus, jqXHR) {
+				costsTableData = result;
+			})).then(function() {
+				costsTable.empty().appendTo($('#generalCostConfiguration', costsTable.parents()));
+				$('#generalCostConfiguration .flexigrid').remove();
+				costsTable[0].grid = null;
+				costsTable.flexigrid(parameters).flexAddData(costsTableData);
+			});
 		}
-
 	}
 
 	// start asnycronous requests ...
@@ -1408,7 +1411,9 @@ function prepareRunningCosts() {'use strict';
 		standardGroupID = result.data.standardGroupID;
 	}, 'json'), $.get('../api/warehouseGrouping/warehouses', function(result, textStatus, jqXHR) {
 		warehouseData = result.data;
-	}, 'json'))
+	}, 'json'), $.post('runningCost-post-xml-new.php', function(result, textStatus, jqXHR) {
+		costsTableData = result;
+	}))
 	// ... after successful arival of all necessary data begin building gui
 	.then(function() {
 		var warehouseGroupingGroupList, warehouseGroupingGroupAssociation, warehouseGroupingWarehouseListUl, warehouseGroupingWarehouseList;
