@@ -21,8 +21,8 @@ getRoute() -> get('/config/stock/(\w+)', array('ApiStock', 'getConfigJSON'));
 getRoute() -> put('/config/stock/(\w+)/(\w+|\d+|\d+\.\d+)', array('ApiStock', 'setConfigJSON'));
 
 // register general costs api callsGeneralCosts (old)
-getRoute() -> get('/generalCost/(\d+|-\d+)/(\d+)', array('ApiGeneralCosts', 'getCostsJSON'));
-getRoute() -> put('/generalCost/(\d+|-\d+)/(\d+)/(\w+|\d+|\d+\.\d+)', array('ApiGeneralCosts', 'setCostsJSON'));
+// getRoute() -> get('/generalCost/(\d+|-\d+)/(\d+)', array('ApiGeneralCosts', 'getCostsJSON'));
+// getRoute() -> put('/generalCost/(\d+|-\d+)/(\d+)/(\w+|\d+|\d+\.\d+)', array('ApiGeneralCosts', 'setCostsJSON'));
 
 // register general costs api callsGeneralCosts
 getRoute() -> put('/generalCosts/(\d+)/(\d+|\d+\.\d+)', array('ApiGeneralCosts', 'setGeneralCostsJSON'));
