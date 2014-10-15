@@ -63,12 +63,10 @@ function addMarking1IDFilter(g, status, params, identifyingClass) {'use strict';
 		}))
 		// append filter selection
 		.append(function() {
-			var filterSelection = $('<div/>', {
-				'class' : 'customButtonContent'
-			});
+			var filters = [];
 
 			$.each(status, function(index, value) {
-				filterSelection.append($('<div/>', {
+				filters.push($('<div/>', {
 					'class' : 'markingID_' + value
 				})
 				// insert input ...
@@ -93,14 +91,16 @@ function addMarking1IDFilter(g, status, params, identifyingClass) {'use strict';
 							g.populate();
 						}
 					}
-				}))
+				}),
 				// ... and label
-				.append($('<label/>', {
+				$('<label/>', {
 					'for' : 'markingID_' + value + '_field_' + identifyingClass
 				})));
 			});
 
-			return filterSelection;
+			return $('<div/>', {
+				'class' : 'customButtonContent'
+			}).append(filters);
 		});
 	}
 }
