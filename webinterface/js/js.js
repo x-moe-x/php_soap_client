@@ -905,15 +905,18 @@ function prepareStock() {'use strict';
 				// process min purchase order suggestion
 				$(cellDiv).html(processWriteBackData(writeBackData.supplierMinimumPurchase, writeBackData.isWritingPermitted));
 
-				// adjust current stock coloring
+				// adjust current stock coloring...
 				if (currentStock !== 0) {
+					// ... to red
 					if (currentStock > writeBackData.maxStockSuggestion.current) {
 						$(dummyCells.currentStock).addClass('badValue');
-					} else if (isNaN(monthlyNeed) || currentStock > monthlyNeed) {
+					}
+					// ...to blue
+					else if ((isNaN(monthlyNeed) && currentStock > 0) || currentStock > monthlyNeed) {
 						$(dummyCells.currentStock).addClass('blueValue');
 					}
 				} else {
-					// skip empty
+					// ...or skip empty
 					$(dummyCells.currentStock).empty();
 				}
 			}
