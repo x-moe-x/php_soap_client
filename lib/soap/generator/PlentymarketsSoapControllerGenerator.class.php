@@ -103,7 +103,7 @@ class PlentymarketsSoapControllerGenerator
 		$content .= '		' . chr(10);
 		$content .= '		$options["features"] = SOAP_SINGLE_ELEMENT_ARRAYS;' . chr(10);
 		$content .= '		$options["version"] = SOAP_1_2;' . chr(10);
-		$content .= '		$options["trace"] = true' . chr(10);
+		$content .= '		$options["trace"] = SOAP_CONTROLLER_TRACE;' . chr(10);
 		$content .= '		$options["classmap"] = '.str_replace(chr(10), chr(10).chr(9).chr(9).chr(9).chr(9), var_export($this->classMap, true)).';' . chr(10);
 		$content .= '		parent::__construct($wsdl, $options);' . chr(10);
 		$content .= '	}' . chr(10);

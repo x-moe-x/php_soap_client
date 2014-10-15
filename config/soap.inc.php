@@ -53,6 +53,11 @@ define('SOAP_CONTROLLER_DIR', 'controller');
 define('SOAP_CONTROLLER_CLASS_NAME', 'PlentySoap');
 
 /*
+ * controller: enable tracing
+ */
+define('SOAP_CONTROLLER_TRACE', true);
+
+/*
  * autoloader for all soap model classes
 */
 require_once ROOT.'lib/soap/autoloader/SoapModelLoader.fnc.php';
