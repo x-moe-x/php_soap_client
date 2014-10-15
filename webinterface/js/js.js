@@ -1293,7 +1293,7 @@ function prepareRunningCosts() {'use strict';
 						})
 						// ... add first cell
 						.append($('<div/>', {
-							'class' : 'tableCell',
+							'class' : 'tableCell'
 						}).append($('<span/>', {
 							html : data.absoluteCosts.toFixed(2)
 						})).append($('<label/>', {
@@ -1302,7 +1302,7 @@ function prepareRunningCosts() {'use strict';
 						})))
 						// ... add second cell
 						.append($('<div/>', {
-							'class' : 'tableCell',
+							'class' : 'tableCell'
 						}).append($('<span/>', {
 							html : (data.relativeCosts * 100).toFixed(2)
 						})).append($('<label/>', {
