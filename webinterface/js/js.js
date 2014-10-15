@@ -909,7 +909,7 @@ function prepareStock() {'use strict';
 				if (currentStock !== 0) {
 					if (currentStock > writeBackData.maxStockSuggestion.current) {
 						$(dummyCells.currentStock).addClass('badValue');
-					} else if (currentStock > monthlyNeed) {
+					} else if (isNaN(monthlyNeed) || currentStock > monthlyNeed) {
 						$(dummyCells.currentStock).addClass('blueValue');
 					}
 				} else {
