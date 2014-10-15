@@ -958,7 +958,7 @@ function prepareStock() {'use strict';
 			name : 'ItemNo'
 		}, {
 			display : 'Name',
-			name : 'Name',
+			name : 'ItemName',
 			isdefault : true
 		}],
 		params : [{
