@@ -211,10 +211,30 @@ WHERE
 				return 'Sortname';
 			case 'MonthlyNeed' :
 				return 'DailyNeed';
-			case 'CurrentStock' :
-				return 'NetStock';
 			case 'Date' :
 				return 'LastUpdate';
+			case 'CurrentStock' :
+				return 'CASE
+	WHEN
+		WriteBackSuggestion.MaximumStock IS NOT NULL AND
+		NetStock IS NOT NULL AND
+		NetStock > WriteBackSuggestion.MaximumStock
+	THEN
+		5000000 + NetStock #means it`s a red value
+	WHEN
+		NetStock IS NOT NULL AND
+		(DailyNeed IS NOT NULL AND NetStock > 30 * DailyNeed) OR
+		(DailyNeed IS NULL AND NetStock > 0)
+	THEN
+		4000000 + NetStock
+	WHEN
+		NetStock IS NOT NULL AND
+		NetStock != 0
+	THEN
+		3000000 + NetStock
+	ELSE
+		NetStock
+	END';
 			default :
 				throw new RuntimeException("Unknown sort name: $sortByColumn");
 		}
