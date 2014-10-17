@@ -99,7 +99,7 @@ class SoapCall_GetCurrentStocks extends PlentySoapCall {
 				$this -> onExceptionAction($e);
 			}
 		} else {
-			$this -> executePages();
+			$this -> executePagesForWarehouse($warehouseID);
 		}
 
 		$this -> storeToDB();
@@ -158,7 +158,7 @@ class SoapCall_GetCurrentStocks extends PlentySoapCall {
 	/**
 	 * @return void
 	 */
-	private function executePages() {
+	private function executePagesForWarehouse($warehouseID) {
 		while ($this -> pages > $this -> page) {
 			$this -> oPlentySoapRequest_GetCurrentStocks -> Page = $this -> page;
 			try {
