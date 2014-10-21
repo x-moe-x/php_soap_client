@@ -432,6 +432,15 @@ CREATE TABLE `soap_db`.`WarehouseGroups` (
 	UNIQUE KEY `GroupName` (`GroupName`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+DROP TABLE IF EXISTS `soap_db`.`JansenStockData`;
+
+CREATE TABLE `soap_db`.`JansenStockData` (
+	`EAN` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`ExternalItemID`varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`PhysicalStock` decimal(10,4) DEFAULT NULL,
+	PRIMARY KEY (`EAN`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 DROP TABLE IF EXISTS `soap_db`.`CurrentStocks`;
 
 CREATE TABLE `soap_db`.`CurrentStocks` (
