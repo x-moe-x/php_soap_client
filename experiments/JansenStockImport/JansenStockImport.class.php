@@ -54,8 +54,8 @@ class JansenStockImport {
 				while (($csvData = fgetcsv($csvFile, 1000, ';')) !== false) {
 					// ... eliminate dummy fields ...
 					if (count($csvData) === 3) {
-						// ... check ean
-						if (EanGenerator::valid($csvData[2])) {
+						// ... check ean for validity and for jansen origin
+						if (EanGenerator::valid($csvData[2]) && strpos($csvData[2], '85955783') === 0) {
 							// ... then store record
 							$externalItemID = iconv("Windows-1250", "UTF-8", $csvData[0]);
 							$this -> aDBData[] = array('EAN' => $csvData[2], 'ExternalItemID' => $externalItemID, 'PhysicalStock' => floatval($csvData[1]));
