@@ -90,10 +90,10 @@ CREATE TABLE `soap_db`.`AttributeValueSets` (
 	`AttributeValueSetID` int(11) NOT NULL,
 	`AttributeValueSetName` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
 	`Availability` int(11) DEFAULT NULL,
-	`EAN` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
-	`EAN2` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
-	`EAN3` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
-	`EAN4` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`EAN` bigint(13) DEFAULT NULL,
+	`EAN2` bigint(13) DEFAULT NULL,
+	`EAN3` bigint(13) DEFAULT NULL,
+	`EAN4` bigint(13) DEFAULT NULL,
 	`ASIN` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
 	`ColliNo` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
 	`PriceID` int(11) DEFAULT NULL,
@@ -118,10 +118,10 @@ DROP TABLE `soap_db`.`ItemsBase`;
 CREATE TABLE `soap_db`.`ItemsBase` (
 	`ItemID`int(11) NOT NULL,
 	`ItemNo`varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
-	`EAN1`varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
-	`EAN2`varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
-	`EAN3`varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
-	`EAN4`varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`EAN1` bigint(13) DEFAULT NULL,
+	`EAN2` bigint(13) DEFAULT NULL,
+	`EAN3` bigint(13) DEFAULT NULL,
+	`EAN4` bigint(13) DEFAULT NULL,
 	`ASIN`varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
 	/*
 	 * replace Texts with it's subitems
@@ -436,7 +436,7 @@ CREATE TABLE `soap_db`.`WarehouseGroups` (
 DROP TABLE IF EXISTS `soap_db`.`JansenStockData`;
 
 CREATE TABLE `soap_db`.`JansenStockData` (
-	`EAN` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`EAN` bigint(13) NOT NULL,
 	`ExternalItemID`varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
 	`PhysicalStock` decimal(10,4) DEFAULT NULL,
 	PRIMARY KEY (`EAN`)
@@ -449,19 +449,19 @@ CREATE TABLE `soap_db`.`CurrentStocks` (
 	`AttributeValueSetID` int(11) NOT NULL,
 	`WarehouseID` int(11) NOT NULL,
 	`AveragePrice` decimal(10,4) DEFAULT NULL,
-	`EAN` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
-	`EAN2` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
-	`EAN3` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
-	`EAN4` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`EAN` bigint(13) DEFAULT NULL,
+	`EAN2` bigint(13) DEFAULT NULL,
+	`EAN3` bigint(13) DEFAULT NULL,
+	`EAN4` bigint(13) DEFAULT NULL,
 	`NetStock` decimal(10,4) DEFAULT NULL,
 	`PhysicalStock` decimal(10,4) DEFAULT NULL,
 	`StorageLocationID` int(11) DEFAULT NULL,
 	`StorageLocationName` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
 	`StorageLocationStock` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
-	`VariantEAN` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
-	`VariantEAN2` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
-	`VariantEAN3` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
-	`VariantEAN4` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`VariantEAN` bigint(13) DEFAULT NULL,
+	`VariantEAN2` bigint(13) DEFAULT NULL,
+	`VariantEAN3` bigint(13) DEFAULT NULL,
+	`VariantEAN4` bigint(13) DEFAULT NULL,
 	`WarehouseType` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
 	PRIMARY KEY (`ItemID`, `AttributeValueSetID`, `WarehouseID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
