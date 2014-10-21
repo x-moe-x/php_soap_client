@@ -59,6 +59,9 @@ class JansenStockImport {
 							// ... then store record
 							$externalItemID = iconv("Windows-1250", "UTF-8", $csvData[0]);
 							$this -> aDBData[] = array('EAN' => $csvData[2], 'ExternalItemID' => $externalItemID, 'PhysicalStock' => floatval($csvData[1]));
+						} else if (empty($csvData[2])) {
+							//TODO check if this is a good idea: omit missing EAN messages to save log file space?
+							//$this -> getLogger() -> debug(__FUNCTION__ . " EAN missing for article: $externalItemID");
 						} else {
 							// ... otherwise display error
 							$this -> getLogger() -> debug(__FUNCTION__ . " EAN invald for article: $externalItemID, " . (empty($csvData[2]) ? 'no EAN' : $csvData[2]));
@@ -79,10 +82,17 @@ class JansenStockImport {
 	}
 
 	private function storeToDB() {
-		// delete old data
-		DBQuery::getInstance() -> truncate("TRUNCATE JansenStockData");
+		$recordCount = count($this -> aDBData);
 
-		DBQuery::getInstance() -> insert("INSERT INTO JansenStockData" . DBUtils::buildMultipleInsert($this -> aDBData));
+		if ($recordCount > 0) {
+
+			$this -> getLogger() -> debug(__FUNCTION__ . " storing $recordCount stock records from jansen");
+
+			// delete old data
+			DBQuery::getInstance() -> truncate("TRUNCATE JansenStockData");
+
+			DBQuery::getInstance() -> insert("INSERT INTO JansenStockData" . DBUtils::buildMultipleInsert($this -> aDBData));
+		}
 	}
 
 	/**
