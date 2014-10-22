@@ -3,6 +3,7 @@ require_once ROOT . 'lib/soap/call/PlentySoapCall.abstract.php';
 require_once 'Request_GetCurrentStocks.class.php';
 require_once ROOT . 'includes/SKUHelper.php';
 require_once ROOT . 'includes/DBUtils2.class.php';
+require_once ROOT . 'includes/DBLastUpdate.php';
 require_once ROOT . 'api/ApiHelper.class.php';
 
 class SoapCall_GetCurrentStocks extends PlentySoapCall {
@@ -51,8 +52,7 @@ class SoapCall_GetCurrentStocks extends PlentySoapCall {
 
 	private function executeForWarehouse($warehouseID) {
 
-		//TODO add: list($lastUpdate, $currentTime, $this -> startAtPage) = lastUpdateStart(__CLASS__);
-		$lastUpdate = 0;
+		list($lastUpdate, $currentTime, $this -> startAtPage) = lastUpdateStart(__CLASS__ . "_for_wh_$warehouseID");
 
 		if ($this -> pages == -1) {
 			try {
@@ -85,8 +85,8 @@ class SoapCall_GetCurrentStocks extends PlentySoapCall {
 						$this -> page = $this -> startAtPage + 1;
 						$this -> pages = $pagesFound;
 
-						//TODO add: lastUpdatePageUpdate(__CLASS__, $this -> page);
-						$this -> executePages();
+						lastUpdatePageUpdate(__CLASS__ . "_for_wh_$warehouseID", $this -> page);
+						$this -> executePagesForWarehouse($warehouseID);
 
 					}
 				} else if (($response -> Success == true) && !isset($response -> CurrentStocks)) {
@@ -99,11 +99,11 @@ class SoapCall_GetCurrentStocks extends PlentySoapCall {
 				$this -> onExceptionAction($e);
 			}
 		} else {
-			$this -> executePages();
+			$this -> executePagesForWarehouse($warehouseID);
 		}
 
 		$this -> storeToDB();
-		//lastUpdateFinish($currentTime, __CLASS__);
+		lastUpdateFinish($currentTime, __CLASS__ . "_for_wh_$warehouseID");
 	}
 
 	private function storeToDB() {
@@ -158,7 +158,7 @@ class SoapCall_GetCurrentStocks extends PlentySoapCall {
 	/**
 	 * @return void
 	 */
-	private function executePages() {
+	private function executePagesForWarehouse($warehouseID) {
 		while ($this -> pages > $this -> page) {
 			$this -> oPlentySoapRequest_GetCurrentStocks -> Page = $this -> page;
 			try {
@@ -173,7 +173,7 @@ class SoapCall_GetCurrentStocks extends PlentySoapCall {
 				}
 
 				$this -> page++;
-				//TODO add: lastUpdatePageUpdate($this -> functionName, $this -> page);
+				lastUpdatePageUpdate(__CLASS__ . "_for_wh_$warehouseID", $this -> page);
 
 			} catch(Exception $e) {
 				$this -> onExceptionAction($e);
