@@ -71,7 +71,11 @@ LEFT JOIN PriceUpdate
 LEFT JOIN PriceUpdateHistory
 	ON (PriceSets.ItemID = PriceUpdateHistory.ItemID) AND (PriceSets.PriceID = PriceUpdateHistory.PriceID)
 LEFT JOIN PriceUpdateQuantities
-	ON (PriceSets.ItemID = PriceUpdateQuantities.ItemID) AND (PriceSets.PriceID = PriceUpdateQuantities.PriceID)\n";
+	ON (PriceSets.ItemID = PriceUpdateQuantities.ItemID) AND (PriceSets.PriceID = PriceUpdateQuantities.PriceID) AND (CASE WHEN (AttributeValueSets.AttributeValueSetID IS NOT null) THEN
+			AttributeValueSets.AttributeValueSetID
+		ELSE
+			0
+		END = PriceUpdateQuantities.AttributeValueSetID)\n";
 
 	/**
 	 * @var string

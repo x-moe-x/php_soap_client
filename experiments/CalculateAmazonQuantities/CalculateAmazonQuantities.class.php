@@ -53,18 +53,19 @@ class CalculateAmazonQuantities {
 		// get all amazon pre-change-date quantities
 		$preChangeDateQuantitiesDBResult = DBQuery::getInstance() -> select($this -> getQuery($amazonMeasuringTimeFrame, ApiAmazon::AMAZON_REFERRER_ID));
 		while ($row = $preChangeDateQuantitiesDBResult -> fetchAssoc()) {
-			list($itemID, $priceID, ) = SKU2Values($row['SKU']);
-			$this -> aQuantities[Values2SKU($itemID, 0, $priceID)] = array('ItemID' => $itemID, 'PriceID' => $priceID, 'OldQuantity' => ($row['Quantity'] / $amazonMeasuringTimeFrame) * self::DAYS_BACK_INTERAL_BEFORE_PRICE_CHANGE, 'NewQuantity' => 0);
+			list($itemID, $priceID, $attributeValueSetID) = SKU2Values($row['SKU']);
+
+			$this -> aQuantities[$row['SKU']] = array('ItemID' => $itemID, 'AttributeValueSetID' => $attributeValueSetID, 'PriceID' => $priceID, 'OldQuantity' => ($row['Quantity'] / $amazonMeasuringTimeFrame) * self::DAYS_BACK_INTERAL_BEFORE_PRICE_CHANGE, 'NewQuantity' => 0);
 		}
 
 		// get all amazon post-change-date quantities
 		$postChangeDateQuantitiesDBResult = DBQuery::getInstance() -> select($this -> getQuery($amazonMeasuringTimeFrame, ApiAmazon::AMAZON_REFERRER_ID, $this -> currentTime));
 		while ($row = $postChangeDateQuantitiesDBResult -> fetchAssoc()) {
-			list($itemID, $priceID, ) = SKU2Values($row['SKU']);
-			if (array_key_exists(Values2SKU($itemID, 0, $priceID), $this -> aQuantities)) {
-				$this -> aQuantities[Values2SKU($itemID, 0, $priceID)]['NewQuantity'] = ($row['Quantity'] / $amazonMeasuringTimeFrame) * self::DAYS_BACK_INTERAL_BEFORE_PRICE_CHANGE;
+			list($itemID, $priceID, $attributeValueSetID) = SKU2Values($row['SKU']);
+			if (array_key_exists($row['SKU'], $this -> aQuantities)) {
+				$this -> aQuantities[$row['SKU']]['NewQuantity'] = ($row['Quantity'] / $amazonMeasuringTimeFrame) * self::DAYS_BACK_INTERAL_BEFORE_PRICE_CHANGE;
 			} else {
-				$this -> aQuantities[Values2SKU($itemID, 0, $priceID)] = array('ItemID' => $itemID, 'PriceID' => $priceID, 'OldQuantity' => 0, 'NewQuantity' => ($row['Quantity'] / $amazonMeasuringTimeFrame) * self::DAYS_BACK_INTERAL_BEFORE_PRICE_CHANGE );
+				$this -> aQuantities[$row['SKU']] = array('ItemID' => $itemID, 'AttributeValueSetID' => $attributeValueSetID, 'PriceID' => $priceID, 'OldQuantity' => 0, 'NewQuantity' => ($row['Quantity'] / $amazonMeasuringTimeFrame) * self::DAYS_BACK_INTERAL_BEFORE_PRICE_CHANGE );
 			}
 		}
 
@@ -126,7 +127,7 @@ AND
 AND
 	h.ReferrerID = $referrerID
 GROUP BY
-	i.ItemID
+	i.SKU
 ORDER BY
 	i.ItemID ASC";
 	}
