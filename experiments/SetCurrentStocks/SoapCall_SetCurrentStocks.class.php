@@ -12,6 +12,11 @@ class SoapCall_SetCurrentStocks extends PlentySoapCall {
 	const MAX_STOCK_RECORDS_PER_PAGE = 100;
 
 	/**
+	 * @var boolean
+	 */
+	const DISABLE_WAREHOUSE_1_UPDATE = true;
+
+	/**
 	 * @var string
 	 */
 	private $identifier4Logger;
@@ -72,7 +77,7 @@ class SoapCall_SetCurrentStocks extends PlentySoapCall {
 	}
 
 	private function getQuery() {
-		return "SELECT * FROM SetCurrentStocks";
+		return "SELECT * FROM SetCurrentStocks" . (self::DISABLE_WAREHOUSE_1_UPDATE ? ' WHERE WarehouseID != 1' : '');
 	}
 
 }
