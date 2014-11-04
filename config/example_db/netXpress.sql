@@ -442,6 +442,19 @@ CREATE TABLE `soap_db`.`JansenStockData` (
 	PRIMARY KEY (`EAN`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+DROP TABLE IF EXISTS `soap_db`.`SetCurrentStocks`;
+
+CREATE TABLE `soap_db`.`SetCurrentStocks` (
+	`ItemID` int(11) NOT NULL,
+	`AttributeValueSetID` int(11) NOT NULL,
+	`PriceID` int(11) NOT NULL,
+	`WarehouseID` int(11) NOT NULL,
+	`StorageLocation` int(11) NOT NULL,
+	`PhysicalStock` int(11) NOT NULL,
+	`Reason` int(11) NOT NULL,
+	PRIMARY KEY (`ItemID`,`AttributeValueSetID`,`PriceID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 DROP TABLE IF EXISTS `soap_db`.`CurrentStocks`;
 
 CREATE TABLE `soap_db`.`CurrentStocks` (
