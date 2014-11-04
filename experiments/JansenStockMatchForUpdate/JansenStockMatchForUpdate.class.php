@@ -65,25 +65,45 @@ class JansenStockMatchForUpdate {
 			// ... check if match is ok
 			if (!is_null($itemVariant['EAN']) && !is_null($itemVariant['ExternalItemID'])) {
 				// ... handle matched item variant
-				//@formatter:off
-				$this->aMatchedItemVariants[] = array(
-					'ItemID' =>					$itemVariant['ItemID'],
-					'AttributeValueSetID' =>	$itemVariant['AttributeValueSetID'],
-					'PriceID' =>				$itemVariant['PriceID'],
-					'WarehouseID' =>			self::JANSEN_WAREHOUSE_ID,
-					'StorageLocation' =>		self::DEFAULT_STORAGE_LOCATION,
-					'PhysicalStock' =>			$itemVariant['PhysicalStock'],
-					'Reason' =>					self::DEFAULT_REASON
-				);
-				//@formatter:on
+				if ($itemVariant['PhysicalStock'] !== $itemVariant['OldPhysicalStock']) {
+					//@formatter:off
+					$this->aMatchedItemVariants[] = array(
+						'ItemID' =>					$itemVariant['ItemID'],
+						'AttributeValueSetID' =>	$itemVariant['AttributeValueSetID'],
+						'PriceID' =>				$itemVariant['PriceID'],
+						'WarehouseID' =>			self::JANSEN_WAREHOUSE_ID,
+						'StorageLocation' =>		self::DEFAULT_STORAGE_LOCATION,
+						'PhysicalStock' =>			$itemVariant['PhysicalStock'],
+						'Reason' =>					self::DEFAULT_REASON
+					);
+					//@formatter:on
+				}
 			} else {
-				// ... handle error
+				// ... handle not matched item variants
+
+				//TODO remove after debugging
 				//@formatter:off
 				$this->aUnmatchedItemVariants[] = array(
 					'ItemID' =>					$itemVariant['ItemID'],
 					'AttributeValueSetID' =>	$itemVariant['AttributeValueSetID']
 				);
 				//@formatter:on
+
+				// ... if not already zero stock ...
+				if ($itemVariant['OldPhysicalStock'] !== 0) {
+					// ... assume physical stock of zero
+					//@formatter:off
+					$this->aMatchedItemVariants[] = array(
+						'ItemID' =>					$itemVariant['ItemID'],
+						'AttributeValueSetID' =>	$itemVariant['AttributeValueSetID'],
+						'PriceID' =>				$itemVariant['PriceID'],
+						'WarehouseID' =>			self::JANSEN_WAREHOUSE_ID,
+						'StorageLocation' =>		self::DEFAULT_STORAGE_LOCATION,
+						'PhysicalStock' =>			0,
+						'Reason' =>					self::DEFAULT_REASON
+					);
+					//@formatter:on
+				}
 			}
 		}
 
@@ -101,13 +121,26 @@ class JansenStockMatchForUpdate {
 	ps.PriceID,
 	jsd.EAN,
 	jsd.ExternalItemID,
-	jsd.PhysicalStock
+	jsd.PhysicalStock,
+	cs.PhysicalStock AS OldPhysicalStock
 FROM
 	ItemsBase AS i
 LEFT JOIN
 	AttributeValueSets AS avs
 ON
 	i.ItemID = avs.ItemID
+LEFT JOIN
+	CurrentStocks AS cs
+ON
+	i.ItemID = cs.ItemID
+AND
+	CASE WHEN (avs.AttributeValueSetID IS NULL) THEN
+			0
+		ELSE
+			avs.AttributeValueSetID
+	END = cs.AttributeValueSetID
+AND
+	cs.WarehouseID = " . self::JANSEN_WAREHOUSE_ID . "
 LEFT JOIN
 	PriceSets AS ps
 ON
@@ -171,6 +204,7 @@ AND
 			DBQuery::getInstance() -> truncate('TRUNCATE JansenStockUnmatched');
 			DBQuery::getInstance() -> insert('INSERT INTO SetCurrentStocks' . DBUtils2::buildMultipleInsertOnDuplikateKeyUpdate($this -> aMatchedItemVariants));
 			DBQuery::getInstance() -> insert('INSERT INTO JansenStockUnmatched' . DBUtils2::buildMultipleInsertOnDuplikateKeyUpdate($this -> aUnmatchedItemVariants));
+			//TODO update CurrentStocks.PhysicalStock (also lastupdate?)
 
 			$this -> getLogger() -> debug(__FUNCTION__ . ": storing $countMatched matched stock records for update and $countUnMatched records for analysis");
 		}
