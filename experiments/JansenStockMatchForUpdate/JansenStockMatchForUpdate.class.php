@@ -121,33 +121,35 @@ ON
 			avs.EAN2
 	END = jsd.EAN
 AND
-	CASE WHEN (avs.AttributeValueSetID IS NULL) THEN
-			i.ExternalItemID
-		ELSE
-			CASE WHEN (avs.AttributeValueSetID = 1) THEN
-				REPLACE(i.ExternalItemID,' [R/G] ','G')
-			WHEN (avs.AttributeValueSetID = 2) THEN
-				REPLACE(i.ExternalItemID,' [R/G] ','R')
-			WHEN (avs.AttributeValueSetID = 23) THEN
-				REPLACE(i.ExternalItemID,'+[Color]','RED')
-			WHEN (avs.AttributeValueSetID = 24) THEN
-				REPLACE(i.ExternalItemID,'+[Color]','YELLOW')
-			WHEN (avs.AttributeValueSetID = 25) THEN
-				REPLACE(i.ExternalItemID,'+[Color]','PURPLE')
-			WHEN (avs.AttributeValueSetID = 26) THEN
-				REPLACE(i.ExternalItemID,'+[Color]','WHITE')
-			WHEN (avs.AttributeValueSetID = 27) THEN
-				REPLACE(i.ExternalItemID,'+[Color]','PINK')
-			WHEN (avs.AttributeValueSetID = 28) THEN
-				REPLACE(i.ExternalItemID,'+[Color]','DARKBLUE')
-			WHEN (avs.AttributeValueSetID = 29) THEN
-				REPLACE(i.ExternalItemID,'+[Color]','DARKGREEN')
-			WHEN (avs.AttributeValueSetID = 30) THEN
-				REPLACE(i.ExternalItemID,'+[Color]','ORANGE')
+	LOWER(
+		CASE WHEN (avs.AttributeValueSetID IS NULL) THEN
+				i.ExternalItemID
 			ELSE
-				'xxx'
-			END
-	END = jsd.ExternalItemID
+				CASE WHEN (avs.AttributeValueSetID = 1) THEN
+					REPLACE(i.ExternalItemID,' [R/G] ','G')
+				WHEN (avs.AttributeValueSetID = 2) THEN
+					REPLACE(i.ExternalItemID,' [R/G] ','R')
+				WHEN (avs.AttributeValueSetID = 23) THEN
+					REPLACE(i.ExternalItemID,'+[Color]','RED')
+				WHEN (avs.AttributeValueSetID = 24) THEN
+					REPLACE(i.ExternalItemID,'+[Color]','YELLOW')
+				WHEN (avs.AttributeValueSetID = 25) THEN
+					REPLACE(i.ExternalItemID,'+[Color]','PURPLE')
+				WHEN (avs.AttributeValueSetID = 26) THEN
+					REPLACE(i.ExternalItemID,'+[Color]','WHITE')
+				WHEN (avs.AttributeValueSetID = 27) THEN
+					REPLACE(i.ExternalItemID,'+[Color]','PINK')
+				WHEN (avs.AttributeValueSetID = 28) THEN
+					REPLACE(i.ExternalItemID,'+[Color]','DARKBLUE')
+				WHEN (avs.AttributeValueSetID = 29) THEN
+					REPLACE(i.ExternalItemID,'+[Color]','DARKGREEN')
+				WHEN (avs.AttributeValueSetID = 30) THEN
+					REPLACE(i.ExternalItemID,'+[Color]','ORANGE')
+				ELSE
+					'xxx'
+				END
+		END
+	) = LOWER(jsd.ExternalItemID)
 WHERE
 	CASE WHEN (avs.AttributeValueSetID IS NULL) THEN
 			i.EAN2
