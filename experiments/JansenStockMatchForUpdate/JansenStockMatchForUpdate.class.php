@@ -155,7 +155,11 @@ WHERE
 			i.EAN2
 		ELSE
 			avs.EAN2
-	END BETWEEN 8595578300000 AND 8595578399999";
+	END BETWEEN 8595578300000 AND 8595578399999
+AND
+	i.Marking1ID != 4
+AND
+	i.Inactive = 0";
 	}
 
 	private function storeToDB() {
