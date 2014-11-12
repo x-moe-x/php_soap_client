@@ -15,6 +15,7 @@
 		<script src='js/flexigrid.js'></script>
 		<script src='js/apiAdapter.js'></script>
 		<script src='js/js.js'></script>
+		<script src='js/ean.js'></script>
 	</head>
 	<body>
 		<div id='tabs'>
