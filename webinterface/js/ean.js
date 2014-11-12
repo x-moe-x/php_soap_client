@@ -1,10 +1,10 @@
 var EanGenerator = function(baseEan, maxNrOfEan) {'use strict';
-	this.baseEan = baseEan;
+	this.baseEan = Math.floor(baseEan / 10) * 10;
 	this.maxNrOfEan = maxNrOfEan;
 
 	var DIGITS = 13, MAX_EAN = 9999999999999, MIN_EAN = 1000000000000, getSum = function(ean) {
 		var sum = 0, i = null, processDigits = String(ean).split('');
-		if (processDigits.length !== 13) {
+		if (processDigits.length !== DIGITS) {
 			throw 'Not enough Digits!';
 		}
 		for ( i = 0; i < DIGITS - 1; i += 2) {
