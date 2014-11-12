@@ -21,8 +21,8 @@ class ApiHelper {
 			$aRunningCostsTable = ApiRunningCosts::getRunningCostsTable();
 			$aGeneralCostsTable = ApiGeneralCosts::getGeneralCosts(array_keys($aRunningCostsTable));
 		}
-		
-		if (is_null($aGeneralCostsTable)){
+
+		if (is_null($aGeneralCostsTable)) {
 			$aGeneralCostsTable = ApiGeneralCosts::getGeneralCosts(array_keys($aRunningCostsTable));
 		}
 
@@ -55,15 +55,15 @@ class ApiHelper {
 
 		$averageGeneralCostsElements = count($aGeneralCostsTable);
 		$monthsReverseGC = array_reverse(array_keys($aRunningCostsTable));
-		
+
 		foreach ($monthsReverseGC as $month) {
-			if (is_null($aGeneralCostsTable[$month]['relativeCosts'])){
+			if (is_null($aGeneralCostsTable[$month]['relativeCosts'])) {
 				$averageGeneralCostsElements--;
 			} else {
 				break;
 			}
 		}
-		
+
 		$averageGeneralCosts = 0.0;
 		for (reset($aGeneralCostsTable), $idx = 0, $month = current($aGeneralCostsTable); $idx < $averageGeneralCostsElements; $idx++, $month = next($aGeneralCostsTable)) {
 			$averageGeneralCosts += $month['relativeCosts'] / $averageGeneralCostsElements;

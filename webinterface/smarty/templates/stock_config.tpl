@@ -69,24 +69,24 @@
 					</button>
 				</li>
 				<li>
-					<button id='buttonManualCalculate'class='buttonsLeft'>
+					<button id='buttonManualCalculate' class='buttonsLeft'>
 						Kalkulation auslösen
 					</button>
 				</li>
 				<li>
-					<button id='buttonManualWriteBack'class='buttonsLeft'>
+					<button id='buttonManualWriteBack' class='buttonsLeft'>
 						Rückschreiben auslösen
 					</button>
 				</li>
 			</ul>
 			<ul class='column rightColumn'>
 				<li>
-					<button id='buttonResetArticles'class='buttonsRight'>
+					<button id='buttonResetArticles' class='buttonsRight'>
 						Reset Artikel-Datenbank
 					</button>
 				</li>
 				<li>
-					<button id='buttonResetOrders'class='buttonsRight'>
+					<button id='buttonResetOrders' class='buttonsRight'>
 						Reset Order-Datenbank
 					</button>
 				</li>
