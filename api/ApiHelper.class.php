@@ -155,6 +155,82 @@ class ApiHelper {
 		}
 	}
 
+	public static function getConfigJSON($key, $domain) {
+		header('Content-Type: application/json');
+		$result = array('success' => false, 'data' => NULL, 'error' => NULL);
+
+		try {
+			if (is_null($key)) {
+				$result['data'] = self::getConfig(null, $domain);
+			} else if (is_array($key)) {
+				$result['data'] = self::getConfig($key, $domain);
+			} else {
+				$result['data'] = array($key => self::getConfig($key, $domain));
+			}
+			$result['success'] = true;
+		} catch(Exception $e) {
+			$result['error'] = $e -> getMessage();
+		}
+		echo json_encode($result);
+	}
+
+	public static function getConfig($key = null, $domain) {
+		$query = 'SELECT `ConfigType` AS `type`, `ConfigKey` AS `key`, `ConfigValue` AS `value` FROM MetaConfig WHERE `Active` = 1 AND `Domain` = \'' . $domain . '\'';
+		if (is_null($key)) {
+			// getting all active k/v-pairs from amazon config
+		} else if (is_array($key)) {
+			// getting value of $key from amazon config;
+			$query .= ' AND `ConfigKey` IN (' . implode(',', $key) . ')';
+		} else {
+			// getting value of $key from amazon config;
+			$query .= ' AND `ConfigKey` = \'' . $key . '\'';
+		}
+
+		ob_start();
+		$dbResult = DBQuery::getInstance() -> select($query);
+		ob_end_clean();
+
+		// return single value
+		if ($dbResult -> getNumRows() > 0) {
+			if ($dbResult -> getNumRows() === 1 && !is_array($key)) {
+				if ($row = $dbResult -> fetchAssoc()) {
+					switch ($row['type']) {
+						case 'int' :
+							return intval($row['value']);
+						case 'float' :
+							return floatval($row['value']);
+						default :
+							throw new RuntimeException("ConfigType {$row['type']} not allowed");
+					}
+				} else {
+					throw new RuntimeException("Could not fetch result for key $key");
+				}
+			}
+			// return multiple values
+			else {
+				$result = array();
+
+				while ($row = $dbResult -> fetchAssoc()) {
+					switch ($row['type']) {
+						case 'int' :
+							$result[$row['key']] = intval($row['value']);
+							break;
+						case 'float' :
+							$result[$row['key']] = floatval($row['value']);
+							break;
+						default :
+							throw new RuntimeException("ConfigType {$row['type']} not allowed");
+					}
+				}
+				return $result;
+			}
+		}
+		// error
+		else {
+			throw new RuntimeException("Could not fetch result for key $key");
+		}
+	}
+
 	public static function getMonthDates(DateTime $fromDate, $nrOfMonthDates = 6, $omitCurrentMonth = false) {
 		$result = array();
 		$normalizedDate = new DateTime($fromDate -> format('Ym01'));
