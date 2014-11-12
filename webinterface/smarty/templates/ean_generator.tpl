@@ -12,6 +12,20 @@
 		width: 130px;
 		margin-bottom: 1em;
 	}
+
+	.fieldList #eanValidity {
+		display: inline-block;
+		width: 16px;
+		height: 16px;
+	}
+
+	#eanValidity.ui-state-default .ui-icon-circle-close {
+		background-image: url("images/ui-icons_ff0000_256x240.png") !important;
+	}
+
+	#eanValidity.ui-state-default .ui-icon-check {
+		background-image: url("images/ui-icons_008000_256x240.png") !important;
+	}
 </style>
 <script>
 	$(function() {
@@ -65,9 +79,7 @@
 				$('#generatedEan').val(eanGenerator.getEan($(this).val()));
 			});
 
-			$('#eanTabs').tabs({
-				disabled : [1]
-			}).show();
+			$('#eanTabs').tabs().show();
 		});
 
 	});
@@ -109,6 +121,12 @@
 		</ul>
 	</div>
 	<div id="checkEan">
-
+		<ul class='fieldList'>
+			<li>
+				<label for='#eanCheckField'>EAN</label>
+				<input id='eanCheckField' type="text" />
+				<label for='#eanCheckField' id='eanValidity' class='ui-state-default ui-corner-all'> <span class="ui-icon ui-icon-circle-close"> </span> </label>
+			</li>
+		</ul>
 	</div>
 </div>
