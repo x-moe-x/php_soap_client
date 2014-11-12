@@ -1,3 +1,77 @@
+<style>
+	.fieldList {
+		display: table;
+	}
+
+	.fieldList > li {
+		display: table-row;
+	}
+
+	.fieldList label, .fieldList input, .fieldList select {
+		display: table-cell;
+		width: 130px;
+		margin-bottom: 1em;
+	}
+</style>
+<script>
+	$(function() {
+		'use strict';
+		var eanConfig = null, eanGenerator = null;
+
+		function preprocessEanInput(element, type) {
+			element.checkFloatval();
+			if (type !== 'float' || isNaN(element.val())) {
+				return 'incorrect';
+			}
+
+			return {
+				key : element.attr('id'),
+				value : element.val()
+			};
+		};
+
+		function postProcessEanInput(element, type, requestData, resultData) {
+			if (requestData.key === 'baseEan') {
+				eanConfig.BaseEan = resultData[requestData.key];
+			} else if (requestData.key === 'maxNumberOfEan') {
+				eanConfig.MaxNumberOfEan = resultData[requestData.key];
+			} else {
+				alert("error");
+			}
+
+			updateEanGenerator();
+			return resultData[requestData.key];
+		}
+
+		function updateEanGenerator() {
+			eanGenerator = new EanGenerator(eanConfig.BaseEan, eanConfig.MaxNumberOfEan);
+		}
+
+
+		$.when($.get('../api/config/ean', function(data, textStatus, jqXHR) {
+			eanConfig = data.data;
+		})).then(function() {
+
+			updateEanGenerator();
+
+			$('#baseEan').val(eanConfig.BaseEan).change(function() {
+				$(this).apiUpdate('../api/config/ean', 'float', preprocessEanInput, postProcessEanInput);
+			});
+			$('#maxNumberOfEan').val(eanConfig.MaxNumberOfEan).change(function() {
+				$(this).apiUpdate('../api/config/ean', 'float', preprocessEanInput, postProcessEanInput);
+			});
+
+			$('#itemId').change(function() {
+				$('#generatedEan').val(eanGenerator.getEan($(this).val()));
+			});
+
+			$('#eanTabs').tabs({
+				disabled : [1]
+			}).show();
+		});
+
+	});
+</script>
 <div class='config'>
 	<h3>EAN Konfiguration</h3>
 	<div>
