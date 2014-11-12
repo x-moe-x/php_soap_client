@@ -10,7 +10,7 @@ var EanGenerator = function(baseEan, maxNrOfEan) {'use strict';
 		for ( i = 0; i < DIGITS - 1; i += 2) {
 			sum += parseInt(processDigits[i], 10) % 10 + 3 * parseInt(processDigits[i + 1], 10) % 10;
 		}
-		return sum;
+		return sum + parseInt(processDigits[DIGITS - 1], 10) % 10;
 	};
 
 	this.getEan = function(itemID) {
