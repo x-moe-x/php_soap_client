@@ -28,6 +28,9 @@
 				<li>
 					<a href='#generalCostConfiguration'>Konfiguration Kosten</a>
 				</li>
+				<li>
+					<a href='#EanGenerator'>EAN Generator</a>
+				</li>
 			</ul>
 			<div id='dialog'>
 				<p>
@@ -52,6 +55,9 @@
 				<table id='runningCostConfigurationNew' style='display:none'>
 					<!-- -->
 				</table>
+			</div>
+			<div id='EanGenerator'>
+				{include file='ean_generator.tpl'}
 			</div>
 		</div>
 		<div class="modal">
