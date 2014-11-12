@@ -79,6 +79,16 @@
 				$('#generatedEan').val(eanGenerator.getEan($(this).val()));
 			});
 
+			$('#eanCheckField').change(function() {
+				var icon = $('#eanValidity span').removeClass('ui-icon-circle-close').removeClass('ui-icon-check');
+				console.log(icon);
+				if (eanGenerator.valid($(this).val())) {
+					icon.addClass('ui-icon-check');
+				} else {
+					icon.addClass('ui-icon-circle-close');
+				}
+			});
+
 			$('#eanTabs').tabs().show();
 		});
 
