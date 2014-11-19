@@ -17,10 +17,19 @@ class SoapCall_GetItemsSuppliers extends PlentySoapCall {
 	 */
 	private $aStoreData;
 
+	/**
+	 * Store articles with no data
+	 *
+	 * @var array
+	 */
+	private $aNoDataArticles;
+
 	public function __construct() {
 		parent::__construct(__CLASS__);
 
 		$this -> aStoreData = array();
+
+		$this -> aNoDataArticles = array();
 
 		// clear ItemSuppliers db before start so there's no old leftover
 		DBQuery::getInstance() -> truncate('TRUNCATE TABLE ItemSuppliers');
@@ -75,7 +84,18 @@ class SoapCall_GetItemsSuppliers extends PlentySoapCall {
 	 * @return void
 	 */
 	private function storeToDB() {
-		DBQuery::getInstance() -> insert('INSERT INTO `ItemSuppliers`' . DBUtils::buildMultipleInsert($this -> aStoreData) . 'ON DUPLICATE KEY UPDATE ItemSupplierRowID=VALUES(ItemSupplierRowID),IsRebateAllowed=VALUES(IsRebateAllowed),Priority=VALUES(Priority),Rebate=VALUES(Rebate),SupplierDeliveryTime=VALUES(SupplierDeliveryTime),SupplierItemNumber=VALUES(SupplierItemNumber),SupplierMinimumPurchase=VALUES(SupplierMinimumPurchase),VPE=VALUES(VPE)');
+		$storeDataCount = count($this -> aStoreData);
+		$noDataCount = count($this -> aNoDataArticles);
+
+		if ($storeDataCount > 0) {
+			DBQuery::getInstance() -> insert('INSERT INTO `ItemSuppliers`' . DBUtils::buildMultipleInsert($this -> aStoreData) . 'ON DUPLICATE KEY UPDATE ItemSupplierRowID=VALUES(ItemSupplierRowID),IsRebateAllowed=VALUES(IsRebateAllowed),Priority=VALUES(Priority),Rebate=VALUES(Rebate),SupplierDeliveryTime=VALUES(SupplierDeliveryTime),SupplierItemNumber=VALUES(SupplierItemNumber),SupplierMinimumPurchase=VALUES(SupplierMinimumPurchase),VPE=VALUES(VPE)');
+
+			$this -> getLogger() -> debug(__FUNCTION__ . " storing $storeDataCount records of supplier data");
+		}
+
+		if ($noDataCount > 0) {
+			$this -> getLogger() -> debug(__FUNCTION__ . ' no data found for items: ' . implode(', ', $this -> aNoDataArticles));
+		}
 	}
 
 	/**
@@ -93,11 +113,32 @@ class SoapCall_GetItemsSuppliers extends PlentySoapCall {
 			foreach ($oPlentySoapResponse_GetItemsSuppliers -> ItemsSuppliersList -> item AS &$oPlentySoapObject_ItemsSuppliersList) {
 				$this -> processSupplier($oPlentySoapObject_ItemsSuppliersList);
 			}
-		} else {
+		} else if (!is_null($oPlentySoapResponse_GetItemsSuppliers -> ItemsSuppliersList -> item)) {
 
 			$this -> getLogger() -> debug(__FUNCTION__ . " fetched supplier record for ItemID: {$oPlentySoapResponse_GetItemsSuppliers -> ItemsSuppliersList -> item -> ItemID}");
 
 			$this -> processSupplier($oPlentySoapResponse_GetItemsSuppliers -> ItemsSuppliersList -> item);
+		} else {
+			foreach ($oPlentySoapResponse_GetItemsSuppliers -> ResponseMessages -> item as $oPlentySoapResponseMessage) {
+				$this -> processResponseMessage($oPlentySoapResponseMessage);
+			}
+		}
+	}
+
+	/**
+	 * process PlentySoapResponseMessage
+	 *
+	 * @param PlentySoapResponseMessage $oPlentySoapResponseMessage
+	 * @return void
+	 */
+	private function processResponseMessage($oPlentySoapResponseMessage) {
+		// check error code
+		if ($oPlentySoapResponseMessage -> Code === 110) {
+			// No Data error:
+			$this -> aNoDataArticles[] = $oPlentySoapResponseMessage -> IdentificationValue;
+		} else {
+			// other error
+			$this -> getLogger() -> debug(__FUNCTION__ . ' error ' . $oPlentySoapResponseMessage -> Code . ' for ' . $oPlentySoapResponseMessage -> IdentificationKey . ': ' . $oPlentySoapResponseMessage -> IdentificationValue);
 		}
 	}
 
