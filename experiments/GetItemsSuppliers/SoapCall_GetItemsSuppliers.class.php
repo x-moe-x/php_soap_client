@@ -118,11 +118,13 @@ class SoapCall_GetItemsSuppliers extends PlentySoapCall {
 			$this -> getLogger() -> debug(__FUNCTION__ . " fetched supplier record for ItemID: {$oPlentySoapResponse_GetItemsSuppliers -> ItemsSuppliersList -> item -> ItemID}");
 
 			$this -> processSupplier($oPlentySoapResponse_GetItemsSuppliers -> ItemsSuppliersList -> item);
-		} else {
-			foreach ($oPlentySoapResponse_GetItemsSuppliers -> ResponseMessages -> item as $oPlentySoapResponseMessage) {
-				$this -> processResponseMessage($oPlentySoapResponseMessage);
-			}
 		}
+
+		// process potential response messages
+		foreach ($oPlentySoapResponse_GetItemsSuppliers -> ResponseMessages -> item as $oPlentySoapResponseMessage) {
+			$this -> processResponseMessage($oPlentySoapResponseMessage);
+		}
+
 	}
 
 	/**
