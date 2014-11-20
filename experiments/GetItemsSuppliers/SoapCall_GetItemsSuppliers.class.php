@@ -132,13 +132,28 @@ class SoapCall_GetItemsSuppliers extends PlentySoapCall {
 	 * @return void
 	 */
 	private function processResponseMessage($oPlentySoapResponseMessage) {
-		// check error code
-		if ($oPlentySoapResponseMessage -> Code === 110) {
-			// No Data error:
-			$this -> aNoDataArticles[] = $oPlentySoapResponseMessage -> IdentificationValue;
-		} else {
-			// other error
-			$this -> getLogger() -> debug(__FUNCTION__ . ' error ' . $oPlentySoapResponseMessage -> Code . ' for ' . $oPlentySoapResponseMessage -> IdentificationKey . ': ' . $oPlentySoapResponseMessage -> IdentificationValue);
+		switch ($oPlentySoapResponseMessage -> Code) {
+			case 100 :
+				// everything ok
+				break;
+			case 110 :
+				// no data warning
+				$this -> aNoDataArticles[] = $oPlentySoapResponseMessage -> IdentificationValue;
+				break;
+			case 800 :
+				// error
+				if ($oPlentySoapResponseMessage -> IdentificationKey == 'ItemID') {
+					$this -> getLogger() -> debug(__FUNCTION__ . ' error ' . $oPlentySoapResponseMessage -> Code . ': ' . $oPlentySoapResponseMessage -> IdentificationKey . ': ' . $oPlentySoapResponseMessage -> IdentificationValue);
+				} else {
+					$this -> getLogger() -> debug(__FUNCTION__ . ' error ' . $oPlentySoapResponseMessage -> Code . ': An error occurred while retrieving item supplier list');
+				}
+				break;
+			case 810 :
+				// limit error
+				$this -> getLogger() -> debug(__FUNCTION__ . ' error ' . $oPlentySoapResponseMessage -> Code . ': Only 50 item supplier lists can be retrieved at the same time');
+				break;
+			default :
+				$this -> getLogger() -> debug(__FUNCTION__ . ' unknown error: ' . $oPlentySoapResponseMessage -> Code);
 		}
 	}
 
