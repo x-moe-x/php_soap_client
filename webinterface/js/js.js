@@ -788,7 +788,7 @@ function prepareStock() {'use strict';
 			align : 'left'
 		}, {
 			display : 'Name',
-			name : 'Name',
+			name : 'ItemName',
 			width : 500,
 			sortable : true,
 			align : 'left'
