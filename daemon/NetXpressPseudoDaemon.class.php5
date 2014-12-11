@@ -37,6 +37,23 @@ class NetXpressPseudoDaemon {
 		return self::$instance;
 	}
 
+	private function obtainOutOfSequenceTasks() {
+		// for all tasks currently in db-queue:
+		// ... insert into running-queue
+	}
+
+	private function obtainScheduledTasks() {
+		// for all existing tasks:
+		// ... if is scheduled for execution ...
+		// ... ... then insert into running-queue
+	}
+
+	private function processRunningQueue() {
+		// for all tasks in running-queue:
+		// ... perform task
+		// ... ... update task-data
+	}
+
 	public function run() {
 		$this -> executionLock -> init(ROOT . '/tmp/execution.Lock');
 		$this -> dbQueueLock -> init(ROOT . '/tmp/dbQueue.Lock');
@@ -50,20 +67,15 @@ class NetXpressPseudoDaemon {
 			if ($this -> dbQueueLock -> lock()) {
 
 				Logger::instance('FileLock') -> debug('dbQueueLock acquired.');
-				// for all tasks currently in db-queue:
-				// ... insert into running-queue
+
+				$this -> obtainOutOfSequenceTasks();
 
 				$this -> dbQueueLock -> unlock();
 				Logger::instance('FileLock') -> debug('dbQueueLock released.');
 
-				// for all existing tasks:
-				// ... if is scheduled for execution ...
-				// ... ... then insert into running-queue
+				$this -> obtainScheduledTasks();
 
-				// for all tasks in running-queue:
-				// ... perform task
-				// ... ... update task-data
-
+				$this -> processRunningQueue();
 			} else {
 				Logger::instance('FileLock') -> debug('dbQueueLock not acquired after given amount of time. Skipping this turn.');
 			}
