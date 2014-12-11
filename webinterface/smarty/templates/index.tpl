@@ -15,6 +15,7 @@
 		<script src='js/flexigrid.js'></script>
 		<script src='js/apiAdapter.js'></script>
 		<script src='js/js.js'></script>
+		<script src='js/ean.js'></script>
 	</head>
 	<body>
 		<div id='tabs'>
@@ -27,6 +28,9 @@
 				</li>
 				<li>
 					<a href='#generalCostConfiguration'>Konfiguration Kosten</a>
+				</li>
+				<li>
+					<a href='#EanGenerator'>EAN Generator</a>
 				</li>
 			</ul>
 			<div id='dialog'>
@@ -52,6 +56,9 @@
 				<table id='runningCostConfigurationNew' style='display:none'>
 					<!-- -->
 				</table>
+			</div>
+			<div id='EanGenerator'>
+				{include file='ean_generator.tpl'}
 			</div>
 		</div>
 		<div class="modal">

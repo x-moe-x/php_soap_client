@@ -7,6 +7,7 @@ require_once 'ApiRunningCosts.class.php';
 require_once 'ApiAmazon.class.php';
 require_once 'ApiExecute.class.php';
 require_once 'ApiWarehouseGrouping.class.php';
+require_once 'ApiEanProcessing.class.php';
 
 Epi::setSetting('exceptions', true);
 Epi::init('route');
@@ -30,6 +31,11 @@ getRoute() -> put('/generalCosts/(\d+)/(\d+|\d+\.\d+)', array('ApiGeneralCosts',
 // register running costs api calls
 getRoute() -> get('/runningCosts/average', array('ApiHelper', 'getAverageCostsJSON'));
 getRoute() -> put('/runningCosts/(\d+)/(\d+)/(\d+|\d+\.\d+)', array('ApiRunningCosts', 'setRunningCostsJSON'));
+
+// register ean api calls
+getRoute() -> get('/config/ean', array('ApiEanProcessing', 'getConfigJSON'));
+getRoute() -> get('/config/ean/(\w+)', array('ApiEanProcessing', 'getConfigJSON'));
+getRoute() -> put('/config/ean/(\w+)/(\d+)', array('ApiEanProcessing', 'setConfigJSON'));
 
 // register amazon api calls
 getRoute() -> get('/config/amazon', array('ApiAmazon', 'getConfigJSON'));
