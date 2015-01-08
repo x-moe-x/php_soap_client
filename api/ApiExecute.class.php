@@ -49,6 +49,11 @@ class ApiExecute {
 	/**
 	 * @var string
 	 */
+	const UPDATE_CURRENT_STOCKS = 'updateCurrentStocks';
+
+	/**
+	 * @var string
+	 */
 	const UPDATE_ALL = 'updateAll';
 
 	/**
@@ -75,6 +80,11 @@ class ApiExecute {
 	 * @var string
 	 */
 	const CALCULATE_AMAZON_RUNNING_COSTS = 'calculateAmazonRunningCosts';
+
+	/**
+	 * @var string
+	 */
+	const CALCULATE_AMAZON_QUANTITIES = 'calculateAmazonQuantities';
 
 	/**
 	 * @var string
@@ -180,6 +190,9 @@ class ApiExecute {
 				case self::UPDATE_SALES_ORDER_REFERRER :
 					NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'GetSalesOrderReferrer'));
 					break;
+				case self::UPDATE_CURRENT_STOCKS :
+					NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'GetCurrentStocks'));
+					break;
 				case self::CALCULATE_TOTAL_NETTO :
 					NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'CalculateTotalNetto', 'CalculateTotalNetto'));
 					break;
@@ -193,11 +206,10 @@ class ApiExecute {
 					NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'DetermineWritePermissions', 'DetermineWritePermissions'));
 					break;
 				case self::CALCULATE_AMAZON_RUNNING_COSTS :
-					if (CalculateAmazonWeightenedRunningCosts::arePrequisitesMet()) {
-						NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'CalculateAmazonWeightenedRunningCosts', 'CalculateAmazonWeightenedRunningCosts'));
-					} else {
-						throw new RuntimeException('Prequisites not met for ' . self::CALCULATE_AMAZON_RUNNING_COSTS);
-					}
+					NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'CalculateAmazonWeightenedRunningCosts', 'CalculateAmazonWeightenedRunningCosts'));
+					break;
+				case self::CALCULATE_AMAZON_QUANTITIES :
+					NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'CalculateAmazonQuantities', 'CalculateAmazonQuantities'));
 					break;
 				case self::SET_ITEMS_SUPPLIERS :
 					NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'SetItemsSuppliers'));
