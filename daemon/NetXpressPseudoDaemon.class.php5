@@ -6,6 +6,7 @@ error_reporting(-1);
 require_once realpath(dirname(__FILE__) . '/../') . '/config/basic.inc.php';
 require_once ROOT . 'lib/soap/experiment_loader/NetXpressSoapExperimentLoader.class.php';
 require_once ROOT . 'api/ApiTasks.class.php';
+require_once ROOT . 'api/ApiExecute.class.php';
 require_once ROOT . 'includes/FileLock.class.php';
 
 class NetXpressPseudoDaemon {
@@ -61,7 +62,8 @@ class NetXpressPseudoDaemon {
 		// for all tasks in running-queue:
 		foreach ($this->aRunningQueue as $currentTask) {
 			// ... perform task
-			$this -> debug('Pretend to execute Task: ' . $currentTask['name']);
+			$this -> debug('Executing Task: ' . $currentTask['name']);
+			ApiExecute::executeTasks($currentTask['name']);
 			// ... ... update task-data
 			ApiTasks::updateLastExecuteTime($currentTask['id']);
 		}
