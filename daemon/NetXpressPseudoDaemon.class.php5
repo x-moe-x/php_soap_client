@@ -61,45 +61,51 @@ class NetXpressPseudoDaemon {
 		// for all tasks in running-queue:
 		foreach ($this->aRunningQueue as $currentTask) {
 			// ... perform task
+			$this -> debug('Pretend to execute Task: ' . $currentTask['name']);
 			// ... ... update task-data
 			ApiTasks::updateLastExecuteTime($currentTask['id']);
 		}
 	}
 
 	public function run() {
+		$this -> debug('Starting pseudo daemon...');
 		$this -> executionLock -> init(ROOT . '/tmp/execution.Lock');
 		$this -> dbQueueLock -> init(ROOT . '/tmp/dbQueue.Lock');
 
 		// if execution lock is aquired ...
 		if ($this -> executionLock -> tryLock()) {
-			Logger::instance('FileLock') -> debug('executionLock acquired.');
+			$this -> debug('executionLock acquired.');
 
 			// ... then wait till dbQueueLock has been aquired
-			Logger::instance('FileLock') -> debug('waiting for dbQueueLock ...');
+			$this -> debug('waiting for dbQueueLock ...');
 			if ($this -> dbQueueLock -> lock()) {
 
-				Logger::instance('FileLock') -> debug('dbQueueLock acquired.');
+				$this -> debug('dbQueueLock acquired.');
 
 				$this -> obtainOutOfSequenceTasks();
 
 				$this -> dbQueueLock -> unlock();
-				Logger::instance('FileLock') -> debug('dbQueueLock released.');
+				$this -> debug('dbQueueLock released.');
 
 				$this -> obtainScheduledTasks();
 
 				$this -> processRunningQueue();
 			} else {
-				Logger::instance('FileLock') -> debug('dbQueueLock not acquired after given amount of time. Skipping this turn.');
+				$this -> debug('dbQueueLock not acquired after given amount of time. Skipping this turn.');
 			}
 			$this -> executionLock -> unlock();
-			Logger::instance('FileLock') -> debug('executionLock released.');
+			$this -> debug('executionLock released.');
 		} else {
 			// ... otherwise skip this turn
-			Logger::instance('FileLock') -> debug('executionLock not acquired. Skipping this turn.');
+			$this -> debug('executionLock not acquired. Skipping this turn.');
 		}
-		Logger::instance('FileLock') -> debug('executionLock and dbQueueLock discarded.');
+		$this -> debug('executionLock and dbQueueLock discarded.');
 		$this -> executionLock -> discard();
 		$this -> dbQueueLock -> discard();
+	}
+
+	private function debug($message) {
+		Logger::instance('NetXpressPseudoDaemon') -> debug($message);
 	}
 
 }
