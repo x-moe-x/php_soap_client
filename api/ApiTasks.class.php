@@ -59,7 +59,7 @@ ON DUPLICATE KEY UPDATE
 				$last -> setTimeZone(new DateTimeZone('Europe/Berlin'));
 				$last -> add(new DateInterval('PT' . $currentTask['interval'] . 'M')) -> sub(new DateInterval('PT' . (2 * self::DAEMON_INTERVAL) . 'M'));
 
-				if ($last < $current) {
+				if ($last < $now) {
 					// execute
 					echo "execute \n";
 					$result[] = $currentTask;
