@@ -126,6 +126,9 @@ class ApiExecute {
 	 */
 	const RESET_PRICE_UPDATES = 'resetPriceUpdates';
 
+	/** @var string */
+	const DAILY_TASK = 'dailyTask';
+
 	public static function executeTaskWithOutputJSON($task) {
 		self::executeTaskJSON($task, true);
 	}
@@ -235,6 +238,30 @@ class ApiExecute {
 					break;
 				case self::RESET_PRICE_UPDATES :
 					DBQuery::getInstance() -> truncate('TRUNCATE `PriceUpdate`');
+					break;
+				case self::DAILY_TASK :
+					//@formatter:off
+					self::executeTasks(
+						array(
+							self::UPDATE_ORDERS,
+							self::UPDATE_ITEMS,
+							self::UPDATE_ITEMS_PRICE_LISTS,
+							self::UPDATE_ITEMS_WAREHOUSE_SETTINGS,
+							self::UPDATE_ITEMS_SUPPLIERS,
+							self::UPDATE_WAREHOUSE_LIST,
+							self::UPDATE_CURRENT_STOCKS,
+							self::UPDATE_SALES_ORDER_REFERRER,
+							self::CALCULATE_TOTAL_NETTO,
+							self::CALCULATE_DAILY_NEED,
+							self::CALCULATE_WRITE_BACK_DATA,
+							self::CALCULATE_AMAZON_QUANTITIES,
+							self::CALCULATE_AMAZON_RUNNING_COSTS,
+							self::CALCULATE_WRITE_PERMISSIONS,
+							self::SET_ITEMS_SUPPLIERS,
+							self::SET_ITEMS_WAREHOUSE_SETTINGS
+						)
+					);
+					//@formatter:on
 					break;
 				default :
 					// checking group functions
