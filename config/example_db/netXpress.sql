@@ -455,6 +455,32 @@ CREATE TABLE `soap_db`.`SetCurrentStocks` (
 	PRIMARY KEY (`ItemID`,`AttributeValueSetID`,`PriceID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+DROP TABLE IF EXISTS `soap_db`.`TaskDefinitions`;
+
+CREATE TABLE `soap_db`.`TaskDefinitions` (
+	`TaskID` int(11) NOT NULL,
+	`TaskName` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
+	`TaskExecutionInterval` int(11) DEFAULT NULL,
+	`TaskExecutionStart` int(11) DEFAULT NULL,
+	PRIMARY KEY (`TaskID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+DROP TABLE IF EXISTS `soap_db`.`TaskData`;
+
+CREATE TABLE `soap_db`.`TaskData` (
+	`TaskID` int(11) NOT NULL,
+	`TaskLastExecutionTimestamp` int(11) NOT NULL,
+	PRIMARY KEY (`TaskID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+DROP TABLE IF EXISTS `soap_db`.`TaskQueue`;
+
+CREATE TABLE `soap_db`.`TaskQueue` (
+	`TaskID` int(11) NOT NULL,
+	`TaskInsertionTimestamp` int(11) NOT NULL,
+	PRIMARY KEY (`TaskID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 DROP TABLE IF EXISTS `soap_db`.`CurrentStocks`;
 
 CREATE TABLE `soap_db`.`CurrentStocks` (
