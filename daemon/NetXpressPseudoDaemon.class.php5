@@ -5,6 +5,7 @@ error_reporting(-1);
 
 require_once realpath(dirname(__FILE__) . '/../') . '/config/basic.inc.php';
 require_once ROOT . 'lib/soap/experiment_loader/NetXpressSoapExperimentLoader.class.php';
+require_once ROOT . 'api/ApiTasks.class.php';
 require_once ROOT . 'includes/FileLock.class.php';
 
 class NetXpressPseudoDaemon {
@@ -20,6 +21,11 @@ class NetXpressPseudoDaemon {
 	private $dbQueueLock = null;
 
 	/**
+	 * @var array
+	 */
+	private $aRunningQueue = null;
+
+	/**
 	 * @var NetXpressPseudoDaemon
 	 */
 	private static $instance = null;
@@ -27,6 +33,8 @@ class NetXpressPseudoDaemon {
 	private function __construct() {
 		$this -> executionLock = new FileLock();
 		$this -> dbQueueLock = new FileLock();
+
+		$this -> aRunningQueue = array();
 	}
 
 	public static function getInstance() {
@@ -46,12 +54,16 @@ class NetXpressPseudoDaemon {
 		// for all existing tasks:
 		// ... if is scheduled for execution ...
 		// ... ... then insert into running-queue
+		$this -> aRunningQueue = array_merge($this -> aRunningQueue, ApiTasks::getScheduledTasks());
 	}
 
 	private function processRunningQueue() {
 		// for all tasks in running-queue:
-		// ... perform task
-		// ... ... update task-data
+		foreach ($this->aRunningQueue as $currentTask) {
+			// ... perform task
+			// ... ... update task-data
+			ApiTasks::updateLastExecuteTime($currentTask['id']);
+		}
 	}
 
 	public function run() {
