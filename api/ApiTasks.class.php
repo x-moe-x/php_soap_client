@@ -41,38 +41,54 @@ ON DUPLICATE KEY UPDATE
 		 ON
 		 def.TaskID = dat.TaskID
 		 WHERE
-		 `TaskExecutionInterval` IS NOT NULL AND
-		 `TaskExecutionStart` IS NOT NULL ');
+	(`TaskExecutionInterval` IS NOT NULL AND `TaskExecutionStart` IS NULL)
+OR
+	(`TaskExecutionInterval` IS NULL AND `TaskExecutionStart` IS NOT NULL)');
 		ob_end_clean();
 
 		$result = array();
 		$now = new DateTime();
+
+		// for every existing task...
 		while ($currentTask = $dbQueryResult -> fetchAssoc()) {
-			$currentMinutes = intval($now -> format('H')) * 60 + intval($now -> format('i'));
-			$startTime = intval($currentTask['start']);
+			// ... prepare next execution base
+			$next = new DateTime('@' . $currentTask['lastExecution']);
+			$next -> setTimeZone(new DateTimeZone('Europe/Berlin'));
 
-			if ($startTime <= $currentMinutes && $currentMinutes < $startTime + 2 * self::DAEMON_INTERVAL) {
-				// start time reached (within confidence intervall)
-				echo "start time reached \n";
+			// ... if task is daily task ...
+			if (isset($currentTask['start'])) {
+				$currentMinutes = intval($now -> format('H')) * 60 + intval($now -> format('i'));
+				$startTime = intval($currentTask['start']);
 
-				$last = new DateTime('@' . $currentTask['lastExecution']);
-				$last -> setTimeZone(new DateTimeZone('Europe/Berlin'));
-				$last -> add(new DateInterval('PT' . $currentTask['interval'] . 'M')) -> sub(new DateInterval('PT' . (2 * self::DAEMON_INTERVAL) . 'M'));
-
-				if ($last < $now) {
-					// execute
-					echo "execute \n";
-					$result[] = $currentTask;
-				} else {
-					echo "don't execute \n";
-					// don't execute
+				// ... then check if start time is reached (within confidence intervall) ...
+				if ($startTime <= $currentMinutes && $currentMinutes < $startTime + 2 * self::DAEMON_INTERVAL) {
+					// ... then adjust next execution time (so no daily task is scheduled accidentally twice or more that day)
+					$next -> add(new DateInterval('PT' . (2 * self::DAEMON_INTERVAL) . 'M'));
 				}
-			} else {
-				// start time not yet reached
-				echo "start time not yet reached \n";
+				// ... or if start time isn't reached ...
+				else {
+					// ... then do nothing
+					continue;
+				}
+			}
+			// ... or if task is periodic task
+			else {
+				// ... then adjust next execution time
+				$next -> add(new DateInterval('PT' . $currentTask['interval'] . 'M'));
+			}
+
+			// ... then check if execution is scheduled
+			if ($next < $now) {
+				// ... enqueue task
+				$result[] = $currentTask;
+			}
+			// ... or if execution isn't scheduled
+			else {
+				// ... then do nothing
 			}
 		}
 		return $result;
 	}
+
 }
 ?>
