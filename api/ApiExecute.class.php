@@ -54,7 +54,17 @@ class ApiExecute {
 	/**
 	 * @var string
 	 */
+	const UPDATE_JANSEN_STOCKS_LOCAL = 'updateJansenStocksLocal';
+
+	/**
+	 * @var string
+	 */
 	const UPDATE_ALL = 'updateAll';
+
+	/**
+	 * @var string
+	 */
+	const READ_JANSEN_STOCK_IMPORT = 'readJansenStockImport';
 
 	/**
 	 * @var string
@@ -85,6 +95,11 @@ class ApiExecute {
 	 * @var string
 	 */
 	const CALCULATE_AMAZON_QUANTITIES = 'calculateAmazonQuantities';
+
+	/**
+	 * @var string
+	 */
+	const CALCULATE_JANSEN_STOCK_MATCHES = 'calculateJansenStockMatches';
 
 	/**
 	 * @var string
@@ -196,6 +211,19 @@ class ApiExecute {
 				case self::UPDATE_CURRENT_STOCKS :
 					NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'GetCurrentStocks'));
 					break;
+				case self::UPDATE_JANSEN_STOCKS_LOCAL :
+					//@formatter:off
+					self::executeTasks(
+						array(
+							self::READ_JANSEN_STOCK_IMPORT,
+							self::CALCULATE_JANSEN_STOCK_MATCHES
+						)
+					);
+					//@formatter:on
+					break;
+				case self::READ_JANSEN_STOCK_IMPORT :
+					NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'JansenStockImport', 'JansenStockImport'));
+					break;
 				case self::CALCULATE_TOTAL_NETTO :
 					NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'CalculateTotalNetto', 'CalculateTotalNetto'));
 					break;
@@ -213,6 +241,9 @@ class ApiExecute {
 					break;
 				case self::CALCULATE_AMAZON_QUANTITIES :
 					NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'CalculateAmazonQuantities', 'CalculateAmazonQuantities'));
+					break;
+				case self::CALCULATE_JANSEN_STOCK_MATCHES :
+					NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'JansenStockMatchForUpdate', 'JansenStockMatchForUpdate'));
 					break;
 				case self::SET_ITEMS_SUPPLIERS :
 					NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'SetItemsSuppliers'));
