@@ -4,7 +4,9 @@ require_once ROOT . 'api/ApiHelper.class.php';
 
 class ApiTasks {
 
-	/** @var int */
+	/**
+	 * @var int
+	 */
 	const DAEMON_INTERVAL = 5;
 
 	/**
@@ -29,18 +31,18 @@ ON DUPLICATE KEY UPDATE
 	public static function getScheduledTasks() {
 		ob_start();
 		$dbQueryResult = DBQuery::getInstance() -> select('SELECT
-		 def.TaskID as `id`,
-		 def.TaskName as `name`,
-		 def.TaskExecutionInterval as `interval`,
-		 def.TaskExecutionStart as `start`,
-		 dat.TaskLastExecutionTimestamp as `lastExecution`
-		 FROM
-		 `TaskDefinitions` as `def`
-		 LEFT JOIN
-		 `TaskData` as `dat`
-		 ON
-		 def.TaskID = dat.TaskID
-		 WHERE
+	def.TaskID as `id`,
+	def.TaskName as `name`,
+	def.TaskExecutionInterval as `interval`,
+	def.TaskExecutionStart as `start`,
+	dat.TaskLastExecutionTimestamp as `lastExecution`
+FROM
+	`TaskDefinitions` as `def`
+LEFT JOIN
+	`TaskData` as `dat`
+ON
+	def.TaskID = dat.TaskID
+WHERE
 	(`TaskExecutionInterval` IS NOT NULL AND `TaskExecutionStart` IS NULL)
 OR
 	(`TaskExecutionInterval` IS NULL AND `TaskExecutionStart` IS NOT NULL)');
