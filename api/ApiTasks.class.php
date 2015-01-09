@@ -9,6 +9,8 @@ class ApiTasks {
 	 */
 	const DAEMON_INTERVAL = 5;
 
+	const EXECUTION_ESTIMATE_SECONDS = 30;
+
 	/**
 	 * @param int $id TaskID to be updated
 	 * @return void
@@ -76,7 +78,7 @@ OR
 			// ... or if task is periodic task
 			else {
 				// ... then adjust next execution time
-				$next -> add(new DateInterval('PT' . $currentTask['interval'] . 'M'));
+				$next -> add(new DateInterval('PT' . $currentTask['interval'] . 'M')) -> sub(new DateInterval('PT' . self::EXECUTION_ESTIMATE_SECONDS . 'S'));
 			}
 
 			// ... then check if execution is scheduled
