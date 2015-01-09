@@ -54,11 +54,6 @@ class ApiExecute {
 	/**
 	 * @var string
 	 */
-	const UPDATE_JANSEN_STOCKS_LOCAL = 'updateJansenStocksLocal';
-
-	/**
-	 * @var string
-	 */
 	const UPDATE_ALL = 'updateAll';
 
 	/**
@@ -124,6 +119,11 @@ class ApiExecute {
 	/**
 	 * @var string
 	 */
+	const SET_CURRENT_STOCKS = 'setCurrentStocks';
+
+	/**
+	 * @var string
+	 */
 	const SET_ALL = 'setAll';
 
 	/**
@@ -141,8 +141,15 @@ class ApiExecute {
 	 */
 	const RESET_PRICE_UPDATES = 'resetPriceUpdates';
 
-	/** @var string */
+	/**
+	 * @var string
+	 */
 	const DAILY_TASK = 'dailyTask';
+
+	/**
+	 * @var string
+	 */
+	const JANSEN_STOCK_UPDATE = 'jansenStockUpdate';
 
 	public static function executeTaskWithOutputJSON($task) {
 		self::executeTaskJSON($task, true);
@@ -211,12 +218,13 @@ class ApiExecute {
 				case self::UPDATE_CURRENT_STOCKS :
 					NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'GetCurrentStocks'));
 					break;
-				case self::UPDATE_JANSEN_STOCKS_LOCAL :
+				case self::JANSEN_STOCK_UPDATE :
 					//@formatter:off
 					self::executeTasks(
 						array(
 							self::READ_JANSEN_STOCK_IMPORT,
-							self::CALCULATE_JANSEN_STOCK_MATCHES
+							self::CALCULATE_JANSEN_STOCK_MATCHES,
+							self::SET_CURRENT_STOCKS
 						)
 					);
 					//@formatter:on
@@ -253,6 +261,9 @@ class ApiExecute {
 					break;
 				case self::SET_ITEMS_WAREHOUSE_SETTINGS :
 					NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'SetItemsWarehouseSettings'));
+					break;
+				case self::SET_CURRENT_STOCKS :
+					NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'SetCurrentStocks'));
 					break;
 				case self::RESET_ARTICLES :
 					DBQuery::getInstance() -> truncate('TRUNCATE `ItemsBase`');
