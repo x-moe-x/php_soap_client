@@ -26,6 +26,12 @@ class JansenStockImport {
 	private $aDBData;
 
 	/**
+	/**
+	 * @var int
+	 */
+	private $currentTime;
+
+	/**
 	 * @return JansenStockImport
 	 */
 	public function __construct() {
@@ -42,10 +48,10 @@ class JansenStockImport {
 	public function execute() {
 
 		list($lastUpdate, , ) = lastUpdateStart(__CLASS__);
-		$currentTime = filemtime($this -> csvFilePath);
+		$this -> currentTime = filemtime($this -> csvFilePath);
 
 		// if file modifikation date younger than last import ...
-		if ($currentTime > $lastUpdate) {
+		if ($this -> currentTime > $lastUpdate) {
 
 			// ... then read the file ...
 			$csvFile = fopen($this -> csvFilePath, 'r');
@@ -70,7 +76,7 @@ class JansenStockImport {
 				}
 				// ... then persistenly store all records in db
 				$this -> storeToDB();
-				lastUpdateFinish($currentTime, __CLASS__);
+				lastUpdateFinish($this -> currentTime, __CLASS__);
 			} else {
 				//... or error
 				$this -> getLogger() -> debug(__FUNCTION__ . ' unable to read file ' . $this -> csvFilePath);
