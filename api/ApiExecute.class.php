@@ -49,7 +49,17 @@ class ApiExecute {
 	/**
 	 * @var string
 	 */
+	const UPDATE_CURRENT_STOCKS = 'updateCurrentStocks';
+
+	/**
+	 * @var string
+	 */
 	const UPDATE_ALL = 'updateAll';
+
+	/**
+	 * @var string
+	 */
+	const READ_JANSEN_STOCK_IMPORT = 'readJansenStockImport';
 
 	/**
 	 * @var string
@@ -79,6 +89,16 @@ class ApiExecute {
 	/**
 	 * @var string
 	 */
+	const CALCULATE_AMAZON_QUANTITIES = 'calculateAmazonQuantities';
+
+	/**
+	 * @var string
+	 */
+	const CALCULATE_JANSEN_STOCK_MATCHES = 'calculateJansenStockMatches';
+
+	/**
+	 * @var string
+	 */
 	const CALCULATE_ALL = 'calculateAll';
 
 	/**
@@ -99,6 +119,11 @@ class ApiExecute {
 	/**
 	 * @var string
 	 */
+	const SET_CURRENT_STOCKS = 'setCurrentStocks';
+
+	/**
+	 * @var string
+	 */
 	const SET_ALL = 'setAll';
 
 	/**
@@ -115,6 +140,16 @@ class ApiExecute {
 	 * @var string
 	 */
 	const RESET_PRICE_UPDATES = 'resetPriceUpdates';
+
+	/**
+	 * @var string
+	 */
+	const DAILY_TASK = 'dailyTask';
+
+	/**
+	 * @var string
+	 */
+	const JANSEN_STOCK_UPDATE = 'jansenStockUpdate';
 
 	public static function executeTaskWithOutputJSON($task) {
 		self::executeTaskJSON($task, true);
@@ -180,6 +215,23 @@ class ApiExecute {
 				case self::UPDATE_SALES_ORDER_REFERRER :
 					NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'GetSalesOrderReferrer'));
 					break;
+				case self::UPDATE_CURRENT_STOCKS :
+					NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'GetCurrentStocks'));
+					break;
+				case self::JANSEN_STOCK_UPDATE :
+					//@formatter:off
+					self::executeTasks(
+						array(
+							self::READ_JANSEN_STOCK_IMPORT,
+							self::CALCULATE_JANSEN_STOCK_MATCHES,
+							self::SET_CURRENT_STOCKS
+						)
+					);
+					//@formatter:on
+					break;
+				case self::READ_JANSEN_STOCK_IMPORT :
+					NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'JansenStockImport', 'JansenStockImport'));
+					break;
 				case self::CALCULATE_TOTAL_NETTO :
 					NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'CalculateTotalNetto', 'CalculateTotalNetto'));
 					break;
@@ -193,11 +245,13 @@ class ApiExecute {
 					NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'DetermineWritePermissions', 'DetermineWritePermissions'));
 					break;
 				case self::CALCULATE_AMAZON_RUNNING_COSTS :
-					if (CalculateAmazonWeightenedRunningCosts::arePrequisitesMet()) {
-						NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'CalculateAmazonWeightenedRunningCosts', 'CalculateAmazonWeightenedRunningCosts'));
-					} else {
-						throw new RuntimeException('Prequisites not met for ' . self::CALCULATE_AMAZON_RUNNING_COSTS);
-					}
+					NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'CalculateAmazonWeightenedRunningCosts', 'CalculateAmazonWeightenedRunningCosts'));
+					break;
+				case self::CALCULATE_AMAZON_QUANTITIES :
+					NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'CalculateAmazonQuantities', 'CalculateAmazonQuantities'));
+					break;
+				case self::CALCULATE_JANSEN_STOCK_MATCHES :
+					NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'JansenStockMatchForUpdate', 'JansenStockMatchForUpdate'));
 					break;
 				case self::SET_ITEMS_SUPPLIERS :
 					NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'SetItemsSuppliers'));
@@ -207,6 +261,9 @@ class ApiExecute {
 					break;
 				case self::SET_ITEMS_WAREHOUSE_SETTINGS :
 					NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'SetItemsWarehouseSettings'));
+					break;
+				case self::SET_CURRENT_STOCKS :
+					NetXpressSoapExperimentLoader::getInstance() -> run(array('', 'SetCurrentStocks'));
 					break;
 				case self::RESET_ARTICLES :
 					DBQuery::getInstance() -> truncate('TRUNCATE `ItemsBase`');
@@ -223,6 +280,30 @@ class ApiExecute {
 					break;
 				case self::RESET_PRICE_UPDATES :
 					DBQuery::getInstance() -> truncate('TRUNCATE `PriceUpdate`');
+					break;
+				case self::DAILY_TASK :
+					//@formatter:off
+					self::executeTasks(
+						array(
+							self::UPDATE_ORDERS,
+							self::UPDATE_ITEMS,
+							self::UPDATE_ITEMS_PRICE_LISTS,
+							self::UPDATE_ITEMS_WAREHOUSE_SETTINGS,
+							self::UPDATE_ITEMS_SUPPLIERS,
+							self::UPDATE_WAREHOUSE_LIST,
+							self::UPDATE_CURRENT_STOCKS,
+							self::UPDATE_SALES_ORDER_REFERRER,
+							self::CALCULATE_TOTAL_NETTO,
+							self::CALCULATE_DAILY_NEED,
+							self::CALCULATE_WRITE_BACK_DATA,
+							self::CALCULATE_AMAZON_QUANTITIES,
+							self::CALCULATE_AMAZON_RUNNING_COSTS,
+							self::CALCULATE_WRITE_PERMISSIONS,
+							self::SET_ITEMS_SUPPLIERS,
+							self::SET_ITEMS_WAREHOUSE_SETTINGS
+						)
+					);
+					//@formatter:on
 					break;
 				default :
 					// checking group functions
