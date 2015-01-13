@@ -107,7 +107,21 @@ class JansenStockImport {
 			if ($differenceCount > 0) {
 				$this -> getLogger() -> debug(__FUNCTION__ . " storing $differenceCount difference records from jansen");
 
-				DBQuery::getInstance() -> insert("INSERT INTO JansenStockDifferences" . DBUtils::buildMultipleInsert($this -> aDBDifferenceData));
+				//@formatter:off
+				DBQuery::getInstance() -> insert('INSERT INTO JansenTransactionHead' . DBUtils::buildInsert(
+					array(
+						'TransactionID'	=>	null,
+						'Timestamp'		=>	$this -> currentTime
+					)
+				));
+				//@formatter:on
+
+				$transactionID = DBQuery::getInstance() -> getInsertId();
+
+				DBQuery::getInstance() -> insert("INSERT INTO JansenTransactionItem" . DBUtils::buildMultipleInsert(array_map(function($row) use ($transactionID) {
+					$row['TransactionID'] = $transactionID;
+					return $row;
+				}, $this -> aDBDifferenceData)));
 			}
 
 			// delete old data
@@ -143,11 +157,10 @@ WHERE
 	n.PhysicalStock - o.PhysicalStock != 0
 ");
 		while ($row = $dbResult -> fetchAssoc()) {
-			$row['Timestamp'] = $this -> currentTime;
 			$this -> aDBDifferenceData[] = $row;
 		}
 
-		DBQuery::getInstance() -> drop("DROP TABLE JansenStockDifferences");
+		DBQuery::getInstance() -> drop("DROP TABLE JansenStockDataNew");
 	}
 
 	/**
