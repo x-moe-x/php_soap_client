@@ -26,6 +26,10 @@ class JansenStockImport {
 	private $aDBData;
 
 	/**
+	 * @var array
+	 */
+	private $aDBDifferenceData;
+
 	/**
 	 * @var int
 	 */
@@ -40,6 +44,8 @@ class JansenStockImport {
 		$this -> csvFilePath = '/kunden/homepages/22/d66025481/htdocs/stock_jd/stock.csv';
 
 		$this -> aDBData = array();
+
+		$this -> aDBDifferenceData = array();
 	}
 
 	/**
@@ -99,6 +105,39 @@ class JansenStockImport {
 
 			DBQuery::getInstance() -> insert("INSERT INTO JansenStockData" . DBUtils::buildMultipleInsert($this -> aDBData));
 		}
+	}
+
+	private function generateDifferenceSet() {
+		DBQuery::getInstance() -> create("CREATE TEMPORARY TABLE `JansenStockDataNew` (
+		 `EAN` bigint(13) NOT NULL,
+		 `ExternalItemID`varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+		 `PhysicalStock` decimal(10,4) DEFAULT NULL,
+		 PRIMARY KEY (`EAN`)
+		 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci");
+
+		DBQuery::getInstance() -> insert("INSERT INTO JansenStockDataNew" . DBUtils::buildMultipleInsert($this -> aDBData));
+
+		$dbResult = DBQuery::getInstance() -> select("SELECT
+	o.EAN,
+	o.ExternalItemID,
+	n.PhysicalStock - o.PhysicalStock as Difference
+FROM
+	JansenStockData as o
+LEFT JOIN
+	JansenStockDataNew as n
+ON
+	o.EAN = n.EAN
+AND
+	o.ExternalItemID = n.ExternalItemID
+WHERE
+	n.PhysicalStock - o.PhysicalStock != 0
+");
+		while ($row = $dbResult -> fetchAssoc()) {
+			$row['Timestamp'] = $this -> currentTime;
+			$this -> aDBDifferenceData[] = $row;
+		}
+
+		DBQuery::getInstance() -> drop("DROP TABLE JansenStockDifferences");
 	}
 
 	/**
