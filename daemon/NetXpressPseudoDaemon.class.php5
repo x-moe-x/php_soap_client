@@ -76,32 +76,25 @@ class NetXpressPseudoDaemon {
 
 		// if execution lock is aquired ...
 		if ($this -> executionLock -> tryLock()) {
-			$this -> debug('executionLock acquired.');
 
 			// ... then wait till dbQueueLock has been aquired
-			$this -> debug('waiting for dbQueueLock ...');
 			if ($this -> dbQueueLock -> lock()) {
-
-				$this -> debug('dbQueueLock acquired.');
 
 				$this -> obtainOutOfSequenceTasks();
 
 				$this -> dbQueueLock -> unlock();
-				$this -> debug('dbQueueLock released.');
 
 				$this -> obtainScheduledTasks();
 
 				$this -> processRunningQueue();
 			} else {
-				$this -> debug('dbQueueLock not acquired after given amount of time. Skipping this turn.');
+				$this -> debug('dbQueueLock not acquired. Skipping this turn.');
 			}
 			$this -> executionLock -> unlock();
-			$this -> debug('executionLock released.');
 		} else {
 			// ... otherwise skip this turn
-			$this -> debug('executionLock not acquired. Skipping this turn.');
+			$this -> debug('executionLock not acquired after given amount of time. Skipping this turn.');
 		}
-		$this -> debug('executionLock and dbQueueLock discarded.');
 		$this -> executionLock -> discard();
 		$this -> dbQueueLock -> discard();
 	}
