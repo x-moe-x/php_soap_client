@@ -100,6 +100,16 @@ class JansenStockImport {
 
 			$this -> getLogger() -> debug(__FUNCTION__ . " storing $recordCount stock records from jansen");
 
+			$this -> generateDifferenceSet();
+
+			$differenceCount = count($this -> aDBDifferenceData);
+
+			if ($differenceCount > 0) {
+				$this -> getLogger() -> debug(__FUNCTION__ . " storing $differenceCount difference records from jansen");
+
+				DBQuery::getInstance() -> insert("INSERT INTO JansenStockDifferences" . DBUtils::buildMultipleInsert($this -> aDBDifferenceData));
+			}
+
 			// delete old data
 			DBQuery::getInstance() -> truncate("TRUNCATE JansenStockData");
 
