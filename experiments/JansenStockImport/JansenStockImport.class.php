@@ -26,6 +26,16 @@ class JansenStockImport {
 	private $aDBData;
 
 	/**
+	 * @var array
+	 */
+	private $aDBDifferenceData;
+
+	/**
+	 * @var int
+	 */
+	private $currentTime;
+
+	/**
 	 * @return JansenStockImport
 	 */
 	public function __construct() {
@@ -34,6 +44,8 @@ class JansenStockImport {
 		$this -> csvFilePath = '/kunden/homepages/22/d66025481/htdocs/stock_jd/stock.csv';
 
 		$this -> aDBData = array();
+
+		$this -> aDBDifferenceData = array();
 	}
 
 	/**
@@ -42,10 +54,10 @@ class JansenStockImport {
 	public function execute() {
 
 		list($lastUpdate, , ) = lastUpdateStart(__CLASS__);
-		$currentTime = filemtime($this -> csvFilePath);
+		$this -> currentTime = filemtime($this -> csvFilePath);
 
 		// if file modifikation date younger than last import ...
-		if ($currentTime > $lastUpdate) {
+		if ($this -> currentTime > $lastUpdate) {
 
 			// ... then read the file ...
 			$csvFile = fopen($this -> csvFilePath, 'r');
@@ -70,7 +82,7 @@ class JansenStockImport {
 				}
 				// ... then persistenly store all records in db
 				$this -> storeToDB();
-				lastUpdateFinish($currentTime, __CLASS__);
+				lastUpdateFinish($this -> currentTime, __CLASS__);
 			} else {
 				//... or error
 				$this -> getLogger() -> debug(__FUNCTION__ . ' unable to read file ' . $this -> csvFilePath);
@@ -88,11 +100,67 @@ class JansenStockImport {
 
 			$this -> getLogger() -> debug(__FUNCTION__ . " storing $recordCount stock records from jansen");
 
+			$this -> generateDifferenceSet();
+
+			$differenceCount = count($this -> aDBDifferenceData);
+
+			if ($differenceCount > 0) {
+				$this -> getLogger() -> debug(__FUNCTION__ . " storing $differenceCount difference records from jansen");
+
+				//@formatter:off
+				DBQuery::getInstance() -> insert('INSERT INTO JansenTransactionHead' . DBUtils::buildInsert(
+					array(
+						'TransactionID'	=>	null,
+						'Timestamp'		=>	$this -> currentTime
+					)
+				));
+				//@formatter:on
+
+				$transactionID = DBQuery::getInstance() -> getInsertId();
+
+				DBQuery::getInstance() -> insert("INSERT INTO JansenTransactionItem" . DBUtils::buildMultipleInsert(array_map(function($row) use ($transactionID) {
+					$row['TransactionID'] = $transactionID;
+					return $row;
+				}, $this -> aDBDifferenceData)));
+			}
+
 			// delete old data
 			DBQuery::getInstance() -> truncate("TRUNCATE JansenStockData");
 
 			DBQuery::getInstance() -> insert("INSERT INTO JansenStockData" . DBUtils::buildMultipleInsert($this -> aDBData));
 		}
+	}
+
+	private function generateDifferenceSet() {
+		DBQuery::getInstance() -> create("CREATE TEMPORARY TABLE `JansenStockDataNew` (
+		 `EAN` bigint(13) NOT NULL,
+		 `ExternalItemID`varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+		 `PhysicalStock` decimal(10,4) DEFAULT NULL,
+		 PRIMARY KEY (`EAN`)
+		 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci");
+
+		DBQuery::getInstance() -> insert("INSERT INTO JansenStockDataNew" . DBUtils::buildMultipleInsert($this -> aDBData));
+
+		$dbResult = DBQuery::getInstance() -> select("SELECT
+	o.EAN,
+	o.ExternalItemID,
+	n.PhysicalStock - o.PhysicalStock as Difference
+FROM
+	JansenStockData as o
+LEFT JOIN
+	JansenStockDataNew as n
+ON
+	o.EAN = n.EAN
+AND
+	o.ExternalItemID = n.ExternalItemID
+WHERE
+	n.PhysicalStock - o.PhysicalStock != 0
+");
+		while ($row = $dbResult -> fetchAssoc()) {
+			$this -> aDBDifferenceData[] = $row;
+		}
+
+		DBQuery::getInstance() -> drop("DROP TABLE JansenStockDataNew");
 	}
 
 	/**
