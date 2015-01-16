@@ -38,7 +38,7 @@
 				sortable : true
 			}, {
 				display : 'net-xpress ItemID',
-				name : 'NxItemID',
+				name : 'ItemID',
 				sortable : true
 			}, {
 				display : 'net-xpress Name',
