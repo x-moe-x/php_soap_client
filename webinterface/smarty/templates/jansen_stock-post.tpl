@@ -23,6 +23,9 @@
 		<cell>
 			{$jansenArticle.Name}
 		</cell>
+		<cell>
+			{$jansenArticle.ExactMatch}
+		</cell>
 	</row>
 {/foreach}
 </rows>

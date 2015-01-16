@@ -44,6 +44,21 @@
 				display : 'net-xpress Name',
 				name : 'Name',
 				sortable : true
+			}, {
+				display : 'Übereinstimmung',
+				name : 'ExactMatch',
+				sortable : true,
+				process : function(cellDiv, EAN) {
+					var exactMatch = parseInt($(cellDiv).text().trim());
+
+					if (!isNaN(exactMatch)) {
+						if (exactMatch) {
+							$(cellDiv).html("Vollständig");
+						} else {
+							$(cellDiv).html("Ext. ID fehlerhaft");
+						}
+					}
+				}
 			}],
 			height : 'auto',
 			singleSelect : true,

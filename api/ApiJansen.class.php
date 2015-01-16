@@ -17,7 +17,12 @@ class ApiJansen {
 	js.ExternalItemID,
 	js.PhysicalStock,
 	nx.ItemID,
-	nx.Name';
+	nx.Name,
+	CASE WHEN (nx.ItemID IS NOT NULL) THEN
+		js.ExternalItemID = nx.ExternalItemID
+	ELSE
+		NULL
+	END as ExactMatch';
 
 	/**
 	 * @var string
@@ -32,15 +37,15 @@ class ApiJansen {
 	(SELECT
 		js.EAN,
 		nx.ItemID,
-		nx.Name
+		nx.Name,
+		nx.ExternalItemID
 	FROM
 		JansenStockData as js
 	JOIN
 		ItemsBase as nx
 	ON
 		(nx.EAN2 = js.EAN)
-	AND
-		(nx.ExternalItemID = js.ExternalItemID)) as nx
+	) as nx
 ON nx.EAN = js.EAN"; // the nested select query is a workaround for a very slow left join in items base directly
 
 	/**
