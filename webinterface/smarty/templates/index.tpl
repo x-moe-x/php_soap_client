@@ -62,6 +62,9 @@
 			</div>
 			<div id='JansenStock'>
 				{include file='jansen_stock.tpl'}
+				<table id='jansenStockTable' style='display:none'>
+					<!-- -->
+				</table>
 			</div>
 			<div id='EanGenerator'>
 				{include file='ean_generator.tpl'}
