@@ -20,6 +20,10 @@ $smarty -> assign('debug', ob_get_clean() . checkItemSupplierConfiguration() . c
 $smarty -> assign('amazonStatic', ApiHelper::getSalesOrderReferrer(ApiAmazon::AMAZON_REFERRER_ID));
 $smarty -> assign('amazonVariables', ApiAmazon::getConfig());
 
+/* jansen */
+
+$smarty -> assign('jansenLastUpdate', ApiHelper::getLastUpdate('JansenStockImport'));
+
 /* warehouse group configuration */
 
 $smarty -> assign('warehouseGroups', ApiWarehouseGrouping::getGroups());

@@ -30,6 +30,9 @@
 					<a href='#generalCostConfiguration'>Konfiguration Kosten</a>
 				</li>
 				<li>
+					<a href='#JansenStock'>Jansen-Bestand</a>
+				</li>
+				<li>
 					<a href='#EanGenerator'>EAN Generator</a>
 				</li>
 			</ul>
@@ -56,6 +59,9 @@
 				<table id='runningCostConfigurationNew' style='display:none'>
 					<!-- -->
 				</table>
+			</div>
+			<div id='JansenStock'>
+				{include file='jansen_stock.tpl'}
 			</div>
 			<div id='EanGenerator'>
 				{include file='ean_generator.tpl'}
