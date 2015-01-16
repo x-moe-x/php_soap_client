@@ -32,6 +32,10 @@ getRoute() -> put('/generalCosts/(\d+)/(\d+|\d+\.\d+)', array('ApiGeneralCosts',
 getRoute() -> get('/runningCosts/average', array('ApiHelper', 'getAverageCostsJSON'));
 getRoute() -> put('/runningCosts/(\d+)/(\d+)/(\d+|\d+\.\d+)', array('ApiRunningCosts', 'setRunningCostsJSON'));
 
+//register last update call
+getRoute() -> get('/config/lastUpdate', array('ApiHelper', 'getLastUpdateJSON'));
+getRoute() -> get('/config/lastUpdate/(\w+)', array('ApiHelper', 'getLastUpdateJSON'));
+
 // register ean api calls
 getRoute() -> get('/config/ean', array('ApiEanProcessing', 'getConfigJSON'));
 getRoute() -> get('/config/ean/(\w+)', array('ApiEanProcessing', 'getConfigJSON'));

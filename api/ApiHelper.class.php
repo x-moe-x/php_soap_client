@@ -3,6 +3,65 @@ require_once 'ApiRunningCosts.class.php';
 
 class ApiHelper {
 
+	/**
+	 * @param string|null $functionName optional function name to get the lastUpdate timestamp from
+	 * @return array
+	 */
+	public static function getLastUpdateJSON($functionName = null) {
+		header('Content-Type: application/json');
+		$result = array('success' => false, 'data' => NULL, 'error' => NULL);
+
+		try {
+			$result['data'] = self::getLastUpdate(array($functionName));
+			$result['success'] = true;
+		} catch(Exception $e) {
+			$result['error'] = $e -> getMessage();
+		}
+		echo json_encode($result);
+	}
+
+	/**
+	 * @param string|string[]|null $functionName optional function name or array of function names to get the lastUpdate timestamp from
+	 * @return int|array
+	 */
+	public static function getLastUpdate($functionName = null) {
+		$query = 'SELECT `Function` as `name`, `LastUpdate` as `lastUpdate` FROM `MetaLastUpdate`';
+		if (is_null($functionName)) {
+			// get all elements
+		} else if (is_array($functionName)) {
+			// get specific elements
+			$query .= ' WHERE `Function` IN (\'' . implode('\',\'', $functionName) . '\')';
+		} else {
+			// get specific element
+			$query .= " WHERE `Function` = '$functionName'";
+		}
+
+		ob_start();
+		$dbResult = DBQuery::getInstance() -> select($query);
+		ob_end_clean();
+
+		if ($dbResult -> getNumRows() > 0) {
+			if ($dbResult -> getNumRows() === 1 && !is_array($functionName)) {
+				if ($row = $dbResult -> fetchAssoc()) {
+					return $row['lastUpdate'];
+				} else {
+					throw new RuntimeException("Could not fetch result for function name $functionName");
+				}
+			}
+			// return multiple values
+			else {
+				$result = array();
+
+				while ($row = $dbResult -> fetchAssoc()) {
+					$result[] = $row;
+				}
+				return $result;
+			}
+		} else {
+			throw new RuntimeException("Could not fetch result for function name $functionName");
+		}
+	}
+
 	public static function getAverageCostsJSON() {
 		header('Content-Type: application/json');
 		$result = array('success' => false, 'data' => NULL, 'error' => NULL);
