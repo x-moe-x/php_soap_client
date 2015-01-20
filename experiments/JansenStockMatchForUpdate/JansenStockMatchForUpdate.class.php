@@ -38,7 +38,7 @@ class JansenStockMatchForUpdate {
 	/**
 	 * @var int
 	 */
-	const DEFAULT_REASON = 0;
+	const DEFAULT_REASON = 301;
 
 	/**
 	 * @return JansenStockMatchForUpdate
