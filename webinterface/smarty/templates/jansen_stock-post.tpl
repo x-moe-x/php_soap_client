@@ -24,6 +24,9 @@
 			{$jansenArticle.physicalStock|@intval}
 		</cell>
 		<cell>
+			{$jansenArticle.date}
+		</cell>
+		<cell>
 			{$jansenArticle.data|@json_encode}
 		</cell>
 	</row>

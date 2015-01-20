@@ -18,6 +18,7 @@ class ApiJansen {
 	 */
 	const JANSEN_DATA_SELECT_ADVANCED = ',
 	js.PhysicalStock,
+	nx.Timestamp,
 	CASE WHEN (nx.ItemID IS NOT NULL) THEN
 		js.ExternalItemID = nx.ExternalItemID
 	ELSE
@@ -34,13 +35,20 @@ LEFT JOIN
 		js.EAN,
 		nx.ItemID,
 		nx.Name,
-		nx.ExternalItemID
+		nx.ExternalItemID,
+		st.Timestamp
 	FROM
 		JansenStockData as js
 	JOIN
 		ItemsBase as nx
 	ON
-		(nx.EAN2 = js.EAN)
+		nx.EAN2 = js.EAN
+	LEFT JOIN
+		CurrentStocksTiming as st
+	ON
+		(nx.ItemID = st.ItemID)
+	WHERE
+		st.WarehouseID = 2
 	) as nx
 ON nx.EAN = js.EAN\n";
 	// the nested select query is a workaround for a very slow left join in items base directly
@@ -116,6 +124,7 @@ ON nx.EAN = js.EAN\n";
 				'physicalStock'		=>	$jansenStockDataData['PhysicalStock'],
 				'itemID'			=>	$jansenStockDataData['ItemID'],
 				'name'				=>	$jansenStockDataData['Name'],
+				'date'				=>	isset($jansenStockDataData['Timestamp']) ? date('d.m.y, H:i:s', $jansenStockDataData['Timestamp']) : null,
 				'data'				=>	array(
 											'match'			=>	isset($jansenStockDataData['ItemID']),
 											'exactMatch'	=>	$jansenStockDataData['ExactMatch'] == 1

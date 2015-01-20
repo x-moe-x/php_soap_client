@@ -75,6 +75,11 @@
 				align: 'right',
 				sortable : true
 			}, {
+				display : 'letzte Aktualisierung',
+				name : 'Timestamp',
+				width : 120,
+				sortable : true
+			}, {
 				display : 'Data',
 				name : 'Data',
 				hide : true,
