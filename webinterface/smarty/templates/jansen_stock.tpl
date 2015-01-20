@@ -18,6 +18,30 @@
 		text-align: right;
 		background-color: #eee;
 	}
+
+	.exactMatch {
+		background-color: #9f9 !important;
+	}
+
+	.erow .exactMatch {
+		background-color: #7f7 !important;
+	}
+
+	.approximateMatch {
+		background-color: #fa9 !important;
+	}
+
+	.erow .approximateMatch {
+		background-color: #fa7 !important;
+	}
+
+	.noMatch {
+		background-color: #f77 !important;
+	}
+
+	.erow .noMatch {
+		background-color: #f99 !important;
+	}
 </style>
 <script>
 	$(function() {
@@ -45,19 +69,22 @@
 				name : 'Name',
 				sortable : true
 			}, {
-				display : 'Übereinstimmung',
-				name : 'ExactMatch',
-				sortable : true,
+				display : 'Data',
+				name : 'Data',
+				hide : true,
 				process : function(cellDiv, EAN) {
-					var exactMatch = parseInt($(cellDiv).text().trim());
+					var data = $.parseJSON($(cellDiv).html()), newClass;
 
-					if (!isNaN(exactMatch)) {
-						if (exactMatch) {
-							$(cellDiv).html("Vollständig");
-						} else {
-							$(cellDiv).html("Ext. ID fehlerhaft");
-						}
+					if (data.match && data.exactMatch) {
+						newClass = 'exactMatch';
+					} else if (data.match) {
+						newClass = 'approximateMatch';
+						$('#row' + EAN + ' > td').addClass('');
+					} else {
+						newClass = 'noMatch';
 					}
+
+					$('#row' + EAN + ' > td').addClass(newClass);
 				}
 			}],
 			height : 'auto',
