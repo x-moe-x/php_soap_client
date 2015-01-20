@@ -73,9 +73,22 @@ ON nx.EAN = js.EAN"; // the nested select query is a workaround for a very slow 
 		ob_end_clean();
 
 		while ($jansenStockDataData = $jansenStockDataDBResult -> fetchAssoc()) {
-			$data['rows'][$jansenStockDataData['EAN']] = $jansenStockDataData;
+			//@formatter:off
+			$data['rows'][$jansenStockDataData['EAN']] = array(
+				'ean'				=>	$jansenStockDataData['EAN'],
+				'externalItemID'	=>	$jansenStockDataData['ExternalItemID'],
+				'physicalStock'		=>	$jansenStockDataData['PhysicalStock'],
+				'itemID'			=>	$jansenStockDataData['ItemID'],
+				'name'				=>	$jansenStockDataData['Name'],
+				'data'				=>	array(
+											'match'			=>	isset($jansenStockDataData['ItemID']),
+											'exactMatch'	=>	$jansenStockDataData['ExactMatch'] == 1
+										)
+			);
+			//@formatter:on
 		}
 		return $data;
 	}
+
 }
 ?>

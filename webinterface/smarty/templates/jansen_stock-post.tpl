@@ -9,22 +9,22 @@
 {foreach $data.rows as $rowID => $jansenArticle}
 	<row id='{$rowID}'>
 		<cell>
-			{$jansenArticle.EAN}
+			{$jansenArticle.ean}
 		</cell>
 		<cell>
-			{$jansenArticle.ExternalItemID}
+			{$jansenArticle.externalItemID}
 		</cell>
 		<cell>
-			{$jansenArticle.PhysicalStock}
+			{$jansenArticle.physicalStock}
 		</cell>
 		<cell>
-			{$jansenArticle.ItemID}
+			{$jansenArticle.itemID}
 		</cell>
 		<cell>
-			{$jansenArticle.Name}
+			{$jansenArticle.name}
 		</cell>
 		<cell>
-			{$jansenArticle.ExactMatch}
+			{$jansenArticle.data|@json_encode}
 		</cell>
 	</row>
 {/foreach}
