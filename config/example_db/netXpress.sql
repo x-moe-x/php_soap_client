@@ -474,6 +474,16 @@ CREATE TABLE `soap_db`.`SetCurrentStocks` (
 	PRIMARY KEY (`ItemID`,`AttributeValueSetID`,`PriceID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+DROP TABLE IF EXISTS `soap_db`.`CurrentStocksTiming`;
+
+CREATE TABLE `soap_db`.`CurrentStocksTiming` (
+	`ItemID` int(11) NOT NULL,
+	`AttributeValueSetID` int(11) NOT NULL,
+	`WarehouseID` int(11) NOT NULL,
+	`Timestamp` int(11) NOT NULL,
+	PRIMARY KEY (`ItemID`,`AttributeValueSetID`,`WarehouseID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 DROP TABLE IF EXISTS `soap_db`.`TaskDefinitions`;
 
 CREATE TABLE `soap_db`.`TaskDefinitions` (
