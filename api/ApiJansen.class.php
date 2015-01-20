@@ -56,15 +56,48 @@ ON nx.EAN = js.EAN\n";
 	const JANSEN_DATA_WHERE = "WHERE
 	1\n";
 
-	public static function getJansenStockData($page = 1, $rowsPerPage = 10, $sortByColumn = 'EAN', $sortOrder = 'ASC') {
+	public static function getJansenStockData($page = 1, $rowsPerPage = 10, $sortByColumn = 'EAN', $sortOrder = 'ASC', $eans = null, $externalItemIDs = null, $itemIDs = null, $names = null) {
 		$data = array('page' => $page, 'total' => null, 'rows' => array());
 
 		ob_start();
 		$whereCondition = "";
 
-		$data['total'] = DBQuery::getInstance() -> select(self::JANSEN_DATA_SELECT_BASIC . self::JANSEN_DATA_FROM_BASIC . self::JANSEN_DATA_WHERE . $whereCondition) -> getNumRows();
+		// prepare filter conditions
+		if (!is_null($eans)) {
+			if (is_array($eans)) {
+				$aEans = $eans;
+			} else {
+				$aEans = array($eans);
+			}
+			$whereCondition .= "AND\n\tjs.EAN IN  ('" . implode('\',\'', $aEans) . "')\n";
+		} else if (!is_null($externalItemIDs)) {
+			if (is_array($externalItemIDs)) {
+				$aExternalItemIDs = $externalItemIDs;
+			} else {
+				$aExternalItemIDs = array($externalItemIDs);
+			}
+			$whereCondition .= "AND\n\tjs.ExternalItemID IN  ('" . implode('\',\'', $aExternalItemIDs) . "')\n";
+		} else if (!is_null($itemIDs)) {
+			if (is_array($itemIDs)) {
+				$aItemIDs = $itemIDs;
+			} else {
+				$aItemIDs = array($itemIDs);
+			}
+			$whereCondition .= "AND\n\tnx.ItemID IN  ('" . implode('\',\'', $aItemIDs) . "')\n";
+		} else if (!is_null($names)) {
+			if (is_array($names)) {
+				$aItemNames = $names;
+			} else {
+				$aItemNames = array($names);
+			}
 
-		// get associated price id
+			foreach ($aItemNames as $name) {
+				$whereCondition .= "AND
+	nx.Name LIKE \"%$name%\"\n";
+			}
+		}
+
+		$data['total'] = DBQuery::getInstance() -> select(self::JANSEN_DATA_SELECT_BASIC . self::JANSEN_DATA_FROM_BASIC . self::JANSEN_DATA_WHERE . $whereCondition) -> getNumRows();
 
 		$sort = "\nORDER BY $sortByColumn $sortOrder\n";
 		$start = (($page - 1) * $rowsPerPage);

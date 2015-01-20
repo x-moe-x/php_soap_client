@@ -93,6 +93,19 @@
 					$('#row' + EAN + ' > td').addClass(newClass);
 				}
 			}],
+			searchitems : [{
+				display : 'Jansen EAN',
+				name : 'EAN'
+			}, {
+				display : 'Jansen Artikel Nr.',
+				name : 'ExternalItemID'
+			}, {
+				display : 'net-xpress Item ID',
+				name : 'ItemID'
+			}, {
+				display : 'net-xpress Name',
+				name : 'Name'
+			}],
 			height : 'auto',
 			singleSelect : true,
 			striped : true,
