@@ -55,18 +55,24 @@
 			}, {
 				display : 'Jansen Artikel ID',
 				name : 'ExternalItemID',
-				sortable : true
-			}, {
-				display : 'Jansen Bestand',
-				name : 'PhysicalStock',
+				width : 130,
 				sortable : true
 			}, {
 				display : 'net-xpress ItemID',
 				name : 'ItemID',
+				width: 50,
+				align: 'center',
 				sortable : true
 			}, {
 				display : 'net-xpress Name',
 				name : 'Name',
+				width : 370,
+				sortable : true
+			}, {
+				display : 'Jansen Bestand',
+				name : 'PhysicalStock',
+				width : 50,
+				align: 'right',
 				sortable : true
 			}, {
 				display : 'Data',

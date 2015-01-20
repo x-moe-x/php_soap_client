@@ -15,13 +15,13 @@
 			{$jansenArticle.externalItemID}
 		</cell>
 		<cell>
-			{$jansenArticle.physicalStock}
-		</cell>
-		<cell>
 			{$jansenArticle.itemID}
 		</cell>
 		<cell>
 			{$jansenArticle.name}
+		</cell>
+		<cell>
+			{$jansenArticle.physicalStock|@intval}
 		</cell>
 		<cell>
 			{$jansenArticle.data|@json_encode}
