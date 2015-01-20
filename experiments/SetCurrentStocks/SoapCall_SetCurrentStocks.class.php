@@ -23,8 +23,6 @@ class SoapCall_SetCurrentStocks extends PlentySoapCall {
 
 	public function __construct() {
 		$this -> identifier4Logger = __CLASS__;
-
-		$this -> aStockUpdateEntries = array();
 	}
 
 	/**
