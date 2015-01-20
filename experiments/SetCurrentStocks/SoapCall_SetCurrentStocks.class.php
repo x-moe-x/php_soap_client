@@ -54,9 +54,15 @@ class SoapCall_SetCurrentStocks extends PlentySoapCall {
 						'PhysicalStock' =>		$aUnwrittenUpdate['PhysicalStock'],
 						'Reason' =>				$aUnwrittenUpdate['Reason']
 					));
-					// @formatter:on
 
-					$aWrittenUpdates[] = '(' . $aUnwrittenUpdate['ItemID'] . ',' . $aUnwrittenUpdate['AttributeValueSetID'] . ',' . $aUnwrittenUpdate['PriceID'] . ')';
+					$aWrittenUpdates[] = array(
+						'ItemID' =>					$aUnwrittenUpdate['ItemID'],
+						'AttributeValueSetID' =>	$aUnwrittenUpdate['AttributeValueSetID'],
+						'PriceID' =>				$aUnwrittenUpdate['PriceID'],
+						'WarehouseID' =>			$aUnwrittenUpdate['WarehouseID'],
+						'Timestamp' =>				null
+					);
+					// @formatter:on
 				}
 
 				// 3. write them back via soap
@@ -65,7 +71,18 @@ class SoapCall_SetCurrentStocks extends PlentySoapCall {
 				// 4. if successful ...
 				if ($oPlentySoapResponse_SetCurrentStocks -> Success == true) {
 					// ... then delete specified elements from setCurrentStocks
-					DBQuery::getInstance() -> delete('DELETE FROM SetCurrentStocks WHERE (ItemID, AttributeValueSetID, PriceID) IN (' . implode(',', $aWrittenUpdates) . ')');
+					DBQuery::getInstance() -> delete('DELETE FROM SetCurrentStocks WHERE (ItemID, AttributeValueSetID, PriceID) IN (' . implode(',', array_map(function($element) {
+						return '(' . $element['ItemID'] . ',' . $element['AttributeValueSetID'] . ',' . $element['PriceID'] . ')';
+					}, $aWrittenUpdates)) . ')');
+
+					// ... and update
+					$currentTime = time();
+					DBQuery::getInstance() -> insert('INSERT INTO CurrentStocksTiming' . DBUtils2::buildMultipleInsertOnDuplikateKeyUpdate(array_map(function($element) use ($currentTime) {
+						//@formatter: off
+						return array('ItemID' => $element['ItemID'], 'AttributeValueSetID' => $element['AttributeValueSetID'], 'WarehouseID' => $element['WarehouseID'], 'Timestamp' => $currentTime);
+						//@formatter: on
+					}, $aWrittenUpdates)));
+
 				} else {
 					// ... otherwise log error and try next request
 					$this -> getLogger() -> debug(__FUNCTION__ . ' Request Error');
