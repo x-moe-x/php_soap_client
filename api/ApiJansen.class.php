@@ -8,16 +8,16 @@ class ApiJansen {
 	 * @var string
 	 */
 	const JANSEN_DATA_SELECT_BASIC = 'SELECT
-	js.EAN';
+	js.EAN,
+	js.ExternalItemID,
+	nx.ItemID,
+	nx.Name';
 
 	/**
 	 * @var string
 	 */
 	const JANSEN_DATA_SELECT_ADVANCED = ',
-	js.ExternalItemID,
 	js.PhysicalStock,
-	nx.ItemID,
-	nx.Name,
 	CASE WHEN (nx.ItemID IS NOT NULL) THEN
 		js.ExternalItemID = nx.ExternalItemID
 	ELSE
@@ -28,12 +28,8 @@ class ApiJansen {
 	 * @var string
 	 */
 	const JANSEN_DATA_FROM_BASIC = "\nFROM
-	JansenStockData as js\n";
-
-	/**
-	 * @var string
-	 */
-	const JANSEN_DATA_FROM_ADVANCED = "LEFT JOIN
+	JansenStockData as js
+LEFT JOIN
 	(SELECT
 		js.EAN,
 		nx.ItemID,
@@ -46,12 +42,19 @@ class ApiJansen {
 	ON
 		(nx.EAN2 = js.EAN)
 	) as nx
-ON nx.EAN = js.EAN"; // the nested select query is a workaround for a very slow left join in items base directly
+ON nx.EAN = js.EAN\n";
+	// the nested select query is a workaround for a very slow left join in items base directly
 
 	/**
 	 * @var string
 	 */
-	const JANSEN_DATA_WHERE = "";
+	const JANSEN_DATA_FROM_ADVANCED = "\n";
+
+	/**
+	 * @var string
+	 */
+	const JANSEN_DATA_WHERE = "WHERE
+	1\n";
 
 	public static function getJansenStockData($page = 1, $rowsPerPage = 10, $sortByColumn = 'EAN', $sortOrder = 'ASC') {
 		$data = array('page' => $page, 'total' => null, 'rows' => array());
