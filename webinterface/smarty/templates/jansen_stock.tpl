@@ -28,11 +28,11 @@
 	}
 
 	.approximateMatch {
-		background-color: #fa9 !important;
+		background-color: #fa5 !important;
 	}
 
 	.erow .approximateMatch {
-		background-color: #fa7 !important;
+		background-color: #fa3 !important;
 	}
 
 	.noMatch {
