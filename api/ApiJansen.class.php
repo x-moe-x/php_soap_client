@@ -11,7 +11,17 @@ class ApiJansen {
 	js.EAN,
 	js.ExternalItemID,
 	nx.ItemID,
-	nx.Name';
+	CONCAT(CASE WHEN (nx.BundleType = "bundle") THEN
+			"[Bundle] "
+		WHEN (nx.BundleType = "bundle_item") THEN
+			"[Bundle Artikel] "
+		ELSE
+			""
+		END, nx.Name, CASE WHEN (nx.AttributeValueSetID IS NOT null) THEN
+			CONCAT(", ", nx.AttributeValueSetName)
+		ELSE
+			""
+	END) AS Name';
 
 	/**
 	 * @var string
@@ -64,6 +74,7 @@ LEFT JOIN
 		nx.ItemID,
 		nx.Name,
 		nx.ExternalItemID,
+		nx.BundleType,
 		nx.AttributeValueSetID,
 		nx.AttributeValueSetName,
 		st.Timestamp
@@ -75,6 +86,7 @@ LEFT JOIN
 				nx.ItemID,
 				nx.Name,
 				nx.ExternalItemID,
+				nx.BundleType,
 				avs.AttributeValueSetID,
 				avs.AttributeValueSetName,
 				CASE WHEN (avs.AttributeValueSetID IS NULL) THEN
