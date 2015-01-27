@@ -131,13 +131,98 @@ ON nx.EAN = js.EAN\n";
 	const JANSEN_DATA_WHERE = "WHERE
 	1\n";
 
-	public static function getJansenStockData($page = 1, $rowsPerPage = 10, $sortByColumn = 'EAN', $sortOrder = 'ASC', $eans = null, $externalItemIDs = null, $itemIDs = null, $names = null) {
+	public static function getJansenStockData($page = 1, $rowsPerPage = 10, $sortByColumn = 'EAN', $sortOrder = 'ASC', $eans = null, $externalItemIDs = null, $itemIDs = null, $names = null, $jansenMatch = null) {
 		$data = array('page' => $page, 'total' => null, 'rows' => array());
 
 		ob_start();
 		$whereCondition = "";
 
 		// prepare filter conditions
+		if (!is_null($jansenMatch)) {
+			if (is_array($jansenMatch)) {
+				$aJansenMatch = $jansenMatch;
+			} else {
+				$aJansenMatch = array($jansenMatch);
+			}
+			$whereCondition .= "AND\n\t(\n";
+			$matches = array();
+			foreach ($jansenMatch as $matchIndex) {
+				switch ($matchIndex) {
+					case 0 :
+						$matches[] = "\t\tnx.ItemID IS NULL\n";
+						break;
+					case 1 :
+						$matches[] = "\t\tnx.ItemID IS NOT NULL AND
+		LOWER(
+			CASE WHEN (nx.AttributeValueSetID IS NULL) THEN
+					nx.ExternalItemID
+				ELSE
+					CASE WHEN (nx.AttributeValueSetID = 1) THEN
+						REPLACE(nx.ExternalItemID,' [R/G] ','G')
+					WHEN (nx.AttributeValueSetID = 2) THEN
+						REPLACE(nx.ExternalItemID,' [R/G] ','R')
+					WHEN (nx.AttributeValueSetID = 23) THEN
+						REPLACE(nx.ExternalItemID,'+[Color]','RED')
+					WHEN (nx.AttributeValueSetID = 24) THEN
+						REPLACE(nx.ExternalItemID,'+[Color]','YELLOW')
+					WHEN (nx.AttributeValueSetID = 25) THEN
+						REPLACE(nx.ExternalItemID,'+[Color]','PURPLE')
+					WHEN (nx.AttributeValueSetID = 26) THEN
+						REPLACE(nx.ExternalItemID,'+[Color]','WHITE')
+					WHEN (nx.AttributeValueSetID = 27) THEN
+						REPLACE(nx.ExternalItemID,'+[Color]','PINK')
+					WHEN (nx.AttributeValueSetID = 28) THEN
+						REPLACE(nx.ExternalItemID,'+[Color]','DARKBLUE')
+					WHEN (nx.AttributeValueSetID = 29) THEN
+						REPLACE(nx.ExternalItemID,'+[Color]','DARKGREEN')
+					WHEN (nx.AttributeValueSetID = 30) THEN
+						REPLACE(nx.ExternalItemID,'+[Color]','ORANGE')
+					ELSE
+						'xxx'
+					END
+			END
+		) != LOWER(js.ExternalItemID)\n";
+						break;
+					case 2 :
+						$matches[] = "\t\tnx.ItemID IS NOT NULL AND
+		LOWER(
+			CASE WHEN (nx.AttributeValueSetID IS NULL) THEN
+					nx.ExternalItemID
+				ELSE
+					CASE WHEN (nx.AttributeValueSetID = 1) THEN
+						REPLACE(nx.ExternalItemID,' [R/G] ','G')
+					WHEN (nx.AttributeValueSetID = 2) THEN
+						REPLACE(nx.ExternalItemID,' [R/G] ','R')
+					WHEN (nx.AttributeValueSetID = 23) THEN
+						REPLACE(nx.ExternalItemID,'+[Color]','RED')
+					WHEN (nx.AttributeValueSetID = 24) THEN
+						REPLACE(nx.ExternalItemID,'+[Color]','YELLOW')
+					WHEN (nx.AttributeValueSetID = 25) THEN
+						REPLACE(nx.ExternalItemID,'+[Color]','PURPLE')
+					WHEN (nx.AttributeValueSetID = 26) THEN
+						REPLACE(nx.ExternalItemID,'+[Color]','WHITE')
+					WHEN (nx.AttributeValueSetID = 27) THEN
+						REPLACE(nx.ExternalItemID,'+[Color]','PINK')
+					WHEN (nx.AttributeValueSetID = 28) THEN
+						REPLACE(nx.ExternalItemID,'+[Color]','DARKBLUE')
+					WHEN (nx.AttributeValueSetID = 29) THEN
+						REPLACE(nx.ExternalItemID,'+[Color]','DARKGREEN')
+					WHEN (nx.AttributeValueSetID = 30) THEN
+						REPLACE(nx.ExternalItemID,'+[Color]','ORANGE')
+					ELSE
+						'xxx'
+					END
+			END
+		) = LOWER(js.ExternalItemID)\n";
+						break;
+					default :
+						throw new RuntimeException("Illegal match index $matchIndex");
+						break;
+				}
+			}
+			$whereCondition .= implode("\tOR\n", $matches) . "\t)\n";
+		}
+
 		if (!is_null($eans)) {
 			if (is_array($eans)) {
 				$aEans = $eans;

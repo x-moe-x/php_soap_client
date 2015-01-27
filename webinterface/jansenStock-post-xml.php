@@ -9,6 +9,7 @@ $sortname = isset($_POST['sortname']) && !empty($_POST['sortname']) ? $_POST['so
 $sortorder = isset($_POST['sortorder']) && !empty($_POST['sortorder']) ? $_POST['sortorder'] : 'ASC';
 $query = isset($_POST['query']) ? $_POST['query'] : false;
 $qtype = isset($_POST['qtype']) ? $_POST['qtype'] : false;
+$filter_jansenMatch = (isset($_POST['filterJansenMatch']) && $_POST['filterJansenMatch'] != '') ? explode(',', $_POST['filterJansenMatch']) : null;
 $filter_eans = null;
 $filter_externalItemIDs = null;
 $filter_itemIDs = null;
@@ -50,6 +51,6 @@ if ($query && $qtype) {
 }
 
 header('Content-type: text/xml');
-$smarty -> assign('data', ApiJansen::getJansenStockData($page, $rp, $sortname, $sortorder, $filter_eans, $filter_externalItemIDs, $filter_itemIDs, $filter_itemNames));
+$smarty -> assign('data', ApiJansen::getJansenStockData($page, $rp, $sortname, $sortorder, $filter_eans, $filter_externalItemIDs, $filter_itemIDs, $filter_itemNames, $filter_jansenMatch));
 $smarty -> display('jansen_stock-post.tpl');
 ?>
