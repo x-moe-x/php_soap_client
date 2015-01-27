@@ -1474,6 +1474,8 @@ function prepareRunningCosts() {'use strict';
 }
 
 function prepareJansenStock() {'use strict';
+	var isJansenUnmatchedDisplayActivated = false;
+
 	$('#jansenStockTable').flexigrid({
 		url : 'jansenStock-post-xml.php',
 		dataType : 'xml',
@@ -1639,30 +1641,35 @@ function prepareJansenStock() {'use strict';
 		procmsg : 'Bitte warten...'
 	});
 
-	$('#jansenUnmatchedTable').flexigrid({
-		url : 'jansenUnmatched-post-xml.php',
-		dataType : 'xml',
-		colModel : [{
-			display : 'Jansen EAN',
-			name : 'EAN'
-		}, {
-			display : 'Jansen Artikel ID',
-			name : 'ExternalItemID',
-			width : 130
-		}, {
-			display : 'net-xpress ItemID',
-			name : 'ItemID',
-			width : 50,
-			align : 'center'
-		}, {
-			display : 'net-xpress Name',
-			name : 'Name',
-			width : 300
-		}],
-		height : 'auto',
-		singleSelect : true,
-		striped : true,
-		height : 500
+	$("#jansenStock .accordion").on("accordionactivate", function(event, ui) {
+		if (!isJansenUnmatchedDisplayActivated) {
+			$('#jansenUnmatchedTable').flexigrid({
+				url : 'jansenUnmatched-post-xml.php',
+				dataType : 'xml',
+				colModel : [{
+					display : 'Jansen EAN',
+					name : 'EAN'
+				}, {
+					display : 'Jansen Artikel ID',
+					name : 'ExternalItemID',
+					width : 130
+				}, {
+					display : 'net-xpress ItemID',
+					name : 'ItemID',
+					width : 50,
+					align : 'center'
+				}, {
+					display : 'net-xpress Name',
+					name : 'Name',
+					width : 300
+				}],
+				height : 'auto',
+				singleSelect : true,
+				striped : true,
+				height : 500
+			});
+			isJansenUnmatchedDisplayActivated = true;
+		}
 	});
 }
 
