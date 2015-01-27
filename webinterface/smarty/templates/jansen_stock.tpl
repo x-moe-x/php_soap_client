@@ -66,6 +66,10 @@
 	.jansenMatch_label_partiallyMatched {
 		background-color: #fa5;
 	}
+
+	.flexigrid div.mDiv .stitle {
+		font-weight: normal;
+	}
 </style>
 <script>
 	$(function() {
@@ -209,6 +213,13 @@
 						}).append(filters);
 					});
 				}
+
+				if ($('.jansenSubtitle', g.mDiv).length === 0) {
+					$(g.mDiv).append($('<div/>', {
+						'class' : 'jansenSubtitle stitle',
+						html : this.subtitle
+					}));
+				}
 			},
 			height : 'auto',
 			singleSelect : true,
@@ -221,6 +232,7 @@
 			rp : 20,
 			rpOptions : [10, 20, 30, 50, 100, 200],
 			title : 'Bestand: Jansen',
+			subtitle : 'Zuordnung: Jansen-EAN -> net-xpress-EAN2',
 			pagetext : 'Seite',
 			outof : 'von',
 			procmsg : 'Bitte warten...'
