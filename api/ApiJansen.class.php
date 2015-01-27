@@ -45,6 +45,7 @@ LEFT JOIN
 				nx.ItemID,
 				nx.Name,
 				nx.ExternalItemID,
+				avs.AttributeValueSetID,
 				CASE WHEN (avs.AttributeValueSetID IS NULL) THEN
 					nx.EAN2
 				ELSE
@@ -63,6 +64,12 @@ LEFT JOIN
 		CurrentStocksTiming as st
 	ON
 		(nx.ItemID = st.ItemID)
+	AND
+		CASE WHEN (nx.AttributeValueSetID IS NULL) THEN
+			0
+		ELSE
+			nx.AttributeValueSetID
+		END = st.AttributeValueSetID
 	WHERE
 		st.WarehouseID = 2
 	) as nx
