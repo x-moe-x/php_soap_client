@@ -42,6 +42,34 @@
 	.erow .noMatch {
 		background-color: #f99 !important;
 	}
+
+	.filter.jansenFilter input {
+		margin-top: -2px !important;
+	}
+
+	.filter.jansenFilter  label {
+		width: auto !important;
+	}
+
+	.jansenMatch_label {
+		padding: 0 1em;
+	}
+
+	.jansenMatch_label_matched {
+		background-color: #9f9;
+	}
+
+	.jansenMatch_label_unmatched {
+		background-color: #f77;
+	}
+
+	.jansenMatch_label_partiallyMatched {
+		background-color: #fa5;
+	}
+
+	.flexigrid div.mDiv .stitle {
+		font-weight: normal;
+	}
 </style>
 <script>
 	$(function() {
@@ -60,19 +88,19 @@
 			}, {
 				display : 'net-xpress ItemID',
 				name : 'ItemID',
-				width: 50,
-				align: 'center',
+				width : 50,
+				align : 'center',
 				sortable : true
 			}, {
 				display : 'net-xpress Name',
 				name : 'Name',
-				width : 370,
+				width : 500,
 				sortable : true
 			}, {
 				display : 'Jansen Bestand',
 				name : 'PhysicalStock',
 				width : 50,
-				align: 'right',
+				align : 'right',
 				sortable : true
 			}, {
 				display : 'letzte Aktualisierung',
@@ -90,7 +118,6 @@
 						newClass = 'exactMatch';
 					} else if (data.match) {
 						newClass = 'approximateMatch';
-						$('#row' + EAN + ' > td').addClass('');
 					} else {
 						newClass = 'noMatch';
 					}
@@ -111,6 +138,89 @@
 				display : 'net-xpress Name',
 				name : 'Name'
 			}],
+			buttons : [{
+				name : 'Filter',
+				bclass : 'filter jansenFilter'
+			}],
+			matches : [{
+				'key' : 'unmatched',
+				'value' : 'Keine Zuordnung'
+			}, {
+				'key' : 'partiallyMatched',
+				'value' : 'Partielle Zuordnung'
+			}, {
+				'key' : 'matched',
+				'value' : 'Vollständige Zuordnung'
+			}],
+			params : [{
+				name : 'filterJansenMatch',
+				value : '1,2'
+			}],
+			onSuccess : function(g) {
+				var matches = this.matches, params = this.params;
+				if ($('.jansenFilter input', g.tDiv).length === 0) {
+
+					// change formatting
+					$('.jansenFilter', g.tDiv).css({
+						'padding-left' : 0
+					})
+					// encapsulate existing stuff
+					.wrapInner($('<span/>', {
+						css : {
+							'padding' : '0'
+						}
+					}))
+					// append filter selection
+					.append(function() {
+						var filters = [];
+
+						$.each(matches, function(index, match) {
+							filters.push($('<div/>')
+							// insert input ...
+							.append($('<input/>', {
+								id : 'jansenMatch_' + match.key,
+								type : 'checkbox',
+								checked : params[0].value.indexOf(index) !== -1,
+								on : {
+									change : function(event) {
+										var filterJansenMatch = [];
+
+										// collect all checked marking filters
+										$.each(matches, function(innerIndex, innerMatch) {
+											if ($('#jansenMatch_' + innerMatch.key).is(':checked')) {
+												filterJansenMatch.push(innerIndex);
+											}
+										});
+
+										// adjust params
+										params[0].value = filterJansenMatch.join();
+
+										// update grid
+										g.populate();
+									}
+								}
+							}),
+							// ... and label
+							$('<label/>', {
+								'for' : 'jansenMatch_' + match.key,
+								html : match.value,
+								'class' : 'jansenMatch_label_' + match.key + ' jansenMatch_label',
+							})));
+						});
+
+						return $('<div/>', {
+							'class' : 'customButtonContent'
+						}).append(filters);
+					});
+				}
+
+				if ($('.jansenSubtitle', g.mDiv).length === 0) {
+					$(g.mDiv).append($('<div/>', {
+						'class' : 'jansenSubtitle stitle',
+						html : this.subtitle
+					}));
+				}
+			},
 			height : 'auto',
 			singleSelect : true,
 			striped : true,
@@ -122,20 +232,56 @@
 			rp : 20,
 			rpOptions : [10, 20, 30, 50, 100, 200],
 			title : 'Bestand: Jansen',
+			subtitle : 'Zuordnung: Jansen-EAN -> net-xpress-EAN2',
 			pagetext : 'Seite',
 			outof : 'von',
 			procmsg : 'Bitte warten...'
 		});
+
+		$('#jansenUnmatchedTable').flexigrid({
+			url : 'jansenUnmatched-post-xml.php',
+			dataType : 'xml',
+			colModel : [{
+				display : 'Jansen EAN',
+				name : 'EAN'
+			}, {
+				display : 'Jansen Artikel ID',
+				name : 'ExternalItemID',
+				width : 130
+			}, {
+				display : 'net-xpress ItemID',
+				name : 'ItemID',
+				width : 50,
+				align : 'center'
+			}, {
+				display : 'net-xpress Name',
+				name : 'Name',
+				width : 300
+			}],
+			height : 'auto',
+			singleSelect : true,
+			striped : true,
+			height : 500
+		});
 	});
 </script>
 <div class='config'>
-	<h3>Jansen Update</h3>
-	<div>
-		<ul id='jansenStatic'>
-			<li>
-				<label>Letzte Dateiaktualisierung von Jansen</label>
-				<span>{$jansenLastUpdate|date_format:"%d.%m.%Y, %H:%M:%S"} Uhr</span>
-			</li>
-		</ul>
+	<h3>Informationen Jansenbestand</h3>
+	<div class='accordion'>
+		<h3>Jansen Update</h3>
+		<div>
+			<ul id='jansenStatic'>
+				<li>
+					<label>Letzte Dateiaktualisierung von Jansen</label>
+					<span>{$jansenLastUpdate|date_format:"%d.%m.%Y, %H:%M:%S"} Uhr</span>
+				</li>
+			</ul>
+		</div>
+		<h3>Net-xpress Artikel mit Jansen EAN ohne Match</h3>
+		<div>
+			<table id='jansenUnmatchedTable' style='display:none'>
+				<!-- -->
+			</table>
+		</div>
 	</div>
 </div>

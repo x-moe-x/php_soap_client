@@ -222,7 +222,6 @@ class ApiExecute {
 					//@formatter:off
 					self::executeTasks(
 						array(
-							self::UPDATE_CURRENT_STOCKS,
 							self::READ_JANSEN_STOCK_IMPORT,
 							self::CALCULATE_JANSEN_STOCK_MATCHES,
 							self::SET_CURRENT_STOCKS
