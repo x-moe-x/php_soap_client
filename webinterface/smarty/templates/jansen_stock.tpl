@@ -42,6 +42,30 @@
 	.erow .noMatch {
 		background-color: #f99 !important;
 	}
+
+	.filter.jansenFilter input {
+		margin-top: -2px !important;
+	}
+
+	.filter.jansenFilter  label {
+		width: auto !important;
+	}
+
+	.jansenMatch_label {
+		padding: 0 1em;
+	}
+
+	.jansenMatch_label_matched {
+		background-color: #9f9;
+	}
+
+	.jansenMatch_label_unmatched {
+		background-color: #f77;
+	}
+
+	.jansenMatch_label_partiallyMatched {
+		background-color: #fa5;
+	}
 </style>
 <script>
 	$(function() {
@@ -66,7 +90,7 @@
 			}, {
 				display : 'net-xpress Name',
 				name : 'Name',
-				width : 370,
+				width : 500,
 				sortable : true
 			}, {
 				display : 'Jansen Bestand',
