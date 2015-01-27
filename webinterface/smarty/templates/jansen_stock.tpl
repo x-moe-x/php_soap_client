@@ -110,6 +110,82 @@
 				display : 'net-xpress Name',
 				name : 'Name'
 			}],
+			buttons : [{
+				name : 'Filter',
+				bclass : 'filter jansenFilter'
+			}],
+			matches : [{
+				'key' : 'unmatched',
+				'value' : 'Keine Zuordnung'
+			}, {
+				'key' : 'partiallyMatched',
+				'value' : 'Partielle Zuordnung'
+			}, {
+				'key' : 'matched',
+				'value' : 'Vollständige Zuordnung'
+			}],
+			params : [{
+				name : 'filterJansenMatch',
+				value : '1,2'
+			}],
+			onSuccess : function(g) {
+				var matches = this.matches, params = this.params;
+				if ($('.jansenFilter input', g.tDiv).length === 0) {
+
+					// change formatting
+					$('.jansenFilter', g.tDiv).css({
+						'padding-left' : 0
+					})
+					// encapsulate existing stuff
+					.wrapInner($('<span/>', {
+						css : {
+							'padding' : '0'
+						}
+					}))
+					// append filter selection
+					.append(function() {
+						var filters = [];
+
+						$.each(matches, function(index, match) {
+							filters.push($('<div/>')
+							// insert input ...
+							.append($('<input/>', {
+								id : 'jansenMatch_' + match.key,
+								type : 'checkbox',
+								checked : params[0].value.indexOf(index) !== -1,
+								on : {
+									change : function(event) {
+										var filterJansenMatch = [];
+
+										// collect all checked marking filters
+										$.each(matches, function(innerIndex, innerMatch) {
+											if ($('#jansenMatch_' + innerMatch.key).is(':checked')) {
+												filterJansenMatch.push(innerIndex);
+											}
+										});
+
+										// adjust params
+										params[0].value = filterJansenMatch.join();
+
+										// update grid
+										g.populate();
+									}
+								}
+							}),
+							// ... and label
+							$('<label/>', {
+								'for' : 'jansenMatch_' + match.key,
+								html : match.value,
+								'class' : 'jansenMatch_label_' + match.key + ' jansenMatch_label',
+							})));
+						});
+
+						return $('<div/>', {
+							'class' : 'customButtonContent'
+						}).append(filters);
+					});
+				}
+			},
 			height : 'auto',
 			singleSelect : true,
 			striped : true,
