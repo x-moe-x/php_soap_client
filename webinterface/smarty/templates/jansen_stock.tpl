@@ -60,8 +60,8 @@
 			}, {
 				display : 'net-xpress ItemID',
 				name : 'ItemID',
-				width: 50,
-				align: 'center',
+				width : 50,
+				align : 'center',
 				sortable : true
 			}, {
 				display : 'net-xpress Name',
@@ -72,7 +72,7 @@
 				display : 'Jansen Bestand',
 				name : 'PhysicalStock',
 				width : 50,
-				align: 'right',
+				align : 'right',
 				sortable : true
 			}, {
 				display : 'letzte Aktualisierung',
@@ -90,7 +90,6 @@
 						newClass = 'exactMatch';
 					} else if (data.match) {
 						newClass = 'approximateMatch';
-						$('#row' + EAN + ' > td').addClass('');
 					} else {
 						newClass = 'noMatch';
 					}
