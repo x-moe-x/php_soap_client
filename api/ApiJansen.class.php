@@ -131,6 +131,54 @@ ON nx.EAN = js.EAN\n";
 	const JANSEN_DATA_WHERE = "WHERE
 	1\n";
 
+	/**
+	 * @var string
+	 */
+	const JANSEN_UNMATCHED_DATA_QUERY = "SELECT
+	i.EAN,
+	i.ExternalItemID,
+	jsu.ItemID,
+	i.Name
+FROM
+	JansenStockUnmatched as jsu
+JOIN
+	(
+		SELECT
+			i.ItemID,
+			CONCAT(CASE WHEN (i.BundleType = 'bundle') THEN
+					'[Bundle] '
+				WHEN (i.BundleType = 'bundle_item') THEN
+					'[Bundle Artikel] '
+				ELSE
+					''
+				END, i.Name, CASE WHEN (avs.AttributeValueSetID IS NOT null) THEN
+					CONCAT(', ', avs.AttributeValueSetName)
+				ELSE
+					''
+			END) AS Name,
+			CASE WHEN (avs.AttributeValueSetID IS NULL) THEN
+				i.EAN2
+			ELSE
+				avs.EAN2
+			END AS EAN,
+			CASE WHEN (avs.AttributeValueSetID IS NULL) THEN
+				0
+			ELSE
+				avs.AttributeValueSetID
+			END AS AttributeValueSetID,
+			i.ExternalItemID
+		FROM
+			ItemsBase AS i
+		LEFT JOIN
+			AttributeValueSets AS avs
+		ON
+			i.ItemID = avs.ItemID
+	) AS i
+ON
+	jsu.ItemID = i.ItemID
+AND
+	jsu.AttributeValueSetID = i.AttributeValueSetID\n";
+
 	public static function getJansenStockData($page = 1, $rowsPerPage = 10, $sortByColumn = 'EAN', $sortOrder = 'ASC', $eans = null, $externalItemIDs = null, $itemIDs = null, $names = null, $jansenMatch = null) {
 		$data = array('page' => $page, 'total' => null, 'rows' => array());
 
@@ -281,6 +329,28 @@ ON nx.EAN = js.EAN\n";
 											'match'			=>	isset($jansenStockDataData['ItemID']),
 											'exactMatch'	=>	$jansenStockDataData['ExactMatch'] == 1
 										)
+			);
+			//@formatter:on
+		}
+		return $data;
+	}
+
+	public static function getJansenUnmatchedData() {
+		$data = array('page' => 1, 'total' => null, 'rows' => array());
+
+		ob_start();
+		$jansenUnmatchedDBResult = DBQuery::getInstance() -> select(self::JANSEN_UNMATCHED_DATA_QUERY);
+		ob_end_clean();
+
+		$data['total'] = $jansenUnmatchedDBResult -> getNumRows();
+
+		while ($jansenUnmatched = $jansenUnmatchedDBResult -> fetchAssoc()) {
+			//@formatter:off
+			$data['rows'][$jansenUnmatched['EAN']] = array(
+				'ean'				=>	$jansenUnmatched['EAN'],
+				'externalItemID'	=>	$jansenUnmatched['ExternalItemID'],
+				'itemID'			=>	$jansenUnmatched['ItemID'],
+				'name'				=>	$jansenUnmatched['Name']
 			);
 			//@formatter:on
 		}
