@@ -69,52 +69,53 @@ class ApiJansen {
 	const JANSEN_DATA_FROM_BASIC = "\nFROM
 	JansenStockData as js
 LEFT JOIN
-	(SELECT
-		js.EAN,
-		nx.ItemID,
-		nx.Name,
-		nx.ExternalItemID,
-		nx.BundleType,
-		nx.AttributeValueSetID,
-		nx.AttributeValueSetName,
-		st.Timestamp
-	FROM
-		JansenStockData as js
-	JOIN
-		(
-			SELECT
-				nx.ItemID,
-				nx.Name,
-				nx.ExternalItemID,
-				nx.BundleType,
-				avs.AttributeValueSetID,
-				avs.AttributeValueSetName,
-				CASE WHEN (avs.AttributeValueSetID IS NULL) THEN
-					nx.EAN2
-				ELSE
-					avs.EAN2
-				END AS EAN2
-			FROM
-				ItemsBase AS nx
-			LEFT JOIN
-				AttributeValueSets AS avs
-			ON
-				avs.ItemID = nx.ItemID
-		) as nx
-	ON
-		nx.EAN2 = js.EAN
-	LEFT JOIN
-		CurrentStocksTiming as st
-	ON
-		(nx.ItemID = st.ItemID)
-	AND
-		CASE WHEN (nx.AttributeValueSetID IS NULL) THEN
-			0
-		ELSE
-			nx.AttributeValueSetID
-		END = st.AttributeValueSetID
-	WHERE
-		st.WarehouseID = 2
+	(
+		SELECT
+			js.EAN,
+			nx.ItemID,
+			nx.Name,
+			nx.ExternalItemID,
+			nx.BundleType,
+			nx.AttributeValueSetID,
+			nx.AttributeValueSetName,
+			st.Timestamp
+		FROM
+			JansenStockData as js
+		JOIN
+			(
+				SELECT
+					nx.ItemID,
+					nx.Name,
+					nx.ExternalItemID,
+					nx.BundleType,
+					avs.AttributeValueSetID,
+					avs.AttributeValueSetName,
+					CASE WHEN (avs.AttributeValueSetID IS NULL) THEN
+						nx.EAN2
+					ELSE
+						avs.EAN2
+					END AS EAN2
+				FROM
+					ItemsBase AS nx
+				LEFT JOIN
+					AttributeValueSets AS avs
+				ON
+					avs.ItemID = nx.ItemID
+			) as nx
+		ON
+			nx.EAN2 = js.EAN
+		LEFT JOIN
+			CurrentStocksTiming as st
+		ON
+			(nx.ItemID = st.ItemID)
+		AND
+			CASE WHEN (nx.AttributeValueSetID IS NULL) THEN
+				0
+			ELSE
+				nx.AttributeValueSetID
+			END = st.AttributeValueSetID
+		WHERE
+			st.WarehouseID = 2
 	) as nx
 ON nx.EAN = js.EAN\n";
 	// the nested select query is a workaround for a very slow left join in items base directly
