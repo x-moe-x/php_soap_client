@@ -16,14 +16,42 @@ class ApiJansen {
 	/**
 	 * @var string
 	 */
-	const JANSEN_DATA_SELECT_ADVANCED = ',
+	const JANSEN_DATA_SELECT_ADVANCED = ",
 	js.PhysicalStock,
 	nx.Timestamp,
 	CASE WHEN (nx.ItemID IS NOT NULL) THEN
-		js.ExternalItemID = nx.ExternalItemID
+		LOWER(
+			CASE WHEN (nx.AttributeValueSetID IS NULL) THEN
+					nx.ExternalItemID
+				ELSE
+					CASE WHEN (nx.AttributeValueSetID = 1) THEN
+						REPLACE(nx.ExternalItemID,' [R/G] ','G')
+					WHEN (nx.AttributeValueSetID = 2) THEN
+						REPLACE(nx.ExternalItemID,' [R/G] ','R')
+					WHEN (nx.AttributeValueSetID = 23) THEN
+						REPLACE(nx.ExternalItemID,'+[Color]','RED')
+					WHEN (nx.AttributeValueSetID = 24) THEN
+						REPLACE(nx.ExternalItemID,'+[Color]','YELLOW')
+					WHEN (nx.AttributeValueSetID = 25) THEN
+						REPLACE(nx.ExternalItemID,'+[Color]','PURPLE')
+					WHEN (nx.AttributeValueSetID = 26) THEN
+						REPLACE(nx.ExternalItemID,'+[Color]','WHITE')
+					WHEN (nx.AttributeValueSetID = 27) THEN
+						REPLACE(nx.ExternalItemID,'+[Color]','PINK')
+					WHEN (nx.AttributeValueSetID = 28) THEN
+						REPLACE(nx.ExternalItemID,'+[Color]','DARKBLUE')
+					WHEN (nx.AttributeValueSetID = 29) THEN
+						REPLACE(nx.ExternalItemID,'+[Color]','DARKGREEN')
+					WHEN (nx.AttributeValueSetID = 30) THEN
+						REPLACE(nx.ExternalItemID,'+[Color]','ORANGE')
+					ELSE
+						'xxx'
+					END
+			END
+		) = LOWER(js.ExternalItemID)
 	ELSE
-		NULL
-	END as ExactMatch';
+		FALSE
+	END as ExactMatch";
 
 	/**
 	 * @var string
@@ -36,6 +64,8 @@ LEFT JOIN
 		nx.ItemID,
 		nx.Name,
 		nx.ExternalItemID,
+		nx.AttributeValueSetID,
+		nx.AttributeValueSetName,
 		st.Timestamp
 	FROM
 		JansenStockData as js
@@ -46,6 +76,7 @@ LEFT JOIN
 				nx.Name,
 				nx.ExternalItemID,
 				avs.AttributeValueSetID,
+				avs.AttributeValueSetName,
 				CASE WHEN (avs.AttributeValueSetID IS NULL) THEN
 					nx.EAN2
 				ELSE
