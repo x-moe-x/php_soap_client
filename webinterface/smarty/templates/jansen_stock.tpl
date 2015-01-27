@@ -237,6 +237,32 @@
 			outof : 'von',
 			procmsg : 'Bitte warten...'
 		});
+
+		$('#jansenUnmatchedTable').flexigrid({
+			url : 'jansenUnmatched-post-xml.php',
+			dataType : 'xml',
+			colModel : [{
+				display : 'Jansen EAN',
+				name : 'EAN'
+			}, {
+				display : 'Jansen Artikel ID',
+				name : 'ExternalItemID',
+				width : 130
+			}, {
+				display : 'net-xpress ItemID',
+				name : 'ItemID',
+				width : 50,
+				align : 'center'
+			}, {
+				display : 'net-xpress Name',
+				name : 'Name',
+				width : 300
+			}],
+			height : 'auto',
+			singleSelect : true,
+			striped : true,
+			height : 500
+		});
 	});
 </script>
 <div class='config'>
@@ -250,6 +276,12 @@
 					<span>{$jansenLastUpdate|date_format:"%d.%m.%Y, %H:%M:%S"} Uhr</span>
 				</li>
 			</ul>
+		</div>
+		<h3>Net-xpress Artikel mit Jansen EAN ohne Match</h3>
+		<div>
+			<table id='jansenUnmatchedTable' style='display:none'>
+				<!-- -->
+			</table>
 		</div>
 	</div>
 </div>
