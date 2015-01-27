@@ -23,6 +23,7 @@ class JansenStockMatchForUpdate {
 	/**
 	 * @var array
 	 */
+	private $aUnmatchedItemVariants;
 
 	/**
 	 * @var int
@@ -84,6 +85,21 @@ class JansenStockMatchForUpdate {
 			);
 			//@formatter:on
 		}
+
+		$unmatchedItemVariantsDBResult = DBQuery::getInstance() -> select($this -> getUnmatchedQuery());
+
+		$this -> getLogger() -> debug(__FUNCTION__ . ': found ' . $unmatchedItemVariantsDBResult -> getNumRows() . ' item variants with jansen ean that didn\'t match...');
+
+		// for every item variant ...
+		while ($itemVariant = $unmatchedItemVariantsDBResult -> fetchAssoc()) {
+			// ... handle matched item variant
+
+			//@formatter:off
+			$this -> aUnmatchedItemVariants[] = array(
+				'ItemID' =>					$itemVariant['ItemID'],
+				'AttributeValueSetID' =>	$itemVariant['AttributeValueSetID']
+			);
+			//@formatter:on
 		}
 
 		$this -> storeToDB();
@@ -183,14 +199,63 @@ GROUP BY	/* skip duplicate entrys */
 	jti.EAN";
 	}
 
+	private function getUnmatchedQuery() {
+		return "SELECT
+	i.ItemID,
+	CASE WHEN (avs.AttributeValueSetID IS NULL) THEN
+			0
+		ELSE
+			avs.AttributeValueSetID
+	END AS AttributeValueSetID,
+	jsd.EAN IS NOT NULL AS IsEanMatched
+FROM
+	ItemsBase AS i
+LEFT JOIN
+	AttributeValueSets AS avs
+ON
+	i.ItemID = avs.ItemID
+JOIN
+	PriceSets AS ps
+ON
+	i.ItemID = ps.ItemID
+LEFT JOIN
+	JansenStockData as jsd
+ON
+	CASE WHEN (avs.AttributeValueSetID IS NULL) THEN
+			i.EAN2
+		ELSE
+			avs.EAN2
+	END = jsd.EAN
+WHERE
+	CASE WHEN (avs.AttributeValueSetID IS NULL) THEN
+			i.EAN2
+		ELSE
+			avs.EAN2
+	END BETWEEN 8595578300000 AND 8595578399999
+AND
+	i.Marking1ID != 4
+AND
+	i.Inactive = 0
+AND
+	jsd.EAN IS NULL";
+	}
+
 	private function storeToDB() {
 		$countMatched = count($this -> aMatchedItemVariants);
+		$countUnmatched = count($this -> aUnmatchedItemVariants);
 
 		if ($countMatched > 0) {
 			DBQuery::getInstance() -> truncate('TRUNCATE SetCurrentStocks');
 			DBQuery::getInstance() -> insert('INSERT INTO SetCurrentStocks' . DBUtils2::buildMultipleInsertOnDuplikateKeyUpdate($this -> aMatchedItemVariants));
-			$this -> getLogger() -> debug(__FUNCTION__ . ": storing $countMatched matched stock records for update.");
 
+			$this -> getLogger() -> debug(__FUNCTION__ . ": storing $countMatched matched stock records for update.");
+		}
+
+		if ($countUnmatched > 0) {
+			DBQuery::getInstance() -> truncate('TRUNCATE JansenStockUnmatched');
+			DBQuery::getInstance() -> insert('INSERT INTO JansenStockUnmatched' . DBUtils2::buildMultipleInsertOnDuplikateKeyUpdate($this -> aUnmatchedItemVariants));
+
+			$this -> getLogger() -> debug(__FUNCTION__ . ": storing $countUnmatched unmatched stock records.");
 		}
 	}
 
