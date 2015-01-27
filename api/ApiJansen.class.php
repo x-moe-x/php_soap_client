@@ -40,7 +40,23 @@ LEFT JOIN
 	FROM
 		JansenStockData as js
 	JOIN
-		ItemsBase as nx
+		(
+			SELECT
+				nx.ItemID,
+				nx.Name,
+				nx.ExternalItemID,
+				CASE WHEN (avs.AttributeValueSetID IS NULL) THEN
+					nx.EAN2
+				ELSE
+					avs.EAN2
+				END AS EAN2
+			FROM
+				ItemsBase AS nx
+			LEFT JOIN
+				AttributeValueSets AS avs
+			ON
+				avs.ItemID = nx.ItemID
+		) as nx
 	ON
 		nx.EAN2 = js.EAN
 	LEFT JOIN
