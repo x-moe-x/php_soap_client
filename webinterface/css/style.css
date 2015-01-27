@@ -183,7 +183,7 @@ body.loading .modal {
 	text-align: right;
 }
 
-.amazonPrice .price:after{
+.amazonPrice .price:after {
 	content: ' €'
 }
 
@@ -344,13 +344,13 @@ body.loading .modal {
 }
 
 .totalSum:after {
-    content: " =";
+	content: " =";
 }
 
 .flexigrid div.bDiv .automatic_value {
 	margin-right: 5%;
 	font-size: 1em;
-	font-family: Verdana,Arial,sans-serif;
+	font-family: Verdana, Arial, sans-serif;
 }
 
 .flexigrid div.fbutton span.pReload {
@@ -551,14 +551,14 @@ tr:hover .notModifyable {
 }
 
 .warehouseGrouping_AssociationContainment .ui-draggable:last-child {
-    margin: 0;
+	margin: 0;
 }
 .warehouseGrouping_AssociationContainment .ui-draggable {
-    background: none repeat scroll 0 0 #eee;
-    border: 1px solid #ccc;
-    border-radius: 5px 5px 5px 5px;
-    margin-bottom: 0.5em;
-    padding: 0.3em;
+	background: none repeat scroll 0 0 #eee;
+	border: 1px solid #ccc;
+	border-radius: 5px 5px 5px 5px;
+	margin-bottom: 0.5em;
+	padding: 0.3em;
 }
 
 .table {
@@ -566,11 +566,11 @@ tr:hover .notModifyable {
 }
 
 .tableRow {
-	display : table-row;
+	display: table-row;
 }
 
 .tableCell {
-	display : table-cell;
+	display: table-cell;
 }
 
 #generalCostConfiguration .noTableCell {
@@ -595,13 +595,115 @@ tr:hover .notModifyable {
 }
 
 #rowaverage .noTableCell {
-    padding: 5px;
+	padding: 5px;
 }
 
 #rowaverage .variableUnit {
-    margin-right: 21px !important;
+	margin-right: 21px !important;
 }
 
 #rowaverage, #runningCostConfigurationNew td:first-child {
-    background: #ccc;
+	background: #ccc;
+}
+
+#jansenStatic li {
+	display: inline-block;
+	margin-right: 1%;
+}
+
+#jansenStatic li {
+	display: inline-block;
+	width: 22%;
+	margin-right: 1%;
+}
+
+#jansenStatic li label, #jansenStatic li span {
+	display: block;
+}
+
+#jansenStatic li span {
+	text-align: right;
+	background-color: #eee;
+}
+
+.exactMatch {
+	background-color: #9f9 !important;
+}
+
+.erow .exactMatch {
+	background-color: #7f7 !important;
+}
+
+.approximateMatch {
+	background-color: #fa5 !important;
+}
+
+.erow .approximateMatch {
+	background-color: #fa3 !important;
+}
+
+.noMatch {
+	background-color: #f77 !important;
+}
+
+.erow .noMatch {
+	background-color: #f99 !important;
+}
+
+.filter.jansenFilter input {
+	margin-top: -2px !important;
+}
+
+.filter.jansenFilter  label {
+	width: auto !important;
+}
+
+.jansenMatch_label {
+	padding: 0 1em;
+}
+
+.jansenMatch_label_matched {
+	background-color: #9f9;
+}
+
+.jansenMatch_label_unmatched {
+	background-color: #f77;
+}
+
+.jansenMatch_label_partiallyMatched {
+	background-color: #fa5;
+}
+
+.flexigrid div.mDiv .stitle {
+	font-weight: normal;
+}
+
+/* ean */
+
+.fieldList {
+	display: table;
+}
+
+.fieldList > li {
+	display: table-row;
+}
+
+.fieldList label, .fieldList input, .fieldList select {
+	display: table-cell;
+	width: 130px;
+	margin-bottom: 1em;
+}
+
+.fieldList #eanValidity {
+	display: inline-block;
+	width: 16px;
+	height: 16px;
+}
+
+#eanValidity.ui-state-default .ui-icon-circle-close {
+	background-image: url("images/ui-icons_ff0000_256x240.png") !important;
+}
+
+#eanValidity.ui-state-default .ui-icon-check {
+	background-image: url("images/ui-icons_008000_256x240.png") !important;
 }

@@ -30,10 +30,10 @@
 					<a href='#generalCostConfiguration'>Konfiguration Kosten</a>
 				</li>
 				<li>
-					<a href='#JansenStock'>Jansen-Bestand</a>
+					<a href='#jansenStock'>Jansen-Bestand</a>
 				</li>
 				<li>
-					<a href='#EanGenerator'>EAN Generator</a>
+					<a href='#eanGenerator'>EAN Generator</a>
 				</li>
 			</ul>
 			<div id='dialog'>
@@ -60,13 +60,13 @@
 					<!-- -->
 				</table>
 			</div>
-			<div id='JansenStock'>
+			<div id='jansenStock'>
 				{include file='jansen_stock.tpl'}
 				<table id='jansenStockTable' style='display:none'>
 					<!-- -->
 				</table>
 			</div>
-			<div id='EanGenerator'>
+			<div id='eanGenerator'>
 				{include file='ean_generator.tpl'}
 			</div>
 		</div>
