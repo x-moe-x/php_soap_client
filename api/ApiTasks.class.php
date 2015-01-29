@@ -118,5 +118,21 @@ WHERE
 OR
 	(`TaskExecutionInterval` IS NULL AND `TaskExecutionStart` IS NOT NULL)';
 	}
+
+	/**
+	 * Enqueues a task for deferred execution
+	 *
+	 * @param string $task name of the task to be enqueued
+	 *
+	 * @return void
+	 */
+	public static function enqueueTask($task)
+	{
+		ob_start();
+		DBQuery::getInstance()->insert("INSERT INTO `TaskQueue` (`TaskID`, `TaskInsertionTimestamp`) SELECT `TaskID`, NOW() FROM `TaskDefinitions` WHERE `TaskName` = '$task'");
+		ob_end_clean();
+	}
+
 }
+
 ?>
