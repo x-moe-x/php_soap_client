@@ -206,14 +206,54 @@ class ApiExecute
 				try
 				{
 					$startTime = microtime(true);
-					ob_start();
-					self::executeTasks($task);
-					$output = ob_get_clean();
+					$executionLock->init(ROOT . '/tmp/execution.Lock');
 
-					if ($withOutput) {
-						$result['data'] = array('task' => $task, 'time' => number_format(microtime(true) - $startTime, 2), 'output' => $output);
-					} else {
-						$result['data'] = array('task' => $task, 'time' => number_format(microtime(true) - $startTime, 2));
+					// if other instance or the daemon is busy ...
+					if ($executionLock->tryLock())
+					{
+						// ... it's safe to execute
+						ob_start();
+
+						self::executeTasks($task);
+						$executionLock->discard();
+
+						$output = ob_get_clean();
+
+						if ($withOutput)
+						{
+							$result['data'] = array(
+								'task'                => $task,
+								'isExecutionDeferred' => false,
+								'time'                => number_format(microtime(true) - $startTime, 2),
+								'output'              => $output,
+							);
+						} else
+						{
+							$result['data'] = array(
+								'task'                => $task,
+								'isExecutionDeferred' => false,
+								'time'                => number_format(microtime(true) - $startTime, 2),
+							);
+						}
+					} else
+					{
+						// ... otherwise we have to enqueue the task
+						if ($dbQueueLock->lock())
+						{
+							//TODO enqueue task
+							$dbQueueLock->discard();
+
+							$result['data'] = array(
+								'task'                => $task,
+								'isExecutionDeferred' => true,
+								'time'                => number_format(microtime(true) - $startTime, 2),
+							);
+						} else
+						{
+							throw new RuntimeException("Could not acquire dbQueueLock, didn't enqueue $task");
+						}
+
+
 					}
 
 					$result['success'] = true;
