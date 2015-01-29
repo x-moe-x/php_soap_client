@@ -1,109 +1,143 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(-1);
-
 require_once realpath(dirname(__FILE__) . '/../') . '/config/basic.inc.php';
 require_once ROOT . 'lib/soap/experiment_loader/NetXpressSoapExperimentLoader.class.php';
 require_once ROOT . 'api/ApiTasks.class.php';
 require_once ROOT . 'api/ApiExecute.class.php';
 require_once ROOT . 'includes/FileLock.class.php';
 
-class NetXpressPseudoDaemon {
+/**
+ * Executes tasks that are scheduled for execution. Provides daemon functionality if executed repeatedly (eg. when
+ * configured as a cron job). Operates on FileLock to prevent concurrent execution
+ */
+class NetXpressPseudoDaemon
+{
 
+	/**
+	 * @var NetXpressPseudoDaemon
+	 */
+	private static $instance = null;
 	/**
 	 * @var FileLock
 	 */
 	private $executionLock = null;
-
 	/**
 	 * @var FileLock
 	 */
 	private $dbQueueLock = null;
-
 	/**
 	 * @var array
 	 */
 	private $aRunningQueue = null;
 
 	/**
-	 * @var NetXpressPseudoDaemon
+	 * @return NetXpressPseudoDaemon
 	 */
-	private static $instance = null;
+	private function __construct()
+	{
+		$this->executionLock = new FileLock();
+		$this->dbQueueLock = new FileLock();
 
-	private function __construct() {
-		$this -> executionLock = new FileLock();
-		$this -> dbQueueLock = new FileLock();
-
-		$this -> aRunningQueue = array();
+		$this->aRunningQueue = array();
 	}
 
-	public static function getInstance() {
-		if (!isset(self::$instance) || !(self::$instance instanceof NetXpressPseudoDaemon)) {
+	/**
+	 * Give access to the NetXpressPseudoDaemon instance
+	 *
+	 * @return NetXpressPseudoDaemon
+	 */
+	public static function getInstance()
+	{
+		if (!isset(self::$instance) || !(self::$instance instanceof NetXpressPseudoDaemon))
+		{
 			self::$instance = new NetXpressPseudoDaemon();
 		}
 
 		return self::$instance;
 	}
 
-	private function obtainOutOfSequenceTasks() {
+	/**
+	 * Main loop of NetXpressPseudoDaemon. As it's just a pseudo daemon it only runs once per execution.
+	 *
+	 * @return void
+	 */
+	public function run()
+	{
+		$this->debug(__FUNCTION__, 'Starting pseudo daemon...');
+		$this->executionLock->init(ROOT . '/tmp/execution.Lock');
+		$this->dbQueueLock->init(ROOT . '/tmp/dbQueue.Lock');
+
+		// if execution lock is aquired ...
+		if ($this->executionLock->tryLock())
+		{
+
+			// ... then wait till dbQueueLock has been aquired
+			if ($this->dbQueueLock->lock())
+			{
+
+				$this->obtainOutOfSequenceTasks();
+
+				$this->dbQueueLock->unlock();
+
+				$this->obtainScheduledTasks();
+
+				$this->processRunningQueue();
+			} else
+			{
+				$this->debug(__FUNCTION__, 'dbQueueLock not acquired. Skipping this turn.');
+			}
+			$this->executionLock->unlock();
+		} else
+		{
+			// ... otherwise skip this turn
+			$this->debug(__FUNCTION__, 'executionLock not acquired after given amount of time. Skipping this turn.');
+		}
+		$this->executionLock->discard();
+		$this->dbQueueLock->discard();
+	}
+
+	/**
+	 * Writes debug message to log and to screen
+	 *
+	 * @param string $function function name
+	 * @param string $message  message to log
+	 */
+	private function debug($function, $message)
+	{
+		Logger::instance(__CLASS__)->debug($function . ': ' . $message);
+	}
+
+	private function obtainOutOfSequenceTasks()
+	{
 		// for all tasks currently in db-queue:
 		// ... insert into running-queue
 	}
 
-	private function obtainScheduledTasks() {
-		// for all existing tasks:
-		// ... if is scheduled for execution ...
-		// ... ... then insert into running-queue
-		$this -> aRunningQueue = array_merge($this -> aRunningQueue, ApiTasks::getScheduledTasks());
+	/**
+	 * adds all tasks that are scheduled for immediate execution to the running queue
+	 *
+	 * @return void
+	 */
+	private function obtainScheduledTasks()
+	{
+		$this->aRunningQueue = array_merge($this->aRunningQueue, ApiTasks::getScheduledTasks());
 	}
 
-	private function processRunningQueue() {
-		// for all tasks in running-queue:
-		foreach ($this->aRunningQueue as $currentTask) {
-			// ... perform task
-			$this -> debug('Executing Task: ' . $currentTask['name']);
+	/**
+	 * Executes every task currently in the running queue, then updates the tasks last execution time
+	 *
+	 * @return void
+	 */
+	private function processRunningQueue()
+	{
+		foreach ($this->aRunningQueue as $currentTask)
+		{
+			$this->debug(__FUNCTION__, 'Executing ' . $currentTask['name']);
+
 			ApiExecute::executeTasks($currentTask['name']);
-			// ... ... update task-data
 			ApiTasks::updateLastExecuteTime($currentTask['id']);
 		}
 	}
-
-	public function run() {
-		$this -> debug('Starting pseudo daemon...');
-		$this -> executionLock -> init(ROOT . '/tmp/execution.Lock');
-		$this -> dbQueueLock -> init(ROOT . '/tmp/dbQueue.Lock');
-
-		// if execution lock is aquired ...
-		if ($this -> executionLock -> tryLock()) {
-
-			// ... then wait till dbQueueLock has been aquired
-			if ($this -> dbQueueLock -> lock()) {
-
-				$this -> obtainOutOfSequenceTasks();
-
-				$this -> dbQueueLock -> unlock();
-
-				$this -> obtainScheduledTasks();
-
-				$this -> processRunningQueue();
-			} else {
-				$this -> debug('dbQueueLock not acquired. Skipping this turn.');
-			}
-			$this -> executionLock -> unlock();
-		} else {
-			// ... otherwise skip this turn
-			$this -> debug('executionLock not acquired after given amount of time. Skipping this turn.');
-		}
-		$this -> executionLock -> discard();
-		$this -> dbQueueLock -> discard();
-	}
-
-	private function debug($message) {
-		Logger::instance('NetXpressPseudoDaemon') -> debug($message);
-	}
-
 }
 
-NetXpressPseudoDaemon::getInstance() -> run();
+NetXpressPseudoDaemon::getInstance()->run();
 ?>
