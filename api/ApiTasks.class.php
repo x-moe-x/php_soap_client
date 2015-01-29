@@ -9,6 +9,9 @@ class ApiTasks {
 	 */
 	const DAEMON_INTERVAL = 5;
 
+	/**
+	 * @var int
+	 */
 	const EXECUTION_ESTIMATE_SECONDS = 30;
 
 	/**
