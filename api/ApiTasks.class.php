@@ -41,22 +41,7 @@ class ApiTasks
 	public static function getScheduledTasks()
 	{
 		ob_start();
-		$dbQueryResult = DBQuery::getInstance() -> select('SELECT
-	def.TaskID as `id`,
-	def.TaskName as `name`,
-	def.TaskExecutionInterval as `interval`,
-	def.TaskExecutionStart as `start`,
-	dat.TaskLastExecutionTimestamp as `lastExecution`
-FROM
-	`TaskDefinitions` as `def`
-LEFT JOIN
-	`TaskData` as `dat`
-ON
-	def.TaskID = dat.TaskID
-WHERE
-	(`TaskExecutionInterval` IS NOT NULL AND `TaskExecutionStart` IS NULL)
-OR
-	(`TaskExecutionInterval` IS NULL AND `TaskExecutionStart` IS NOT NULL)');
+		$dbQueryResult = DBQuery::getInstance()->select(self::getScheduledTasksQuery());
 		ob_end_clean();
 
 		$result = array();
@@ -108,5 +93,30 @@ OR
 		return $result;
 	}
 
+	/**
+	 * Generates query to obtain possibly scheduled tasks from database. Tasks can be returned that either have a given
+	 * execution interval (periodic tasks) or a given start time (daily task) <b>but not both or neither</b>
+	 *
+	 * @return string query for scheduled tasks
+	 */
+	private static function getScheduledTasksQuery()
+	{
+		return 'SELECT
+	def.TaskID AS `id`,
+	def.TaskName AS `name`,
+	def.TaskExecutionInterval AS `interval`,
+	def.TaskExecutionStart AS `start`,
+	dat.TaskLastExecutionTimestamp AS `lastExecution`
+FROM
+	`TaskDefinitions` AS `def`
+LEFT JOIN
+	`TaskData` AS `dat`
+ON
+	def.TaskID = dat.TaskID
+WHERE
+	(`TaskExecutionInterval` IS NOT NULL AND `TaskExecutionStart` IS NULL)
+OR
+	(`TaskExecutionInterval` IS NULL AND `TaskExecutionStart` IS NOT NULL)';
+	}
 }
 ?>
