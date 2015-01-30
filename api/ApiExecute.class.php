@@ -2,6 +2,7 @@
 require_once realpath(dirname(__FILE__) . '/../') . '/config/basic.inc.php';
 require_once ROOT . 'lib/soap/experiment_loader/NetXpressSoapExperimentLoader.class.php';
 require_once ROOT . 'experiments/CalculateAmazonWeightenedRunningCosts/CalculateAmazonWeightenedRunningCosts.class.php';
+require_once ROOT . 'api/ApiTasks.class.php';
 require_once ROOT . 'includes/FileLock.class.php';
 
 /**
@@ -248,7 +249,8 @@ class ApiExecute
 
 						if ($dbQueueLock->lock())
 						{
-							//TODO enqueue task
+							ApiTasks::enqueueTask($task);
+
 							$dbQueueLock->discard();
 
 							$result['data'] = array(
