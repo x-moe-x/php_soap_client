@@ -1624,7 +1624,6 @@ function prepareJansenStock() {'use strict';
 				}));
 			}
 		},
-		height : 'auto',
 		singleSelect : true,
 		striped : true,
 		sortname : "EAN",
@@ -1663,7 +1662,6 @@ function prepareJansenStock() {'use strict';
 					name : 'Name',
 					width : 300
 				}],
-				height : 'auto',
 				singleSelect : true,
 				striped : true,
 				height : 500
