@@ -12,6 +12,11 @@ class ApiExecute
 	/**
 	 * @var string
 	 */
+	const JUST_WAIT = 'justWait';
+
+	/**
+	 * @var string
+	 */
 	const UPDATE_ORDERS = 'updateOrders';
 
 	/**
@@ -300,6 +305,16 @@ class ApiExecute
 		{
 			switch ($task)
 			{
+				case self::JUST_WAIT:
+					for ($i = 0; $i < 60 * 4; $i++)
+					{
+						sleep(1);
+						if ($i % 5 === 0)
+						{
+							Logger::instance(__CLASS__)->debug(__FUNCTION__ . ': waiting for ' . (60 * 4 - $i) . ' seconds');
+						}
+					}
+					break;
 				case self::UPDATE_ORDERS :
 					NetXpressSoapExperimentLoader::getInstance()->run(array(
 						'',
