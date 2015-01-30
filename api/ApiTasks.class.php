@@ -89,7 +89,10 @@ class ApiTasks
 			if ($next < $now)
 			{
 				// ... enqueue task
-				$result[] = $currentTask;
+				$result[] = array(
+					'id'   => $currentTask['id'],
+					'name' => $currentTask['name'],
+				);
 			} // ... or if execution isn't scheduled
 			else
 			{
