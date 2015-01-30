@@ -222,7 +222,7 @@ class ApiExecute
 						ob_start();
 
 						self::executeTasks($task);
-						$executionLock->discard();
+						$executionLock->unlock();
 
 						$output = ob_get_clean();
 
@@ -251,7 +251,7 @@ class ApiExecute
 						{
 							ApiTasks::enqueueTask($task);
 
-							$dbQueueLock->discard();
+							$dbQueueLock->unlock();
 
 							$result['data'] = array(
 								'task'                => $task,
@@ -265,6 +265,9 @@ class ApiExecute
 
 
 					}
+
+					$executionLock->discard();
+					$dbQueueLock->discard();
 
 					$result['success'] = true;
 				} catch (Exception $e)
