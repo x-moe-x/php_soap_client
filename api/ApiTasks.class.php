@@ -175,6 +175,18 @@ OR
 		DBQuery::getInstance()->insert("INSERT INTO TaskQueue (TaskID, TaskInsertionTimestamp) SELECT TaskID, UNIX_TIMESTAMP(NOW()) FROM TaskDefinitions WHERE TaskName = '$task' ON DUPLICATE KEY UPDATE TaskInsertionTimestamp = TaskInsertionTimestamp");
 		ob_end_clean();
 	}
+
+	/**
+	 * Dequeues a task from deferred execution
+	 *
+	 * @param string $task name of the task to be dequeued
+	 *
+	 * @return void
+	 */
+	public static function dequeue($task)
+	{
+		ob_start();
+		DBQuery::getInstance()->delete("DELETE TaskQueue FROM TaskQueue JOIN TaskDefinitions ON TaskQueue.TaskID = TaskDefinitions.TaskID WHERE TaskName = '$task'");
 		ob_end_clean();
 	}
 }
