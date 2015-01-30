@@ -214,13 +214,24 @@ class ApiExecute
 				{
 					$startTime = microtime(true);
 					$executionLock->init(ROOT . '/tmp/execution.Lock');
+					$dbQueueLock->init(ROOT . '/tmp/dbQueue.Lock');
 
 					// if other instance or the daemon is busy ...
 					if ($executionLock->tryLock())
 					{
 						// ... it's safe to execute
-						ob_start();
 
+						// if possible ...
+						if ($dbQueueLock->tryLock())
+						{
+							// ... dequeue task because it will be executed just afterwards
+							ApiTasks::dequeue($task);
+							$dbQueueLock->unlock();
+						} else {
+							// ... but no stress if it's not possible
+						}
+
+						ob_start();
 						self::executeTasks($task);
 						$executionLock->unlock();
 
@@ -245,7 +256,6 @@ class ApiExecute
 					} else
 					{
 						// ... otherwise we have to enqueue the task
-						$dbQueueLock->init(ROOT . '/tmp/dbQueue.Lock');
 
 						if ($dbQueueLock->lock())
 						{
