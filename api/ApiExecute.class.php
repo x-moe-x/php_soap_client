@@ -2,6 +2,7 @@
 require_once realpath(dirname(__FILE__) . '/../') . '/config/basic.inc.php';
 require_once ROOT . 'lib/soap/experiment_loader/NetXpressSoapExperimentLoader.class.php';
 require_once ROOT . 'experiments/CalculateAmazonWeightenedRunningCosts/CalculateAmazonWeightenedRunningCosts.class.php';
+require_once ROOT . 'includes/FileLock.class.php';
 
 /**
  * Provides methods to execute or schedule tasks.
@@ -238,6 +239,8 @@ class ApiExecute
 					} else
 					{
 						// ... otherwise we have to enqueue the task
+						$dbQueueLock->init(ROOT . '/tmp/dbQueue.Lock');
+
 						if ($dbQueueLock->lock())
 						{
 							//TODO enqueue task
@@ -281,6 +284,7 @@ class ApiExecute
 	 */
 	public static function executeTasks($tasks)
 	{
+		// normalize parameter
 		if (is_null($tasks))
 		{
 			throw new RuntimeException('No task specified');

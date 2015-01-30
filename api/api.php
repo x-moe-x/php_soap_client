@@ -13,8 +13,8 @@ Epi::setSetting('exceptions', true);
 Epi::init('route');
 
 //register execution api calls
-getRoute() -> get('/execute/(\w+)', array('ApiExecute', 'sheduleTTaskJSON'));
-getRoute() -> get('/executeWithOutput/(\w+)', array('ApiExecute', 'sheduleTTaskWithOutputJSON'));
+getRoute() -> get('/execute/(\w+)', array('ApiExecute', 'sheduleTaskJSON'));
+getRoute() -> get('/executeWithOutput/(\w+)', array('ApiExecute', 'sheduleTaskWithOutputJSON'));
 
 // register stock api calls
 getRoute() -> get('/config/stock', array('ApiStock', 'getConfigJSON'));

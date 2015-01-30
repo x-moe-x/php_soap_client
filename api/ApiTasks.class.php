@@ -51,6 +51,13 @@ class ApiTasks
 		while ($currentTask = $dbQueryResult->fetchAssoc())
 		{
 			// ... prepare next execution base
+
+			// deal with tasks never executed before
+			if (is_null($currentTask['lastExecution']))
+			{
+				$currentTask['lastExecution'] = 0;
+			}
+
 			$next = new DateTime('@' . $currentTask['lastExecution']);
 			$next->setTimeZone(new DateTimeZone('Europe/Berlin'));
 
