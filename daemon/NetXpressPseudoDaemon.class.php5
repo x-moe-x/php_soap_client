@@ -108,8 +108,7 @@ class NetXpressPseudoDaemon
 
 	private function obtainOutOfSequenceTasks()
 	{
-		// for all tasks currently in db-queue:
-		// ... insert into running-queue
+		$this->aRunningQueue = array_merge($this->aRunningQueue, ApiTasks::getQueuedTasks());
 	}
 
 	/**
