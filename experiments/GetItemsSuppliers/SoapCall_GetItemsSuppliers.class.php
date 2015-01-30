@@ -105,19 +105,28 @@ class SoapCall_GetItemsSuppliers extends PlentySoapCall {
 	 * @return void
 	 */
 	private function responseInterpretation(PlentySoapResponse_GetItemsSuppliers $oPlentySoapResponse_GetItemsSuppliers) {
-		if (is_array($oPlentySoapResponse_GetItemsSuppliers -> ItemsSuppliersList -> item)) {
+		if (!is_null($oPlentySoapResponse_GetItemsSuppliers->ItemsSuppliersList))
+		{
+			if (is_array($oPlentySoapResponse_GetItemsSuppliers->ItemsSuppliersList->item))
+			{
 
-			$countRecords = count($oPlentySoapResponse_GetItemsSuppliers -> ItemsSuppliersList -> item);
-			$this -> getLogger() -> debug(__FUNCTION__ . " fetched $countRecords supplier records from ItemID: {$oPlentySoapResponse_GetItemsSuppliers -> ItemsSuppliersList -> item[0]->ItemID} to {$oPlentySoapResponse_GetItemsSuppliers -> ItemsSuppliersList -> item[$countRecords - 1]->ItemID}");
+				$countRecords = count($oPlentySoapResponse_GetItemsSuppliers->ItemsSuppliersList->item);
+				$this->getLogger()->debug(__FUNCTION__ . " fetched $countRecords supplier records from ItemID: {$oPlentySoapResponse_GetItemsSuppliers->ItemsSuppliersList->item[0]->ItemID} to {$oPlentySoapResponse_GetItemsSuppliers->ItemsSuppliersList->item[$countRecords - 1]->ItemID}");
 
-			foreach ($oPlentySoapResponse_GetItemsSuppliers -> ItemsSuppliersList -> item AS &$oPlentySoapObject_ItemsSuppliersList) {
-				$this -> processSupplier($oPlentySoapObject_ItemsSuppliersList);
+				foreach ($oPlentySoapResponse_GetItemsSuppliers->ItemsSuppliersList->item AS &$oPlentySoapObject_ItemsSuppliersList)
+				{
+					$this->processSupplier($oPlentySoapObject_ItemsSuppliersList);
+				}
+			} else
+			{
+				if (!is_null($oPlentySoapResponse_GetItemsSuppliers->ItemsSuppliersList->item))
+				{
+
+					$this->getLogger()->debug(__FUNCTION__ . " fetched supplier record for ItemID: {$oPlentySoapResponse_GetItemsSuppliers->ItemsSuppliersList->item->ItemID}");
+
+					$this->processSupplier($oPlentySoapResponse_GetItemsSuppliers->ItemsSuppliersList->item);
+				}
 			}
-		} else if (!is_null($oPlentySoapResponse_GetItemsSuppliers -> ItemsSuppliersList -> item)) {
-
-			$this -> getLogger() -> debug(__FUNCTION__ . " fetched supplier record for ItemID: {$oPlentySoapResponse_GetItemsSuppliers -> ItemsSuppliersList -> item -> ItemID}");
-
-			$this -> processSupplier($oPlentySoapResponse_GetItemsSuppliers -> ItemsSuppliersList -> item);
 		}
 
 		// process potential response messages
