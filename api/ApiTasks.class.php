@@ -172,7 +172,9 @@ OR
 	public static function enqueueTask($task)
 	{
 		ob_start();
-		DBQuery::getInstance()->insert("INSERT INTO `TaskQueue` (`TaskID`, `TaskInsertionTimestamp`) SELECT `TaskID`, UNIX_TIMESTAMP(NOW()) FROM `TaskDefinitions` WHERE `TaskName` = '$task' ON DUPLICATE KEY UPDATE `TaskInsertionTimestamp` = `TaskInsertionTimestamp`");
+		DBQuery::getInstance()->insert("INSERT INTO TaskQueue (TaskID, TaskInsertionTimestamp) SELECT TaskID, UNIX_TIMESTAMP(NOW()) FROM TaskDefinitions WHERE TaskName = '$task' ON DUPLICATE KEY UPDATE TaskInsertionTimestamp = TaskInsertionTimestamp");
+		ob_end_clean();
+	}
 		ob_end_clean();
 	}
 }
