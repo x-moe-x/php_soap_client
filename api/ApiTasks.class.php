@@ -34,9 +34,33 @@ class ApiTasks
 	}
 
 	/**
+	 * Checks database for tasks that have been queued during last execution interval
+	 *
+	 * @return array Array of queued tasks
+	 */
+	public static function getQueuedTasks()
+	{
+		ob_start();
+		$queuedTasksDbResult = DBQuery::getInstance()->select('SELECT tq.TaskID AS id, td.TaskName AS name FROM TaskQueue AS tq JOIN TaskDefinitions AS td ON tq.TaskID = td.TaskID ');
+		ob_end_clean();
+
+		$result = array();
+
+		while ($currentTask = $queuedTasksDbResult->fetchAssoc())
+		{
+			$result[] = array(
+				'id'   => $currentTask['id'],
+				'name' => $currentTask['name'],
+			);
+		}
+
+		return $result;
+	}
+
+	/**
 	 * Checks database for tasks that are scheduled for immediate execution
 	 *
-	 * @return array Array tasks scheduled for execution
+	 * @return array Array of tasks scheduled for execution
 	 */
 	public static function getScheduledTasks()
 	{
