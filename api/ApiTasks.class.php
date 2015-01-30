@@ -41,7 +41,16 @@ class ApiTasks
 	public static function getQueuedTasks()
 	{
 		ob_start();
+		DBQuery::getInstance()->begin();
 		$queuedTasksDbResult = DBQuery::getInstance()->select('SELECT tq.TaskID AS id, td.TaskName AS name FROM TaskQueue AS tq JOIN TaskDefinitions AS td ON tq.TaskID = td.TaskID ');
+		if ($queuedTasksDbResult->getNumRows() > 0)
+		{
+			DBQuery::getInstance()->truncate('TRUNCATE TaskQueue');
+			DBQuery::getInstance()->commit();
+		} else
+		{
+			DBQuery::getInstance()->rollback();
+		}
 		ob_end_clean();
 
 		$result = array();
