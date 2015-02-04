@@ -101,8 +101,36 @@ CREATE TABLE `soap_db`.`AttributeValueSets` (
 	PRIMARY KEY (`ItemID`, `AttributeValueSetID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+DROP TABLE `soap_db`.`ContentPages`;
+
+CREATE TABLE `soap_db`.`ContentPages` (
+	`CategoryID` int(11) NOT NULL,
+	`WebstoreID` int(11) NOT NULL,
+	`Lang` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
+	`Name` TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
+	`NameURL` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`ShortDescription` TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Description` TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Description2` TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
+	`MetaTitle` TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
+	`MetaDescription` TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
+	`MetaKeywords` TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
+	`FullTextActive` int(11) DEFAULT NULL,
+	`Image` int(11) DEFAULT NULL,
+	`Image2` int(11) DEFAULT NULL,
+	`ItemListView` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`PageView` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`PlaceholderTranslation` int(11) DEFAULT NULL,
+	`Position` int(11) DEFAULT NULL,
+	`SingleItemView` int(11) DEFAULT NULL,
+	`WebTemplateExist` int(11) DEFAULT NULL,
+	`LastUpdateTimestamp` int(11) DEFAULT NULL,
+	`LastUpdateUser` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	PRIMARY KEY (`CategoryID`, `WebstoreID` , `Lang`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 DROP TABLE `soap_db`.`MetaConfig`;
- 
+
 CREATE TABLE `soap_db`.`MetaConfig` (
 	`ConfigKey` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
 	`Domain` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
