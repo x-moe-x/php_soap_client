@@ -2,9 +2,14 @@
 class Request_GetContentPage {
 
 	/**
-	 * @param int $contentPageID
+	 * Prepares a request for a specific content page in a specific language
+	 *
+	 * @param int $contentPageID the content page's numeric id
+	 * @param string $language the language's shortcut
+	 *
+	 * @return PlentySoapRequest_GetContentPage
 	 */
-	public function getRequest($contentPageID, $language) {
+	public static function getRequest($contentPageID, $language = 'de') {
 		$oPlentySoapRequest_GetContentPage = new PlentySoapRequest_GetContentPage();
 
 		$oPlentySoapRequest_GetContentPage -> ContentPageID = $contentPageID;
