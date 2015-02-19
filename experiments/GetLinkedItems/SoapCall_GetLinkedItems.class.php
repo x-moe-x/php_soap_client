@@ -1,6 +1,7 @@
 <?php
 
 require_once ROOT . 'lib/soap/call/PlentySoapCall.abstract.php';
+require_once ROOT . 'includes/DBUtils2.class.php';
 require_once 'Request_GetLinkedItems.class.php';
 
 /**
@@ -27,6 +28,9 @@ class SoapCall_GetLinkedItems extends PlentySoapCall
 		parent::__construct(__CLASS__);
 
 		$this->aStoreData = array();
+
+		// clear LinkedItems db before start so there's no old leftover
+		DBQuery::getInstance()->truncate('TRUNCATE TABLE LinkedItems');
 	}
 
 	/**
@@ -140,6 +144,8 @@ class SoapCall_GetLinkedItems extends PlentySoapCall
 
 		if ($storeDataCount > 0)
 		{
+			DBQuery::getInstance()->insert('INSERT INTO LinkedItems' . DBUtils2::buildMultipleInsertOnDuplikateKeyUpdate($this->aStoreData));
+
 			$this->debug(__FUNCTION__ . " storing $storeDataCount records of linked item's data");
 		}
 	}
