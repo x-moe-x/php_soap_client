@@ -136,6 +136,11 @@ class SoapCall_GetLinkedItems extends PlentySoapCall
 
 	private function storeToDB()
 	{
-		echo "Storing " . count($this->aStoreData) . " records of linked items data\n";
+		$storeDataCount = count($this->aStoreData);
+
+		if ($storeDataCount > 0)
+		{
+			$this->debug(__FUNCTION__ . " storing $storeDataCount records of linked item's data");
+		}
 	}
 }
