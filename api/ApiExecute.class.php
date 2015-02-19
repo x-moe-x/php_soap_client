@@ -58,6 +58,11 @@ class ApiExecute
 	/**
 	 * @var string
 	 */
+	const UPDATE_LINKED_ITEMS = 'updateLinkedItems';
+
+	/**
+	 * @var string
+	 */
 	const UPDATE_ALL = 'updateAll';
 
 	/**
@@ -227,7 +232,8 @@ class ApiExecute
 							// ... dequeue task because it will be executed just afterwards
 							ApiTasks::dequeue($task);
 							$dbQueueLock->unlock();
-						} else {
+						} else
+						{
 							// ... but no stress if it's not possible
 						}
 
@@ -378,6 +384,12 @@ class ApiExecute
 						'GetCurrentStocks',
 					));
 					break;
+				case self::UPDATE_LINKED_ITEMS :
+					NetXpressSoapExperimentLoader::getInstance()->run(array(
+						'',
+						'GetLinkedItems',
+					));
+					break;
 				case self::JANSEN_STOCK_UPDATE :
 					self::executeTasks(array(
 						self::READ_JANSEN_STOCK_IMPORT,
@@ -490,6 +502,7 @@ class ApiExecute
 						self::UPDATE_ITEMS_SUPPLIERS,
 						self::UPDATE_WAREHOUSE_LIST,
 						self::UPDATE_CURRENT_STOCKS,
+						self::UPDATE_LINKED_ITEMS,
 						self::UPDATE_SALES_ORDER_REFERRER,
 						self::CALCULATE_TOTAL_NETTO,
 						self::CALCULATE_DAILY_NEED,
