@@ -114,17 +114,21 @@ class SoapCall_GetLinkedItems extends PlentySoapCall
 				foreach ($linkedItemsRecord->LinkedItems->item as &$linkedItem)
 				{
 					$this->aStoreData[] = array(
-						'ItemID'       => $linkedItemsRecord->ItemID,
-						'LinkedItemID' => $linkedItem->ItemID,
-						'Relationship' => $linkedItem->Relationship,
+						'ItemID'                   => $linkedItemsRecord->ItemID,
+						'ExternalItemID'           => $linkedItemsRecord->ExternalItemID,
+						'LinkedItemID'             => $linkedItem->ItemID,
+						'LinkedItemExternalItemID' => $linkedItem->ExternalItemID,
+						'Relationship'             => $linkedItem->Relationship,
 					);
 				}
 			} else
 			{
 				$this->aStoreData[] = array(
-					'ItemID'       => $linkedItemsRecord->ItemID,
-					'LinkedItemID' => $linkedItemsRecord->LinkedItems->item->ItemID,
-					'Relationship' => $linkedItemsRecord->LinkedItems->item->Relationship,
+					'ItemID'                   => $linkedItemsRecord->ItemID,
+					'ExternalItemID'           => $linkedItemsRecord->ExternalItemID,
+					'LinkedItemID'             => $linkedItemsRecord->LinkedItems->item->ItemID,
+					'LinkedItemExternalItemID' => $linkedItemsRecord->LinkedItems->item->ExternalItemID,
+					'Relationship'             => $linkedItemsRecord->LinkedItems->item->Relationship,
 				);
 			}
 		}
