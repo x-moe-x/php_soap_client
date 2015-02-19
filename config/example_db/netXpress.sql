@@ -169,8 +169,19 @@ CREATE TABLE `soap_db`.`MetaConfig` (
 	PRIMARY KEY (`ConfigKey`, `Domain`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+DROP TABLE `soap_db`.`LinkedItems`;
+
+CREATE TABLE `soap_db`.`LinkedItems` (
+  `ItemID`                   INT(11) NOT NULL,
+  `ExternalItemID`           VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `LinkedItemID`             INT(11) NOT NULL,
+  `LinkedItemExternalItemID` VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Relationship`             VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`ItemID`, `LinkedItemID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 DROP TABLE `soap_db`.`ItemsBase`;
- 
+
 CREATE TABLE `soap_db`.`ItemsBase` (
 	`ItemID`int(11) NOT NULL,
 	`ItemNo`varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
