@@ -24,7 +24,18 @@ class Request_GetLinkedItems
 	 */
 	public function addItem($itemID)
 	{
-		$this->aItemIDs[] = $itemID;
+		if (count($this->aItemIDs) < SoapCall_GetLinkedItems::MAX_LINKED_ITEMS_PER_PAGES)
+		{
+			$this->aItemIDs[] = $itemID;
+		}
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isFull()
+	{
+		return count($this->aItemIDs) === SoapCall_GetLinkedItems::MAX_LINKED_ITEMS_PER_PAGES;
 	}
 
 	/**

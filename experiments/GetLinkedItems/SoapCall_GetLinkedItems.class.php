@@ -10,6 +10,11 @@ class SoapCall_GetLinkedItems extends PlentySoapCall
 {
 
 	/**
+	 * @var int
+	 */
+	const MAX_LINKED_ITEMS_PER_PAGES = 100;
+
+	/**
 	 * @var array
 	 */
 	private $aStoreData;
@@ -36,24 +41,30 @@ class SoapCall_GetLinkedItems extends PlentySoapCall
 			// get all possible ItemIDs
 			$itemIdDbResult = DBQuery::getInstance()->select('SELECT ItemID FROM ItemsBase');
 
-			// prepare request
-			$preparedRequest = new Request_GetLinkedItems();
-			while ($itemID = $itemIdDbResult->fetchAssoc())
+			// for every 100 ItemIDs ...
+			for ($page = 0, $maxPage = ceil($itemIdDbResult->getNumRows() / self::MAX_LINKED_ITEMS_PER_PAGES); $page < $maxPage; $page++)
 			{
-				$preparedRequest->addItem($itemID['ItemID']);
-			}
 
-			// do soap call
-			$response = $this->getPlentySoap()->GetLinkedItems($preparedRequest->getRequest());
-			// ... if successfull ...
-			if ($response->Success == true)
-			{
-				// ... then process response
-				$this->responseInterpretation($response);
-			} else
-			{
-				// ... otherwise log error and try next request
-				$this->getLogger()->debug(__FUNCTION__ . ' Request Error');
+				// ... prepare a separate request ...
+				$preparedRequest = new Request_GetLinkedItems();
+				while (!$preparedRequest->isFull() && $itemID = $itemIdDbResult->fetchAssoc())
+				{
+					$preparedRequest->addItem($itemID['ItemID']);
+				}
+
+				// ... then do soap call ..
+				$response = $this->getPlentySoap()->GetLinkedItems($preparedRequest->getRequest());
+
+				// ... if successfull ...
+				if ($response->Success == true)
+				{
+					// ... then process response
+					$this->responseInterpretation($response);
+				} else
+				{
+					// ... otherwise log error and try next request
+					$this->getLogger()->debug(__FUNCTION__ . ' Request Error');
+				}
 			}
 
 			// when done store all retrieved data to db
