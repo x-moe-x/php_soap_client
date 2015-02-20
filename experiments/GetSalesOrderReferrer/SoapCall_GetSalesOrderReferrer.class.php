@@ -3,23 +3,27 @@
 require_once ROOT . 'lib/soap/call/PlentySoapCall.abstract.php';
 require_once ROOT . 'includes/DBUtils2.class.php';
 
-class SoapCall_GetSalesOrderReferrer extends PlentySoapCall {
-
+/**
+ * Class SoapCall_GetSalesOrderReferrer
+ */
+class SoapCall_GetSalesOrderReferrer extends PlentySoapCall
+{
 	/**
 	 * @var array
 	 */
-	private $aProcessedSalesOrderReferrer;
+	private $processedSalesOrderReferrer;
 
 	/**
 	 * @return SoapCall_GetSalesOrderReferrer
 	 */
-	public function __construct() {
+	public function __construct()
+	{
 		parent::__construct(__CLASS__);
 
-		$this -> aProcessedSalesOrderReferrer = array();
+		$this->processedSalesOrderReferrer = array();
 
 		// truncate table to prevent old leftovers
-		DBQuery::getInstance() -> truncate('TRUNCATE TABLE `SalesOrderReferrer`');
+		DBQuery::getInstance()->truncate('TRUNCATE TABLE `SalesOrderReferrer`');
 	}
 
 	/**
@@ -27,61 +31,71 @@ class SoapCall_GetSalesOrderReferrer extends PlentySoapCall {
 	 *
 	 * @return void
 	 */
-	public function execute() {
-		try {
+	public function execute()
+	{
+		try
+		{
 			/*
 			 * do soap call
 			 */
-			$oPlentySoapResponse_GetSalesOrderReferrer = $this -> getPlentySoap() -> GetSalesOrderReferrer();
+			$response = $this->getPlentySoap()->GetSalesOrderReferrer();
 
-			if ($oPlentySoapResponse_GetSalesOrderReferrer -> Success == true) {
-				$this -> responseInterpretation($oPlentySoapResponse_GetSalesOrderReferrer);
-				$this -> storeToDB();
-			} else {
-				$this -> getLogger() -> debug(__FUNCTION__ . ' Request Error');
+			if ($response->Success == true)
+			{
+				$this->responseInterpretation($response);
+				$this->storeToDB();
+			} else
+			{
+				$this->getLogger()->debug(__FUNCTION__ . ' Request Error');
 			}
 
-		} catch(Exception $e) {
-			$this -> onExceptionAction($e);
+		} catch (Exception $e)
+		{
+			$this->onExceptionAction($e);
 		}
 	}
 
 	/**
-	 * @param PlentySoapResponse_GetSalesOrderReferrer $oPlentySoapResponse_GetSalesOrderReferrer
+	 * @param PlentySoapResponse_GetSalesOrderReferrer $response
+	 *
 	 * @return void
 	 */
-	private function responseInterpretation(PlentySoapResponse_GetSalesOrderReferrer $oPlentySoapResponse_GetSalesOrderReferrer) {
-		if (is_array($oPlentySoapResponse_GetSalesOrderReferrer -> SalesOrderReferrers -> item)) {
-			foreach ($oPlentySoapResponse_GetSalesOrderReferrer -> SalesOrderReferrers -> item as $oPlentySoapObject_GetSalesOrderReferrer) {
-				$this -> processSalesOrderReferrer($oPlentySoapObject_GetSalesOrderReferrer);
+	private function responseInterpretation(PlentySoapResponse_GetSalesOrderReferrer $response)
+	{
+		if (is_array($response->SalesOrderReferrers->item))
+		{
+			foreach ($response->SalesOrderReferrers->item as $oPlentySoapObject_GetSalesOrderReferrer)
+			{
+				$this->processSalesOrderReferrer($oPlentySoapObject_GetSalesOrderReferrer);
 			}
-		} else {
-			$this -> processSalesOrderReferrer($oPlentySoapResponse_GetSalesOrderReferrer -> SalesOrderReferrers -> item);
+		} else
+		{
+			$this->processSalesOrderReferrer($response->SalesOrderReferrers->item);
 		}
 	}
 
 	/**
-	 * @param PlentySoapObject_GetSalesOrderReferrer $oSalesOrderReferrer
+	 * @param PlentySoapObject_GetSalesOrderReferrer $salesOrderReferrer
+	 *
 	 * @return void
 	 */
-	private function processSalesOrderReferrer($oSalesOrderReferrer) {
+	private function processSalesOrderReferrer($salesOrderReferrer)
+	{
 		// prepare SalesOrderReferrer for persistent storage
-
-		// @formatter:off
-		$this -> aProcessedSalesOrderReferrer[] = array(
-			'Name' => $oSalesOrderReferrer->Name,
-			'PriceColumn' => $oSalesOrderReferrer->PriceColumn,
-			'SalesOrderReferrerID' => $oSalesOrderReferrer->SalesOrderReferrerID
+		$this->processedSalesOrderReferrer[] = array(
+			'Name'                 => $salesOrderReferrer->Name,
+			'PriceColumn'          => $salesOrderReferrer->PriceColumn,
+			'SalesOrderReferrerID' => $salesOrderReferrer->SalesOrderReferrerID
 		);
-		// @formatter:on
 	}
 
 	/**
 	 * @return void
 	 */
-	private function storeToDB() {
-		$this -> getLogger() -> debug(__FUNCTION__ . ' storing ' . count($this -> aProcessedSalesOrderReferrer) . ' SalesOrderReferrer to db');
-		DBQuery::getInstance() -> insert('INSERT INTO `SalesOrderReferrer`' . DBUtils2::buildMultipleInsertOnDuplikateKeyUpdate($this -> aProcessedSalesOrderReferrer));
+	private function storeToDB()
+	{
+		$this->debug(__FUNCTION__ . ' storing ' . count($this->processedSalesOrderReferrer) . ' SalesOrderReferrer to db');
+		DBQuery::getInstance()->insert('INSERT INTO `SalesOrderReferrer`' . DBUtils2::buildMultipleInsertOnDuplikateKeyUpdate($this->processedSalesOrderReferrer));
 	}
 
 }

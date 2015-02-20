@@ -1,7 +1,4 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(-1);
 
 require_once ROOT . 'lib/soap/call/PlentySoapCall.abstract.php';
 require_once ROOT . 'includes/DBUtils2.class.php';
@@ -16,7 +13,7 @@ class SoapCall_GetContentPage extends PlentySoapCall
 	/**
 	 * @var array contains all the retrieved content page data, ready to be stored into db
 	 */
-	private $aContentPageData;
+	private $contentPageData;
 
 	/**
 	 * @var array contains all html entity mappings to correct character encoding bugs
@@ -28,7 +25,7 @@ class SoapCall_GetContentPage extends PlentySoapCall
 	 */
 	public function __construct()
 	{
-		$this->aContentPageData = array();
+		$this->contentPageData = array();
 
 		$this->aEncodingEntitiesMapping = array(
 			'&acirc;&sbquo;&not;'   => '&euro;',
@@ -170,16 +167,15 @@ class SoapCall_GetContentPage extends PlentySoapCall
 		$maxConsecutiveContentPageMisses = 5;
 		try
 		{
-			for ($contentPageID = 0, $contentPageMisses = 0; $contentPageMisses <= $maxConsecutiveContentPageMisses; $contentPageID++)
+			for ($contentPageId = 0, $contentPageMisses = 0; $contentPageMisses <= $maxConsecutiveContentPageMisses; $contentPageId++)
 			{
-				$response = $this->getPlentySoap()->GetContentPage(Request_GetContentPage::getRequest($contentPageID));
+				$response = $this->getPlentySoap()->GetContentPage(Request_GetContentPage::getRequest($contentPageId));
 
 				if ($response->Success)
 				{
 					$contentPageMisses = 0;
-					$mysqli = DBQuery::getInstance();
 
-					$this->aContentPageData[] = array(
+					$this->contentPageData[] = array(
 						'CategoryID'             => $response->CategoryID,
 						'WebstoreID'             => $response->WebstoreID,
 						'Lang'                   => $response->Lang,
@@ -206,7 +202,7 @@ class SoapCall_GetContentPage extends PlentySoapCall
 				} else
 				{
 					$contentPageMisses++;
-					$this->debug(__FUNCTION__ . " content page id $contentPageID is unavailable");
+					$this->debug(__FUNCTION__ . " content page id $contentPageId is unavailable");
 				}
 			}
 
@@ -246,14 +242,13 @@ class SoapCall_GetContentPage extends PlentySoapCall
 	 */
 	private function storeToDB()
 	{
-		$countContentPages = count($this->aContentPageData);
+		$countContentPages = count($this->contentPageData);
 
 		if ($countContentPages > 0)
 		{
 			$this->debug(__FUNCTION__ . " storing $countContentPages content page data records to db");
-			DBQuery::getInstance()->insert('INSERT INTO ContentPages' . DBUtils2::buildMultipleInsertOnDuplikateKeyUpdate($this->aContentPageData));
+			DBQuery::getInstance()->insert('INSERT INTO ContentPages' . DBUtils2::buildMultipleInsertOnDuplikateKeyUpdate($this->contentPageData));
 		}
 	}
 }
 
-?>

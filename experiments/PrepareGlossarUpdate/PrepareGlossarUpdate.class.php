@@ -3,6 +3,9 @@ require_once ROOT . 'lib/db/DBQuery.class.php';
 require_once ROOT . 'includes/DBUtils2.class.php';
 
 
+/**
+ * Class PrepareGlossarUpdate
+ */
 class PrepareGlossarUpdate
 {
 
@@ -11,6 +14,9 @@ class PrepareGlossarUpdate
 	 */
 	private $aGlossarPageCategoryIDs;
 
+	/**
+	 * @var array
+	 */
 	private $aGlossarPages;
 
 	/**
@@ -200,6 +206,9 @@ class PrepareGlossarUpdate
 		$this->storeToDB();
 	}
 
+	/**
+	 *
+	 */
 	private function storeToDB()
 	{
 		$countGlossarPages = count($this->aGlossarPages);

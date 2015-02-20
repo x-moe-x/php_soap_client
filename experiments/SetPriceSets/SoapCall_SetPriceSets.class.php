@@ -3,9 +3,13 @@
 require_once ROOT . 'lib/soap/call/PlentySoapCall.abstract.php';
 require_once ROOT . 'api/ApiHelper.class.php';
 require_once ROOT . 'includes/DBUtils2.class.php';
-require_once 'Request_SetPriceSets.class.php';
+require_once 'RequestContainer_SetPriceSets.class.php';
 
-class SoapCall_SetPriceSets extends PlentySoapCall {
+/**
+ * Class SoapCall_SetPriceSets
+ */
+class SoapCall_SetPriceSets extends PlentySoapCall
+{
 
 	/**
 	 * @var int
@@ -22,10 +26,14 @@ class SoapCall_SetPriceSets extends PlentySoapCall {
 	 */
 	private $currentTimeStamp;
 
-	public function __construct() {
-		$this -> identifier4Logger = __CLASS__;
+	/**
+	 * @return SoapCall_SetPriceSets
+	 */
+	public function __construct()
+	{
+		$this->identifier4Logger = __CLASS__;
 
-		$this -> currentTimeStamp = time();
+		$this->currentTimeStamp = time();
 	}
 
 	/**
@@ -33,80 +41,96 @@ class SoapCall_SetPriceSets extends PlentySoapCall {
 	 *
 	 * 1. get all price updates
 	 * 2. for every 100 updates ...
-	 * 3. ...	write them back via soap
-	 * 4. ...	on success ...
-	 * 5. ...	...	mark them as updated now in priceUpdateHistory ...
-	 *    ...	...	and update corresponding price set
-	 *    ...	...	and delete specified elements from priceUpdate ...
+	 * 3. ...    write them back via soap
+	 * 4. ...    on success ...
+	 * 5. ...    ...    mark them as updated now in priceUpdateHistory ...
+	 *    ...    ...    and update corresponding price set
+	 *    ...    ...    and delete specified elements from priceUpdate ...
 	 *
 	 * @return void
 	 */
-	public function execute() {
-		$this -> getLogger() -> debug(__FUNCTION__ . ' writing price updates ...');
-		try {
+	public function execute()
+	{
+		$this->getLogger()->debug(__FUNCTION__ . ' writing price updates ...');
+		try
+		{
 			// 1. get all price updates
-			$unwrittenUpdatesDBResult = DBQuery::getInstance() -> select($this -> getQuery());
+			$unwrittenUpdatesDBResult = DBQuery::getInstance()->select($this->getQuery());
 
 			// 2. for every 100 updates ...
-			for ($page = 0, $maxPage = ceil($unwrittenUpdatesDBResult -> getNumRows() / self::MAX_PRICE_SETS_PER_PAGE); $page < $maxPage; $page++) {
+			for ($page = 0, $maxPage = ceil($unwrittenUpdatesDBResult->getNumRows() / self::MAX_PRICE_SETS_PER_PAGE); $page < $maxPage; $page++)
+			{
 
 				// ... prepare a separate request ...
-				$oRequest_SetPriceSets = new Request_SetPriceSets();
+				$oRequest_SetPriceSets = new RequestContainer_SetPriceSets();
 
 				// ... fill in data
 				$aPriceUpdateHistoryEntries = array();
 				$aPriceSetsEntries = array();
-				while (!$oRequest_SetPriceSets -> isFull() && ($aUnwrittenUpdate = $unwrittenUpdatesDBResult -> fetchAssoc())) {
+				while (!$oRequest_SetPriceSets->isFull() && ($aUnwrittenUpdate = $unwrittenUpdatesDBResult->fetchAssoc()))
+				{
 
 					$currentPriceName = 'Price' . ($aUnwrittenUpdate['PriceColumn'] == 0 ? '' : $aUnwrittenUpdate['PriceColumn']);
 
-					$oRequest_SetPriceSets -> addPriceSet(array('PriceSetID' => $aUnwrittenUpdate['PriceID'], $currentPriceName => $aUnwrittenUpdate['NewPrice'] * (1 + $aUnwrittenUpdate['VAT'] / 100)));
+					$oRequest_SetPriceSets->add(array(
+						'PriceSetID'      => $aUnwrittenUpdate['PriceID'],
+						$currentPriceName => $aUnwrittenUpdate['NewPrice'] * (1 + $aUnwrittenUpdate['VAT'] / 100)
+					));
 
 					// @formatter:off
 					$aPriceUpdateHistoryEntries[] = array(
-						'ItemID' =>				$aUnwrittenUpdate['ItemID'],
-						'PriceID' =>			$aUnwrittenUpdate['PriceID'],
-						'PriceColumn' =>		$aUnwrittenUpdate['PriceColumn'],
-						'OldPrice' =>			$aUnwrittenUpdate['OldPrice'],
-						'WrittenTimestamp' =>	$this->currentTimeStamp
+						'ItemID'           => $aUnwrittenUpdate['ItemID'],
+						'PriceID'          => $aUnwrittenUpdate['PriceID'],
+						'PriceColumn'      => $aUnwrittenUpdate['PriceColumn'],
+						'OldPrice'         => $aUnwrittenUpdate['OldPrice'],
+						'WrittenTimestamp' => $this->currentTimeStamp
 					);
 
 					$aPriceSetsEntries[] = array(
-						'ItemID' =>				$aUnwrittenUpdate['ItemID'],
-						'PriceID' =>			$aUnwrittenUpdate['PriceID'],
-						$currentPriceName =>	$aUnwrittenUpdate['NewPrice'] * (1 + $aUnwrittenUpdate['VAT'] / 100)
+						'ItemID'          => $aUnwrittenUpdate['ItemID'],
+						'PriceID'         => $aUnwrittenUpdate['PriceID'],
+						$currentPriceName => $aUnwrittenUpdate['NewPrice'] * (1 + $aUnwrittenUpdate['VAT'] / 100)
 					);
 					// @formatter:on
 
 				}
 
 				// 3. write them back via soap
-				$oPlentySoapResponse_SetPriceSets = $this -> getPlentySoap() -> SetPriceSets($oRequest_SetPriceSets -> getRequest());
+				$oPlentySoapResponse_SetPriceSets = $this->getPlentySoap()->SetPriceSets($oRequest_SetPriceSets->getRequest());
 
 				// 4. if successful ...
-				if ($oPlentySoapResponse_SetPriceSets -> Success == true) {
+				if ($oPlentySoapResponse_SetPriceSets->Success == true)
+				{
 					// 5. mark them as updated now in priceUpdateHistory ...
-					DBQuery::getInstance() -> insert('INSERT INTO PriceUpdateHistory' . DBUtils2::buildMultipleInsertOnDuplikateKeyUpdate($aPriceUpdateHistoryEntries));
+					DBQuery::getInstance()->insert('INSERT INTO PriceUpdateHistory' . DBUtils2::buildMultipleInsertOnDuplikateKeyUpdate($aPriceUpdateHistoryEntries));
 
 					// ... and update corresponding price set
-					DBQuery::getInstance() -> insert('INSERT INTO PriceSets' . DBUtils2::buildMultipleInsertOnDuplikateKeyUpdate($aPriceSetsEntries));
+					DBQuery::getInstance()->insert('INSERT INTO PriceSets' . DBUtils2::buildMultipleInsertOnDuplikateKeyUpdate($aPriceSetsEntries));
 
 					// ... and delete specified elements from priceUpdate
-					DBQuery::getInstance() -> delete('DELETE FROM PriceUpdate WHERE PriceID IN (' . implode(',', array_map(function($current) {
-						return $current['PriceID'];
-					}, $aPriceUpdateHistoryEntries)) . ')');
+					DBQuery::getInstance()->delete('DELETE FROM PriceUpdate WHERE PriceID IN (' . implode(',', array_map(function ($current)
+						{
+							return $current['PriceID'];
+						}, $aPriceUpdateHistoryEntries)) . ')');
 
-				} else {
+				} else
+				{
 					// ... otherwise log error and try next request
-					$this -> getLogger() -> debug(__FUNCTION__ . ' Request Error');
+					$this->getLogger()->debug(__FUNCTION__ . ' Request Error');
 				}
 			}
-		} catch(Exception $e) {
-			$this -> onExceptionAction($e);
+		} catch (Exception $e)
+		{
+			$this->onExceptionAction($e);
 		}
 	}
 
-	private function getQuery() {
+
+	/**
+	 * @return string the query string
+	 */
+	private function getQuery()
+	{
 		return "SELECT
 	 PriceUpdate.ItemID,
 	 PriceUpdate.PriceID,

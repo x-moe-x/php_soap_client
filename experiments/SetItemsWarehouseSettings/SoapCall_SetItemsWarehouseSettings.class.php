@@ -1,9 +1,13 @@
 <?php
 
 require_once ROOT . 'lib/soap/call/PlentySoapCall.abstract.php';
-require_once 'Request_SetItemsWarehouseSettings.class.php';
+require_once 'RequestContainer_SetItemsWarehouseSettings.class.php';
 
-class SoapCall_SetItemsWarehouseSettings extends PlentySoapCall {
+/**
+ * Class SoapCall_SetItemsWarehouseSettings
+ */
+class SoapCall_SetItemsWarehouseSettings extends PlentySoapCall
+{
 
 	/**
 	 * @var int
@@ -18,53 +22,63 @@ class SoapCall_SetItemsWarehouseSettings extends PlentySoapCall {
 	/**
 	 * @return SoapCall_SetItemsWarehouseSettings
 	 */
-	public function __construct() {
+	public function __construct()
+	{
 		parent::__construct(__CLASS__);
 	}
 
 	/**
 	 * @return void
 	 */
-	public function execute() {
-		$this -> getLogger() -> debug(__FUNCTION__ . ' writing items warehouse settings ...');
-		try {
+	public function execute()
+	{
+		$this->getLogger()->debug(__FUNCTION__ . ' writing items warehouse settings ...');
+		try
+		{
 			// set all non-variant items' warehousesettings
-			$this -> setItemsWarehouseSettigns(false);
+			$this->setItemsWarehouseSettigns(false);
 
 			// set all variant items' warehousesettings
-			$this -> setItemsWarehouseSettigns(true);
-		} catch(Exception $e) {
-			$this -> onExceptionAction($e);
+			$this->setItemsWarehouseSettigns(true);
+		} catch (Exception $e)
+		{
+			$this->onExceptionAction($e);
 		}
 	}
 
 	/**
 	 * @param bool $variants true if (only) variants are to be processes, false if (only) non-variants
+	 *
 	 * @return void
 	 */
-	private function setItemsWarehouseSettigns($variants) {
+	private function setItemsWarehouseSettigns($variants)
+	{
 		// get all values for articles with write permission
-		$oDBResult = DBQuery::getInstance() -> select($this -> getWriteBackQuery($variants));
+		$oDBResult = DBQuery::getInstance()->select($this->getWriteBackQuery($variants));
 
 		// for every 100 ItemIDs ...
-		for ($page = 0, $maxPage = ceil($oDBResult -> getNumRows() / self::MAX_WAREHOUSE_SETTINGS_PER_PAGE); $page < $maxPage; $page++) {
+		for ($page = 0, $maxPage = ceil($oDBResult->getNumRows() / self::MAX_WAREHOUSE_SETTINGS_PER_PAGE); $page < $maxPage; $page++)
+		{
 
 			// ... prepare a separate request ...
-			$oRequest_SetItemsWarehouseSettings = new Request_SetItemsWarehouseSettings();
+			$oRequest_SetItemsWarehouseSettings = new RequestContainer_SetItemsWarehouseSettings($this->warehouseID, $variants);
 
-			while (!$oRequest_SetItemsWarehouseSettings -> isFull() && ($aCurrentItemsWarehoueSetting = $oDBResult -> fetchAssoc())) {
-				$oRequest_SetItemsWarehouseSettings -> addItemsWarehouseSetting($aCurrentItemsWarehoueSetting);
+			while (!$oRequest_SetItemsWarehouseSettings->isFull() && ($aCurrentItemsWarehoueSetting = $oDBResult->fetchAssoc()))
+			{
+				$oRequest_SetItemsWarehouseSettings->add($aCurrentItemsWarehoueSetting);
 			}
 
 			// do soap call to plenty
-			$response = $this -> getPlentySoap() -> SetItemsWarehouseSettings($oRequest_SetItemsWarehouseSettings -> getRequest($this -> warehouseID, $variants));
+			$response = $this->getPlentySoap()->SetItemsWarehouseSettings($oRequest_SetItemsWarehouseSettings->getRequest());
 
 			// ... if successful ...
-			if ($response -> Success == true) {
-			} else {
+			if ($response->Success == true)
+			{
+			} else
+			{
 
 				// ... otherwise log error and try next request
-				$this -> getLogger() -> debug(__FUNCTION__ . ' Request Error');
+				$this->getLogger()->debug(__FUNCTION__ . ' Request Error');
 			}
 		}
 	}
@@ -72,9 +86,11 @@ class SoapCall_SetItemsWarehouseSettings extends PlentySoapCall {
 	/**
 	 *
 	 * @param bool $variants
+	 *
 	 * @return string
 	 */
-	private function getWriteBackQuery($variants) {
+	private function getWriteBackQuery($variants)
+	{
 		return 'SELECT
 	ItemsWarehouseSettings.ItemID,
 	ItemsWarehouseSettings.AttributeValueSetID,
@@ -104,6 +120,4 @@ WHERE
 AND
 	ItemsWarehouseSettings.AttributeValueSetID ' . ($variants ? '!=' : '=') . ' 0' . PHP_EOL;
 	}
-
 }
-?>

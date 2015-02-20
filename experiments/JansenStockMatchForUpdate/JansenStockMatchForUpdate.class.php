@@ -5,26 +5,11 @@ require_once ROOT . 'includes/EanGenerator.class.php';
 require_once ROOT . 'includes/DBUtils2.class.php';
 
 /**
- * @author x-moe-x
+ * @author    x-moe-x
  * @copyright net-xpress GmbH & Co. KG www.net-xpress.com
  */
-class JansenStockMatchForUpdate {
-
-	/**
-	 * @var string
-	 */
-	private $identifier4Logger;
-
-	/**
-	 * @var array
-	 */
-	private $aMatchedItemVariants;
-
-	/**
-	 * @var array
-	 */
-	private $aUnmatchedItemVariants;
-
+class JansenStockMatchForUpdate
+{
 	/**
 	 * @var int
 	 */
@@ -46,66 +31,88 @@ class JansenStockMatchForUpdate {
 	const DEFAULT_N_LATEST_TRANSACTIONS = 1;
 
 	/**
+	 * @var string
+	 */
+	private $identifier4Logger;
+
+	/**
+	 * @var array
+	 */
+	private $aMatchedItemVariants;
+
+	/**
+	 * @var array
+	 */
+	private $aUnmatchedItemVariants;
+
+	/**
 	 * @return JansenStockMatchForUpdate
 	 */
-	public function __construct() {
-		$this -> identifier4Logger = __CLASS__;
+	public function __construct()
+	{
+		$this->identifier4Logger = __CLASS__;
 
-		$this -> aMatchedItemVariants = array();
-
-		$this -> aUnmatchedItemVariants = array();
+		$this->aMatchedItemVariants = array();
+		$this->aUnmatchedItemVariants = array();
 	}
 
 	/**
 	 * @return void
 	 */
-	public function execute() {
+	public function execute()
+	{
 		/*
 		 * get all item variants with jansen EAN already matched against
 		 * jansen data which have been updated in the last N transactions
 		 *
 		 */
-		$itemVariantsDBResult = DBQuery::getInstance() -> select($this -> getMatchedQuery());
+		$itemVariantsDBResult = DBQuery::getInstance()->select($this->getMatchedQuery());
 
-		$this -> getLogger() -> debug(__FUNCTION__ . ': found ' . $itemVariantsDBResult -> getNumRows() . ' item variants with jansen ean that received an update...');
+		$this->getLogger()->debug(__FUNCTION__ . ': found ' . $itemVariantsDBResult->getNumRows() . ' item variants with jansen ean that received an update...');
 
 		// for every item variant ...
-		while ($itemVariant = $itemVariantsDBResult -> fetchAssoc()) {
+		while ($itemVariant = $itemVariantsDBResult->fetchAssoc())
+		{
 			// ... handle matched item variant
 
 			//@formatter:off
-			$this -> aMatchedItemVariants[] = array(
-				'ItemID' =>					$itemVariant['ItemID'],
-				'AttributeValueSetID' =>	$itemVariant['AttributeValueSetID'],
-				'PriceID' =>				$itemVariant['PriceID'],
-				'WarehouseID' =>			self::JANSEN_WAREHOUSE_ID,
-				'StorageLocation' =>		self::DEFAULT_STORAGE_LOCATION,
-				'PhysicalStock' =>			$itemVariant['PhysicalStock'],
-				'Reason' =>					self::DEFAULT_REASON
+			$this->aMatchedItemVariants[] = array(
+				'ItemID'              => $itemVariant['ItemID'],
+				'AttributeValueSetID' => $itemVariant['AttributeValueSetID'],
+				'PriceID'             => $itemVariant['PriceID'],
+				'WarehouseID'         => self::JANSEN_WAREHOUSE_ID,
+				'StorageLocation'     => self::DEFAULT_STORAGE_LOCATION,
+				'PhysicalStock'       => $itemVariant['PhysicalStock'],
+				'Reason'              => self::DEFAULT_REASON
 			);
 			//@formatter:on
 		}
 
-		$unmatchedItemVariantsDBResult = DBQuery::getInstance() -> select($this -> getUnmatchedQuery());
+		$unmatchedItemVariantsDBResult = DBQuery::getInstance()->select($this->getUnmatchedQuery());
 
-		$this -> getLogger() -> debug(__FUNCTION__ . ': found ' . $unmatchedItemVariantsDBResult -> getNumRows() . ' item variants with jansen ean that didn\'t match...');
+		$this->getLogger()->debug(__FUNCTION__ . ': found ' . $unmatchedItemVariantsDBResult->getNumRows() . ' item variants with jansen ean that didn\'t match...');
 
 		// for every item variant ...
-		while ($itemVariant = $unmatchedItemVariantsDBResult -> fetchAssoc()) {
+		while ($itemVariant = $unmatchedItemVariantsDBResult->fetchAssoc())
+		{
 			// ... handle matched item variant
 
 			//@formatter:off
-			$this -> aUnmatchedItemVariants[] = array(
-				'ItemID' =>					$itemVariant['ItemID'],
-				'AttributeValueSetID' =>	$itemVariant['AttributeValueSetID']
+			$this->aUnmatchedItemVariants[] = array(
+				'ItemID'              => $itemVariant['ItemID'],
+				'AttributeValueSetID' => $itemVariant['AttributeValueSetID']
 			);
 			//@formatter:on
 		}
 
-		$this -> storeToDB();
+		$this->storeToDB();
 	}
 
-	private function getMatchedQuery() {
+	/**
+	 * @return string the query string
+	 */
+	private function getMatchedQuery()
+	{
 		return "SELECT
 	nx.ItemID,
 	nx.AttributeValueSetID,
@@ -199,7 +206,20 @@ GROUP BY	/* skip duplicate entrys */
 	jti.EAN";
 	}
 
-	private function getUnmatchedQuery() {
+	/**
+	 *
+	 * @return Logger
+	 */
+	protected function getLogger()
+	{
+		return Logger::instance($this->identifier4Logger);
+	}
+
+	/**
+	 * @return string the query string
+	 */
+	private function getUnmatchedQuery()
+	{
 		return "SELECT
 	i.ItemID,
 	CASE WHEN (avs.AttributeValueSetID IS NULL) THEN
@@ -219,7 +239,7 @@ JOIN
 ON
 	i.ItemID = ps.ItemID
 LEFT JOIN
-	JansenStockData as jsd
+	JansenStockData AS jsd
 ON
 	CASE WHEN (avs.AttributeValueSetID IS NULL) THEN
 			i.EAN2
@@ -240,32 +260,26 @@ AND
 	jsd.EAN IS NULL";
 	}
 
-	private function storeToDB() {
-		$countMatched = count($this -> aMatchedItemVariants);
-		$countUnmatched = count($this -> aUnmatchedItemVariants);
+	private function storeToDB()
+	{
+		$countMatched = count($this->aMatchedItemVariants);
+		$countUnmatched = count($this->aUnmatchedItemVariants);
 
-		if ($countMatched > 0) {
-			DBQuery::getInstance() -> truncate('TRUNCATE SetCurrentStocks');
-			DBQuery::getInstance() -> insert('INSERT INTO SetCurrentStocks' . DBUtils2::buildMultipleInsertOnDuplikateKeyUpdate($this -> aMatchedItemVariants));
+		if ($countMatched > 0)
+		{
+			DBQuery::getInstance()->truncate('TRUNCATE SetCurrentStocks');
+			DBQuery::getInstance()->insert('INSERT INTO SetCurrentStocks' . DBUtils2::buildMultipleInsertOnDuplikateKeyUpdate($this->aMatchedItemVariants));
 
-			$this -> getLogger() -> debug(__FUNCTION__ . ": storing $countMatched matched stock records for update.");
+			$this->getLogger()->debug(__FUNCTION__ . ": storing $countMatched matched stock records for update.");
 		}
 
-		if ($countUnmatched > 0) {
-			DBQuery::getInstance() -> truncate('TRUNCATE JansenStockUnmatched');
-			DBQuery::getInstance() -> insert('INSERT INTO JansenStockUnmatched' . DBUtils2::buildMultipleInsertOnDuplikateKeyUpdate($this -> aUnmatchedItemVariants));
+		if ($countUnmatched > 0)
+		{
+			DBQuery::getInstance()->truncate('TRUNCATE JansenStockUnmatched');
+			DBQuery::getInstance()->insert('INSERT INTO JansenStockUnmatched' . DBUtils2::buildMultipleInsertOnDuplikateKeyUpdate($this->aUnmatchedItemVariants));
 
-			$this -> getLogger() -> debug(__FUNCTION__ . ": storing $countUnmatched unmatched stock records.");
+			$this->getLogger()->debug(__FUNCTION__ . ": storing $countUnmatched unmatched stock records.");
 		}
-	}
-
-	/**
-	 *
-	 * @return Logger
-	 */
-	protected function getLogger() {
-		return Logger::instance($this -> identifier4Logger);
 	}
 
 }
-?>

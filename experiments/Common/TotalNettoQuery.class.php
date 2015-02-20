@@ -1,16 +1,14 @@
 <?php
 
-class TotalNettoQuery {
-
+/**
+ * Class TotalNettoQuery
+ */
+class TotalNettoQuery
+{
 	/**
 	 * @var int
 	 */
 	const DEFAULT_NR_OF_MONTHS_BACKWARDS = 6;
-
-	/**
-	 * @var null
-	 */
-	const DEFAULT_INTERVALL = null;
 
 	/**
 	 * @var string
@@ -26,12 +24,14 @@ class TotalNettoQuery {
 	 * do:
 	 * sum up their netto value and group them by (date, warehouse)
 	 *
-	 * @param DateTime $startAt
+	 * @param DateTime     $startAt
 	 * @param DateInterval $duringBackwardsInterval
-	 * @param int $referrerID
+	 * @param int          $referrerId
+	 *
 	 * @return string query
 	 */
-	public static function getPerWarehouseNettoQuery(DateTime $startAt, DateInterval $duringBackwardsInterval = null, $referrerID = null) {
+	public static function getPerWarehouseNettoQuery(DateTime $startAt, DateInterval $duringBackwardsInterval = null, $referrerId = null)
+	{
 		return "SELECT
 	DATE_FORMAT(FROM_UNIXTIME(OrderHead." . self::CONSIDERED_TIMESTAMP . "), '%Y%m01') AS `Date`,
 	OrderItem.WarehouseID,
@@ -43,10 +43,38 @@ LEFT JOIN
 ON
 	OrderItem.OrderID = OrderHead.OrderID
 WHERE
-	" . self::getConditionQueryPart(clone $startAt, $duringBackwardsInterval, $referrerID) . "
+	" . self::getConditionQueryPart(clone $startAt, $duringBackwardsInterval, $referrerId) . "
 GROUP BY
 	`Date`,
 	WarehouseID\n";
+	}
+
+	/**
+	 * @param DateTime     $internalStartAt
+	 * @param DateInterval $duringBackwardsInterval
+	 * @param null         $referrerId
+	 *
+	 * @return string
+	 */
+	private static function getConditionQueryPart(DateTime $internalStartAt, DateInterval $duringBackwardsInterval = null, $referrerId = null)
+	{
+		if (is_null($duringBackwardsInterval))
+		{
+			$duringBackwardsInterval = new DateInterval('P' . self::DEFAULT_NR_OF_MONTHS_BACKWARDS . 'M');
+		}
+
+		$toDate = $internalStartAt->format('\'Y-m-d\'');
+		$fromDate = $internalStartAt->sub($duringBackwardsInterval)->format('\'Y-m-d\'');
+
+		$referrerCondition = is_null($referrerId) ? '1' : "(OrderHead.ReferrerID = $referrerId)";
+
+		return "$referrerCondition
+AND
+	((OrderHead.OrderStatus >= 7 AND OrderHead.OrderStatus < 8) OR OrderHead.OrderStatus >= 9)
+AND
+	OrderHead.OrderType = 'order'
+AND
+	FROM_UNIXTIME(OrderHead." . self::CONSIDERED_TIMESTAMP . ") BETWEEN $fromDate AND $toDate";
 	}
 
 	/**
@@ -58,12 +86,14 @@ GROUP BY
 	 * do:
 	 * sum up their total netto value as well as total netto shipment costs and group them by date
 	 *
-	 * @param DateTime $startAt
+	 * @param DateTime     $startAt
 	 * @param DateInterval $duringBackwardsInterval
-	 * @param int $referrerID
+	 * @param int          $referrerId
+	 *
 	 * @return string query
 	 */
-	public static function getTotalNettoAndShippingCostsQuery(DateTime $startAt, DateInterval $duringBackwardsInterval = null, $referrerID = null) {
+	public static function getTotalNettoAndShippingCostsQuery(DateTime $startAt, DateInterval $duringBackwardsInterval = null, $referrerId = null)
+	{
 
 		return "SELECT
 	DATE_FORMAT(FROM_UNIXTIME(OrderHead." . self::CONSIDERED_TIMESTAMP . "), '%Y%m01') AS `Date`,
@@ -72,29 +102,9 @@ GROUP BY
 FROM
 	OrderHead
 WHERE
-	" . self::getConditionQueryPart(clone $startAt, $duringBackwardsInterval, $referrerID) . "
+	" . self::getConditionQueryPart(clone $startAt, $duringBackwardsInterval, $referrerId) . "
 GROUP BY
 	`Date`\n";
 	}
 
-	private static function getConditionQueryPart(DateTime $internalStartAt, DateInterval $duringBackwardsInterval = null, $referrerID = null) {
-		if (is_null($duringBackwardsInterval)) {
-			$duringBackwardsInterval = new DateInterval('P' . self::DEFAULT_NR_OF_MONTHS_BACKWARDS . 'M');
-		}
-
-		$toDate = $internalStartAt -> format('\'Y-m-d\'');
-		$fromDate = $internalStartAt -> sub($duringBackwardsInterval) -> format('\'Y-m-d\'');
-
-		$referrerCondition = is_null($referrerID) ? '1' : "(OrderHead.ReferrerID = $referrerID)";
-
-		return "$referrerCondition
-AND
-	((OrderHead.OrderStatus >= 7 AND OrderHead.OrderStatus < 8) OR OrderHead.OrderStatus >= 9)
-AND
-	OrderHead.OrderType = 'order'
-AND
-	FROM_UNIXTIME(OrderHead." . self::CONSIDERED_TIMESTAMP . ") BETWEEN $fromDate AND $toDate";
-	}
-
 }
-?>

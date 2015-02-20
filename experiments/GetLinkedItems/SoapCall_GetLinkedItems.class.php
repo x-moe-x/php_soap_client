@@ -2,7 +2,7 @@
 
 require_once ROOT . 'lib/soap/call/PlentySoapCall.abstract.php';
 require_once ROOT . 'includes/DBUtils2.class.php';
-require_once 'Request_GetLinkedItems.class.php';
+require_once 'RequestContainer_GetLinkedItems.class.php';
 
 /**
  * Class SoapCall_GetLinkedItems
@@ -13,12 +13,12 @@ class SoapCall_GetLinkedItems extends PlentySoapCall
 	/**
 	 * @var int
 	 */
-	const MAX_LINKED_ITEMS_PER_PAGES = 100;
+	const MAX_LINKED_ITEMS_PER_PAGE = 100;
 
 	/**
 	 * @var array
 	 */
-	private $aStoreData;
+	private $storeData;
 
 	/**
 	 * @return SoapCall_GetLinkedItems
@@ -27,7 +27,7 @@ class SoapCall_GetLinkedItems extends PlentySoapCall
 	{
 		parent::__construct(__CLASS__);
 
-		$this->aStoreData = array();
+		$this->storeData = array();
 
 		// clear LinkedItems db before start so there's no old leftover
 		DBQuery::getInstance()->truncate('TRUNCATE TABLE LinkedItems');
@@ -46,14 +46,14 @@ class SoapCall_GetLinkedItems extends PlentySoapCall
 			$itemIdDbResult = DBQuery::getInstance()->select('SELECT ItemID FROM ItemsBase');
 
 			// for every 100 ItemIDs ...
-			for ($page = 0, $maxPage = ceil($itemIdDbResult->getNumRows() / self::MAX_LINKED_ITEMS_PER_PAGES); $page < $maxPage; $page++)
+			for ($page = 0, $maxPage = ceil($itemIdDbResult->getNumRows() / self::MAX_LINKED_ITEMS_PER_PAGE); $page < $maxPage; $page++)
 			{
 
 				// ... prepare a separate request ...
-				$preparedRequest = new Request_GetLinkedItems();
+				$preparedRequest = new RequestContainer_GetLinkedItems();
 				while (!$preparedRequest->isFull() && $itemID = $itemIdDbResult->fetchAssoc())
 				{
-					$preparedRequest->addItem($itemID['ItemID']);
+					$preparedRequest->add($itemID['ItemID']);
 				}
 
 				// ... then do soap call ..
@@ -117,7 +117,7 @@ class SoapCall_GetLinkedItems extends PlentySoapCall
 				/** @var PlentySoapObject_GetLinkedItems $linkedItem */
 				foreach ($linkedItemsRecord->LinkedItems->item as &$linkedItem)
 				{
-					$this->aStoreData[] = array(
+					$this->storeData[] = array(
 						'ItemID'                   => $linkedItemsRecord->ItemID,
 						'ExternalItemID'           => $linkedItemsRecord->ExternalItemID,
 						'LinkedItemID'             => $linkedItem->ItemID,
@@ -127,7 +127,7 @@ class SoapCall_GetLinkedItems extends PlentySoapCall
 				}
 			} else
 			{
-				$this->aStoreData[] = array(
+				$this->storeData[] = array(
 					'ItemID'                   => $linkedItemsRecord->ItemID,
 					'ExternalItemID'           => $linkedItemsRecord->ExternalItemID,
 					'LinkedItemID'             => $linkedItemsRecord->LinkedItems->item->ItemID,
@@ -138,13 +138,16 @@ class SoapCall_GetLinkedItems extends PlentySoapCall
 		}
 	}
 
+	/**
+	 *
+	 */
 	private function storeToDB()
 	{
-		$storeDataCount = count($this->aStoreData);
+		$storeDataCount = count($this->storeData);
 
 		if ($storeDataCount > 0)
 		{
-			DBQuery::getInstance()->insert('INSERT INTO LinkedItems' . DBUtils2::buildMultipleInsertOnDuplikateKeyUpdate($this->aStoreData));
+			DBQuery::getInstance()->insert('INSERT INTO LinkedItems' . DBUtils2::buildMultipleInsertOnDuplikateKeyUpdate($this->storeData));
 
 			$this->debug(__FUNCTION__ . " storing $storeDataCount records of linked item's data");
 		}
