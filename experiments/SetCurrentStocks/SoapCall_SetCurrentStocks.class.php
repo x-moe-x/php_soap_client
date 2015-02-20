@@ -2,7 +2,7 @@
 
 require_once ROOT . 'lib/soap/call/PlentySoapCall.abstract.php';
 require_once ROOT . 'includes/SKUHelper.php';
-require_once 'Request_SetCurrentStocks.class.php';
+require_once 'RequestContainer_SetCurrentStocks.class.php';
 
 class SoapCall_SetCurrentStocks extends PlentySoapCall {
 
@@ -38,7 +38,7 @@ class SoapCall_SetCurrentStocks extends PlentySoapCall {
 			for ($page = 0, $maxPage = ceil($unwrittenUpdatesDBResult -> getNumRows() / self::MAX_STOCK_RECORDS_PER_PAGE); $page < $maxPage; $page++) {
 
 				// ... prepare a separate request ...
-				$oRequest_SetCurrentStocks = new Request_SetCurrentStocks();
+				$oRequest_SetCurrentStocks = new RequestContainer_SetCurrentStocks();
 
 				// ... fill in data
 				$aWrittenUpdates = array();
