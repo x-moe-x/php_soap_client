@@ -180,6 +180,15 @@ CREATE TABLE `soap_db`.`LinkedItems` (
   PRIMARY KEY (`ItemID`, `LinkedItemID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+DROP TABLE `soap_db`.`SetLinkedItems`;
+
+CREATE TABLE `soap_db`.`SetLinkedItems` (
+	`ItemID`                   INT(11) NOT NULL,
+	`LinkedItemID`             INT(11) NOT NULL,
+	`Relationship`             VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	PRIMARY KEY (`ItemID`, `LinkedItemID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 DROP TABLE `soap_db`.`ItemsBase`;
 
 CREATE TABLE `soap_db`.`ItemsBase` (
