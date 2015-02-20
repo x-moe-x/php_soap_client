@@ -1,9 +1,13 @@
 <?php
 
 require_once ROOT . 'lib/soap/call/PlentySoapCall.abstract.php';
-require_once 'Request_SetItemsSuppliers.class.php';
+require_once 'RequestContainer_SetItemsSuppliers.class.php';
 
-class SoapCall_SetItemsSuppliers extends PlentySoapCall {
+/**
+ * Class SoapCall_SetItemsSuppliers
+ */
+class SoapCall_SetItemsSuppliers extends PlentySoapCall
+{
 
 	/**
 	 * @var int
@@ -13,7 +17,8 @@ class SoapCall_SetItemsSuppliers extends PlentySoapCall {
 	/**
 	 * @var SoapCall_SetItemsSuppliers
 	 */
-	public function __construct() {
+	public function __construct()
+	{
 		parent::__construct(__CLASS__);
 	}
 
@@ -22,42 +27,50 @@ class SoapCall_SetItemsSuppliers extends PlentySoapCall {
 	 *
 	 * @return void
 	 */
-	public function execute() {
-		$this -> getLogger() -> debug(__FUNCTION__ . ' writing items suppliers data ...');
-		try {
+	public function execute()
+	{
+		$this->getLogger()->debug(__FUNCTION__ . ' writing items suppliers data ...');
+		try
+		{
 			// get all values for articles with write permission
-			$oDBResult = DBQuery::getInstance() -> select($this -> getWriteBackQuery());
+			$oDBResult = DBQuery::getInstance()->select($this->getWriteBackQuery());
 
 			// for every 50 ItemIDs ...
-			for ($page = 0, $maxPage = ceil($oDBResult -> getNumRows() / self::MAX_SUPPLIERS_PER_PAGES); $page < $maxPage; $page++) {
+			for ($page = 0, $maxPage = ceil($oDBResult->getNumRows() / self::MAX_SUPPLIERS_PER_PAGES); $page < $maxPage; $page++)
+			{
 
 				// ... prepare a separate request ...
-				$oRequest_SetItemsSuppliers = new Request_SetItemsSuppliers();
+				$oRequest_SetItemsSuppliers = new RequestContainer_SetItemsSuppliers();
 
 				// ... fill in data
-				while (!$oRequest_SetItemsSuppliers -> isFull() && ($aCurrentItemsSuppliers = $oDBResult -> fetchAssoc())) {
-					$oRequest_SetItemsSuppliers -> addItemsSupplier($aCurrentItemsSuppliers);
+				while (!$oRequest_SetItemsSuppliers->isFull() && ($aCurrentItemsSuppliers = $oDBResult->fetchAssoc()))
+				{
+					$oRequest_SetItemsSuppliers->add($aCurrentItemsSuppliers);
 				}
 
 				// do soap call to plenty
-				$response = $this -> getPlentySoap() -> SetItemsSuppliers($oRequest_SetItemsSuppliers -> getRequest());
+				$response = $this->getPlentySoap()->SetItemsSuppliers($oRequest_SetItemsSuppliers->getRequest());
 
 				// ... if successful ...
-				if ($response -> Success == true) {
-				} else {
+				if ($response->Success == true)
+				{
+				} else
+				{
 					// ... otherwise log error and try next request
-					$this -> getLogger() -> debug(__FUNCTION__ . ' Request Error');
+					$this->getLogger()->debug(__FUNCTION__ . ' Request Error');
 				}
 			}
-		} catch(Exception $e) {
-			$this -> onExceptionAction($e);
+		} catch (Exception $e)
+		{
+			$this->onExceptionAction($e);
 		}
 	}
 
 	/**
 	 * @return string
 	 */
-	private function getWriteBackQuery() {
+	private function getWriteBackQuery()
+	{
 		return 'SELECT
 	ItemSuppliers.ItemID,
 	ItemSuppliers.SupplierID,
@@ -87,5 +100,4 @@ WHERE
 AND
 	WritePermissions.AttributeValueSetID = 0' . PHP_EOL;
 	}
-
 }
