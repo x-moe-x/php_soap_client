@@ -2,7 +2,7 @@
 
 require_once ROOT . 'lib/soap/call/PlentySoapCall.abstract.php';
 require_once ROOT . 'includes/DBUtils2.class.php';
-require_once 'Request_GetLinkedItems.class.php';
+require_once 'RequestContainer_GetLinkedItems.class.php';
 
 /**
  * Class SoapCall_GetLinkedItems
@@ -50,10 +50,10 @@ class SoapCall_GetLinkedItems extends PlentySoapCall
 			{
 
 				// ... prepare a separate request ...
-				$preparedRequest = new Request_GetLinkedItems();
+				$preparedRequest = new RequestContainer_GetLinkedItems();
 				while (!$preparedRequest->isFull() && $itemID = $itemIdDbResult->fetchAssoc())
 				{
-					$preparedRequest->addItem($itemID['ItemID']);
+					$preparedRequest->add($itemID['ItemID']);
 				}
 
 				// ... then do soap call ..
