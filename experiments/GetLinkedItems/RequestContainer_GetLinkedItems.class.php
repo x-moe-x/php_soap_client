@@ -12,7 +12,7 @@ class RequestContainer_GetLinkedItems extends RequestContainer
 	 */
 	public function __construct()
 	{
-		parent::__construct(SoapCall_GetLinkedItems::MAX_LINKED_ITEMS_PER_PAGES);
+		parent::__construct(SoapCall_GetLinkedItems::MAX_LINKED_ITEMS_PER_PAGE);
 	}
 
 	/**

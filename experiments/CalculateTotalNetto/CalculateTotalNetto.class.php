@@ -5,10 +5,11 @@ require_once ROOT . 'includes/DBUtils2.class.php';
 require_once ROOT . 'experiments/Common/TotalNettoQuery.class.php';
 
 /**
- * @author x-moe-x
+ * @author    x-moe-x
  * @copyright net-xpress GmbH & Co. KG www.net-xpress.com
  */
-class CalculateTotalNetto {
+class CalculateTotalNetto
+{
 	/**
 	 * @var string
 	 */
@@ -17,58 +18,63 @@ class CalculateTotalNetto {
 	/**
 	 * @var DateTime
 	 */
-	private $oStartDate;
+	private $startDate;
 
 	/**
 	 * @var array
 	 */
-	private $aRunningCosts;
+	private $runningCosts;
 
 	/**
 	 * @return CalculateTotalNetto
 	 */
-	public function __construct() {
-		$this -> identifier4Logger = __CLASS__;
+	public function __construct()
+	{
+		$this->identifier4Logger = __CLASS__;
 
 		$now = new DateTime();
+		$this->startDate = new DateTime($now->format('Y-m-01'));
 
-		$this -> oStartDate = new DateTime($now -> format('Y-m-01'));
-
-		$this -> aRunningCosts = array();
+		$this->runningCosts = array();
 	}
 
 	/**
 	 * @return void
 	 */
-	public function execute() {
+	public function execute()
+	{
 		// for every month currently considered:
 		// ... calculate average charged shipping costs
-		$totalDBResult = DBQuery::getInstance() -> select(TotalNettoQuery::getTotalNettoAndShippingCostsQuery($this -> oStartDate));
+		$totalDBResult = DBQuery::getInstance()->select(TotalNettoQuery::getTotalNettoAndShippingCostsQuery($this->startDate));
 		$totalNettoAndShipping = array();
-		while ($currentTotalNettoAndShipping = $totalDBResult -> fetchAssoc()) {
+		while ($currentTotalNettoAndShipping = $totalDBResult->fetchAssoc())
+		{
 			$totalNettoAndShipping[$currentTotalNettoAndShipping['Date']] = $currentTotalNettoAndShipping;
 		}
 
 		// for every (month,warehouse) currently considered:
 		// ... get associated total revenue
-		$perWarehouseDBResult = DBQuery::getInstance() -> select(TotalNettoQuery::getPerWarehouseNettoQuery($this -> oStartDate));
+		$perWarehouseDBResult = DBQuery::getInstance()->select(TotalNettoQuery::getPerWarehouseNettoQuery($this->startDate));
 
-		while ($currentPerWarehouseNetto = $perWarehouseDBResult -> fetchAssoc()) {
+		while ($currentPerWarehouseNetto = $perWarehouseDBResult->fetchAssoc())
+		{
 			$currentTotalNetto = $totalNettoAndShipping[$currentPerWarehouseNetto['Date']];
 			$currentPerWarehouseShipping = $currentPerWarehouseNetto['PerWarehouseNetto'] / $currentTotalNetto['TotalNetto'] * $currentTotalNetto['TotalShippingNetto'];
-			$this -> aRunningCosts[] = array_merge($currentPerWarehouseNetto, array('PerWarehouseShipping' => $currentPerWarehouseShipping));
+			$this->runningCosts[] = array_merge($currentPerWarehouseNetto, array('PerWarehouseShipping' => $currentPerWarehouseShipping));
 		}
 
 		// ... store to db
-		$this -> storeToDB();
+		$this->storeToDB();
 	}
 
-	private function storeToDB() {
-		$recordCount = count($this -> aRunningCosts);
+	private function storeToDB()
+	{
+		$recordCount = count($this->runningCosts);
 
-		if ($recordCount > 0) {
-			$this -> getLogger() -> debug(__FUNCTION__ . " storing $recordCount total netto records to db");
-			DBQuery::getInstance() -> insert('INSERT INTO `PerWarehouseRevenue`' . DBUtils2::buildMultipleInsertOnDuplikateKeyUpdate($this -> aRunningCosts));
+		if ($recordCount > 0)
+		{
+			$this->getLogger()->debug(__FUNCTION__ . " storing $recordCount total netto records to db");
+			DBQuery::getInstance()->insert('INSERT INTO `PerWarehouseRevenue`' . DBUtils2::buildMultipleInsertOnDuplikateKeyUpdate($this->runningCosts));
 		}
 	}
 
@@ -76,9 +82,8 @@ class CalculateTotalNetto {
 	 *
 	 * @return Logger
 	 */
-	protected function getLogger() {
-		return Logger::instance($this -> identifier4Logger);
+	protected function getLogger()
+	{
+		return Logger::instance($this->identifier4Logger);
 	}
-
 }
-?>

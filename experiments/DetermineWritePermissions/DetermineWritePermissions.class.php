@@ -6,12 +6,12 @@ require_once ROOT . 'includes/SKUHelper.php';
 require_once ROOT . 'includes/DBUtils2.class.php';
 
 /**
- * @author x-moe-x
+ * @author    x-moe-x
  * @copyright net-xpress GmbH & Co. KG www.net-xpress.com
  */
-class DetermineWritePermissions {
+class DetermineWritePermissions
+{
 	/**
-	 *
 	 * @var string
 	 */
 	private $identifier4Logger = '';
@@ -19,14 +19,15 @@ class DetermineWritePermissions {
 	/**
 	 * @var array
 	 */
-	private $aArticleData;
+	private $articleData;
 
 	/**
 	 * @return DetermineWritePermissions
 	 */
-	public function __construct() {
-		$this -> identifier4Logger = __CLASS__;
-		$this -> aArticleData = array();
+	public function __construct()
+	{
+		$this->identifier4Logger = __CLASS__;
+		$this->articleData = array();
 	}
 
 	/**
@@ -34,39 +35,47 @@ class DetermineWritePermissions {
 	 *
 	 * @return void
 	 */
-	public function execute() {
-		$this -> getLogger() -> debug(__FUNCTION__ . ' : Determine write permissions');
+	public function execute()
+	{
+		$this->getLogger()->debug(__FUNCTION__ . ' : Determine write permissions');
 
-		$dbResult = DBQuery::getInstance() -> select($this -> getQuery());
+		$dbResult = DBQuery::getInstance()->select($this->getQuery());
 
 		// for every item variant ...
-		while ($aCurrentArticleVariant = $dbResult -> fetchAssoc()) {
+		while ($currentArticleVariant = $dbResult->fetchAssoc())
+		{
 			// ... store ItemID, AVSID, Marking1ID and corresponding WritePermission
-			$aResult = array('ItemID' => $aCurrentArticleVariant['ItemID'], 'AttributeValueSetID' => $aCurrentArticleVariant['AttributeValueSetID']);
+			$result = array('ItemID'              => $currentArticleVariant['ItemID'],
+							 'AttributeValueSetID' => $currentArticleVariant['AttributeValueSetID']
+			);
 
 			// if item variant is no bundle and has black/green marking or yellow marking with positive reorder level ...
-			if (($aCurrentArticleVariant['BundleType'] !== 'bundle') && ((intval($aCurrentArticleVariant['Marking1ID']) == 16) || (intval($aCurrentArticleVariant['Marking1ID']) == 20) || (intval($aCurrentArticleVariant['Marking1ID']) == 9) && (intval($aCurrentArticleVariant['ReorderLevel']) > 0))) {
+			if (($currentArticleVariant['BundleType'] !== 'bundle') && ((intval($currentArticleVariant['Marking1ID']) == 16) || (intval($currentArticleVariant['Marking1ID']) == 20) || (intval($currentArticleVariant['Marking1ID']) == 9) && (intval($currentArticleVariant['ReorderLevel']) > 0)))
+			{
 				// ... then it has write permission
-				$aResult['WritePermission'] = 1;
-			} else {
+				$result['WritePermission'] = 1;
+			} else
+			{
 				// ... otherwise not
-				$aResult['WritePermission'] = 0;
+				$result['WritePermission'] = 0;
 			}
 
 			// if write permission given, but there's an error ... (like no supplier delivery time, no stock turnover, or it's a malformed article variant (SupplierMinimumPurchase != 0) or a bundle article)
-			if ((intval($aResult['WritePermission']) == 1) && ((intval($aCurrentArticleVariant['SupplierDeliveryTime']) <= 0) || (intval($aCurrentArticleVariant['StockTurnover']) <= 0)) || ((intval($aCurrentArticleVariant['AttributeValueSetID']) !== 0) && ((intval($aCurrentArticleVariant['SupplierMinimumPurchase']) !== 0)))) {
+			if ((intval($result['WritePermission']) == 1) && ((intval($currentArticleVariant['SupplierDeliveryTime']) <= 0) || (intval($currentArticleVariant['StockTurnover']) <= 0)) || ((intval($currentArticleVariant['AttributeValueSetID']) !== 0) && ((intval($currentArticleVariant['SupplierMinimumPurchase']) !== 0))))
+			{
 				// ... then revoke write permission and set error
-				$aResult['WritePermission'] = 0;
-				$aResult['Error'] = 1;
-			} else {
+				$result['WritePermission'] = 0;
+				$result['Error'] = 1;
+			} else
+			{
 				// ... otherwise everything's ok
-				$aResult['Error'] = 0;
+				$result['Error'] = 0;
 			}
 
-			$this -> aArticleData[] = $aResult;
+			$this->articleData[] = $result;
 		}
 
-		$this -> storeToDB();
+		$this->storeToDB();
 	}
 
 	/**
@@ -74,8 +83,9 @@ class DetermineWritePermissions {
 	 *
 	 * @return void
 	 */
-	private function storeToDB() {
-		DBQuery::getInstance() -> insert('INSERT INTO `WritePermissions`' . DBUtils2::buildMultipleInsertOnDuplikateKeyUpdate($this -> aArticleData));
+	private function storeToDB()
+	{
+		DBQuery::getInstance()->insert('INSERT INTO `WritePermissions`' . DBUtils2::buildMultipleInsertOnDuplikateKeyUpdate($this->articleData));
 	}
 
 	/**
@@ -84,22 +94,23 @@ class DetermineWritePermissions {
 	 *
 	 * @return string query
 	 */
-	private function getQuery() {
+	private function getQuery()
+	{
 		return 'SELECT
 	ItemsBase.ItemID,
 	ItemsBase.Marking1ID,
 	ItemsBase.BundleType,
-	CASE WHEN (AttributeValueSets.AttributeValueSetID IS null) THEN
+	CASE WHEN (AttributeValueSets.AttributeValueSetID IS NULL) THEN
 		"0"
 	ELSE
 		AttributeValueSets.AttributeValueSetID
 	END AttributeValueSetID,
-	CASE WHEN (ItemsWarehouseSettings.StockTurnover IS null) THEN
+	CASE WHEN (ItemsWarehouseSettings.StockTurnover IS NULL) THEN
 		"0"
 	ELSE
 		ItemsWarehouseSettings.StockTurnover
 	END StockTurnover,
-	CASE WHEN (ItemsWarehouseSettings.ReorderLevel IS null) THEN
+	CASE WHEN (ItemsWarehouseSettings.ReorderLevel IS NULL) THEN
 		"0"
 	ELSE
 		ItemsWarehouseSettings.ReorderLevel
@@ -118,7 +129,7 @@ LEFT JOIN
 	ItemsWarehouseSettings
 ON
 	ItemsBase.ItemID = ItemsWarehouseSettings.ItemID
-    AND CASE WHEN (AttributeValueSets.AttributeValueSetID IS null) THEN
+    AND CASE WHEN (AttributeValueSets.AttributeValueSetID IS NULL) THEN
 		"0"
     ELSE
 		AttributeValueSets.AttributeValueSetID
@@ -128,12 +139,10 @@ WHERE
 	}
 
 	/**
-	 *
 	 * @return Logger
 	 */
-	protected function getLogger() {
-		return Logger::instance($this -> identifier4Logger);
+	protected function getLogger()
+	{
+		return Logger::instance($this->identifier4Logger);
 	}
-
 }
-?>

@@ -6,10 +6,11 @@ require_once ROOT . 'includes/SKUHelper.php';
 require_once ROOT . 'includes/DBUtils2.class.php';
 
 /**
- * @author x-moe-x
+ * @author    x-moe-x
  * @copyright net-xpress GmbH & Co. KG www.net-xpress.com
  */
-class CalculateWriteBackData {
+class CalculateWriteBackData
+{
 	/**
 	 *
 	 * @var string
@@ -19,14 +20,15 @@ class CalculateWriteBackData {
 	/**
 	 * @var array
 	 */
-	private $aArticleData;
+	private $articleData;
 
 	/**
 	 * @return CalculateWriteBackData
 	 */
-	public function __construct() {
-		$this -> identifier4Logger = __CLASS__;
-		$this -> aArticleData = array();
+	public function __construct()
+	{
+		$this->identifier4Logger = __CLASS__;
+		$this->articleData = array();
 	}
 
 	/**
@@ -34,58 +36,69 @@ class CalculateWriteBackData {
 	 *
 	 * @return void
 	 */
-	public function execute() {
-		$this -> getLogger() -> debug(__FUNCTION__ . ' : Calculating write back data');
+	public function execute()
+	{
+		$this->getLogger()->debug(__FUNCTION__ . ' : Calculating write back data');
 
-		$dbResult = DBQuery::getInstance() -> select($this -> getQuery());
+		$dbResult = DBQuery::getInstance()->select($this->getQuery());
 
 		// for every item variant ...
-		while ($aCurrentArticleVariant = $dbResult -> fetchAssoc()) {
-			$dailyNeed = floatval($aCurrentArticleVariant['DailyNeed']);
-			$supplierDeliveryTime = intval($aCurrentArticleVariant['SupplierDeliveryTime']);
-			$stockTurnover = intval($aCurrentArticleVariant['StockTurnover']);
-			$vpe = intval($aCurrentArticleVariant['VPE']);
+		while ($currentArticleVariant = $dbResult->fetchAssoc())
+		{
+			$dailyNeed = floatval($currentArticleVariant['DailyNeed']);
+			$supplierDeliveryTime = intval($currentArticleVariant['SupplierDeliveryTime']);
+			$stockTurnover = intval($currentArticleVariant['StockTurnover']);
+			$vpe = intval($currentArticleVariant['VPE']);
 			$vpe = $vpe == 0 ? 1 : $vpe;
 			$supplierMinimumPurchase = ceil($stockTurnover * $dailyNeed);
 			$supplierMinimumPurchase = ($supplierMinimumPurchase % $vpe == 0) && ($supplierMinimumPurchase != 0) ? $supplierMinimumPurchase : $supplierMinimumPurchase + $vpe - $supplierMinimumPurchase % $vpe;
 
-			$aResult = array('ItemID' => $aCurrentArticleVariant['ItemID'], 'AttributeValueSetID' => $aCurrentArticleVariant['AttributeValueSetID'], 'Valid' => 1);
+			$result = array('ItemID'              => $currentArticleVariant['ItemID'],
+							 'AttributeValueSetID' => $currentArticleVariant['AttributeValueSetID'],
+							 'Valid'               => 1
+			);
 
 			// if supplier delivery time given ...
-			if ($supplierDeliveryTime !== 0) {
+			if ($supplierDeliveryTime !== 0)
+			{
 				// ... then calculate reorder level suggestion
 
-				$aResult['ReorderLevel'] = round($supplierDeliveryTime * $dailyNeed);
-				$aResult['ReorderLevelError'] = 'NULL';
-			} else {
+				$result['ReorderLevel'] = round($supplierDeliveryTime * $dailyNeed);
+				$result['ReorderLevelError'] = 'NULL';
+			} else
+			{
 				// ... otherwise invalidate record
 
-				$aResult['Valid'] = 0;
-				$aResult['ReorderLevel'] = 'NULL';
-				$aResult['ReorderLevelError'] = 'liefer';
+				$result['Valid'] = 0;
+				$result['ReorderLevel'] = 'NULL';
+				$result['ReorderLevelError'] = 'liefer';
 			}
 
 			// if stock turnover given ...
-			if ($stockTurnover !== 0) {
+			if ($stockTurnover !== 0)
+			{
 				// ... then calculate supplier minimum purchase and maximum stock
 
 				// ... but skip SupplierMinimumPurchase for article variants
-				if (intval($aCurrentArticleVariant['AttributeValueSetID']) === 0) {
-					$aResult['SupplierMinimumPurchase'] = $supplierMinimumPurchase;
-				} else {
-					$aResult['SupplierMinimumPurchase'] = 0;
+				if (intval($currentArticleVariant['AttributeValueSetID']) === 0)
+				{
+					$result['SupplierMinimumPurchase'] = $supplierMinimumPurchase;
+				} else
+				{
+					$result['SupplierMinimumPurchase'] = 0;
 				}
-				$aResult['MaximumStock'] = 2 * $supplierMinimumPurchase;
-				$aResult['SupplierMinimumPurchaseError'] = 'NULL';
-			} else {
+				$result['MaximumStock'] = 2 * $supplierMinimumPurchase;
+				$result['SupplierMinimumPurchaseError'] = 'NULL';
+			} else
+			{
 				// ... otherwise invalidate record
 
-				$aResult['Valid'] = 0;
-				$aResult['SupplierMinimumPurchase'] = 'NULL';
-				$aResult['MaximumStock'] = 'NULL';
-				$aResult['SupplierMinimumPurchaseError'] = 'lager';
+				$result['Valid'] = 0;
+				$result['SupplierMinimumPurchase'] = 'NULL';
+				$result['MaximumStock'] = 'NULL';
+				$result['SupplierMinimumPurchaseError'] = 'lager';
 			}
-			$this -> aArticleData[] = $aResult;
+			$this->articleData[] = $result;
 		}
 
 		$this->storeToDB();
@@ -96,8 +109,9 @@ class CalculateWriteBackData {
 	 *
 	 * @return void
 	 */
-	private function storeToDB(){
-		DBQuery::getInstance() -> insert('INSERT INTO `WriteBackSuggestion`' . DBUtils2::buildMultipleInsertOnDuplikateKeyUpdate($this -> aArticleData));
+	private function storeToDB()
+	{
+		DBQuery::getInstance()->insert('INSERT INTO `WriteBackSuggestion`' . DBUtils2::buildMultipleInsertOnDuplikateKeyUpdate($this->articleData));
 	}
 
 	/**
@@ -105,14 +119,15 @@ class CalculateWriteBackData {
 	 *
 	 * @return string query
 	 */
-	private function getQuery() {
+	private function getQuery()
+	{
 		return 'SELECT
     ItemsBase.ItemID,
     ItemsBase.Free4 AS VPE,
     ItemSuppliers.SupplierDeliveryTime,
     CalculatedDailyNeeds.DailyNeed,
     ItemsWarehouseSettings.StockTurnover,
-    CASE WHEN (AttributeValueSets.AttributeValueSetID IS null) THEN
+    CASE WHEN (AttributeValueSets.AttributeValueSetID IS NULL) THEN
         "0"
     ELSE
         AttributeValueSets.AttributeValueSetID
@@ -124,14 +139,14 @@ LEFT JOIN ItemSuppliers
     ON ItemsBase.ItemID = ItemSuppliers.ItemID
 LEFT JOIN CalculatedDailyNeeds
     ON ItemsBase.ItemID = CalculatedDailyNeeds.ItemID
-    AND CASE WHEN (AttributeValueSets.AttributeValueSetID IS null) THEN
+    AND CASE WHEN (AttributeValueSets.AttributeValueSetID IS NULL) THEN
         "0"
     ELSE
         AttributeValueSets.AttributeValueSetID
     END = CalculatedDailyNeeds.AttributeValueSetID
 LEFT JOIN ItemsWarehouseSettings
     ON ItemsBase.ItemID = ItemsWarehouseSettings.ItemID
-    AND CASE WHEN (AttributeValueSets.AttributeValueSetID IS null) THEN
+    AND CASE WHEN (AttributeValueSets.AttributeValueSetID IS NULL) THEN
         "0"
     ELSE
         AttributeValueSets.AttributeValueSetID
@@ -144,9 +159,9 @@ WHERE
 	 *
 	 * @return Logger
 	 */
-	protected function getLogger() {
-		return Logger::instance($this -> identifier4Logger);
+	protected function getLogger()
+	{
+		return Logger::instance($this->identifier4Logger);
 	}
 
 }
-?>
