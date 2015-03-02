@@ -66,14 +66,12 @@ class NetXpressPseudoDaemon
 		$this->executionLock->init(ROOT . '/tmp/execution.Lock');
 		$this->dbQueueLock->init(ROOT . '/tmp/dbQueue.Lock');
 
-		// if execution lock is aquired ...
+		// if execution lock is acquired ...
 		if ($this->executionLock->tryLock())
 		{
-
-			// ... then wait till dbQueueLock has been aquired
+			// ... then wait till dbQueueLock has been acquired
 			if ($this->dbQueueLock->lock())
 			{
-
 				$this->obtainOutOfSequenceTasks();
 
 				$this->dbQueueLock->unlock();
@@ -139,4 +137,3 @@ class NetXpressPseudoDaemon
 }
 
 NetXpressPseudoDaemon::getInstance()->run();
-?>
