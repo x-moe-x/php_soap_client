@@ -8,6 +8,12 @@ require_once ROOT . 'api/ApiHelper.class.php';
 class ApiTasks
 {
 	/**
+	 * @var bool
+	 */
+
+	const DEBUG = true;
+
+	/**
 	 * @var int
 	 */
 	const DAEMON_INTERVAL = 5;
@@ -84,11 +90,14 @@ class ApiTasks
 		while ($currentTask = $dbQueryResult->fetchAssoc())
 		{
 			// ... prepare next execution base
+			self::debug(__FUNCTION__, 'processing Task: ' . $currentTask['name'] . '...');
 
 			// deal with tasks never executed before
 			if (is_null($currentTask['lastExecution']))
 			{
 				$currentTask['lastExecution'] = 0;
+				self::debug(__FUNCTION__, "\tadjusted lastExecution timestamp to zero (new task)");
+
 			}
 
 			$next = new DateTime('@' . $currentTask['lastExecution']);
@@ -97,23 +106,30 @@ class ApiTasks
 			// ... if task is daily task ...
 			if (isset($currentTask['start']))
 			{
+				self::debug(__FUNCTION__, "\tdetected a daily task");
+
 				$currentMinutes = intval($now->format('H')) * 60 + intval($now->format('i'));
 				$startTime = intval($currentTask['start']);
 
 				// ... then check if start time is reached (within confidence intervall) ...
 				if ($startTime <= $currentMinutes && $currentMinutes < $startTime + 2 * self::DAEMON_INTERVAL)
 				{
+					self::debug(__FUNCTION__, "\tstart time reached");
+
 					// ... then adjust next execution time (so no daily task is scheduled accidentally twice or more that day)
 					$next->add(new DateInterval('PT' . (2 * self::DAEMON_INTERVAL) . 'M'));
 				} // ... or if start time isn't reached ...
 				else
 				{
+					self::debug(__FUNCTION__, "\tstart time NOT reached");
 					// ... then do nothing
 					continue;
 				}
 			} // ... or if task is periodic task
 			else
 			{
+				self::debug(__FUNCTION__, "\tdetected a periodic task");
+
 				// ... then adjust next execution time
 				$next->add(new DateInterval('PT' . $currentTask['interval'] . 'M'))->sub(new DateInterval('PT' . self::EXECUTION_ESTIMATE_SECONDS . 'S'));
 			}
@@ -121,6 +137,8 @@ class ApiTasks
 			// ... then check if execution is scheduled
 			if ($next < $now)
 			{
+				self::debug(__FUNCTION__, "\texecution is scheduled");
+
 				// ... enqueue task
 				$result[] = array(
 					'id'   => $currentTask['id'],
@@ -129,6 +147,8 @@ class ApiTasks
 			} // ... or if execution isn't scheduled
 			else
 			{
+				self::debug(__FUNCTION__, "\texecution is NOT scheduled");
+
 				// ... then do nothing
 			}
 		}
@@ -163,6 +183,20 @@ OR
 	}
 
 	/**
+	 * Writes debug message to log and to screen
+	 *
+	 * @param string $function function name
+	 * @param string $message  message to log
+	 */
+	private static function debug($function, $message)
+	{
+		if (self::DEBUG)
+		{
+			Logger::instance(__CLASS__)->debug($function . ': ' . $message);
+		}
+	}
+
+	/**
 	 * Enqueues a task for deferred execution. A task can be only enqueued once, successive requests are ignored
 	 *
 	 * @param string $task name of the task to be enqueued
@@ -190,5 +224,3 @@ OR
 		ob_end_clean();
 	}
 }
-
-?>
