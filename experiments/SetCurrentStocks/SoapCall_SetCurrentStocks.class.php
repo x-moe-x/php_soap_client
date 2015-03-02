@@ -4,7 +4,11 @@ require_once ROOT . 'lib/soap/call/PlentySoapCall.abstract.php';
 require_once ROOT . 'includes/SKUHelper.php';
 require_once 'RequestContainer_SetCurrentStocks.class.php';
 
-class SoapCall_SetCurrentStocks extends PlentySoapCall {
+/**
+ * Class SoapCall_SetCurrentStocks
+ */
+class SoapCall_SetCurrentStocks extends PlentySoapCall
+{
 
 	/**
 	 * @var int
@@ -21,78 +25,97 @@ class SoapCall_SetCurrentStocks extends PlentySoapCall {
 	 */
 	private $identifier4Logger;
 
-	public function __construct() {
-		$this -> identifier4Logger = __CLASS__;
+	/**
+	 * @return SoapCall_SetCurrentStocks
+	 */
+	public function __construct()
+	{
+		$this->identifier4Logger = __CLASS__;
 	}
 
 	/**
 	 * @return void
 	 */
-	public function execute() {
-		$this -> getLogger() -> debug(__FUNCTION__ . ' writing stock updates ...');
-		try {
+	public function execute()
+	{
+		$this->getLogger()->debug(__FUNCTION__ . ' writing stock updates ...');
+		try
+		{
 			// 1. get all stock updates
-			$unwrittenUpdatesDBResult = DBQuery::getInstance() -> select($this -> getQuery());
+			$unwrittenUpdatesDBResult = DBQuery::getInstance()->select($this->getQuery());
 
 			// 2. for every 100 updates ...
-			for ($page = 0, $maxPage = ceil($unwrittenUpdatesDBResult -> getNumRows() / self::MAX_STOCK_RECORDS_PER_PAGE); $page < $maxPage; $page++) {
+			for ($page = 0, $maxPage = ceil($unwrittenUpdatesDBResult->getNumRows() / self::MAX_STOCK_RECORDS_PER_PAGE); $page < $maxPage; $page++)
+			{
 
 				// ... prepare a separate request ...
 				$oRequest_SetCurrentStocks = new RequestContainer_SetCurrentStocks();
 
 				// ... fill in data
 				$aWrittenUpdates = array();
-				while (!$oRequest_SetCurrentStocks -> isFull() && ($aUnwrittenUpdate = $unwrittenUpdatesDBResult -> fetchAssoc())) {
+				while (!$oRequest_SetCurrentStocks->isFull() && ($aUnwrittenUpdate = $unwrittenUpdatesDBResult->fetchAssoc()))
+				{
 
 					// @formatter:off
-					$oRequest_SetCurrentStocks -> addStock(array(
-						'SKU' =>				Values2SKU($aUnwrittenUpdate['ItemID'], $aUnwrittenUpdate['AttributeValueSetID'], $aUnwrittenUpdate['PriceID']),
-						'WarehouseID' =>		$aUnwrittenUpdate['WarehouseID'],
-						'StorageLocation' =>	$aUnwrittenUpdate['StorageLocation'],
-						'PhysicalStock' =>		$aUnwrittenUpdate['PhysicalStock'],
-						'Reason' =>				$aUnwrittenUpdate['Reason']
+					$oRequest_SetCurrentStocks->add(array(
+						'SKU'             => Values2SKU($aUnwrittenUpdate['ItemID'], $aUnwrittenUpdate['AttributeValueSetID'], $aUnwrittenUpdate['PriceID']),
+						'WarehouseID'     => $aUnwrittenUpdate['WarehouseID'],
+						'StorageLocation' => $aUnwrittenUpdate['StorageLocation'],
+						'PhysicalStock'   => $aUnwrittenUpdate['PhysicalStock'],
+						'Reason'          => $aUnwrittenUpdate['Reason']
 					));
 
 					$aWrittenUpdates[] = array(
-						'ItemID' =>					$aUnwrittenUpdate['ItemID'],
-						'AttributeValueSetID' =>	$aUnwrittenUpdate['AttributeValueSetID'],
-						'PriceID' =>				$aUnwrittenUpdate['PriceID'],
-						'WarehouseID' =>			$aUnwrittenUpdate['WarehouseID'],
-						'Timestamp' =>				null
+						'ItemID'              => $aUnwrittenUpdate['ItemID'],
+						'AttributeValueSetID' => $aUnwrittenUpdate['AttributeValueSetID'],
+						'PriceID'             => $aUnwrittenUpdate['PriceID'],
+						'WarehouseID'         => $aUnwrittenUpdate['WarehouseID'],
+						'Timestamp'           => null
 					);
 					// @formatter:on
 				}
 
 				// 3. write them back via soap
-				$oPlentySoapResponse_SetCurrentStocks = $this -> getPlentySoap() -> SetCurrentStocks($oRequest_SetCurrentStocks -> getRequest());
+				$oPlentySoapResponse_SetCurrentStocks = $this->getPlentySoap()->SetCurrentStocks($oRequest_SetCurrentStocks->getRequest());
 
 				// 4. if successful ...
-				if ($oPlentySoapResponse_SetCurrentStocks -> Success == true) {
+				if ($oPlentySoapResponse_SetCurrentStocks->Success == true)
+				{
 					// ... then delete specified elements from setCurrentStocks
-					DBQuery::getInstance() -> delete('DELETE FROM SetCurrentStocks WHERE (ItemID, AttributeValueSetID, PriceID) IN (' . implode(',', array_map(function($element) {
-						return '(' . $element['ItemID'] . ',' . $element['AttributeValueSetID'] . ',' . $element['PriceID'] . ')';
-					}, $aWrittenUpdates)) . ')');
+					DBQuery::getInstance()->delete('DELETE FROM SetCurrentStocks WHERE (ItemID, AttributeValueSetID, PriceID) IN (' . implode(',', array_map(function ($element)
+						{
+							return '(' . $element['ItemID'] . ',' . $element['AttributeValueSetID'] . ',' . $element['PriceID'] . ')';
+						}, $aWrittenUpdates)) . ')');
 
 					// ... and update
 					$currentTime = time();
-					DBQuery::getInstance() -> insert('INSERT INTO CurrentStocksTiming' . DBUtils2::buildMultipleInsertOnDuplikateKeyUpdate(array_map(function($element) use ($currentTime) {
-						//@formatter: off
-						return array('ItemID' => $element['ItemID'], 'AttributeValueSetID' => $element['AttributeValueSetID'], 'WarehouseID' => $element['WarehouseID'], 'Timestamp' => $currentTime);
-						//@formatter: on
-					}, $aWrittenUpdates)));
+					DBQuery::getInstance()->insert('INSERT INTO CurrentStocksTiming' . DBUtils2::buildMultipleInsertOnDuplikateKeyUpdate(array_map(function ($element) use ($currentTime)
+						{
+							return array(
+								'ItemID'              => $element['ItemID'],
+								'AttributeValueSetID' => $element['AttributeValueSetID'],
+								'WarehouseID'         => $element['WarehouseID'],
+								'Timestamp'           => $currentTime
+							);
+						}, $aWrittenUpdates)));
 
-				} else {
+				} else
+				{
 					// ... otherwise log error and try next request
-					$this -> getLogger() -> debug(__FUNCTION__ . ' Request Error');
+					$this->getLogger()->debug(__FUNCTION__ . ' Request Error');
 				}
 			}
-		} catch(Exception $e) {
-			$this -> onExceptionAction($e);
+		} catch (Exception $e)
+		{
+			$this->onExceptionAction($e);
 		}
 	}
 
-	private function getQuery() {
-		return "SELECT * FROM SetCurrentStocks" . (self::DISABLE_WAREHOUSE_1_UPDATE ? ' WHERE WarehouseID != 1' : '');
+	/**
+	 * @return string the query string
+	 */
+	private function getQuery()
+	{
+		return 'SELECT * FROM SetCurrentStocks' . (self::DISABLE_WAREHOUSE_1_UPDATE ? ' WHERE WarehouseID != 1' : '');
 	}
-
 }
