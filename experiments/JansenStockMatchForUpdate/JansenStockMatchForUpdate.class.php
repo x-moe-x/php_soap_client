@@ -28,7 +28,7 @@ class JansenStockMatchForUpdate
 	/**
 	 * @var int
 	 */
-	const DEFAULT_N_LATEST_TRANSACTIONS = 1;
+	const DEFAULT_N_LATEST_TRANSACTIONS = 3;
 
 	/**
 	 * @var string
@@ -75,7 +75,6 @@ class JansenStockMatchForUpdate
 		{
 			// ... handle matched item variant
 
-			//@formatter:off
 			$this->aMatchedItemVariants[] = array(
 				'ItemID'              => $itemVariant['ItemID'],
 				'AttributeValueSetID' => $itemVariant['AttributeValueSetID'],
@@ -85,7 +84,6 @@ class JansenStockMatchForUpdate
 				'PhysicalStock'       => $itemVariant['PhysicalStock'],
 				'Reason'              => self::DEFAULT_REASON
 			);
-			//@formatter:on
 		}
 
 		$unmatchedItemVariantsDBResult = DBQuery::getInstance()->select($this->getUnmatchedQuery());
@@ -120,89 +118,92 @@ class JansenStockMatchForUpdate
 	jsd.PhysicalStock
 FROM
 	JansenTransactionItem AS jti
-JOIN	/* select last n transactions */
-	(SELECT
-		TransactionID
-	FROM
-		JansenTransactionHead
-	ORDER BY TransactionID DESC LIMIT " . self::DEFAULT_N_LATEST_TRANSACTIONS . ") AS jth
-ON
-	jti.TransactionID = jth.TransactionID
-JOIN
+	JOIN /* select last n transactions */
+	(
+		SELECT
+			TransactionID
+		FROM
+			JansenTransactionHead
+		ORDER BY TransactionID DESC
+		LIMIT " . self::DEFAULT_N_LATEST_TRANSACTIONS . ") AS jth
+		ON
+			jti.TransactionID = jth.TransactionID
+	JOIN
 	JansenStockData AS jsd
-ON
-	(jti.EAN = jsd.EAN)
-AND
-	(jti.ExternalItemID = jsd.ExternalItemID)
-JOIN	/* get all nx products (itemID, avsID, priceID, EAN, extID) with a jansen ean, which is active and not marked */
-	(SELECT
-		i.ItemID,
-		CASE WHEN (avs.AttributeValueSetID IS NULL) THEN
+		ON
+			(jti.EAN = jsd.EAN)
+			AND
+			(jti.ExternalItemID = jsd.ExternalItemID)
+	JOIN /* get all nx products (itemID, avsID, priceID, EAN, extID) with a jansen ean, which is active and not marked */
+	(
+		SELECT
+			i.ItemID,
+			CASE WHEN (avs.AttributeValueSetID IS NULL) THEN
 				0
 			ELSE
 				avs.AttributeValueSetID
-		END AS AttributeValueSetID,
-		ps.PriceID,
-		CASE WHEN (avs.AttributeValueSetID IS NULL) THEN
+			END AS AttributeValueSetID,
+			ps.PriceID,
+			CASE WHEN (avs.AttributeValueSetID IS NULL) THEN
 				i.EAN2
 			ELSE
 				avs.EAN2
-		END AS EAN,
-		i.ExternalItemID
-	FROM
-		ItemsBase AS i
-	LEFT JOIN
-		AttributeValueSets AS avs
-	ON
-		i.ItemID = avs.ItemID
-	JOIN
-		PriceSets AS ps
-	ON
-		i.ItemID = ps.ItemID
-	WHERE
-		CASE WHEN (avs.AttributeValueSetID IS NULL) THEN
+			END AS EAN,
+			i.ExternalItemID
+		FROM
+			ItemsBase AS i
+			LEFT JOIN
+			AttributeValueSets AS avs
+				ON
+					i.ItemID = avs.ItemID
+			JOIN
+			PriceSets AS ps
+				ON
+					i.ItemID = ps.ItemID
+		WHERE
+			CASE WHEN (avs.AttributeValueSetID IS NULL) THEN
 				i.EAN2
 			ELSE
 				avs.EAN2
-		END BETWEEN 8595578300000 AND 8595578399999
-	AND
-		i.Marking1ID != 4
-	AND
-		i.Inactive = 0
+			END BETWEEN 8595578300000 AND 8595578399999
+			AND
+			i.Marking1ID != 4
+			AND
+			i.Inactive = 0
 	) AS nx
-ON
-	(jti.EAN = nx.EAN)
-AND
-	LOWER(
-		CASE WHEN (nx.AttributeValueSetID = 0) THEN
-				nx.ExternalItemID
-			ELSE
-				CASE WHEN (nx.AttributeValueSetID = 1) THEN
-					REPLACE(nx.ExternalItemID,' [R/G] ','G')
-				WHEN (nx.AttributeValueSetID = 2) THEN
-					REPLACE(nx.ExternalItemID,' [R/G] ','R')
-				WHEN (nx.AttributeValueSetID = 23) THEN
-					REPLACE(nx.ExternalItemID,'+[Color]','RED')
-				WHEN (nx.AttributeValueSetID = 24) THEN
-					REPLACE(nx.ExternalItemID,'+[Color]','YELLOW')
-				WHEN (nx.AttributeValueSetID = 25) THEN
-					REPLACE(nx.ExternalItemID,'+[Color]','PURPLE')
-				WHEN (nx.AttributeValueSetID = 26) THEN
-					REPLACE(nx.ExternalItemID,'+[Color]','WHITE')
-				WHEN (nx.AttributeValueSetID = 27) THEN
-					REPLACE(nx.ExternalItemID,'+[Color]','PINK')
-				WHEN (nx.AttributeValueSetID = 28) THEN
-					REPLACE(nx.ExternalItemID,'+[Color]','DARKBLUE')
-				WHEN (nx.AttributeValueSetID = 29) THEN
-					REPLACE(nx.ExternalItemID,'+[Color]','DARKGREEN')
-				WHEN (nx.AttributeValueSetID = 30) THEN
-					REPLACE(nx.ExternalItemID,'+[Color]','ORANGE')
-				ELSE
-					'xxx'
-				END
-		END
-	) = LOWER(jti.ExternalItemID)
-GROUP BY	/* skip duplicate entrys */
+		ON
+			(jti.EAN = nx.EAN)
+			AND
+			LOWER(
+					CASE WHEN (nx.AttributeValueSetID = 0) THEN
+						nx.ExternalItemID
+					ELSE
+						CASE WHEN (nx.AttributeValueSetID = 1) THEN
+							REPLACE(nx.ExternalItemID, ' [R/G] ', 'G')
+						WHEN (nx.AttributeValueSetID = 2) THEN
+							REPLACE(nx.ExternalItemID, ' [R/G] ', 'R')
+						WHEN (nx.AttributeValueSetID = 23) THEN
+							REPLACE(nx.ExternalItemID, '+[Color]', 'RED')
+						WHEN (nx.AttributeValueSetID = 24) THEN
+							REPLACE(nx.ExternalItemID, '+[Color]', 'YELLOW')
+						WHEN (nx.AttributeValueSetID = 25) THEN
+							REPLACE(nx.ExternalItemID, '+[Color]', 'PURPLE')
+						WHEN (nx.AttributeValueSetID = 26) THEN
+							REPLACE(nx.ExternalItemID, '+[Color]', 'WHITE')
+						WHEN (nx.AttributeValueSetID = 27) THEN
+							REPLACE(nx.ExternalItemID, '+[Color]', 'PINK')
+						WHEN (nx.AttributeValueSetID = 28) THEN
+							REPLACE(nx.ExternalItemID, '+[Color]', 'DARKBLUE')
+						WHEN (nx.AttributeValueSetID = 29) THEN
+							REPLACE(nx.ExternalItemID, '+[Color]', 'DARKGREEN')
+						WHEN (nx.AttributeValueSetID = 30) THEN
+							REPLACE(nx.ExternalItemID, '+[Color]', 'ORANGE')
+						ELSE
+							'xxx'
+						END
+					END
+			) = LOWER(jti.ExternalItemID)
+GROUP BY /* skip duplicate entrys */
 	jti.EAN";
 	}
 
