@@ -21,77 +21,6 @@ class ApiAmazon
 	const PRICE_COMPARISON_ACCURACY = 0.01;
 
 	/**
-	 * @var string
-	 */
-	const PRICE_DATA_SELECT_BASIC = 'SELECT
-	ItemsBase.ItemID,
-	CASE WHEN (AttributeValueSets.AttributeValueSetID IS NULL) THEN
-		"0"
-	ELSE
-		AttributeValueSets.AttributeValueSetID
-	END AttributeValueSetID';
-
-	/**
-	 * @var string
-	 */
-	const PRICE_DATA_SELECT_ADVANCED = ',
-	CONCAT(
-		CASE WHEN (ItemsBase.BundleType = "bundle") THEN
-			"[Bundle] "
-		WHEN (ItemsBase.BundleType = "bundle_item") THEN
-			"[Bundle Artikel] "
-		ELSE
-			""
-		END,
-		ItemsBase.Name,
-		CASE WHEN (AttributeValueSets.AttributeValueSetID IS NOT null) THEN
-			CONCAT(", ", AttributeValueSets.AttributeValueSetName)
-		ELSE
-			""
-		END
-	) AS Name,
-	ItemsBase.Name AS SortName,
-	ItemsBase.ItemNo,
-	ItemsBase.Marking1ID,
-	PriceUpdate.NewPrice,
-	PriceUpdateHistory.WrittenTimeStamp,
-	PriceUpdateQuantities.OldQuantity,
-	PriceUpdateQuantities.NewQuantity,
-	PriceSets.PriceID,
-	1 + PriceSets.VAT / 100 AS VAT,
-	PriceSets.Price / (1 + PriceSets.VAT / 100) AS StandardPrice,
-	PriceSets.PurchasePriceNet';
-
-	/**
-	 * @var string
-	 */
-	const PRICE_DATA_FROM_BASIC = "\nFROM ItemsBase
-LEFT JOIN AttributeValueSets
-	ON ItemsBase.ItemID = AttributeValueSets.ItemID\n";
-
-	/**
-	 * @var string
-	 */
-	const PRICE_DATA_FROM_ADVANCED = "LEFT JOIN PriceSets
-	ON ItemsBase.ItemID = PriceSets.ItemID
-LEFT JOIN PriceUpdate
-	ON (PriceSets.ItemID = PriceUpdate.ItemID) AND (PriceSets.PriceID = PriceUpdate.PriceID)
-LEFT JOIN PriceUpdateHistory
-	ON (PriceSets.ItemID = PriceUpdateHistory.ItemID) AND (PriceSets.PriceID = PriceUpdateHistory.PriceID)
-LEFT JOIN PriceUpdateQuantities
-	ON (PriceSets.ItemID = PriceUpdateQuantities.ItemID) AND (PriceSets.PriceID = PriceUpdateQuantities.PriceID) AND (CASE WHEN (AttributeValueSets.AttributeValueSetID IS NOT null) THEN
-			AttributeValueSets.AttributeValueSetID
-		ELSE
-			0
-		END = PriceUpdateQuantities.AttributeValueSetID)\n";
-
-	/**
-	 * @var string
-	 */
-	const PRICE_DATA_WHERE = "WHERE
-	ItemsBase.Inactive = 0\n";
-
-	/**
 	 * @var int
 	 */
 	const AMAZON_REFERRER_ID = 4;
@@ -361,82 +290,13 @@ LEFT JOIN PriceUpdateQuantities
 			'total' => null,
 			'rows'  => array()
 		);
-
 		ob_start();
-		$whereCondition = "";
 
-		// prepare filter conditions
-		if (!is_null($marking1ID))
-		{
-			if (!is_array($marking1ID))
-			{
-				$marking1ID = array($marking1ID);
-			}
-			$whereCondition .= "AND\n\tItemsBase.Marking1ID IN  (" . implode(',', $marking1ID) . ")\n";
-		}
-
-		if (!is_null($itemID))
-		{
-			if (!is_array($itemID))
-			{
-				$itemID = array($itemID);
-			}
-			$whereCondition .= "AND\n\tItemsBase.ItemID IN (" . implode(',', $itemID) . ")\n";
-		} elseif (!is_null($itemNo))
-		{
-			if (!is_array($itemNo))
-			{
-				$itemNo = array($itemNo);
-			}
-			$whereCondition .= "AND\n\tItemsBase.ItemNo REGEXP '^" . implode('|^', $itemNo) . "'\n";
-		} elseif (!is_null($itemName))
-		{
-			if (!is_array($itemName))
-			{
-				$itemName = array($itemName);
-			}
-
-			foreach ($itemName as $name)
-			{
-				$whereCondition .= "AND\n\tCONCAT(
-		CASE WHEN (ItemsBase.BundleType = \"bundle\") THEN
-			\"[Bundle] \"
-		WHEN (ItemsBase.BundleType = \"bundle_item\") THEN
-			\"[Bundle Artikel] \"
-		ELSE
-			\"\"
-		END,
-		ItemsBase.Name,
-		CASE WHEN (AttributeValueSets.AttributeValueSetID IS NOT null) THEN
-			CONCAT(\", \", AttributeValueSets.AttributeValueSetName)
-		ELSE
-			\"\"
-		END\n\t) LIKE \"%$name%\"\n";
-			}
-		}
-
-
-		$data['total'] = DBQuery::getInstance()->select(self::PRICE_DATA_SELECT_BASIC . self::PRICE_DATA_FROM_BASIC . self::PRICE_DATA_WHERE . $whereCondition)->getNumRows();
+		$data['total'] = DBQuery::getInstance()->select(self::getAmazonPriceDataQuery(true, $page, $rowsPerPage, $sortByColumn, $sortOrder, $itemID, $itemNo, $itemName, $marking1ID))->getNumRows();
 		$config = self::getConfig();
 
-		// get associated price id
-		$amazonStaticData = ApiHelper::getSalesOrderReferrer(self::AMAZON_REFERRER_ID);
-		$amazonPrice = 'Price' . $amazonStaticData['PriceColumn'];
-		$amazonPriceSelect = ",\n\tPriceSets.$amazonPrice / (1 + PriceSets.VAT / 100) AS Price,
-	CASE WHEN (PriceUpdateHistory.OldPrice IS null) THEN
-		PriceSets.$amazonPrice / (1 + PriceSets.VAT / 100)
-	ELSE
-		PriceUpdateHistory.OldPrice
-	END OldPrice";
-
-		//TODO check for empty values to prevent errors!
-		$sort = 'ORDER BY ' . self::sanitizeSortingColumn($sortByColumn, $sortOrder, $amazonPrice) . " $sortOrder\n";
-		$start = (($page - 1) * $rowsPerPage);
-		$limit = "LIMIT $start,$rowsPerPage";
-
 		// add price id to select advanced clause
-		$query = self::PRICE_DATA_SELECT_BASIC . self::PRICE_DATA_SELECT_ADVANCED . $amazonPriceSelect . self::PRICE_DATA_FROM_BASIC . self::PRICE_DATA_FROM_ADVANCED . self::PRICE_DATA_WHERE . $whereCondition . $sort . $limit;
-		$amazonPriceDataDBResult = DBQuery::getInstance()->select($query);
+		$amazonPriceDataDBResult = DBQuery::getInstance()->select(self::getAmazonPriceDataQuery(false, $page, $rowsPerPage, $sortByColumn, $sortOrder, $itemID, $itemNo, $itemName, $marking1ID));
 		ob_end_clean();
 
 		while ($amazonPriceData = $amazonPriceDataDBResult->fetchAssoc())
@@ -507,6 +367,156 @@ LEFT JOIN PriceUpdateQuantities
 		}
 
 		return $data;
+	}
+
+	private static function getAmazonPriceDataQuery($short, $page, $rowsPerPage, $sortByColumn, $sortOrder, $itemID, $itemNo, $itemName, $marking1ID)
+	{
+		$query = 'SELECT
+	ItemsBase.ItemID,
+	CASE WHEN (AttributeValueSets.AttributeValueSetID IS NULL) THEN
+		0
+	ELSE
+		AttributeValueSets.AttributeValueSetID
+	END AttributeValueSetID';
+
+		if (!$short)
+		{
+			// get associated price id
+			$amazonStaticData = ApiHelper::getSalesOrderReferrer(self::AMAZON_REFERRER_ID);
+			$query .= ',
+	CONCAT(
+		CASE WHEN (ItemsBase.BundleType = "bundle") THEN
+			"[Bundle] "
+		WHEN (ItemsBase.BundleType = "bundle_item") THEN
+			"[Bundle Artikel] "
+		ELSE
+			""
+		END,
+		ItemsBase.Name,
+		CASE WHEN (AttributeValueSets.AttributeValueSetID IS NOT null) THEN
+			CONCAT(", ", AttributeValueSets.AttributeValueSetName)
+		ELSE
+			""
+		END
+	) AS Name,
+	ItemsBase.Name AS SortName,
+	ItemsBase.ItemNo,
+	ItemsBase.Marking1ID,
+	PriceUpdate.NewPrice,
+	PriceUpdateHistory.WrittenTimeStamp,
+	PriceUpdateQuantities.OldQuantity,
+	PriceUpdateQuantities.NewQuantity,
+	PriceSets.PriceID,
+	1 + PriceSets.VAT / 100 AS VAT,
+	PriceSets.Price / (1 + PriceSets.VAT / 100) AS StandardPrice,
+	PriceSets.PurchasePriceNet,
+	PriceSets.Price' . $amazonStaticData['PriceColumn'] . ' / (1 + PriceSets.VAT / 100) AS Price,
+	CASE WHEN (PriceUpdateHistory.OldPrice IS null) THEN
+		PriceSets.Price' . $amazonStaticData['PriceColumn'] . ' / (1 + PriceSets.VAT / 100)
+	ELSE
+		PriceUpdateHistory.OldPrice
+	END OldPrice';
+		}
+
+		$query .= '
+FROM ItemsBase
+LEFT JOIN AttributeValueSets
+	ON ItemsBase.ItemID = AttributeValueSets.ItemID';
+
+		if (!$short)
+		{
+			$query .= '
+LEFT JOIN PriceSets
+	ON ItemsBase.ItemID = PriceSets.ItemID
+LEFT JOIN PriceUpdate
+	ON (PriceSets.ItemID = PriceUpdate.ItemID) AND (PriceSets.PriceID = PriceUpdate.PriceID)
+LEFT JOIN PriceUpdateHistory
+	ON (PriceSets.ItemID = PriceUpdateHistory.ItemID) AND (PriceSets.PriceID = PriceUpdateHistory.PriceID)
+LEFT JOIN PriceUpdateQuantities
+	ON (PriceSets.ItemID = PriceUpdateQuantities.ItemID) AND (PriceSets.PriceID = PriceUpdateQuantities.PriceID) AND (CASE WHEN (AttributeValueSets.AttributeValueSetID IS NOT null) THEN
+			AttributeValueSets.AttributeValueSetID
+		ELSE
+			0
+		END = PriceUpdateQuantities.AttributeValueSetID)';
+		}
+
+		$query .= '
+WHERE
+	ItemsBase.Inactive = 0
+' . self::getWhereCondition($itemID, $itemNo, $itemName, $marking1ID);
+
+		if (!$short && isset($amazonStaticData))
+		{
+			$query .= 'ORDER BY ' . self::sanitizeSortingColumn($sortByColumn, $sortOrder, 'Price' . $amazonStaticData['PriceColumn']) . " $sortOrder
+LIMIT " . (($page - 1) * $rowsPerPage) . ",$rowsPerPage";
+		}
+
+		return $query;
+	}
+
+	/**
+	 * @param null|int|int[]       $itemID
+	 * @param null|string|string[] $itemNo
+	 * @param null|string|string[] $itemName
+	 * @param null|int|int[]       $marking1ID
+	 *
+	 * @return string
+	 */
+	private static function getWhereCondition($itemID, $itemNo, $itemName, $marking1ID)
+	{
+		$whereCondition = "";
+
+		// prepare filter conditions
+		if (!is_null($marking1ID))
+		{
+			if (!is_array($marking1ID))
+			{
+				$marking1ID = array($marking1ID);
+			}
+			$whereCondition .= "AND\n\tItemsBase.Marking1ID IN  (" . implode(',', $marking1ID) . ")\n";
+		}
+
+		if (!is_null($itemID))
+		{
+			if (!is_array($itemID))
+			{
+				$itemID = array($itemID);
+			}
+			$whereCondition .= "AND\n\tItemsBase.ItemID IN (" . implode(',', $itemID) . ")\n";
+		} elseif (!is_null($itemNo))
+		{
+			if (!is_array($itemNo))
+			{
+				$itemNo = array($itemNo);
+			}
+			$whereCondition .= "AND\n\tItemsBase.ItemNo REGEXP '^" . implode('|^', $itemNo) . "'\n";
+		} elseif (!is_null($itemName))
+		{
+			if (!is_array($itemName))
+			{
+				$itemName = array($itemName);
+			}
+
+			foreach ($itemName as $name)
+			{
+				$whereCondition .= "AND\n\tCONCAT(
+		CASE WHEN (ItemsBase.BundleType = \"bundle\") THEN
+			\"[Bundle] \"
+		WHEN (ItemsBase.BundleType = \"bundle_item\") THEN
+			\"[Bundle Artikel] \"
+		ELSE
+			\"\"
+		END,
+		ItemsBase.Name,
+		CASE WHEN (AttributeValueSets.AttributeValueSetID IS NOT null) THEN
+			CONCAT(\", \", AttributeValueSets.AttributeValueSetName)
+		ELSE
+			\"\"
+		END\n\t) LIKE \"%$name%\"\n";
+			}
+		}
+
+		return $whereCondition;
 	}
 
 	/**
