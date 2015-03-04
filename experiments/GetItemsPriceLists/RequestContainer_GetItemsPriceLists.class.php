@@ -18,6 +18,18 @@ class RequestContainer_GetItemsPriceLists extends RequestContainer
 	}
 
 	/**
+	 * @param mixed $itemID
+	 * @param       $attributeValueSetID
+	 */
+	public function add($itemID, $attributeValueSetID)
+	{
+		parent::add(array(
+			$itemID,
+			$attributeValueSetID
+		));
+	}
+
+	/**
 	 * returns the assembled request
 	 *
 	 * @return PlentySoapRequest_GetItemsPriceLists
@@ -32,7 +44,7 @@ class RequestContainer_GetItemsPriceLists extends RequestContainer
 		foreach ($this->items as $sSKU)
 		{
 			$getItemsPriceLists = new PlentySoapRequestObject_GetItemsPriceLists();
-			$getItemsPriceLists->SKU = $sSKU;
+			$getItemsPriceLists->SKU = is_array($sSKU) ? Values2SKU($sSKU[0], $sSKU[1]) : Values2SKU($sSKU);
 
 			$request->Items->item[] = $getItemsPriceLists;
 		}
