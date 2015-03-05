@@ -470,7 +470,7 @@ class ApiExecute
 						'JansenStockMatchForUpdate',
 					));
 					break;
-				case self::CALCULATE_JANSEN_STOCK_MATCHES :
+				case self::CALCULATE_JANSEN_STOCK_MATCHES_TOTAL :
 					NetXpressSoapExperimentLoader::getInstance()->run(array(
 						'',
 						'JansenStockMatchForUpdateTotal',
@@ -575,5 +575,3 @@ class ApiExecute
 		}
 	}
 }
-
-?>
