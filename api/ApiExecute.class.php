@@ -108,6 +108,11 @@ class ApiExecute
 	/**
 	 * @var string
 	 */
+	const CALCULATE_JANSEN_STOCK_MATCHES_TOTAL = 'calculateJansenStockMatchesTotal';
+
+	/**
+	 * @var string
+	 */
 	const CALCULATE_ALL = 'calculateAll';
 
 	/**
@@ -159,6 +164,11 @@ class ApiExecute
 	 * @var string
 	 */
 	const JANSEN_STOCK_UPDATE = 'jansenStockUpdate';
+
+	/**
+	 * @var string
+	 */
+	const JANSEN_STOCK_UPDATE_TOTAL = 'jansenStockUpdateTotal';
 
 	/**
 	 * @var array
@@ -397,6 +407,13 @@ class ApiExecute
 						self::SET_CURRENT_STOCKS,
 					));
 					break;
+				case self::JANSEN_STOCK_UPDATE_TOTAL :
+					self::executeTasks(array(
+						self::READ_JANSEN_STOCK_IMPORT,
+						self::CALCULATE_JANSEN_STOCK_MATCHES_TOTAL,
+						self::SET_CURRENT_STOCKS,
+					));
+					break;
 				case self::READ_JANSEN_STOCK_IMPORT :
 					NetXpressSoapExperimentLoader::getInstance()->run(array(
 						'',
@@ -451,6 +468,13 @@ class ApiExecute
 						'',
 						'JansenStockMatchForUpdate',
 						'JansenStockMatchForUpdate',
+					));
+					break;
+				case self::CALCULATE_JANSEN_STOCK_MATCHES_TOTAL :
+					NetXpressSoapExperimentLoader::getInstance()->run(array(
+						'',
+						'JansenStockMatchForUpdateTotal',
+						'JansenStockMatchForUpdateTotal',
 					));
 					break;
 				case self::SET_ITEMS_SUPPLIERS :
@@ -512,6 +536,7 @@ class ApiExecute
 						self::CALCULATE_WRITE_PERMISSIONS,
 						self::SET_ITEMS_SUPPLIERS,
 						self::SET_ITEMS_WAREHOUSE_SETTINGS,
+						self::JANSEN_STOCK_UPDATE_TOTAL,
 					));
 					break;
 				default :
@@ -550,5 +575,3 @@ class ApiExecute
 		}
 	}
 }
-
-?>

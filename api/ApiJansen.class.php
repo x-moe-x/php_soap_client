@@ -2,7 +2,11 @@
 require_once realpath(dirname(__FILE__) . '/../') . '/config/basic.inc.php';
 require_once ROOT . 'lib/db/DBQuery.class.php';
 
-class ApiJansen {
+/**
+ * Class ApiJansen
+ */
+class ApiJansen
+{
 
 	/**
 	 * @var string
@@ -140,7 +144,7 @@ ON nx.EAN = js.EAN\n";
 	jsu.ItemID,
 	i.Name
 FROM
-	JansenStockUnmatched as jsu
+	JansenStockUnmatched AS jsu
 JOIN
 	(
 		SELECT
@@ -151,7 +155,7 @@ JOIN
 					'[Bundle Artikel] '
 				ELSE
 					''
-				END, i.Name, CASE WHEN (avs.AttributeValueSetID IS NOT null) THEN
+				END, i.Name, CASE WHEN (avs.AttributeValueSetID IS NOT NULL) THEN
 					CONCAT(', ', avs.AttributeValueSetName)
 				ELSE
 					''
@@ -179,23 +183,43 @@ ON
 AND
 	jsu.AttributeValueSetID = i.AttributeValueSetID\n";
 
-	public static function getJansenStockData($page = 1, $rowsPerPage = 10, $sortByColumn = 'EAN', $sortOrder = 'ASC', $eans = null, $externalItemIDs = null, $itemIDs = null, $names = null, $jansenMatch = null) {
-		$data = array('page' => $page, 'total' => null, 'rows' => array());
+	/**
+	 * @param int                  $page
+	 * @param int                  $rowsPerPage
+	 * @param string               $sortByColumn
+	 * @param string               $sortOrder
+	 * @param null|string|string[] $eans
+	 * @param null|string|string[] $externalItemIDs
+	 * @param null|int|int[]       $itemIDs
+	 * @param null|string|string[] $names
+	 * @param null|int             $jansenMatch
+	 *
+	 * @return array
+	 */
+	public static function getJansenStockData($page = 1, $rowsPerPage = 10, $sortByColumn = 'EAN', $sortOrder = 'ASC', $eans = null, $externalItemIDs = null, $itemIDs = null, $names = null, $jansenMatch = null)
+	{
+		$data = array(
+			'page'  => $page,
+			'total' => null,
+			'rows'  => array()
+		);
 
 		ob_start();
 		$whereCondition = "";
 
 		// prepare filter conditions
-		if (!is_null($jansenMatch)) {
-			if (is_array($jansenMatch)) {
-				$aJansenMatch = $jansenMatch;
-			} else {
-				$aJansenMatch = array($jansenMatch);
+		if (!is_null($jansenMatch))
+		{
+			if (!is_array($jansenMatch))
+			{
+				$jansenMatch = array($jansenMatch);
 			}
 			$whereCondition .= "AND\n\t(\n";
 			$matches = array();
-			foreach ($jansenMatch as $matchIndex) {
-				switch ($matchIndex) {
+			foreach ($jansenMatch as $matchIndex)
+			{
+				switch ($matchIndex)
+				{
 					case 0 :
 						$matches[] = "\t\tnx.ItemID IS NULL\n";
 						break;
@@ -271,41 +295,51 @@ AND
 			$whereCondition .= implode("\tOR\n", $matches) . "\t)\n";
 		}
 
-		if (!is_null($eans)) {
-			if (is_array($eans)) {
-				$aEans = $eans;
-			} else {
-				$aEans = array($eans);
+		if (!is_null($eans))
+		{
+			if (!is_array($eans))
+			{
+				$eans = array($eans);
 			}
-			$whereCondition .= "AND\n\tjs.EAN IN  ('" . implode('\',\'', $aEans) . "')\n";
-		} else if (!is_null($externalItemIDs)) {
-			if (is_array($externalItemIDs)) {
-				$aExternalItemIDs = $externalItemIDs;
-			} else {
-				$aExternalItemIDs = array($externalItemIDs);
-			}
-			$whereCondition .= "AND\n\tjs.ExternalItemID IN  ('" . implode('\',\'', $aExternalItemIDs) . "')\n";
-		} else if (!is_null($itemIDs)) {
-			if (is_array($itemIDs)) {
-				$aItemIDs = $itemIDs;
-			} else {
-				$aItemIDs = array($itemIDs);
-			}
-			$whereCondition .= "AND\n\tnx.ItemID IN  ('" . implode('\',\'', $aItemIDs) . "')\n";
-		} else if (!is_null($names)) {
-			if (is_array($names)) {
-				$aItemNames = $names;
-			} else {
-				$aItemNames = array($names);
-			}
+			$whereCondition .= "AND\n\tjs.EAN IN  ('" . implode('\',\'', $eans) . "')\n";
+		} else
+		{
+			if (!is_null($externalItemIDs))
+			{
+				if (!is_array($externalItemIDs))
+				{
+					$externalItemIDs = array($externalItemIDs);
+				}
+				$whereCondition .= "AND\n\tjs.ExternalItemID IN  ('" . implode('\',\'', $externalItemIDs) . "')\n";
+			} else
+			{
+				if (!is_null($itemIDs))
+				{
+					if (!is_array($itemIDs))
+					{
+						$itemIDs = array($itemIDs);
+					}
+					$whereCondition .= "AND\n\tnx.ItemID IN  ('" . implode('\',\'', $itemIDs) . "')\n";
+				} else
+				{
+					if (!is_null($names))
+					{
+						if (!is_array($names))
+						{
+							$names = array($names);
+						}
 
-			foreach ($aItemNames as $name) {
-				$whereCondition .= "AND
+						foreach ($names as $name)
+						{
+							$whereCondition .= "AND
 	nx.Name LIKE \"%$name%\"\n";
+						}
+					}
+				}
 			}
 		}
 
-		$data['total'] = DBQuery::getInstance() -> select(self::JANSEN_DATA_SELECT_BASIC . self::JANSEN_DATA_FROM_BASIC . self::JANSEN_DATA_WHERE . $whereCondition) -> getNumRows();
+		$data['total'] = DBQuery::getInstance()->select(self::JANSEN_DATA_SELECT_BASIC . self::JANSEN_DATA_FROM_BASIC . self::JANSEN_DATA_WHERE . $whereCondition)->getNumRows();
 
 		$sort = "\nORDER BY $sortByColumn $sortOrder\n";
 		$start = (($page - 1) * $rowsPerPage);
@@ -313,49 +347,52 @@ AND
 
 		// add price id to select advanced clause
 		$query = self::JANSEN_DATA_SELECT_BASIC . self::JANSEN_DATA_SELECT_ADVANCED . self::JANSEN_DATA_FROM_BASIC . self::JANSEN_DATA_FROM_ADVANCED . self::JANSEN_DATA_WHERE . $whereCondition . $sort . $limit;
-		$jansenStockDataDBResult = DBQuery::getInstance() -> select($query);
+		$jansenStockDataDBResult = DBQuery::getInstance()->select($query);
 		ob_end_clean();
 
-		while ($jansenStockDataData = $jansenStockDataDBResult -> fetchAssoc()) {
-			//@formatter:off
+		while ($jansenStockDataData = $jansenStockDataDBResult->fetchAssoc())
+		{
 			$data['rows'][$jansenStockDataData['EAN']] = array(
-				'ean'				=>	$jansenStockDataData['EAN'],
-				'externalItemID'	=>	$jansenStockDataData['ExternalItemID'],
-				'physicalStock'		=>	$jansenStockDataData['PhysicalStock'],
-				'itemID'			=>	$jansenStockDataData['ItemID'],
-				'name'				=>	$jansenStockDataData['Name'],
-				'date'				=>	isset($jansenStockDataData['Timestamp']) ? date('d.m.y, H:i:s', $jansenStockDataData['Timestamp']) : null,
-				'data'				=>	array(
-											'match'			=>	isset($jansenStockDataData['ItemID']),
-											'exactMatch'	=>	$jansenStockDataData['ExactMatch'] == 1
-										)
+				'ean'            => $jansenStockDataData['EAN'],
+				'externalItemID' => $jansenStockDataData['ExternalItemID'],
+				'physicalStock'  => $jansenStockDataData['PhysicalStock'],
+				'itemID'         => $jansenStockDataData['ItemID'],
+				'name'           => $jansenStockDataData['Name'],
+				'date'           => isset($jansenStockDataData['Timestamp']) ? date('d.m.y, H:i:s', $jansenStockDataData['Timestamp']) : null,
+				'data'           => array(
+					'match'      => isset($jansenStockDataData['ItemID']),
+					'exactMatch' => $jansenStockDataData['ExactMatch'] == 1
+				)
 			);
-			//@formatter:on
 		}
+
 		return $data;
 	}
 
-	public static function getJansenUnmatchedData() {
-		$data = array('page' => 1, 'total' => null, 'rows' => array());
+	public static function getJansenUnmatchedData()
+	{
+		$data = array(
+			'page'  => 1,
+			'total' => null,
+			'rows'  => array()
+		);
 
 		ob_start();
-		$jansenUnmatchedDBResult = DBQuery::getInstance() -> select(self::JANSEN_UNMATCHED_DATA_QUERY);
+		$jansenUnmatchedDBResult = DBQuery::getInstance()->select(self::JANSEN_UNMATCHED_DATA_QUERY);
 		ob_end_clean();
 
-		$data['total'] = $jansenUnmatchedDBResult -> getNumRows();
+		$data['total'] = $jansenUnmatchedDBResult->getNumRows();
 
-		while ($jansenUnmatched = $jansenUnmatchedDBResult -> fetchAssoc()) {
-			//@formatter:off
+		while ($jansenUnmatched = $jansenUnmatchedDBResult->fetchAssoc())
+		{
 			$data['rows'][$jansenUnmatched['EAN']] = array(
-				'ean'				=>	$jansenUnmatched['EAN'],
-				'externalItemID'	=>	$jansenUnmatched['ExternalItemID'],
-				'itemID'			=>	$jansenUnmatched['ItemID'],
-				'name'				=>	$jansenUnmatched['Name']
+				'ean'            => $jansenUnmatched['EAN'],
+				'externalItemID' => $jansenUnmatched['ExternalItemID'],
+				'itemID'         => $jansenUnmatched['ItemID'],
+				'name'           => $jansenUnmatched['Name']
 			);
-			//@formatter:on
 		}
+
 		return $data;
 	}
-
 }
-?>

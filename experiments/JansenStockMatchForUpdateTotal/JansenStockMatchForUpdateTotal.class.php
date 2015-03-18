@@ -8,7 +8,7 @@ require_once ROOT . 'includes/DBUtils2.class.php';
  * @author    x-moe-x
  * @copyright net-xpress GmbH & Co. KG www.net-xpress.com
  */
-class JansenStockMatchForUpdate
+class JansenStockMatchForUpdateTotal
 {
 	/**
 	 * @var int
@@ -26,11 +26,6 @@ class JansenStockMatchForUpdate
 	const DEFAULT_REASON = 301;
 
 	/**
-	 * @var int
-	 */
-	const DEFAULT_N_LATEST_TRANSACTIONS = 3;
-
-	/**
 	 * @var string
 	 */
 	private $identifier4Logger;
@@ -46,7 +41,7 @@ class JansenStockMatchForUpdate
 	private $aUnmatchedItemVariants;
 
 	/**
-	 * @return JansenStockMatchForUpdate
+	 * @return JansenStockMatchForUpdateTotal
 	 */
 	public function __construct()
 	{
@@ -63,8 +58,7 @@ class JansenStockMatchForUpdate
 	{
 		/*
 		 * get all item variants with jansen EAN already matched against
-		 * jansen data which have been updated in the last N transactions
-		 *
+		 * jansen data
 		 */
 		$itemVariantsDBResult = DBQuery::getInstance()->select($this->getMatchedQuery());
 
@@ -95,12 +89,10 @@ class JansenStockMatchForUpdate
 		{
 			// ... handle matched item variant
 
-			//@formatter:off
 			$this->aUnmatchedItemVariants[] = array(
 				'ItemID'              => $itemVariant['ItemID'],
 				'AttributeValueSetID' => $itemVariant['AttributeValueSetID']
 			);
-			//@formatter:on
 		}
 
 		$this->storeToDB();
@@ -117,23 +109,7 @@ class JansenStockMatchForUpdate
 	nx.PriceID,
 	jsd.PhysicalStock
 FROM
-	JansenTransactionItem AS jti
-	JOIN /* select last n transactions */
-	(
-		SELECT
-			TransactionID
-		FROM
-			JansenTransactionHead
-		ORDER BY TransactionID DESC
-		LIMIT " . self::DEFAULT_N_LATEST_TRANSACTIONS . ") AS jth
-		ON
-			jti.TransactionID = jth.TransactionID
-	JOIN
 	JansenStockData AS jsd
-		ON
-			(jti.EAN = jsd.EAN)
-			AND
-			(jti.ExternalItemID = jsd.ExternalItemID)
 	JOIN /* get all nx products (itemID, avsID, priceID, EAN, extID) with a jansen ean, which is active and not marked */
 	(
 		SELECT
@@ -172,7 +148,7 @@ FROM
 			i.Inactive = 0
 	) AS nx
 		ON
-			(jti.EAN = nx.EAN)
+			(jsd.EAN = nx.EAN)
 			AND
 			LOWER(
 					CASE WHEN (nx.AttributeValueSetID = 0) THEN
@@ -202,9 +178,7 @@ FROM
 							'xxx'
 						END
 					END
-			) = LOWER(jti.ExternalItemID)
-GROUP BY /* skip duplicate entrys */
-	jti.EAN";
+			) = LOWER(jsd.ExternalItemID)";
 	}
 
 	/**
@@ -282,5 +256,4 @@ AND
 			$this->getLogger()->debug(__FUNCTION__ . ": storing $countUnmatched unmatched stock records.");
 		}
 	}
-
 }
