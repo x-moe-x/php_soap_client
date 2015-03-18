@@ -214,15 +214,15 @@ class SoapCall_GetItemsBase extends PlentySoapCall
 			'MainWarehouseID'     => $itemsBase->Stock->MainWarehouseID,
 			'StorageLocation'     => $itemsBase->StorageLocation,
 			/*	'Texts'						=> $oItemsBase->Texts,	replaced with it's subitems	*/
-			'Keywords'            => $itemsBase->Texts->Keywords,
-			'Lang'                => $itemsBase->Texts->Lang,
-			'LongDescription'     => $itemsBase->Texts->LongDescription,
-			'MetaDescription'     => $itemsBase->Texts->MetaDescription,
-			'Name'                => $itemsBase->Texts->Name,
-			'Name2'               => $itemsBase->Texts->Name2,
-			'Name3'               => $itemsBase->Texts->Name3,
-			'ShortDescription'    => $itemsBase->Texts->ShortDescription,
-			'TechnicalData'       => $itemsBase->Texts->TechnicalData,
+			'Keywords'            => DBQuery::getInstance()->escapeString($itemsBase->Texts->Keywords),
+			'Lang'                => DBQuery::getInstance()->escapeString($itemsBase->Texts->Lang),
+			'LongDescription'     => DBQuery::getInstance()->escapeString($itemsBase->Texts->LongDescription),
+			'MetaDescription'     => DBQuery::getInstance()->escapeString($itemsBase->Texts->MetaDescription),
+			'Name'                => DBQuery::getInstance()->escapeString($itemsBase->Texts->Name),
+			'Name2'               => DBQuery::getInstance()->escapeString($itemsBase->Texts->Name2),
+			'Name3'               => DBQuery::getInstance()->escapeString($itemsBase->Texts->Name3),
+			'ShortDescription'    => DBQuery::getInstance()->escapeString($itemsBase->Texts->ShortDescription),
+			'TechnicalData'       => DBQuery::getInstance()->escapeString($itemsBase->Texts->TechnicalData),
 			/*
 			 *	end of Texts' replacement
 			 */
