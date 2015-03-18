@@ -206,14 +206,14 @@ CREATE TABLE `soap_db`.`ItemsBase` (
 	 *
 	 */
 	 `Name` TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
-	 `Name2` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
-	 `Name3` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
-	 `Keywords` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
-	 `Lang` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
-	 `LongDescription` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
-	 `MetaDescription` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
-	 `ShortDescription` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
-	 `TechnicalData` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	 `Name2` TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
+	 `Name3` TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
+	 `Keywords` TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
+	 `Lang` TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
+	 `LongDescription` TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
+	 `MetaDescription` TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
+	 `ShortDescription` TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
+	 `TechnicalData` TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
 	/*
 	 * end of Texts' replacement
 	 */
