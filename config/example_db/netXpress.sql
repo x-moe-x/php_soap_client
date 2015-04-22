@@ -284,6 +284,54 @@ CREATE TABLE `soap_db`.`ItemsBase` (
 	UNIQUE KEY `unique_key` (`ItemNo`, `EAN1`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+DROP TABLE IF EXISTS `soap_db`.`SetItemsTexts`;
+
+CREATE TABLE `soap_db`.`SetItemsTexts` (
+	`ItemID`                   INT(11) NOT NULL,
+	`Name`                     TEXT	COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Name2`                    TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Name3`                    TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Lang`                     VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`ItemDescriptionKeywords`  TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
+	`ShortDescription`         TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
+	`LongDescription`          TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
+	`TechnicalData`            TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
+	`MetaDescription`          TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
+	`UrlContent`               VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`DeleteAllExistingEntries` TINYINT(1) DEFAULT 0,
+	PRIMARY KEY (`ItemID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+DROP TABLE IF EXISTS `soap_db`.`SetItemsFreeTextFields`;
+
+CREATE TABLE `soap_db`.`SetItemsFreeTextFields` (
+	`ItemID`                   INT(11) NOT NULL,
+	`DeleteAllExistingEntries` TINYINT(1) DEFAULT 0,
+	`Free1`                    TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Free2`                    TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Free3`                    TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Free4`                    TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Free5`                    TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Free6`                    TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Free7`                    TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Free8`                    TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Free9`                    TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Free10`                   TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Free11`                   TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Free12`                   TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Free13`                   TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Free14`                   TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Free15`                   TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Free16`                   TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Free17`                   TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Free18`                   TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Free19`                   TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Free20`                   TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
+	PRIMARY KEY (`ItemID`)
+)	ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+
+
 DROP TABLE `soap_db`.`WarehouseList`;
 
 CREATE TABLE `soap_db`.`WarehouseList` (
