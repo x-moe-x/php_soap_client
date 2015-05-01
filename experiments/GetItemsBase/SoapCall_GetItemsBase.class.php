@@ -41,6 +41,11 @@ class SoapCall_GetItemsBase extends PlentySoapCall
 	private $processedAttributeValueSets;
 
 	/**
+	 * @var array
+	 */
+	private $processedCategories;
+
+	/**
 	 * @return SoapCall_GetItemsBase
 	 */
 	public function __construct()
@@ -157,7 +162,7 @@ class SoapCall_GetItemsBase extends PlentySoapCall
 			/*	'AttributeValueSets'		=> $oItemsBase->AttributeValueSets,	skipped here and stored to separate table	*/
 			/*	'Availability'				=> $oItemsBase->Availability,	currently considered irrelevant	*/
 			'BundleType'          => $itemsBase->BundleType,
-			/*	'Categories'				=> $oItemsBase->Categories,	ignored since not part of the request	*/
+			/*	'Categories'				=> $oItemsBase->Categories,	skipped here and stored to separate table	*/
 			'Condition'           => $itemsBase->Condition,
 			'CustomsTariffNumber' => $itemsBase->CustomsTariffNumber,
 			'DeepLink'            => $itemsBase->DeepLink,
@@ -245,6 +250,19 @@ class SoapCall_GetItemsBase extends PlentySoapCall
 				$this->processAttributeValueSet($itemsBase->ItemID, $itemsBase->AttributeValueSets->item);
 			}
 		}
+
+		// process Categories
+		if (is_array($itemsBase->Categories->item))
+		{
+			/** @var PlentySoapObject_ItemCategory $category */
+			foreach ($itemsBase->Categories->item as $category)
+			{
+				$this->processCategories($itemsBase->ItemID, $category);
+			}
+		} else
+		{
+			$this->processCategories($itemsBase->ItemID, $itemsBase->Categories->item);
+		}
 	}
 
 	/**
@@ -269,6 +287,24 @@ class SoapCall_GetItemsBase extends PlentySoapCall
 			'ColliNo'               => $attributeValueSet->ColliNo,
 			'PriceID'               => $attributeValueSet->PriceID,
 			'PurchasePrice'         => $attributeValueSet->PurchasePrice
+		);
+	}
+
+	/**
+	 * @param int                           $ItemID
+	 * @param PlentySoapObject_ItemCategory $category
+	 */
+	private function processCategories($ItemID, $category)
+	{
+		// prepare Categories for persistent storage
+		$this->processedCategories[] = array(
+			'ItemID'                 => $ItemID,
+			'ItemCategoryID'         => $category->ItemCategoryID,
+			'ItemCategoryLevel'      => $category->ItemCategoryLevel,
+			'ItemCategoryPath'       => $category->ItemCategoryPath,
+			'ItemCategoryPathNames'  => $category->ItemCategoryPathNames,
+			'ItemStandardCategory'   => 0,
+			'RemoveCategoryFromItem' => $category->RemoveCategoryFromItem,
 		);
 	}
 
@@ -309,6 +345,7 @@ class SoapCall_GetItemsBase extends PlentySoapCall
 		// insert itemsbase
 		$countItemsBases = count($this->processedItemsBases);
 		$countAttributeValueSets = count($this->processedAttributeValueSets);
+		$countCategoriesRecords = count($this->processedCategories);
 
 		if ($countItemsBases > 0)
 		{
@@ -323,6 +360,14 @@ class SoapCall_GetItemsBase extends PlentySoapCall
 
 			DBQuery::getInstance()->delete('DELETE FROM `AttributeValueSets` WHERE `ItemID` IN (\'' . implode('\',\'', array_keys($this->processedItemsBases)) . '\')');
 			DBQuery::getInstance()->insert('INSERT INTO `AttributeValueSets`' . DBUtils2::buildMultipleInsertOnDuplikateKeyUpdate($this->processedAttributeValueSets));
+		}
+
+		if ($countCategoriesRecords > 0)
+		{
+			$this->getLogger()->info(__FUNCTION__ . " : storing $countCategoriesRecords records of categories ...");
+
+			DBQuery::getInstance()->delete('DELETE FROM `ItemsCategories` WHERE `ItemID` IN (\'' . implode('\',\'', array_keys($this->processedItemsBases)) . '\')');
+			DBQuery::getInstance()->insert('INSERT INTO `ItemsCategories`' . DBUtils2::buildMultipleInsertOnDuplikateKeyUpdate($this->processedCategories));
 		}
 	}
 

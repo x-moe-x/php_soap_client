@@ -24,7 +24,7 @@ class Request_GetItemsBase
 			'LastUpdateFrom'         => $lastUpdate,
 			'LastUpdateTill'         => $currentTime,
 			'GetAttributeValueSets'  => true,
-			'GetCategories'          => false,
+			'GetCategories'          => true,
 			'GetItemAttributeMarkup' => false,
 			'GetItemOthers'          => false,
 			'GetItemProperties'      => false,

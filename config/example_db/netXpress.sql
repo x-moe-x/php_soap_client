@@ -220,7 +220,6 @@ CREATE TABLE `soap_db`.`ItemsBase` (
 	`AttributeValueSets`int(11) DEFAULT NULL,
 	`Availability`int(11) DEFAULT NULL,
 	`BundleType`varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
-	`Categories`int(11) DEFAULT NULL,
 	`Condition`int(11) DEFAULT NULL,
 	`CustomsTariffNumber`varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
 	`DeepLink`varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
@@ -365,6 +364,19 @@ CREATE TABLE `soap_db`.`ItemsWarehouseSettings` (
 	`WarehouseID` int(11) DEFAULT NULL,
 	`Zone` int(11) DEFAULT NULL,
 	PRIMARY KEY (`ItemID`, `AttributeValueSetID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+DROP TABLE `soap_db`.`ItemsCategories`;
+
+CREATE TABLE `soap_db`.`ItemsCategories` (
+	`ItemID` int(11) NOT NULL,
+	`ItemCategoryID` int(11) DEFAULT NULL,
+	`ItemCategoryLevel` int(11) DEFAULT NULL,
+	`ItemCategoryPath` TEXT COLLATE utf8_unicode_ci,
+	`ItemCategoryPathNames` TEXT COLLATE utf8_unicode_ci,
+	`ItemStandardCategory` tinyint(1) DEFAULT 0,
+	`RemoveCategoryFromItem` int(11) DEFAULT NULL,
+PRIMARY KEY (`ItemID`, `ItemCategoryID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 DROP TABLE `soap_db`.`CalculatedDailyNeeds`;
