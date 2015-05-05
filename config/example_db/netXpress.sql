@@ -379,6 +379,16 @@ CREATE TABLE `soap_db`.`ItemsCategories` (
 PRIMARY KEY (`ItemID`, `ItemCategoryID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+DROP TABLE `soap_db`.`ExtractedProperties`;
+
+CREATE TABLE `soap_db`.`ExtractedProperties` (
+	`RecordID` int(11) NOT NULL AUTO_INCREMENT,
+	`ItemID` INT(11) NOT NULL,
+	`Key`    VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Value`  TEXT COLLATE utf8_unicode_ci,
+	PRIMARY KEY (`RecordID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 DROP TABLE `soap_db`.`CalculatedDailyNeeds`;
 
 CREATE TABLE `soap_db`.`CalculatedDailyNeeds` (
