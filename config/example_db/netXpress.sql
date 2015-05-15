@@ -383,9 +383,18 @@ DROP TABLE `soap_db`.`ExtractedProperties`;
 
 CREATE TABLE `soap_db`.`ExtractedProperties` (
 	`RecordID` int(11) NOT NULL AUTO_INCREMENT,
-	`ItemID` INT(11) NOT NULL,
+	`ItemID` INT(11) DEFAULT NULL,
 	`Key`    VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT NULL,
 	`Value`  TEXT COLLATE utf8_unicode_ci,
+	PRIMARY KEY (`RecordID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+DROP TABLE `soap_db`.`PropertySiblings`;
+
+CREATE TABLE `soap_db`.`PropertySiblings` (
+	`RecordID` int(11) NOT NULL,
+	`SiblingRecordID` int(11) DEFAULT NULL,
+	`SiblingType` INT(11) DEFAULT NULL,
 	PRIMARY KEY (`RecordID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
