@@ -379,6 +379,40 @@ CREATE TABLE `soap_db`.`ItemsCategories` (
 PRIMARY KEY (`ItemID`, `ItemCategoryID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+DROP TABLE `soap_db`.`Properties`;
+
+CREATE TABLE `soap_db`.`Properties` (
+  `PropertyID`                  INT(11) NOT NULL,
+  `PropertyGroupID`             INT(11) DEFAULT NULL,
+  `PropertyBackendName`         VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `PropertyType`                VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Position`                    INT(11) DEFAULT NULL,
+  `Lang`                        VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `PropertyFrontendName`        VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Description`                 VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Searchable`                  INT(11) DEFAULT NULL,
+  `ShowInItemList`              INT(11) DEFAULT NULL,
+  `ShowInPDF`                   INT(11) DEFAULT NULL,
+  `ShowOnItemPage`              INT(11) DEFAULT NULL,
+  `PropertyUnit`                VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `OrderProperty`               INT(11) DEFAULT NULL,
+  `Markup`                      DECIMAL(10,4) DEFAULT NULL,
+  `Notice`                      VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `BeezUP`                      INT(11) DEFAULT NULL,
+  `EbayLayout`                  INT(11) DEFAULT NULL,
+  `EbayProperty`                INT(11) DEFAULT NULL,
+  `Home24Property`              VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Idealo`                      INT(11) DEFAULT NULL,
+  `Kauflux`                     INT(11) DEFAULT NULL,
+  `NeckermannComponent`         INT(11) DEFAULT NULL,
+  `NeckermannExternalComponent` INT(11) DEFAULT NULL,
+  `NeckermannLogoId`            INT(11) DEFAULT NULL,
+  `RicardoLayout`               INT(11) DEFAULT NULL,
+  `ShopShare`                   INT(11) DEFAULT NULL,
+  `Yatego`                      INT(11) DEFAULT NULL,
+  PRIMARY KEY (`PropertyID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 DROP TABLE `soap_db`.`ExtractedProperties`;
 
 CREATE TABLE `soap_db`.`ExtractedProperties` (
