@@ -1,4 +1,6 @@
 <?php
+require_once ROOT . 'includes/FillObjectFromArray.php';
+
 
 class Request_GetPropertyGroups
 {
@@ -25,6 +27,14 @@ class Request_GetPropertyGroups
 	public function getRequest($lastUpdate, $currentTime, $page)
 	{
 		$request = new PlentySoapRequest_GetPropertyGroups();
+
+		fillObjectFromArray($request, array(
+			'CallItemsLimit' => $this->callItemsLimit,
+			'Lang'           => 'de',
+			'LastUpdateFrom' => $lastUpdate,
+			'LastUpdateTill' => $currentTime,
+			'Page'           => $page,
+		));
 
 		return $request;
 	}
