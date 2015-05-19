@@ -41,12 +41,12 @@ class SoapCall_GetProperties extends PlentySoapCall
 	/**
 	 * @var array
 	 */
-	private $storePropertyChoice;
+	private $storePropertyChoices;
 
 	/**
 	 * @var array
 	 */
-	private $storeAmazonList;
+	private $storeAmazonLists;
 
 	/**
 	 *
@@ -66,14 +66,17 @@ class SoapCall_GetProperties extends PlentySoapCall
 		//TODO remove after debugging
 		//list($lastUpdate, $currentTime, $this->startAtPage) = lastUpdateStart(__CLASS__);
 
-		if ($this->pages == -1) {
-			try {
+		if ($this->pages == -1)
+		{
+			try
+			{
 				$request = new Request_GetProperties(self::MAX_LINKED_ITEMS_PER_PAGE);
 				//TODO remove after debugging
 				//$this->plentySoapRequest = $request->getRequest($lastUpdate, $currentTime, $this->startAtPage);
 				$this->plentySoapRequest = $request->getRequest(null, null, $this->startAtPage);
 
-				if ($this->startAtPage > 0) {
+				if ($this->startAtPage > 0)
+				{
 					$this->debug(__FUNCTION__ . " Starting at page " . $this->startAtPage);
 				}
 
@@ -83,19 +86,21 @@ class SoapCall_GetProperties extends PlentySoapCall
 				/** @var PlentySoapResponse_GetProperties $response */
 				$response = $this->getPlentySoap()->GetProperties($this->plentySoapRequest);
 
-				if (($response->Success == true) && isset($response->Properties)) {
+				if (($response->Success == true) && isset($response->Properties))
+				{
 					// request successful, processing data..
 
 					/** @noinspection PhpParamsInspection */
-					$articlesFound = count($response->Properties->item);
+					$propertiesFound = count($response->Properties->item);
 					$pagesFound = $response->Pages;
 
-					$this->debug(__FUNCTION__ . ' Request Success - properties found : ' . $articlesFound . ' / pages : ' . $pagesFound);
+					$this->debug(__FUNCTION__ . ' Request Success - properties found : ' . $propertiesFound . ' / pages : ' . $pagesFound);
 
 					// process response
 					$this->responseInterpretation($response);
 
-					if ($pagesFound > $this->page) {
+					if ($pagesFound > $this->page)
+					{
 						$this->page = $this->startAtPage + 1;
 						$this->pages = $pagesFound;
 
@@ -104,18 +109,23 @@ class SoapCall_GetProperties extends PlentySoapCall
 						$this->executePages();
 
 					}
-				} else {
-					if (($response->Success == true) && !isset($response->Properties)) {
+				} else
+				{
+					if (($response->Success == true) && !isset($response->Properties))
+					{
 						// request successful, but no data to process
 						$this->debug(__FUNCTION__ . ' Request Success -  but no matching properties found');
-					} else {
+					} else
+					{
 						$this->debug(__FUNCTION__ . ' Request Error');
 					}
 				}
-			} catch (Exception $e) {
+			} catch (Exception $e)
+			{
 				$this->onExceptionAction($e);
 			}
-		} else {
+		} else
+		{
 			$this->executePages();
 		}
 
@@ -129,12 +139,15 @@ class SoapCall_GetProperties extends PlentySoapCall
 	 */
 	private function responseInterpretation(PlentySoapResponse_GetProperties $response)
 	{
-		if (is_array($response->Properties->item)) {
+		if (is_array($response->Properties->item))
+		{
 
-			foreach ($response->Properties->item AS $property) {
+			foreach ($response->Properties->item AS $property)
+			{
 				$this->processProperty($property);
 			}
-		} else {
+		} else
+		{
 			$this->processProperty($response->Properties->item);
 		}
 	}
@@ -181,35 +194,43 @@ class SoapCall_GetProperties extends PlentySoapCall
 		);
 
 		// process PropertyChoice
-		if ($property->PropertyChoice) {
-			if (is_array($property->PropertyChoice->item)) {
-				foreach ($property->PropertyChoice->item as $propertyChoice) {
+		if ($property->PropertyChoice)
+		{
+			if (is_array($property->PropertyChoice->item))
+			{
+				foreach ($property->PropertyChoice->item as $propertyChoice)
+				{
 					$this->processPropertyChoice($propertyID, $propertyChoice);
 				}
-			} else {
+			} else
+			{
 				$this->processPropertyChoice($propertyID, $property->PropertyChoice->item);
 			}
 		}
 
 		// process AmazonList
-		if ($property->AmazonList) {
-			if (is_array($property->AmazonList->item)) {
-				foreach ($property->AmazonList->item as $amazonList) {
+		if ($property->AmazonList)
+		{
+			if (is_array($property->AmazonList->item))
+			{
+				foreach ($property->AmazonList->item as $amazonList)
+				{
 					$this->processAmazonList($propertyID, $amazonList);
 				}
-			} else {
+			} else
+			{
 				$this->processAmazonList($propertyID, $property->AmazonList->item);
 			}
 		}
 	}
 
 	/**
-	 * @param int $propertyID
+	 * @param int                             $propertyID
 	 * @param PlentySoapObject_PropertyChoice $propertyChoice
 	 */
 	private function processPropertyChoice($propertyID, $propertyChoice)
 	{
-		$this->storePropertyChoice[] = array(
+		$this->storePropertyChoices[] = array(
 			'PropertyID'  => $propertyID,
 			'Description' => $propertyChoice->Description,
 			'Lang'        => $propertyChoice->Lang,
@@ -219,12 +240,12 @@ class SoapCall_GetProperties extends PlentySoapCall
 	}
 
 	/**
-	 * @param int $propertyID
+	 * @param int                              $propertyID
 	 * @param PlentySoapObject_PropertyAmazone $amazonList
 	 */
 	private function processAmazonList($propertyID, $amazonList)
 	{
-		$this->storeAmazonList[] = array(
+		$this->storeAmazonLists[] = array(
 			'PropertyID'        => $propertyID,
 			'AmazonCorrelation' => $amazonList->AmazonCorrelation,
 			'AmazonGenre'       => $amazonList->AmazonGenre,
@@ -233,12 +254,15 @@ class SoapCall_GetProperties extends PlentySoapCall
 
 	private function executePages()
 	{
-		while ($this->pages > $this->page) {
+		while ($this->pages > $this->page)
+		{
 			$this->plentySoapRequest->Page = $this->page;
-			try {
+			try
+			{
 				$response = $this->getPlentySoap()->GetProperties($this->plentySoapRequest);
 
-				if ($response->Success == true) {
+				if ($response->Success == true)
+				{
 					/** @noinspection PhpParamsInspection */
 					$propertiesFound = count($response->Properties->item);
 					$this->debug(__FUNCTION__ . ' Request Success - properties found : ' . $propertiesFound . ' / page : ' . $this->page);
@@ -251,7 +275,8 @@ class SoapCall_GetProperties extends PlentySoapCall
 				//TODO remove after debugging
 				//lastUpdatePageUpdate(__CLASS__, $this->page);
 
-			} catch (Exception $e) {
+			} catch (Exception $e)
+			{
 				$this->onExceptionAction($e);
 			}
 		}
@@ -261,8 +286,8 @@ class SoapCall_GetProperties extends PlentySoapCall
 	{
 		// insert itemsbase
 		$countProperties = count($this->storeProperties);
-		$countPropertyChoice = count($this->storePropertyChoice);
-		$countAmazonList = count($this->storeAmazonList);
+		$countPropertyChoice = count($this->storePropertyChoices);
+		$countAmazonList = count($this->storeAmazonLists);
 
 		if ($countProperties > 0)
 		{
