@@ -1,6 +1,7 @@
 <?php
 
 require_once ROOT . 'lib/soap/call/PlentySoapCall.abstract.php';
+require_once ROOT . 'includes/DBUtils2.class.php';
 require_once 'Request_GetProperties.class.php';
 
 /**
@@ -284,7 +285,6 @@ class SoapCall_GetProperties extends PlentySoapCall
 
 	private function storeToDB()
 	{
-		// insert itemsbase
 		$countProperties = count($this->storeProperties);
 		$countPropertyChoice = count($this->storePropertyChoices);
 		$countAmazonList = count($this->storeAmazonLists);
@@ -292,17 +292,22 @@ class SoapCall_GetProperties extends PlentySoapCall
 		if ($countProperties > 0)
 		{
 			$this->getLogger()->info(__FUNCTION__ . " : storing $countProperties property records ...");
+			DBQuery::getInstance()->truncate('TRUNCATE `Properties`');
+			DBQuery::getInstance()->insert('INSERT INTO `Properties`' . DBUtils2::buildMultipleInsertOnDuplikateKeyUpdate($this->storeProperties));
 		}
 
 		if ($countPropertyChoice > 0)
 		{
 			$this->getLogger()->info(__FUNCTION__ . " : storing $countPropertyChoice property choice records ...");
+			DBQuery::getInstance()->truncate('TRUNCATE `PropertyChoices`');
+			DBQuery::getInstance()->insert('INSERT INTO `PropertyChoices`' . DBUtils2::buildMultipleInsertOnDuplikateKeyUpdate($this->storePropertyChoices));
 		}
 
 		if ($countAmazonList > 0)
 		{
 			$this->getLogger()->info(__FUNCTION__ . " : storing $countAmazonList amazon list records ...");
+			DBQuery::getInstance()->truncate('TRUNCATE `PropertyAmazonList`');
+			DBQuery::getInstance()->insert('INSERT INTO `PropertyAmazonList`' . DBUtils2::buildMultipleInsertOnDuplikateKeyUpdate($this->storeAmazonLists));
 		}
-		$this->getLogger()->debug(__FUNCTION__.' STOREDB NOT YET IMPLEMENTED!');
 	}
 }
