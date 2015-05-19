@@ -413,6 +413,26 @@ CREATE TABLE `soap_db`.`Properties` (
   PRIMARY KEY (`PropertyID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+DROP TABLE `soap_db`.`PropertyAmazonList`;
+
+CREATE TABLE `soap_db`.`PropertyAmazonList` (
+  `PropertyID` INT(11) NOT NULL,
+  `AmazonGenre` VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `AmazonCorrelation` VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`PropertyID`, `AmazonGenre`, `AmazonCorrelation`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+DROP TABLE `soap_db`.`PropertyChoices`;
+
+CREATE TABLE `soap_db`.`PropertyChoices` (
+  `PropertyID` INT(11) NOT NULL,
+  `SelectionID` INT(11) DEFAULT NULL,
+  `Name` VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Lang` VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Description` VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`PropertyID`, `SelectionID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 DROP TABLE `soap_db`.`ExtractedProperties`;
 
 CREATE TABLE `soap_db`.`ExtractedProperties` (
