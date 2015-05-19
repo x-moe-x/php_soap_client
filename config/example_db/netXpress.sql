@@ -433,6 +433,20 @@ CREATE TABLE `soap_db`.`PropertyChoices` (
   PRIMARY KEY (`PropertyID`, `SelectionID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+DROP TABLE `soap_db`.`SetPropertyGroups`;
+
+CREATE TABLE `soap_db`.`SetPropertyGroups` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `PropertyGroupID` INT(11) DEFAULT NULL,
+  `BackendName` VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Lang` VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `PropertyGroupTyp` VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `IsMarkupPercental` INT(11) DEFAULT NULL,
+  `FrontendName` VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Description` VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 DROP TABLE `soap_db`.`PropertyGroups`;
 
 CREATE TABLE `soap_db`.`PropertyGroups` (
