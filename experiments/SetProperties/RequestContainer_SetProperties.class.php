@@ -22,6 +22,11 @@ class RequestContainer_SetProperties extends RequestContainer
 		}
 	}
 
+	public function addPropertyChoice(array $propertyChoice, $id)
+	{
+		$this->addSubArray($propertyChoice, $id, 'PropertyChoice');
+	}
+
 	private function addSubArray(array $item, $id, $key)
 	{
 		if (array_key_exists($id, $this->items))
@@ -32,6 +37,11 @@ class RequestContainer_SetProperties extends RequestContainer
 			}
 			$this->items[$id][$key][] = $item;
 		}
+	}
+
+	public function addAmazonList(array $amazonList, $id)
+	{
+		$this->addSubArray($amazonList, $id, 'AmazonList');
 	}
 
 	/**
