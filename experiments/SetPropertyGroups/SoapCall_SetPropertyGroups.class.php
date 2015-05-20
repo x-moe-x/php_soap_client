@@ -39,18 +39,20 @@ class SoapCall_SetPropertyGroups extends PlentySoapCall
 				$request = new RequestContainer_SetPropertyGroups(self::MAX_PROPERTY_GROUP_RECORDS_PER_PAGE);
 
 				// ... fill in data
-				$aWrittenUpdates = array();
-				while (!$request->isFull() && ($aUnwrittenUpdate = $unwrittenPropertyGroupData->fetchAssoc()))
+				$writtenUpdates = array();
+				while (!$request->isFull() && ($unwrittenUpdate = $unwrittenPropertyGroupData->fetchAssoc()))
 				{
+					$propertyGroupID = intval($unwrittenUpdate['PropertyGroupID']);
 					$request->add(array(
-						'BackendName'       => $aUnwrittenUpdate['BackendName'],
-						'Description'       => $aUnwrittenUpdate['Description'],
-						'FrontendName'      => $aUnwrittenUpdate['FrontendName'],
-						'IsMarkupPercental' => $aUnwrittenUpdate['IsMarkupPercental'],
-						'Lang'              => $aUnwrittenUpdate['Lang'],
-						'PropertyGroupID'   => $aUnwrittenUpdate['PropertyGroupID'],
-						'PropertyGroupTyp'  => $aUnwrittenUpdate['PropertyGroupTyp'],
+						'PropertyGroupID'   => $propertyGroupID,
+						'BackendName'       => $unwrittenUpdate['BackendName'],
+						'Lang'              => $unwrittenUpdate['Lang'],
+						'PropertyGroupTyp'  => $unwrittenUpdate['PropertyGroupTyp'],
+						'IsMarkupPercental' => $unwrittenUpdate['IsMarkupPercental'],
+						'FrontendName'      => $unwrittenUpdate['FrontendName'],
+						'Description'       => $unwrittenUpdate['Description'],
 					));
+
 				}
 
 				// 3. write them back via soap
@@ -83,13 +85,13 @@ class SoapCall_SetPropertyGroups extends PlentySoapCall
 	private function getQuery()
 	{
 		return 'SELECT
-  BackendName,
-  Description,
-  FrontendName,
-  IsMarkupPercental,
-  Lang,
   PropertyGroupID,
-  PropertyGroupTyp
+  BackendName,
+  Lang,
+  PropertyGroupTyp,
+  IsMarkupPercental,
+  FrontendName,
+  Description
 FROM SetPropertyGroups WHERE PropertyGroupID NOT IN (' . implode(',', $this->restrictedPropertyGroups) . ')';
 	}
 }
