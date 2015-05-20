@@ -145,7 +145,7 @@ class SoapCall_GetPropertyGroups extends PlentySoapCall
 			'PropertyGroupTyp'  => $propertyGroup->PropertyGroupTyp,
 			'IsMarkupPercental' => $propertyGroup->IsMarkupPercental,
 			'FrontendName'      => $propertyGroup->FrontendName,
-			'Description'       => $propertyGroup->Description,
+			'Description'       => $propertyGroup->Description === '' ? null : $propertyGroup->Description,
 		);
 	}
 
