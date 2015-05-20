@@ -480,12 +480,13 @@ CREATE TABLE `soap_db`.`PropertyChoices` (
 DROP TABLE `soap_db`.`SetPropertyChoices`;
 
 CREATE TABLE `soap_db`.`SetPropertyChoices` (
+  `SelectionID` INT(11) NOT NULL,
   `SetPropertiesID` INT(11) NOT NULL,
-  `SelectionID` INT(11) DEFAULT NULL,
-  `Name` VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `Lang` VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `Description` VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT NULL,
-  PRIMARY KEY (`SetPropertiesID`, `SelectionID`)
+  `Name` VARCHAR(45) COLLATE utf8_unicode_ci NOT NULL,
+  `Lang` VARCHAR(45) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'de',
+  `Description` VARCHAR(45) COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`SelectionID`),
+  UNIQUE KEY `SelectionIDAndPropertiesID` (`SelectionID`,`SetPropertiesID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 DROP TABLE `soap_db`.`SetPropertyGroups`;
