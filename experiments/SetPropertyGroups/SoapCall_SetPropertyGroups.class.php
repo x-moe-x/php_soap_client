@@ -32,6 +32,7 @@ class SoapCall_SetPropertyGroups extends PlentySoapCall
 			$this->getLogger()->debug(__FUNCTION__ . ' found ' . $unwrittenPropertyGroupData->getNumRows() . ' records...');
 
 			// 2. for every 25 updates ...
+			$countWrittenUpdates = 0;
 			for ($page = 0, $maxPage = ceil($unwrittenPropertyGroupData->getNumRows() / self::MAX_PROPERTY_GROUP_RECORDS_PER_PAGE); $page < $maxPage; $page++)
 			{
 
@@ -42,9 +43,8 @@ class SoapCall_SetPropertyGroups extends PlentySoapCall
 				$writtenUpdates = array();
 				while (!$request->isFull() && ($unwrittenUpdate = $unwrittenPropertyGroupData->fetchAssoc()))
 				{
-					$propertyGroupID = intval($unwrittenUpdate['PropertyGroupID']);
 					$request->add(array(
-						'PropertyGroupID'   => $propertyGroupID,
+						'PropertyGroupID'   => $unwrittenUpdate['PropertyGroupID'],
 						'BackendName'       => $unwrittenUpdate['BackendName'],
 						'Lang'              => $unwrittenUpdate['Lang'],
 						'PropertyGroupTyp'  => $unwrittenUpdate['PropertyGroupTyp'],
@@ -53,6 +53,7 @@ class SoapCall_SetPropertyGroups extends PlentySoapCall
 						'Description'       => $unwrittenUpdate['Description'],
 					));
 
+					$writtenUpdates[$unwrittenUpdate['id']] = $unwrittenUpdate;
 				}
 
 				// 3. write them back via soap
@@ -62,18 +63,19 @@ class SoapCall_SetPropertyGroups extends PlentySoapCall
 				if ($response->Success == true)
 				{
 					// ... then delete specified elements from setCurrentStocks
-					//TODO implement after debugging
-					$this->debug(__FUNCTION__ . ' implement: delete written updates from db');
-
-					// ... and update
-					//TODO implement after debugging
-					$this->debug(__FUNCTION__ . ' implement: update written updates in db');
-
+					DBQuery::getInstance()->delete('DELETE FROM SetPropertyGroups WHERE id IN (' . implode(',', array_keys($writtenUpdates)) . ')');
+					$countWrittenUpdates += count($writtenUpdates);
 				} else
 				{
 					// ... otherwise log error and try next request
 					$this->getLogger()->debug(__FUNCTION__ . ' Request Error');
 				}
+			}
+			if ($countWrittenUpdates > 0){
+				// ... and update
+				$this->debug(__FUNCTION__ . ' ... done. Please perform a GetPropertyGroups call afterwards');
+			} else {
+				$this->debug(__FUNCTION__ . ' ... done.');
 			}
 
 		} catch (Exception $e)
@@ -85,6 +87,7 @@ class SoapCall_SetPropertyGroups extends PlentySoapCall
 	private function getQuery()
 	{
 		return 'SELECT
+  id,
   PropertyGroupID,
   BackendName,
   Lang,
