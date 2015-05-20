@@ -10,6 +10,18 @@ class RequestContainer_SetProperties extends RequestContainer
 		parent::__construct($capacity);
 	}
 
+
+	public function add($item, $id)
+	{
+		if (is_array($item))
+		{
+			parent::add(array_merge($item, array(
+				'PropertyChoice' => null,
+				'AmazonList'     => null
+			)), $id);
+		}
+	}
+
 	/**
 	 * returns the assembled request
 	 *
