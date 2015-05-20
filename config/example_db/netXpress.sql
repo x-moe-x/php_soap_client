@@ -413,6 +413,41 @@ CREATE TABLE `soap_db`.`Properties` (
   PRIMARY KEY (`PropertyID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+DROP TABLE `soap_db`.`SetProperties`;
+
+CREATE TABLE `soap_db`.`SetProperties` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `PropertyID`                  INT(11) DEFAULT NULL,
+  `PropertyGroupID`             INT(11) DEFAULT NULL,
+  `PropertyBackendName`         VARCHAR(45) COLLATE utf8_unicode_ci NOT NULL,
+  `PropertyType`                VARCHAR(45) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'empty',
+  `Position`                    INT(11) DEFAULT NULL,
+  `Lang`                        VARCHAR(45) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'de',
+  `PropertyFrontendName`        VARCHAR(45) COLLATE utf8_unicode_ci NOT NULL,
+  `Description`                 VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Searchable`                  INT(11) NOT NULL DEFAULT 0,
+  `ShowInItemList`              INT(11) NOT NULL DEFAULT 0,
+  `ShowInPDF`                   INT(11) NOT NULL DEFAULT 0,
+  `ShowOnItemPage`              INT(11) NOT NULL DEFAULT 0,
+  `PropertyUnit`                VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `OrderProperty`               INT(11) NOT NULL DEFAULT 0,
+  `Markup`                      DECIMAL(10,4) DEFAULT NULL,
+  `Notice`                      VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `BeezUP`                      INT(11) NOT NULL DEFAULT 0,
+  `EbayLayout`                  INT(11) NOT NULL DEFAULT 0,
+  `EbayProperty`                INT(11) NOT NULL DEFAULT 0,
+  `Home24Property`              VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Idealo`                      INT(11) NOT NULL DEFAULT 0,
+  `Kauflux`                     INT(11) NOT NULL DEFAULT 0,
+  `NeckermannComponent`         INT(11) DEFAULT NULL,
+  `NeckermannExternalComponent` INT(11) DEFAULT NULL,
+  `NeckermannLogoId`            INT(11) DEFAULT NULL,
+  `RicardoLayout`               INT(11) NOT NULL DEFAULT 0,
+  `ShopShare`                   INT(11) NOT NULL DEFAULT 0,
+  `Yatego`                      INT(11) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 DROP TABLE `soap_db`.`PropertyAmazonList`;
 
 CREATE TABLE `soap_db`.`PropertyAmazonList` (
@@ -420,6 +455,15 @@ CREATE TABLE `soap_db`.`PropertyAmazonList` (
   `AmazonGenre` VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT NULL,
   `AmazonCorrelation` VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`PropertyID`, `AmazonGenre`, `AmazonCorrelation`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+DROP TABLE `soap_db`.`SetPropertyAmazonList`;
+
+CREATE TABLE `soap_db`.`SetPropertyAmazonList` (
+  `SetPropertiesID` INT(11) NOT NULL,
+  `AmazonGenre` VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `AmazonCorrelation` VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`SetPropertiesID`, `AmazonGenre`, `AmazonCorrelation`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 DROP TABLE `soap_db`.`PropertyChoices`;
@@ -431,6 +475,17 @@ CREATE TABLE `soap_db`.`PropertyChoices` (
   `Lang` VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT NULL,
   `Description` VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`PropertyID`, `SelectionID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+DROP TABLE `soap_db`.`SetPropertyChoices`;
+
+CREATE TABLE `soap_db`.`SetPropertyChoices` (
+  `SetPropertiesID` INT(11) NOT NULL,
+  `SelectionID` INT(11) DEFAULT NULL,
+  `Name` VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Lang` VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Description` VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`SetPropertiesID`, `SelectionID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 DROP TABLE `soap_db`.`SetPropertyGroups`;
