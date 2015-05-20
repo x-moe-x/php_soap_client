@@ -15,4 +15,4 @@ class SoapCall_SetProperties extends PlentySoapCall
 	{
 		// TODO: Implement execute() method.
 	}
-}
+}}
