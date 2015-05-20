@@ -11,6 +11,11 @@ class SoapCall_SetPropertyGroups extends PlentySoapCall
 	 */
 	const MAX_PROPERTY_GROUP_RECORDS_PER_PAGE = 25;
 
+	/**
+	 * @var array
+	 */
+	private $restrictedPropertyGroups = array(1);
+
 	public function __construct()
 	{
 		parent::__construct(__CLASS__);
@@ -85,6 +90,6 @@ class SoapCall_SetPropertyGroups extends PlentySoapCall
   Lang,
   PropertyGroupID,
   PropertyGroupTyp
-FROM SetPropertyGroups';
+FROM SetPropertyGroups WHERE PropertyGroupID NOT IN (' . implode(',', $this->restrictedPropertyGroups) . ')';
 	}
 }
