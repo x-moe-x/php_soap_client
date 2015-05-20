@@ -22,6 +22,18 @@ class RequestContainer_SetProperties extends RequestContainer
 		}
 	}
 
+	private function addSubArray(array $item, $id, $key)
+	{
+		if (array_key_exists($id, $this->items))
+		{
+			if (is_null($this->items[$id][$key]))
+			{
+				$this->items[$id][$key] = array();
+			}
+			$this->items[$id][$key][] = $item;
+		}
+	}
+
 	/**
 	 * returns the assembled request
 	 *
