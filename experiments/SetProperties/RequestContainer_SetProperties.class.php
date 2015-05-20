@@ -46,7 +46,19 @@ class RequestContainer_SetProperties extends RequestContainer
 	 */
 	public function addPropertyChoice(array $propertyChoice, $id)
 	{
-		$this->addSubArray($propertyChoice, $id, 'PropertyChoice');
+		if (array_key_exists($id, $this->items))
+		{
+			if ($this->items[$id]['PropertyType'] === 'selection')
+			{
+				$this->addSubArray($propertyChoice, $id, 'PropertyChoice');
+			} else
+			{
+				throw new RuntimeException('Trying to add PropertyChoice to non-selection record with id: ' . $id);
+			}
+		} else
+		{
+			throw new RuntimeException('Trying to add PropertyChoice to non-existing record with id: ' . $id);
+		}
 	}
 
 	/**
@@ -58,14 +70,12 @@ class RequestContainer_SetProperties extends RequestContainer
 	 */
 	private function addSubArray(array $item, $id, $key)
 	{
-		if (array_key_exists($id, $this->items))
+		if (is_null($this->items[$id][$key]))
 		{
-			if (is_null($this->items[$id][$key]))
-			{
-				$this->items[$id][$key] = array();
-			}
-			$this->items[$id][$key][] = $item;
+			$this->items[$id][$key] = array();
 		}
+		$this->items[$id][$key][] = $item;
+
 	}
 
 	/**
@@ -76,7 +86,13 @@ class RequestContainer_SetProperties extends RequestContainer
 	 */
 	public function addAmazonList(array $amazonList, $id)
 	{
-		$this->addSubArray($amazonList, $id, 'AmazonList');
+		if (array_key_exists($id, $this->items))
+		{
+			$this->addSubArray($amazonList, $id, 'AmazonList');
+		} else
+		{
+			throw new RuntimeException('Trying to add AmazonList to non-existing record with id: ' . $id);
+		}
 	}
 
 	/**
