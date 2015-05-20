@@ -95,6 +95,6 @@ class SoapCall_SetPropertyGroups extends PlentySoapCall
   IsMarkupPercental,
   FrontendName,
   Description
-FROM SetPropertyGroups WHERE PropertyGroupID NOT IN (' . implode(',', $this->restrictedPropertyGroups) . ')';
+FROM SetPropertyGroups WHERE PropertyGroupID IS NULL OR PropertyGroupID NOT IN (' . implode(',', $this->restrictedPropertyGroups) . ')';
 	}
 }
