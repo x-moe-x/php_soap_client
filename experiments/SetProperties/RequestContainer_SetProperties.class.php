@@ -2,15 +2,31 @@
 require_once ROOT . 'includes/RequestContainer.class.php';
 
 
+/**
+ * Class RequestContainer_SetProperties
+ */
 class RequestContainer_SetProperties extends RequestContainer
 {
 
+	/**
+	 * creates a new RequestContainer with a specified capacity
+	 *
+	 * @param int $capacity
+	 *
+	 * @return RequestContainer_SetProperties
+	 */
 	public function __construct($capacity)
 	{
 		parent::__construct($capacity);
 	}
 
-
+	/**
+	 * if container isn't full an item is added at it's end
+	 *
+	 * @param array $item
+	 *
+	 * @param int   $id
+	 */
 	public function add($item, $id)
 	{
 		if (is_array($item))
@@ -22,11 +38,24 @@ class RequestContainer_SetProperties extends RequestContainer
 		}
 	}
 
+	/**
+	 * if record identified by $id exists in container, add $propertyChoice
+	 *
+	 * @param array $propertyChoice
+	 * @param int   $id
+	 */
 	public function addPropertyChoice(array $propertyChoice, $id)
 	{
 		$this->addSubArray($propertyChoice, $id, 'PropertyChoice');
 	}
 
+	/**
+	 * if record identified by $id exists in container, add sub-array $item to given $key
+	 *
+	 * @param array  $item sub-array
+	 * @param int    $id
+	 * @param string $key
+	 */
 	private function addSubArray(array $item, $id, $key)
 	{
 		if (array_key_exists($id, $this->items))
@@ -39,6 +68,12 @@ class RequestContainer_SetProperties extends RequestContainer
 		}
 	}
 
+	/**
+	 * if record identified by $id exists in container, add $amazonList
+	 *
+	 * @param array $amazonList
+	 * @param int   $id
+	 */
 	public function addAmazonList(array $amazonList, $id)
 	{
 		$this->addSubArray($amazonList, $id, 'AmazonList');
@@ -47,7 +82,7 @@ class RequestContainer_SetProperties extends RequestContainer
 	/**
 	 * returns the assembled request
 	 *
-	 * @return mixed
+	 * @return PlentySoapRequest_SetProperties
 	 */
 	public function getRequest()
 	{
@@ -59,11 +94,13 @@ class RequestContainer_SetProperties extends RequestContainer
 		{
 			$property = new PlentySoapObject_SetProperty();
 
+			// fill data to object, override PropertyChoice and AmazonList keys to be processed afterwards
 			fillObjectFromArray($property, $propertyData, array(
 				'PropertyChoice' => null,
 				'AmazonList'     => null,
 			));
 
+			// process PropertyChoice ...
 			if (isset($propertyData['PropertyChoice']) && is_array($propertyData['PropertyChoice']))
 			{
 				$property->PropertyChoice = new ArrayOfPlentysoapobject_setpropertychoice();
@@ -79,6 +116,7 @@ class RequestContainer_SetProperties extends RequestContainer
 				}
 			}
 
+			// process AmazonList ...
 			if (isset($propertyData['AmazonList']) && is_array($propertyData['AmazonList']))
 			{
 				$property->AmazonList = new ArrayOfPlentysoapobject_setpropertyamazon();
