@@ -46,7 +46,7 @@ abstract class RequestContainer
 	{
 		if (count($this->items) < $this->capacity)
 		{
-			if (!is_null($index))
+			if (is_null($index))
 			{
 				$this->items[] = $item;
 			} else {
