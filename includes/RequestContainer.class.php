@@ -38,15 +38,20 @@ abstract class RequestContainer
 	/**
 	 * if container isn't full an item is added at it's end
 	 *
-	 * @param mixed $item
+	 * @param mixed    $item
 	 *
-	 * @return void
+	 * @param null|int $index
 	 */
-	public function add($item)
+	public function add($item, $index = null)
 	{
 		if (count($this->items) < $this->capacity)
 		{
-			$this->items[] = $item;
+			if (!is_null($index))
+			{
+				$this->items[] = $item;
+			} else {
+				$this->items[$index] = $item;
+			}
 		}
 	}
 
