@@ -516,6 +516,17 @@ CREATE TABLE `soap_db`.`PropertyGroups` (
   PRIMARY KEY (`PropertyGroupID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+DROP TABLE `soap_db`.`SetPropertiesToItem`;
+
+CREATE TABLE `soap_db`.`SetPropertiesToItem` (
+	`id`                INT(11) NOT NULL        AUTO_INCREMENT,
+	`ItemId`            INT(11) NOT NULL,
+	`Lang`              VARCHAR(45)	COLLATE utf8_unicode_ci DEFAULT 'de',
+	`PropertyId`        INT(11) NOT NULL,
+	`PropertyItemValue` VARCHAR(45)	COLLATE utf8_unicode_ci DEFAULT NULL,
+	PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 DROP TABLE `soap_db`.`ExtractedProperties`;
 
 CREATE TABLE `soap_db`.`ExtractedProperties` (
