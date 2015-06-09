@@ -19,6 +19,11 @@ class SoapCall_SetProperties extends PlentySoapCall
 		2
 	);
 
+	public function __construct()
+	{
+		parent::__construct(__CLASS__);
+	}
+
 	public function execute()
 	{
 		$this->getLogger()->debug(__FUNCTION__ . ' writing property data ...');
@@ -79,6 +84,11 @@ class SoapCall_SetProperties extends PlentySoapCall
 				$propertyChoicesDBResult = DBQuery::getInstance()->select('SELECT `SetPropertiesID`, `SelectionID`, `Name`, `Lang`, `Description` FROM SetPropertyChoices WHERE SetPropertiesID IN (' . implode(',', $writtenUpdates) . ')');
 				$amazonListChoicesDBResult = DBQuery::getInstance()->select('SELECT `SetPropertiesID`, `AmazonGenre`, `AmazonCorrelation` FROM SetPropertyAmazonList WHERE SetPropertiesID IN (' . implode(',', $writtenUpdates) . ')');
 
+				//TODO check if property choices have unique ids?
+				/* seems to be that SelectionID has to be unique.
+				   If referencing an existing SelectionID it's modified "in place" at the property it's assigned to
+				   and not the property it is set to...
+				 */
 				while ($row = $propertyChoicesDBResult->fetchAssoc())
 				{
 					$request->addPropertyChoice(array(
