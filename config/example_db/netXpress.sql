@@ -527,6 +527,15 @@ CREATE TABLE `soap_db`.`SetPropertiesToItem` (
 	PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+DROP TABLE `soap_db`.`RemovePropertyFromItem`;
+
+CREATE TABLE `soap_db`.`RemovePropertyFromItem` (
+	`id`                INT(11) NOT NULL        AUTO_INCREMENT,
+	`ItemId`            INT(11) NOT NULL,
+	`PropertyId`        INT(11) NOT NULL,
+	PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 DROP TABLE `soap_db`.`ExtractedProperties`;
 
 CREATE TABLE `soap_db`.`ExtractedProperties` (
