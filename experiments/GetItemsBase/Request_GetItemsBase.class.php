@@ -27,7 +27,7 @@ class Request_GetItemsBase
 			'GetCategories'          => true,
 			'GetItemAttributeMarkup' => false,
 			'GetItemOthers'          => false,
-			'GetItemProperties'      => false,
+			'GetItemProperties'      => true,
 			'GetItemSuppliers'       => false,
 			'GetLongDescription'     => true,
 			'GetMetaDescription'     => true,

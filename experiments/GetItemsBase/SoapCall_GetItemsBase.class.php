@@ -46,6 +46,11 @@ class SoapCall_GetItemsBase extends PlentySoapCall
 	private $processedCategories;
 
 	/**
+	 * @var array
+	 */
+	private $processedProperties;
+
+	/**
 	 * @return SoapCall_GetItemsBase
 	 */
 	public function __construct()
@@ -54,6 +59,7 @@ class SoapCall_GetItemsBase extends PlentySoapCall
 		$this->processedItemsBases = array();
 		$this->processedAttributeValueSets = array();
 		$this->avsMarkedForDeletion = array();
+		$this->processedProperties = array();
 	}
 
 	/**
@@ -202,7 +208,7 @@ class SoapCall_GetItemsBase extends PlentySoapCall
 			/*	'ItemAttributeMarkup'		=> $oItemsBase->ItemAttributeMarkup,	ignored since not part of the request	*/
 			'ItemID'              => $itemID,
 			'ItemNo'              => $itemsBase->ItemNo,
-			/*	'ItemProperties'			=> $oItemsBase->ItemProperties,	ignored since not part of the request	*/
+			/*	'ItemProperties'			=> $oItemsBase->ItemProperties,	skipped here and stored to separate table	*/
 			/*	'ItemSuppliers'				=> $oItemsBase->ItemSuppliers,	skipped since handled by another request	*/
 			/*	'ItemURL'					=> $oItemsBase->ItemURL,	ignored since not part of the request	*/
 			'LastUpdate'          => $itemsBase->LastUpdate,
@@ -243,11 +249,11 @@ class SoapCall_GetItemsBase extends PlentySoapCall
 			{
 				foreach ($itemsBase->AttributeValueSets->item as $attributeValueSet)
 				{
-					$this->processAttributeValueSet($itemsBase->ItemID, $attributeValueSet);
+					$this->processAttributeValueSet($itemID, $attributeValueSet);
 				}
 			} else
 			{
-				$this->processAttributeValueSet($itemsBase->ItemID, $itemsBase->AttributeValueSets->item);
+				$this->processAttributeValueSet($itemID, $itemsBase->AttributeValueSets->item);
 			}
 		}
 
@@ -257,11 +263,24 @@ class SoapCall_GetItemsBase extends PlentySoapCall
 			/** @var PlentySoapObject_ItemCategory $category */
 			foreach ($itemsBase->Categories->item as $category)
 			{
-				$this->processCategories($itemsBase->ItemID, $category);
+				$this->processCategories($itemID, $category);
 			}
 		} else
 		{
-			$this->processCategories($itemsBase->ItemID, $itemsBase->Categories->item);
+			$this->processCategories($itemID, $itemsBase->Categories->item);
+		}
+
+		// process Properties
+		if (is_array($itemsBase->ItemProperties->item))
+		{
+			/** @var PlentySoapObject_ItemProperty $property */
+			foreach ($itemsBase->ItemProperties->item as $property)
+			{
+				$this->processProperties($itemID, $property);
+			}
+		} else
+		{
+			$this->processProperties($itemID, $itemsBase->ItemProperties->item);
 		}
 	}
 
@@ -309,6 +328,30 @@ class SoapCall_GetItemsBase extends PlentySoapCall
 	}
 
 	/**
+	 * @param int                           $ItemID
+	 * @param PlentySoapObject_ItemProperty $property
+	 */
+	private function processProperties($ItemID, $property)
+	{
+		$this->processedProperties[] = array(
+			'ItemID'                     => $ItemID,
+			'PropertyID'                 => $property->PropertyID,
+			'PropertyGroupID'            => $property->PropertyGroupID,
+			'PropertyGroupBackendName'   => $property->PropertyGroupBackendName,
+			'PropertyGroupFrontendName'  => $property->PropertyGroupFrontendName,
+			'PropertyName'               => $property->PropertyName,
+			'PropertySelectionID'        => $property->PropertySelectionID,
+			'PropertySelectionName'      => $property->PropertySelectionName,
+			'PropertyValue'              => $property->PropertyValue,
+			'PropertyValueLang'          => $property->PropertyValueLang,
+			'ShowInItemListingInWebshop' => $property->ShowInItemListingInWebshop,
+			'ShowInOrderProcess'         => $property->ShowInOrderProcess,
+			'ShowInPdfDocuments'         => $property->ShowInPdfDocuments,
+			'ShowOnItemPageInWebshop'    => $property->ShowOnItemPageInWebshop,
+		);
+	}
+
+	/**
 	 * @return void
 	 */
 	private function executePages()
@@ -346,6 +389,7 @@ class SoapCall_GetItemsBase extends PlentySoapCall
 		$countItemsBases = count($this->processedItemsBases);
 		$countAttributeValueSets = count($this->processedAttributeValueSets);
 		$countCategoriesRecords = count($this->processedCategories);
+		$countProperties = count($this->processedProperties);
 
 		if ($countItemsBases > 0)
 		{
@@ -368,6 +412,14 @@ class SoapCall_GetItemsBase extends PlentySoapCall
 
 			DBQuery::getInstance()->delete('DELETE FROM `ItemsCategories` WHERE `ItemID` IN (\'' . implode('\',\'', array_keys($this->processedItemsBases)) . '\')');
 			DBQuery::getInstance()->insert('INSERT INTO `ItemsCategories`' . DBUtils2::buildMultipleInsertOnDuplikateKeyUpdate($this->processedCategories));
+		}
+
+		if ($countProperties > 0)
+		{
+			$this->getLogger()->info(__FUNCTION__ . " : storing $countProperties records of properties ...");
+
+			DBQuery::getInstance()->delete('DELETE FROM `ItemsProperties` WHERE `ItemID` IN (\'' . implode('\',\'', array_keys($this->processedItemsBases)) . '\')');
+			DBQuery::getInstance()->insert('INSERT INTO `ItemsProperties`' . DBUtils2::buildMultipleInsertOnDuplikateKeyUpdate($this->processedProperties));
 		}
 	}
 

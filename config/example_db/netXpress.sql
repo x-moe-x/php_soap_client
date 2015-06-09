@@ -536,6 +536,26 @@ CREATE TABLE `soap_db`.`RemovePropertyFromItem` (
 	PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+DROP TABLE `soap_db`.`ItemsProperties`;
+
+CREATE TABLE `soap_db`.`ItemsProperties` (
+	`ItemId`                     INT(11) NOT NULL,
+	`PropertyGroupBackendName`   VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`PropertyGroupFrontendName`  VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`PropertyGroupID`            INT(11) DEFAULT NULL,
+	`PropertyID`                 INT(11) DEFAULT NULL,
+	`PropertyName`               VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`PropertySelectionID`        INT(11) DEFAULT NULL,
+	`PropertySelectionName`      VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`PropertyValue`              VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`PropertyValueLang`          VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`ShowInItemListingInWebshop` TINYINT(1) DEFAULT 0,
+	`ShowInOrderProcess`         TINYINT(1) DEFAULT 0,
+	`ShowInPdfDocuments`         TINYINT(1) DEFAULT 0,
+	`ShowOnItemPageInWebshop`    TINYINT(1) DEFAULT 0,
+	PRIMARY KEY (`ItemID`, `PropertyID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 DROP TABLE `soap_db`.`ExtractedProperties`;
 
 CREATE TABLE `soap_db`.`ExtractedProperties` (
