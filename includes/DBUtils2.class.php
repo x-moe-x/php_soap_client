@@ -1,6 +1,5 @@
 <?php
-
-require_once '../lib/db/DBUtils.class.php';
+require_once ROOT . 'lib/db/DBUtils.class.php';
 
 /**
  * Class DBUtils2
