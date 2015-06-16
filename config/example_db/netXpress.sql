@@ -30,7 +30,7 @@ CREATE TABLE `OrderHead` (
 	  `PaidTimestamp` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
 	  `ParentOrderID` int(11) DEFAULT NULL,
 	  `PaymentStatus` int(11) DEFAULT NULL,
-	  `ReferrerID` int(11) DEFAULT NULL,
+	  `ReferrerID` decimal(8,2) DEFAULT NULL,
 	  `RemoteIP` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
 	  `ResponsibleID` int(11) DEFAULT NULL,
 	  `SalesAgentID` int(11) DEFAULT NULL,
@@ -64,7 +64,7 @@ CREATE TABLE `soap_db`.`OrderItem` (
 	`OrderRowID` int(11) DEFAULT NULL,
 	`Price` decimal(10,4) DEFAULT NULL,
 	`Quantity` decimal(8,2) DEFAULT NULL,
-	`ReferrerID` int(11) DEFAULT NULL,
+	`ReferrerID` decimal(8,2) DEFAULT NULL,
 	`SKU` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
 	`SalesOrderProperties` int(11) DEFAULT NULL,
 	`VAT` decimal(8,2) DEFAULT NULL,
@@ -646,7 +646,7 @@ CREATE TABLE `soap_db`.`FailedOrderIDRange` (
 DROP TABLE IF EXISTS `soap_db`.`SalesOrderReferrer`;
 
 CREATE TABLE `soap_db`.`SalesOrderReferrer` (
-	`SalesOrderReferrerID` int(11) NOT NULL,
+	`SalesOrderReferrerID` DECIMAL(8, 2) NOT NULL,
 	`Name` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
 	`PriceColumn` int(11) DEFAULT NULL,
 	PRIMARY KEY (`SalesOrderReferrerID`),

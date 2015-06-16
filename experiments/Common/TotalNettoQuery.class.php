@@ -26,7 +26,7 @@ class TotalNettoQuery
 	 *
 	 * @param DateTime     $startAt
 	 * @param DateInterval $duringBackwardsInterval
-	 * @param int          $referrerId
+	 * @param int|float    $referrerId
 	 *
 	 * @return string query
 	 */
@@ -50,9 +50,9 @@ GROUP BY
 	}
 
 	/**
-	 * @param DateTime     $internalStartAt
-	 * @param DateInterval $duringBackwardsInterval
-	 * @param null         $referrerId
+	 * @param DateTime       $internalStartAt
+	 * @param DateInterval   $duringBackwardsInterval
+	 * @param null|int|float $referrerId
 	 *
 	 * @return string
 	 */
@@ -66,7 +66,7 @@ GROUP BY
 		$toDate = $internalStartAt->format('\'Y-m-d\'');
 		$fromDate = $internalStartAt->sub($duringBackwardsInterval)->format('\'Y-m-d\'');
 
-		$referrerCondition = is_null($referrerId) ? '1' : "(OrderHead.ReferrerID = $referrerId)";
+		$referrerCondition = is_null($referrerId) ? '1' : '(' . ApiHelper::getNormalizedReferrerCondition('OrderHead.ReferrerID', $referrerId) . ')';
 
 		return "$referrerCondition
 AND
@@ -88,7 +88,7 @@ AND
 	 *
 	 * @param DateTime     $startAt
 	 * @param DateInterval $duringBackwardsInterval
-	 * @param int          $referrerId
+	 * @param int|float    $referrerId
 	 *
 	 * @return string query
 	 */

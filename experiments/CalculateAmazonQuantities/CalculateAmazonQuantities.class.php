@@ -92,9 +92,9 @@ class CalculateAmazonQuantities
 
 	/**
 	 *
-	 * @param int $daysBack
-	 * @param int $referrerID *
-	 * @param int $fromTimeStamp
+	 * @param int       $daysBack
+	 * @param int|float $referrerID *
+	 * @param int       $fromTimeStamp
 	 *
 	 * @return string the query
 	 */
@@ -115,7 +115,8 @@ class CalculateAmazonQuantities
 		return "SELECT
 	i.ItemID,
 	i.SKU,
-	SUM(i.Quantity) AS Quantity
+	SUM(i.Quantity) AS Quantity,
+	CAST(CAST(h.ReferrerID AS SIGNED) AS DECIMAL (8,2)) AS NormalizedReferrerID
 FROM
 	OrderItem AS i
 LEFT JOIN
@@ -133,9 +134,10 @@ AND
 AND
 	(h.OrderStatus < 8 OR h.OrderStatus >= 9)
 AND
-	h.ReferrerID = $referrerID
+	" . ApiHelper::getNormalizedReferrerCondition('h.ReferrerID', $referrerID) . "
 GROUP BY
-	i.SKU
+	i.SKU,
+	NormalizedReferrerID
 ORDER BY
 	i.ItemID ASC";
 	}

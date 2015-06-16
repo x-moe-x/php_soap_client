@@ -331,5 +331,14 @@ class ApiHelper {
 
 	}
 
+	/**
+	 * @param string    $referrerIDFieldName
+	 * @param int|float $referrerID
+	 * @return string $referrerIDFieldName BETWEEN
+	 */
+	public static function getNormalizedReferrerCondition($referrerIDFieldName, $referrerID)
+	{
+		$minReferrerID = floor($referrerID);
+		return "$referrerIDFieldName BETWEEN $minReferrerID AND " . ($minReferrerID + 0.99);
+	}
 }
-?>

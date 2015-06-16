@@ -21,9 +21,9 @@ class ApiAmazon
 	const PRICE_COMPARISON_ACCURACY = 0.01;
 
 	/**
-	 * @var int
+	 * @var double
 	 */
-	const AMAZON_REFERRER_ID = 4;
+	const AMAZON_REFERRER_ID = 4.00;
 
 	/**
 	 * echoes json data result for setting $key => $value in Amazon domain
