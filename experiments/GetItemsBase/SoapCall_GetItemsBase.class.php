@@ -51,6 +51,11 @@ class SoapCall_GetItemsBase extends PlentySoapCall
 	private $processedProperties;
 
 	/**
+	 * @var array
+	 */
+	private $processedAvailabilityRecords;
+
+	/**
 	 * @return SoapCall_GetItemsBase
 	 */
 	public function __construct()
@@ -60,6 +65,7 @@ class SoapCall_GetItemsBase extends PlentySoapCall
 		$this->processedAttributeValueSets = array();
 		$this->avsMarkedForDeletion = array();
 		$this->processedProperties = array();
+		$this->processedAvailabilityRecords = array();
 	}
 
 	/**
@@ -166,7 +172,7 @@ class SoapCall_GetItemsBase extends PlentySoapCall
 		$this->processedItemsBases[$itemID] = array(
 			/*	'ASIN'						=> $oItemsBase->ASIN, moved to AttributeValueSets in 109 api definition	*/
 			/*	'AttributeValueSets'		=> $oItemsBase->AttributeValueSets,	skipped here and stored to separate table	*/
-			/*	'Availability'				=> $oItemsBase->Availability,	currently considered irrelevant	*/
+			/*	'Availability'				=> $oItemsBase->Availability, skipped here and stored to separate table	*/
 			'BundleType'          => $itemsBase->BundleType,
 			/*	'Categories'				=> $oItemsBase->Categories,	skipped here and stored to separate table	*/
 			'Condition'           => $itemsBase->Condition,
@@ -282,6 +288,9 @@ class SoapCall_GetItemsBase extends PlentySoapCall
 		{
 			$this->processProperties($itemID, $itemsBase->ItemProperties->item);
 		}
+
+		// process Availability
+		$this->processAvailability($itemID, $itemsBase->Availability);
 	}
 
 	/**
@@ -352,6 +361,61 @@ class SoapCall_GetItemsBase extends PlentySoapCall
 	}
 
 	/**
+	 * @param int                               $itemID
+	 * @param PlentySoapObject_ItemAvailability $availability
+	 */
+	private function processAvailability($itemID, $availability)
+	{
+		$this->processedAvailabilityRecords[] = array(
+			'ItemID'                     => $itemID,
+			'AmazonFBA'                  => $availability->AmazonFBA,
+			'AmazonFEDAS'                => $availability->AmazonFEDAS,
+			'AmazonMultichannel'         => $availability->AmazonMultichannel,
+			'AmazonMultichannelCom'      => $availability->AmazonMultichannelCom,
+			'AmazonMultichannelDe'       => $availability->AmazonMultichannelDe,
+			'AmazonMultichannelEs'       => $availability->AmazonMultichannelEs,
+			'AmazonMultichannelFr'       => $availability->AmazonMultichannelFr,
+			'AmazonMultichannelIt'       => $availability->AmazonMultichannelIt,
+			'AmazonMultichannelUk'       => $availability->AmazonMultichannelUk,
+			'AmazonProduct'              => $availability->AmazonProduct,
+			'AvailabilityID'             => $availability->AvailabilityID,
+			'AvailableUntil'             => $availability->AvailableUntil,
+			'CouchCommerce'              => $availability->CouchCommerce,
+			'GartenXXL'                  => $availability->GartenXXL,
+			'Gimahhot'                   => $availability->Gimahhot,
+			'GoogleBase'                 => $availability->GoogleBase,
+			'Grosshandel'                => $availability->Grosshandel,
+			'Hitmeister'                 => $availability->Hitmeister,
+			'Hood'                       => $availability->Hood,
+			'Inactive'                   => $availability->Inactive,
+			'IntervalSalesOrderQuantity' => $availability->IntervalSalesOrderQuantity,
+			'Laary'                      => $availability->Laary,
+			'MaximumSalesOrderQuantity'  => $availability->MaximumSalesOrderQuantity,
+			'MeinPaket'                  => $availability->MeinPaket,
+			'Mercateo'                   => $availability->Mercateo,
+			'MinimumSalesOrderQuantity'  => $availability->MinimumSalesOrderQuantity,
+			'Moebelprofi'                => $availability->Moebelprofi,
+			'Neckermann'                 => $availability->Neckermann,
+			'Otto'                       => $availability->Otto,
+			'PlusDe'                     => $availability->PlusDe,
+			'Quelle'                     => $availability->Quelle,
+			'Restposten'                 => $availability->Restposten,
+			'ShopShare'                  => $availability->ShopShare,
+			'Shopgate'                   => $availability->Shopgate,
+			'Shopperella'                => $availability->Shopperella,
+			'SumoScout'                  => $availability->SumoScout,
+			'Tradoria'                   => $availability->Tradoria,
+			'TradoriaCategory'           => $availability->TradoriaCategory,
+			'Twenga'                     => $availability->Twenga,
+			'WebAPI'                     => $availability->WebAPI,
+			'Webshop'                    => $availability->Webshop,
+			'Yatego'                     => $availability->Yatego,
+			'Zalando'                    => $availability->Zalando,
+			'Zentralverkauf'             => $availability->Zentralverkauf,
+		);
+	}
+
+	/**
 	 * @return void
 	 */
 	private function executePages()
@@ -396,6 +460,7 @@ class SoapCall_GetItemsBase extends PlentySoapCall
 			$this->getLogger()->info(__FUNCTION__ . " : storing $countItemsBases items base records ...");
 
 			DBQuery::getInstance()->insert('INSERT INTO `ItemsBase`' . DBUtils2::buildMultipleInsertOnDuplikateKeyUpdate($this->processedItemsBases));
+			DBQuery::getInstance()->insert('INSERT INTO `ItemsAvailability`' . DBUtils2::buildMultipleInsertOnDuplikateKeyUpdate($this->processedAvailabilityRecords));
 		}
 
 		if ($countAttributeValueSets > 0)
