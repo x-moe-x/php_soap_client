@@ -283,6 +283,57 @@ CREATE TABLE `soap_db`.`ItemsBase` (
 	UNIQUE KEY `unique_key` (`ItemNo`, `EAN1`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+DROP TABLE `soap_db`.`ItemsAvailability`;
+
+CREATE TABLE `soap_db`.`ItemsAvailability` (
+	`ItemID` int(11) NOT NULL,
+	`AmazonFBA` int(11) DEFAULT NULL,
+	`AmazonFEDAS` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`AmazonMultichannel` TINYINT(1) DEFAULT 0,
+	`AmazonMultichannelCom` TINYINT(1) DEFAULT 0,
+	`AmazonMultichannelDe` TINYINT(1) DEFAULT 0,
+	`AmazonMultichannelEs` TINYINT(1) DEFAULT 0,
+	`AmazonMultichannelFr` TINYINT(1) DEFAULT 0,
+	`AmazonMultichannelIt` TINYINT(1) DEFAULT 0,
+	`AmazonMultichannelUk` TINYINT(1) DEFAULT 0,
+	`AmazonProduct` int(11) DEFAULT NULL,
+	`AvailabilityID` int(11) DEFAULT NULL,
+	`AvailableUntil` int(11) DEFAULT NULL,
+	`CouchCommerce` int(11) DEFAULT NULL,
+	`GartenXXL` int(11) DEFAULT NULL,
+	`Gimahhot` int(11) DEFAULT NULL,
+	`GoogleBase` int(11) DEFAULT NULL,
+	`Grosshandel` int(11) DEFAULT NULL,
+	`Hitmeister` int(11) DEFAULT NULL,
+	`Hood` int(11) DEFAULT NULL,
+	`Inactive` int(11) DEFAULT NULL,
+	`IntervalSalesOrderQuantity` int(11) DEFAULT NULL,
+	`Laary` int(11) DEFAULT NULL,
+	`MaximumSalesOrderQuantity` int(11) DEFAULT NULL,
+	`MeinPaket` int(11) DEFAULT NULL,
+	`Mercateo` int(11) DEFAULT NULL,
+	`MinimumSalesOrderQuantity` int(11) DEFAULT NULL,
+	`Moebelprofi` int(11) DEFAULT NULL,
+	`Neckermann` int(11) DEFAULT NULL,
+	`Otto` int(11) DEFAULT NULL,
+	`PlusDe` int(11) DEFAULT NULL,
+	`Quelle` int(11) DEFAULT NULL,
+	`Restposten` int(11) DEFAULT NULL,
+	`ShopShare` int(11) DEFAULT NULL,
+	`Shopgate` int(11) DEFAULT NULL,
+	`Shopperella` int(11) DEFAULT NULL,
+	`SumoScout` int(11) DEFAULT NULL,
+	`Tradoria` int(11) DEFAULT NULL,
+	`TradoriaCategory` int(11) DEFAULT NULL,
+	`Twenga` int(11) DEFAULT NULL,
+	`WebAPI` int(11) DEFAULT NULL,
+	`Webshop` int(11) DEFAULT NULL,
+	`Yatego` int(11) DEFAULT NULL,
+	`Zalando` int(11) DEFAULT NULL,
+	`Zentralverkauf` int(11) DEFAULT NULL,
+	PRIMARY KEY (`ItemID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 DROP TABLE IF EXISTS `soap_db`.`SetItemsTexts`;
 
 CREATE TABLE `soap_db`.`SetItemsTexts` (
