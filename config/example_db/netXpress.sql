@@ -189,6 +189,23 @@ CREATE TABLE `soap_db`.`SetLinkedItems` (
 	PRIMARY KEY (`ItemID`, `LinkedItemID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+DROP TABLE `soap_db`.`ItemsTexts`;
+
+CREATE TABLE `soap_db`.`ItemsTexts` (
+	`ItemID` INT(11) DEFAULT NULL,
+	`Name` TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Name2` TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Name3` TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
+	`ShortDescription` TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
+	`LongDescription` TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
+	`MetaDescription` TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
+	`TechnicalData` TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
+	`ItemDescriptionKeywords` TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Lang` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`UrlContent` TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
+	PRIMARY KEY (`ItemID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 DROP TABLE `soap_db`.`ItemsBase`;
 
 CREATE TABLE `soap_db`.`ItemsBase` (
@@ -347,7 +364,7 @@ CREATE TABLE `soap_db`.`SetItemsTexts` (
 	`LongDescription`          TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
 	`TechnicalData`            TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
 	`MetaDescription`          TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
-	`UrlContent`               VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`UrlContent`               TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
 	`DeleteAllExistingEntries` TINYINT(1) DEFAULT 0,
 	PRIMARY KEY (`ItemID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
