@@ -23,7 +23,7 @@ abstract class RequestContainer
 	 *
 	 * @return RequestContainer
 	 */
-	protected function __construct($capacity)
+	public function __construct($capacity)
 	{
 		$this->items = array();
 		$this->capacity = $capacity;
