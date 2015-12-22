@@ -358,7 +358,7 @@ CREATE TABLE `soap_db`.`SetItemsTexts` (
 	`Name`                     TEXT	COLLATE utf8_unicode_ci DEFAULT NULL,
 	`Name2`                    TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
 	`Name3`                    TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
-	`Lang`                     VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Lang`                     VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT 'de',
 	`ItemDescriptionKeywords`  TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
 	`ShortDescription`         TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
 	`LongDescription`          TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
@@ -539,9 +539,9 @@ DROP TABLE `soap_db`.`PropertyChoices`;
 CREATE TABLE `soap_db`.`PropertyChoices` (
   `PropertyID` INT(11) NOT NULL,
   `SelectionID` INT(11) DEFAULT NULL,
-  `Name` VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `Lang` VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `Description` VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Name` TEXT	COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Lang` VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT 'de',
+  `Description` TEXT	COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`PropertyID`, `SelectionID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
