@@ -22,7 +22,7 @@ class ExtractProperties extends NX_Executable
 
 		while ($currentItem = $dbResult->fetchAssoc())
 		{
-			$htmlString = mb_convert_encoding(preg_replace(["/\\\\n\\s*/"], [''], $currentItem['TechnicalData']), 'HTML-ENTITIES', 'UTF-8');
+			$htmlString = mb_convert_encoding(preg_replace(["/\\\\n\\s*|\\t/"], [''], $currentItem['TechnicalData']), 'HTML-ENTITIES', 'UTF-8');
 			$dom = new DOMDocument();
 			$dom->loadHtml($htmlString);
 
