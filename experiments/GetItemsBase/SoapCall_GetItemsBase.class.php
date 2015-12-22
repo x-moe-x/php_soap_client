@@ -216,7 +216,7 @@ class SoapCall_GetItemsBase extends PlentySoapCall
 			'ItemNo'              => $itemsBase->ItemNo,
 			/*	'ItemProperties'			=> $oItemsBase->ItemProperties,	skipped here and stored to separate table	*/
 			/*	'ItemSuppliers'				=> $oItemsBase->ItemSuppliers,	skipped since handled by another request	*/
-			/*	'ItemURL'					=> $oItemsBase->ItemURL,	ignored since not part of the request	*/
+			'ItemURL'             => $itemsBase->ItemURL,
 			'LastUpdate'          => $itemsBase->LastUpdate,
 			'Marking1ID'          => $itemsBase->Marking1ID,
 			'Marking2ID'          => $itemsBase->Marking2ID,

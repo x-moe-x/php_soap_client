@@ -33,6 +33,7 @@ class Request_GetItemsBase
 			'GetMetaDescription'     => true,
 			'GetShortDescription'    => true,
 			'GetTechnicalData'       => true,
+			'GetItemURL'             => true,
 			'Marking1ID'             => null,
 			'Marking2ID'             => null,
 			'CategoriePath'          => null,
@@ -40,7 +41,6 @@ class Request_GetItemsBase
 			'ExternalItemID'         => null,
 			'ItemNo'                 => null,
 			'Lang'                   => null,
-			'GetItemURL'             => null,
 			'Gimahhot'               => null,
 			'GoogleProducts'         => null,
 			'Hitmeister'             => null,
@@ -62,10 +62,18 @@ class Request_GetItemsBase
 			'WebAPI'                 => null,
 			'Webshop'                => null,
 			'Yatego'                 => null,
-			'Zalando'                => null
+			'Zalando'                => null,
+			'CouchCommerce'          => null,
+			'GetCategoryNames'       => null,
+			'Grosshandel'            => null,
+			'Hood'                   => null,
+			'Otto'                   => null,
+			'PlusDe'                 => null,
+			'StoreID'                => null,
+			'Twenga'                 => null,
+			'CallItemsLimit'         => null,
 		));
 
 		return $request;
 	}
-
 }
