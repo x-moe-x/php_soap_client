@@ -46,6 +46,8 @@ class SoapCall_SetItemsFreeTextFields extends PlentySoapCall
 					$requestContainer->add($currentTextData);
 				}
 
+				$this->debug(__FUNCTION__ . ' writing page ' . ($page + 1) . ' of ' . $maxPage);
+
 				// do soap call to plenty
 				$response = $this->getPlentySoap()->SetItemsFreeTextFields($requestContainer->getRequest());
 

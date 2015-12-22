@@ -56,6 +56,8 @@ class CalculateAmazonWeightenedRunningCosts
 	 */
 	public function execute()
 	{
+		$this->getLogger()->debug(__FUNCTION__ . ' ... starting');
+
 		$groups = $this->prepareGroups();
 
 		// 1. get amazon specific total netto and shipping revenue
