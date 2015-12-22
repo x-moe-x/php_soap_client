@@ -6,7 +6,8 @@ require_once 'RequestContainer_SetItemsFreeTextFields.class.php';
 /**
  * Class SoapCall_SetItemsFreeTextFields
  */
-class SoapCall_SetItemsFreeTextFields extends PlentySoapCall {
+class SoapCall_SetItemsFreeTextFields extends PlentySoapCall
+{
 	/**
 	 * @var int
 	 */
@@ -15,8 +16,9 @@ class SoapCall_SetItemsFreeTextFields extends PlentySoapCall {
 	/**
 	 * @return SoapCall_SetItemsFreeTextFields
 	 */
-	public function __construct() {
-		parent::__construct( __CLASS__ );
+	public function __construct()
+	{
+		parent::__construct(__CLASS__);
 	}
 
 	/**
@@ -24,35 +26,42 @@ class SoapCall_SetItemsFreeTextFields extends PlentySoapCall {
 	 *
 	 * @return void
 	 */
-	public function execute() {
-		$this->debug( __FUNCTION__ . ' writing ItemsFreeTexts...' );
-		try {
+	public function execute()
+	{
+		$this->debug(__FUNCTION__ . ' writing ItemsFreeTexts...');
+		try
+		{
 			// get all free text fields for items to be written
-			$oDBResult = DBQuery::getInstance()->select( 'SELECT * FROM `SetItemsFreeTextFields`' );
+			$oDBResult = DBQuery::getInstance()->select('SELECT * FROM `SetItemsFreeTextFields`');
 
 			// for every 100 Items ...
-			for ( $page = 0, $maxPage = ceil( $oDBResult->getNumRows() / self::MAX_ITEMS_PER_PAGES ); $page < $maxPage; $page ++ ) {
+			for ($page = 0, $maxPage = ceil($oDBResult->getNumRows() / self::MAX_ITEMS_PER_PAGES); $page < $maxPage; $page++)
+			{
 				// ... prepare a separate request ...
 				$requestContainer = new RequestContainer_SetItemsFreeTextFields();
 
 				// ... fill in data
-				while ( ! $requestContainer->isFull() && ( $currentTextData = $oDBResult->fetchAssoc() ) ) {
-					$requestContainer->add( $currentTextData );
+				while (!$requestContainer->isFull() && ($currentTextData = $oDBResult->fetchAssoc()))
+				{
+					$requestContainer->add($currentTextData);
 				}
 
 				// do soap call to plenty
-				$response = $this->getPlentySoap()->SetItemsFreeTextFields( $requestContainer->getRequest() );
+				$response = $this->getPlentySoap()->SetItemsFreeTextFields($requestContainer->getRequest());
 
 				// ... if successful ...
-				if ( $response->Success == true ) {
+				if ($response->Success == true)
+				{
 					// ... be quiet ...
-				} else {
+				} else
+				{
 					// ... otherwise log error and try next request
-					$this->getLogger()->debug( __FUNCTION__ . ' Request Error' );
+					$this->getLogger()->debug(__FUNCTION__ . ' Request Error');
 				}
 			}
-		} catch ( Exception $e ) {
-			$this->onExceptionAction( $e );
+		} catch (Exception $e)
+		{
+			$this->onExceptionAction($e);
 		}
 	}
 }

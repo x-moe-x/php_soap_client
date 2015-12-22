@@ -50,7 +50,8 @@ abstract class RequestContainer
 			if (is_null($index))
 			{
 				$this->items[] = $item;
-			} else {
+			} else
+			{
 				$this->items[$index] = $item;
 			}
 		}

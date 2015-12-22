@@ -60,7 +60,11 @@ class ExtractTechData
 		{
 
 			// skip unnecessary articles
-			if (in_array($row['ItemID'], array(906, 909, 910)))
+			if (in_array($row['ItemID'], array(
+				906,
+				909,
+				910
+			)))
 			{
 				continue;
 			}
@@ -82,7 +86,11 @@ class ExtractTechData
 			$this->filterHTML($bodyNode, $dom, $itemID, explode(';', $row['ItemCategoryPath']));
 
 			// check remaining body nodes for unwanted elements
-			if (self::containsUnwantedElements($bodyNode, array('font', 'h2')))
+			if (self::containsUnwantedElements($bodyNode, array(
+				'font',
+				'h2'
+			))
+			)
 			{
 				$this->getLogger()->debug(__FUNCTION__ . ' unwanted elements detected for regular item ' . $row['ItemID']);
 				echo tidy_repair_string(str_replace('</br>', '', $bodyNode->C14N()), self::$tidyConfig, 'utf8') . "\n";
@@ -352,12 +360,18 @@ class ExtractTechData
 		{
 			if ($parent && trim($node->textContent) === '' && $node->nodeName !== 'br')
 			{
-				$removeNodes[] = ['parent' => $parent, 'child' => $node];
+				$removeNodes[] = [
+					'parent' => $parent,
+					'child'  => $node
+				];
 
 				return false;
 			} else if ($node->nodeName === 'br' && $previousNode && $previousNode->nodeName === 'br')
 			{
-				$removeNodes[] = ['parent' => $parent, 'child' => $node];
+				$removeNodes[] = [
+					'parent' => $parent,
+					'child'  => $node
+				];
 
 				return false;
 			}
@@ -377,7 +391,10 @@ class ExtractTechData
 		{
 			if ($parent && $node->nodeName === 'br' && ($first || $last))
 			{
-				$removeNodes[] = ['parent' => $parent, 'child' => $node];
+				$removeNodes[] = [
+					'parent' => $parent,
+					'child'  => $node
+				];
 
 				return false;
 			}
@@ -396,12 +413,20 @@ class ExtractTechData
 		{
 			if ($parent && trim($node->textContent) === 'Hinweis:')
 			{
-				$changeNodes[] = ['parent' => $parent, 'child' => $node, 'changeTo' => 'quality_notice'];
+				$changeNodes[] = [
+					'parent'   => $parent,
+					'child'    => $node,
+					'changeTo' => 'quality_notice'
+				];
 
 				return false;
 			} elseif ($parent && $node->nodeName === 'span' && $node->hasAttributes() && $node->attributes->getNamedItem('style') != null && strpos($node->attributes->getNamedItem('style')->nodeValue, 'bold') !== false)
 			{
-				$changeNodes[] = ['parent' => $parent, 'child' => $node, 'changeTo' => 'strong'];
+				$changeNodes[] = [
+					'parent'   => $parent,
+					'child'    => $node,
+					'changeTo' => 'strong'
+				];
 
 				return false;
 			}
