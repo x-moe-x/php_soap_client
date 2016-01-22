@@ -548,13 +548,13 @@ CREATE TABLE `soap_db`.`PropertyChoices` (
 DROP TABLE `soap_db`.`SetPropertyChoices`;
 
 CREATE TABLE `soap_db`.`SetPropertyChoices` (
-  `SelectionID` INT(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `SelectionID` INT(11) DEFAULT NULL,
   `SetPropertiesID` INT(11) NOT NULL,
   `Name` VARCHAR(45) COLLATE utf8_unicode_ci NOT NULL,
   `Lang` VARCHAR(45) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'de',
   `Description` VARCHAR(45) COLLATE utf8_unicode_ci NOT NULL,
-  PRIMARY KEY (`SelectionID`),
-  UNIQUE KEY `SelectionIDAndPropertiesID` (`SelectionID`,`SetPropertiesID`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 DROP TABLE `soap_db`.`SetPropertyGroups`;
@@ -631,7 +631,19 @@ CREATE TABLE `soap_db`.`ExtractedProperties` (
 	`ItemID` INT(11) DEFAULT NULL,
 	`Key`    VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT NULL,
 	`Value`  TEXT COLLATE utf8_unicode_ci,
-	PRIMARY KEY (`RecordID`)
+	PRIMARY KEY (`RecordID`),
+	UNIQUE KEY `idx_name` (`ItemID`,`Key`,`Value`(255))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+DROP TABLE `soap_db`.`ExtractedJansenProperties`;
+
+CREATE TABLE `soap_db`.`ExtractedJansenProperties` (
+	`RecordID` int(11) NOT NULL AUTO_INCREMENT,
+	`EAN` VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Key`    VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Value`  TEXT COLLATE utf8_unicode_ci,
+	PRIMARY KEY (`RecordID`),
+	UNIQUE KEY `idx_name` (`EAN`,`Key`,`Value`(255))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 DROP TABLE `soap_db`.`PropertySiblings`;

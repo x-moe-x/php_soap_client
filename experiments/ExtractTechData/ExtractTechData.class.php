@@ -54,7 +54,30 @@ class ExtractTechData
 	 */
 	public function execute()
 	{
-		$dbResult = DBQuery::getInstance()->select('SELECT i.ItemID, i.LongDescription, ic.ItemCategoryPath FROM ItemsBase AS i JOIN ItemsCategories AS ic ON i.ItemID = ic.ItemID WHERE Inactive = 0 AND (BundleType IS NULL OR BundleType != "bundle_item")');
+		//$dbResult = DBQuery::getInstance()->select('SELECT i.ItemID, i.LongDescription, ic.ItemCategoryPath FROM ItemsBase AS i JOIN ItemsCategories AS ic ON i.ItemID = ic.ItemID WHERE Inactive = 0 AND (BundleType IS NULL OR BundleType != "bundle_item")');
+		//TODO remove after debugging
+		$dbResult = DBQuery::getInstance()->select('SELECT
+	i.ItemID,
+	i.LongDescription,
+	ic.ItemCategoryPath
+FROM
+	ItemsBase AS i
+JOIN
+	ItemsCategories AS ic
+ON
+	i.ItemID = ic.ItemID
+JOIN
+	ItemsAvailability AS a
+ON
+	i.ItemID = a.ItemID
+WHERE
+	i.Inactive = 0
+AND
+	a.Webshop = 1
+AND
+	i.BundleType = "bundle_item"
+AND
+	i.LongDescription LIKE "<h2>%"');
 
 		while ($row = $dbResult->fetchAssoc())
 		{

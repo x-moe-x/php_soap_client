@@ -44,6 +44,7 @@ class SoapCall_SetProperties extends PlentySoapCall
 
 				// ... fill in data
 				$writtenUpdates = array();
+				$writtenPropertieIDs = array();
 				while (!$request->isFull() && ($unwrittenUpdate = $unwrittenPropertyData->fetchAssoc()))
 				{
 					$id = intval($unwrittenUpdate['id']);
@@ -76,13 +77,14 @@ class SoapCall_SetProperties extends PlentySoapCall
 						'RicardoLayout'               => $unwrittenUpdate['RicardoLayout'],
 						'ShopShare'                   => $unwrittenUpdate['ShopShare'],
 						'Yatego'                      => $unwrittenUpdate['Yatego'],
-					), $id);
+					), $unwrittenUpdate['PropertyID']);
 
 					$writtenUpdates[] = $id;
+					$writtenPropertieIDs[] = $unwrittenUpdate['PropertyID'];
 				}
 
-				$propertyChoicesDBResult = DBQuery::getInstance()->select('SELECT `SetPropertiesID`, `SelectionID`, `Name`, `Lang`, `Description` FROM SetPropertyChoices WHERE SetPropertiesID IN (' . implode(',', $writtenUpdates) . ')');
-				$amazonListChoicesDBResult = DBQuery::getInstance()->select('SELECT `SetPropertiesID`, `AmazonGenre`, `AmazonCorrelation` FROM SetPropertyAmazonList WHERE SetPropertiesID IN (' . implode(',', $writtenUpdates) . ')');
+				$propertyChoicesDBResult = DBQuery::getInstance()->select('SELECT `SetPropertiesID`, `SelectionID`, `Name`, `Lang`, `Description` FROM SetPropertyChoices WHERE SetPropertiesID IN (' . implode(',', $writtenPropertieIDs) . ')');
+				$amazonListChoicesDBResult = DBQuery::getInstance()->select('SELECT `SetPropertiesID`, `AmazonGenre`, `AmazonCorrelation` FROM SetPropertyAmazonList WHERE SetPropertiesID IN (' . implode(',', $writtenPropertieIDs) . ')');
 
 				//TODO check if property choices have unique ids?
 				/* seems to be that SelectionID has to be unique.
@@ -108,6 +110,7 @@ class SoapCall_SetProperties extends PlentySoapCall
 				}
 
 				// 3. write them back via soap
+				//die(print_r($request->getRequest()));
 				$response = $this->getPlentySoap()->SetProperties($request->getRequest());
 
 				// 4. if successful ...
@@ -171,5 +174,10 @@ class SoapCall_SetProperties extends PlentySoapCall
   Yatego
 FROM SetProperties
 WHERE PropertyID IS NULL OR PropertyID NOT IN (' . implode(',', $this->restrictedProperties) . ')';
+	}
+
+	public function onExceptionAction($e)
+	{
+		parent::onExceptionAction($e);
 	}
 }

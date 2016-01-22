@@ -21,9 +21,6 @@ class SoapCall_GetSalesOrderReferrer extends PlentySoapCall
 		parent::__construct(__CLASS__);
 
 		$this->processedSalesOrderReferrer = array();
-
-		// truncate table to prevent old leftovers
-		DBQuery::getInstance()->truncate('TRUNCATE TABLE `SalesOrderReferrer`');
 	}
 
 	/**
@@ -94,8 +91,17 @@ class SoapCall_GetSalesOrderReferrer extends PlentySoapCall
 	 */
 	private function storeToDB()
 	{
-		$this->debug(__FUNCTION__ . ' storing ' . count($this->processedSalesOrderReferrer) . ' SalesOrderReferrer to db');
-		DBQuery::getInstance()->insert('INSERT INTO `SalesOrderReferrer`' . DBUtils2::buildMultipleInsertOnDuplikateKeyUpdate($this->processedSalesOrderReferrer));
+		$countSalesOrderReferrer = count($this->processedSalesOrderReferrer);
+
+		if ($countSalesOrderReferrer > 0)
+		{
+			$this->debug(__FUNCTION__ . " storing $countSalesOrderReferrer SalesOrderReferrer to db");
+			// truncate table to prevent old leftovers
+			DBQuery::getInstance()->begin();
+			DBQuery::getInstance()->truncate('TRUNCATE TABLE `SalesOrderReferrer`');
+			DBQuery::getInstance()->insert('INSERT INTO `SalesOrderReferrer`' . DBUtils2::buildMultipleInsertOnDuplikateKeyUpdate($this->processedSalesOrderReferrer));
+			DBQuery::getInstance()->commit();
+		}
 	}
 
 }
