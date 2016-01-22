@@ -1,0 +1,85 @@
+ItemCategoryPath,Name,Count,Kategorie,Unterkategorie,Produkt,Material1,Material2,Coating
+265;266,Bannerdisplay%einseitig,3,Bannersysteme,Bannerdisply,BD,Aluminium (Rahmen),,eloxiert (Rahmen)
+265;266,Bannerdisplay%Digitaldruck,3,Bannersysteme,Bannerdisply,BD + Druck,Aluminium (Rahmen),Block-Out-Banner 200 µm (Druck),eloxiert (Rahmen)
+265;267,Bannerprofil%,11,Bannersysteme,Bannerprofile,*,Aluminium (Rahmen),,eloxiert (Rahmen)
+265;268,RollUp%einseitig,2,Bannersysteme,RollUp,RullUp,Aluminium (Rahmen),,eloxiert (Rahmen)
+265;268,RollUp%Digitaldruck,2,Bannersysteme,RollUp,RullUp + Druck,Aluminium (Rahmen),Block-Out-Banner 200 µm (Druck),eloxiert (Rahmen)
+294;303,Plakat%Backlit%,5,Digitaldruck,Backlit,*,Backlit-Film 215 µm (translucent),,
+294;298,PVC-Banner mit Ösen%Gittergewebe%,3,Digitaldruck,Banner (mit Ösen),Meshbanner,PVC-Gittergewebe 260 g/qm,,
+294;298,PVC-Banner mit Ösen%Frontlit 440%,3,Digitaldruck,Banner (mit Ösen),PVC-Banner leicht,Frontlit 440 g/qm,,
+294;298,PVC-Banner mit Ösen%Frontlit 550%,3,Digitaldruck,Banner (mit Ösen),PVC-Banner schwer,Frontlit 550 g/qm,,
+294;297,Digitaldruck für%,5,Digitaldruck,Banner (Rollup / Display),Digitaldruck,Block-Out-Banner 200 µm,,
+294;299,%PVC-Folie%,5,Digitaldruck,Folienaufkleber,PVC,PVC-Folie 80 µm (opaque),,
+294;301,Plakat%,6,Digitaldruck,Plakat (Papier),*,Papier 120 g/qm,,
+294;295,Plakat%,9,Digitaldruck,Plakat (PVC wetterfest),*,PVC 440 g/qm,,
+294;302,Vinylplakat%,5,Digitaldruck,Plakat (selbstklebend),*,Vinylfolie 80 µm (translucent),,
+294;300,Faltschild%,3,Digitaldruck,Plattendruck (wetterfest),Faltschild,Hohlkammer-PVC 3mm,,
+294;300,Forex%,3,Digitaldruck,Plattendruck (wetterfest),Forexplatte,"Forex-Hartschaum, 2mm",,
+294;300,Hohlkammer%,2,Digitaldruck,Plattendruck (wetterfest),Hohlkammerplatte,Hohlkammer-PVC 3mm,,
+363,Fahrradständer%,3,Fahrradständer,*,*,Stahl,,verzinkt
+362,Flipchart%,3,Flipcharts,*,*,Metall,,pulverbeschichtet
+242,Kundenstopper%CLASSIC%25mm%,1,Kundenstopper,*,"Classic, 25mm",Aluminium (Rahmen),schlagfester Kunststoff (Rückwand),eloxiert (Rahmen)
+242,Kundenstopper%CLASSIC%32mm%,5,Kundenstopper,*,"Classic, 32mm m Toprahmen",Aluminium (Rahmen),"rostfreies, verzinktes Metall (Rückwand)",eloxiert (Rahmen)
+242,Kundenstopper%CLASSIC%Toprahmen,3,Kundenstopper,*,"Classic, 32mm",Aluminium (Rahmen),"rostfreies, verzinktes Metall (Rückwand)",eloxiert (Rahmen)
+242,Kundenstopper%COMFORT%,1,Kundenstopper,*,Comfort,Aluminium (Rahmen),Metall (Rückwand),eloxiert (Rahmen)
+242,Kundenstopper%COMPASSO%,8,Kundenstopper,*,Compasso,Aluminium (Rahmen),"rostfreies, verzinktes Metall (Rückwand)",eloxiert (Rahmen)
+242,%TRI-BOARD%,3,Kundenstopper,*,Triboard,Aluminium (Rahmen),"rostfreies, verzinktes Metall (Rückwand)",eloxiert (Rahmen)
+242,Kundenstopper%WINDTALKER%,7,Kundenstopper,*,Windtalker,Aluminium (Rahmen),Kunststoff (Rückwand),eloxiert (Rahmen)
+351,%Kreidetafel%,20,"Kundenstopper / Taflen, Holz",*,Kreidetafel,Holz,,Lackiert (Rahmen)
+351,Kundenstopper Holz%,4,"Kundenstopper / Taflen, Holz",*,Holzkundenstopper,Holz,,Lackiert (Rahmen)
+248,%ARCUATO%,9,Leuchtkästen / -säulen,*,Arcuato,Aluminium (Rahmen),Kunststoff (Rückwand),eloxiert (Rahmen)
+248,Leuchtrahmen Posterlight%,14,Leuchtkästen / -säulen,*,*,Aluminium (Rahmen),Kunststoff (Rückwand),eloxiert (Rahmen)
+361,Absperrständer%,1,Personenleitsystem,*,Ständer f. Kordel,Stahl,,gebürstet
+361,Gurtbandsystem%chrom%,1,Personenleitsystem,*,"Ständer m. Gurtband, chrom",Stahl,,verchromt
+361,Gurtbandsystem%schwarz%,1,Personenleitsystem,*,"Ständer m. Gurtband, schwarz",Stahl,,pulverbeschichtet
+260;263,%Infoboard%,4,Plakatständer / Infoständer,*,Infoboard,Aluminium (Rahmen),Metall (Ablage),"eloxiert (Rahmen), pulverbeschichtet (Ablage)"
+260;262,%Infopole%Ablage%,4,Plakatständer / Infoständer,*,Infopole mit Ablage,Aluminium (Rahmen),Metall (Ablage),"eloxiert (Rahmen), pulverbeschichtet (Ablage)"
+260;262,Plakatständer InfoPole 70x100 G25 beidseitig,1,Plakatständer / Infoständer,*,Infopole ohne Ablage,Aluminium (Rahmen),schlagfester Kunststoff (Rückwand),eloxiert (Rahmen)
+260;262,Plakatständer InfoPole 70x100 G25 einseitig,1,Plakatständer / Infoständer,*,Infopole ohne Ablage,Aluminium (Rahmen),schlagfester Kunststoff (Rückwand),eloxiert (Rahmen)
+260;262,Plakatständer InfoPole DIN A1 beidseitig,1,Plakatständer / Infoständer,*,Infopole ohne Ablage,Aluminium (Rahmen),schlagfester Kunststoff (Rückwand),eloxiert (Rahmen)
+260;262,Plakatständer InfoPole DIN A1 einseitig,1,Plakatständer / Infoständer,*,Infopole ohne Ablage,Aluminium (Rahmen),schlagfester Kunststoff (Rückwand),eloxiert (Rahmen)
+260;261,%MenuBoard%,7,Plakatständer / Infoständer,*,Menuboard,Aluminium (Rahmen),Metall (Rückwand),eloxiert (Rahmen)
+256;257,Prospektständer DIN%,6,Prospektständer (Boden),ohne Plakat,Prospektständer,Aluminium (Ständer),glasklares Polystyrol (Prospekthalter),eloxiert (Ständer)
+256;257,%Zic Zac%,1,Prospektständer (Boden),ohne Plakat,ZicZac,Aluminium (Ständer),,eloxiert (Ständer)
+256;259,%,9,Prospektständer (Boden),Prospektregale,*,Aluminium (Rahmen),Metall (Ablage),"eloxiert (Rahmen), pulverbeschichtet (Ablage)"
+279,%prospekthalter%,45,Prospektständer (Tisch / Wand),*,*,glasklares Polystyrol (Prospekthalter),,
+329;349,%DeskWindo%,2,Rahmensysteme,DeskWindo,*,Kunststoff,,
+329;340,%appendo%,1,Rahmensysteme,Drahtseil-Spannsystem,*,transparentes Acryl (Rahmen),Stahl (Halteseil),
+329;341,%memorail%,2,Rahmensysteme,Einschubleisten,*,Aluminium (Rahmen),,eloxiert (Rahmen)
+329;339,Doppelseitiger Einschubrahmen%,9,Rahmensysteme,Einschubrahmen Alu,*,Aluminium (Rahmen),Kunststoff (Rückwand),eloxiert (Rahmen)
+329;343,Alu-Bilderrahmen%,4,Rahmensysteme,"Bilderrahmen Alu","Bilderrahmen Alu","Aluminium (Rahmen)","glasklares Polystyrol (Scheibe)","gebürstetes (Rahmen)"
+329;348,%FloorWindo%,3,Rahmensysteme,FloorWindo,*,Kunststoff,,
+329;330,%CLASSIC%rot,7,Rahmensysteme,Klapprahmen Alu,Classic rot,Aluminium (Rahmen),schlagfester Kunststoff (Rückwand),pulverbeschichtet
+329;330,%CLASSIC%blau,7,Rahmensysteme,Klapprahmen Alu,Classic blau,Aluminium (Rahmen),schlagfester Kunststoff (Rückwand),pulverbeschichtet
+329;330,%CLASSIC%schwarz,7,Rahmensysteme,Klapprahmen Alu,Classic schwarz,Aluminium (Rahmen),schlagfester Kunststoff (Rückwand),pulverbeschichtet
+329;330,%CLASSIC%gold,7,Rahmensysteme,Klapprahmen Alu,Classic gold,Aluminium (Rahmen),schlagfester Kunststoff (Rückwand),pulverbeschichtet
+329;330,%CLASSIC%weiß,7,Rahmensysteme,Klapprahmen Alu,Classic weiß,Aluminium (Rahmen),schlagfester Kunststoff (Rückwand),pulverbeschichtet
+329;330,%CLASSIC%doppelseitig%,7,Rahmensysteme,Klapprahmen Alu,Classic doppelseitig,Aluminium (Rahmen),schlagfester Kunststoff (Rückwand),eloxiert (Rahmen)
+329;330,%CLASSIC%Profil,17,Rahmensysteme,Klapprahmen Alu,Classic silber,Aluminium (Rahmen),schlagfester Kunststoff (Rückwand),eloxiert (Rahmen)
+329;330,"%CLASSIC%Profil, B1 Norm%",13,Rahmensysteme,"Klapprahmen Alu","Classic silber, B1","Aluminium (Rahmen)","schlagfester Kunststoff (Rückwand)","eloxiert (Rahmen)"
+329;330,%Compasso%,12,Rahmensysteme,Klapprahmen Alu,Compasso,Aluminium (Rahmen),schlagfester Kunststoff (Rückwand),eloxiert (Rahmen)
+329;330,Fenster-Klapprahmen%,12,Rahmensysteme,Klapprahmen Alu,Fensterklapprahmen,Aluminium (Rahmen),,eloxiert (Rahmen)
+329;338,Posterleisten Alu%,9,Rahmensysteme,Posterleisten,Alu,Aluminium (Rahmen),,eloxiert (Rahmen)
+329;338,Posterleisten PVC%,2,Rahmensysteme,Posterleisten,PVC,PVC,,
+329;350,%Posterstretch%,7,Rahmensysteme,Spannrahmen,*,Aluminium (Rahmen),,eloxiert (Rahmen)
+305;320,%,8,Schaukasten,Z-Line,*,Aluminium (Rahmen),magnethaftendes Metall (Rückwand),"eloxiert (Rahmen), Marker-beschreibbare Beschichtung (Rückwand)"
+305;308,%,16,Schaukasten,"XS indoor",*,"Aluminium (Rahmen)","magnethaftendes Metall (Rückwand)","eloxiert (Rahmen), Marker-beschreibbare Beschichtung (Rückwand)"
+305;312,%,6,Schaukasten,P Outdoo,*,Aluminium (Rahmen),magnethaftendes Metall (Rückwand),"eloxiert (Rahmen), Marker-beschreibbare Beschichtung (Rückwand)"
+305;310,%,9,Schaukasten,SL indoor,*,Aluminium (Rahmen),magnethaftendes Metall (Rückwand),"eloxiert (Rahmen), Marker-beschreibbare Beschichtung (Rückwand)"
+305;306,%,14,Schaukasten,s outdoor,*,Aluminium (Rahmen),magnethaftendes Metall (Rückwand),"eloxiert (Rahmen), Marker-beschreibbare Beschichtung (Rückwand)"
+305;309,%,10,Schaukasten,t outdoor,*,Aluminium (Rahmen),magnethaftendes Metall (Rückwand),"eloxiert (Rahmen), Marker-beschreibbare Beschichtung (Rückwand)"
+305;318,%,12,Schaukasten,t outdoor ständer,*,Aluminium (Rahmen),magnethaftendes Metall (Rückwand),"eloxiert (Rahmen), Marker-beschreibbare Beschichtung (Rückwand)"
+305;313,%,40,Schaukasten,t outdoor color,*,Aluminium (Rahmen),magnethaftendes Metall (Rückwand),pulverbeschichtet
+305;428,%,10,Schaukasten,t outdoor led,*,Aluminium (Rahmen),magnethaftendes Metall (Rückwand),"eloxiert (Rahmen), Marker-beschreibbare Beschichtung (Rückwand)"
+354;357,%,1,Türschilder / Namensschilder,Acrylpostertaschen,*,transparentes Acryl (Rahmen),,
+354;360,%,2,Türschilder / Namensschilder,Namensschilder,*,glasklares Polystyrol,,
+354;358,%,14,Türschilder / Namensschilder,Türschilder Acryl,*,transparentes Acryl (Rahmen),Aluminium (Halterung),eloxiert (Halterung)
+354;355,%,20,Türschilder / Namensschilder,Türschilder CURVED,*,Aluminium (Rahmen),,eloxiert (Rahmen)
+354;356,%,11,Türschilder / Namensschilder,Türschilder SNAP,*,Aluminium (Rahmen),Kunststoff (Rückwand),eloxiert (Rahmen)
+354;359,%,2,Türschilder / Namensschilder,Türschildhalterung Alu,*,Aluminium,,eloxiert
+292,Visitenkartenhalter%,7,Visitenkartenhalter,*,*,glasklares Polystyrol (Prospekthalter),,
+284,%aufsteller%,53,"Werbeaufsteller (Acryl)",*,*,"transparentes Acryl (Rahmen)",,
+365,%,-1,Werbeplakate nach *,*,*,Papier 250 g/qm,,
+408,%,-1,Werbeplakate nach *,*,*,Papier 250 g/qm,,
+321,Whiteboard%Email%,6,Whiteboards,*,Email,Stahl,,beschreibbar emailliert (Oberfläche)
+321,Whiteboard%Lack%,6,Whiteboards,*,Lack,Stahl,,beschreibbar lackiert (Oberfäche)
