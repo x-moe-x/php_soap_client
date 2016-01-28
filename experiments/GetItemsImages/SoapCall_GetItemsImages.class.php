@@ -3,6 +3,7 @@
 require_once ROOT . 'lib/soap/call/PlentySoapCall.abstract.php';
 require_once 'Request_GetItemsImages.class.php';
 require_once ROOT . 'includes/DBLastUpdate.php';
+require_once ROOT . 'includes/DBUtils2.class.php';
 
 /**
  * Class SoapCall_GetItemsImages
@@ -41,7 +42,7 @@ class SoapCall_GetItemsImages extends PlentySoapCall
 	public function __construct()
 	{
 		parent::__construct(__CLASS__);
-		$this->$processedItemsImages = array();
+		$this->processedItemsImages = array();
 	}
 
 	/**
@@ -126,7 +127,7 @@ class SoapCall_GetItemsImages extends PlentySoapCall
 	 */
 	private function processItemsImage($itemsImage)
 	{
-		$this->processedItemsImages[] = array(
+		$processedImage = array(
 			'ItemID'     => $itemsImage->ItemID,
 			'ImageID'    => $itemsImage->ImageID,
 			'ImageURL'   => $itemsImage->ImageURL,
@@ -134,9 +135,16 @@ class SoapCall_GetItemsImages extends PlentySoapCall
 			'ImageType'  => $itemsImage->ImageType,
 			'LastUpdate' => $itemsImage->LastUpdate,
 			'UploadTime' => $itemsImage->UploadTime,
-			'Names'      => $itemsImage->Names,
-			'References' => $itemsImage->References
+			//'Names'      => $itemsImage->Names,
+			//'References' => $itemsImage->References
 		);
+		if (isset($itemsImage->Names) && isset($itemsImage->Names->item)){
+			$processedImage['Names'] = serialize($itemsImage->Names->item);
+		}
+		if (isset($itemsImage->References) && isset($itemsImage->References->item)){
+			$processedImage['References'] = serialize($itemsImage->References->item);
+		}
+		$this->processedItemsImages[] = $processedImage;
 	}
 
 	/**
@@ -176,8 +184,7 @@ class SoapCall_GetItemsImages extends PlentySoapCall
 		{
 			$this->getLogger()->info(__FUNCTION__ . " : storing $countItemsImages items image records ...");
 
-			DBQuery::getInstance()->insert('INSERT INTO `ItemsBase`' . DBUtils2::buildMultipleInsertOnDuplikateKeyUpdate($this->processedItemsBases));
+			DBQuery::getInstance()->insert('INSERT INTO `ItemsImages`' . DBUtils2::buildMultipleInsertOnDuplikateKeyUpdate($this->processedItemsImages));
 		}
 	}
-
 }
