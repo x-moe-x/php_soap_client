@@ -655,6 +655,21 @@ CREATE TABLE `soap_db`.`PropertySiblings` (
 	PRIMARY KEY (`RecordID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+DROP TABLE `soap_db`.`ItemsImages`;
+
+CREATE TABLE `soap_db`.`ItemsImages` (
+	`ItemID`     int(11) NOT NULL,
+	`ImageID`    int(11) NOT NULL,
+	`ImageURL`   TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Position`   int(11) NOT NULL,
+	`ImageType`  VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`LastUpdate` VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`UploadTime` VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Names`      TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
+	`References` TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
+	PRIMARY KEY (`ImageID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 DROP TABLE `soap_db`.`CalculatedDailyNeeds`;
 
 CREATE TABLE `soap_db`.`CalculatedDailyNeeds` (
