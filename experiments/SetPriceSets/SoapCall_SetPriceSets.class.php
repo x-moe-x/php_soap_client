@@ -10,16 +10,10 @@ require_once 'RequestContainer_SetPriceSets.class.php';
  */
 class SoapCall_SetPriceSets extends PlentySoapCall
 {
-
 	/**
 	 * @var int
 	 */
 	const MAX_PRICE_SETS_PER_PAGE = 100;
-
-	/**
-	 * @var string
-	 */
-	private $identifier4Logger;
 
 	/**
 	 * @var int
@@ -31,8 +25,7 @@ class SoapCall_SetPriceSets extends PlentySoapCall
 	 */
 	public function __construct()
 	{
-		$this->identifier4Logger = __CLASS__;
-
+		parent::__construct(__CLASS__);
 		$this->currentTimeStamp = time();
 	}
 
@@ -51,7 +44,7 @@ class SoapCall_SetPriceSets extends PlentySoapCall
 	 */
 	public function execute()
 	{
-		$this->getLogger()->debug(__FUNCTION__ . ' writing price updates ...');
+		$this->debug(__FUNCTION__ . ' writing price updates ...');
 		try
 		{
 			// 1. get all price updates
@@ -60,9 +53,8 @@ class SoapCall_SetPriceSets extends PlentySoapCall
 			// 2. for every 100 updates ...
 			for ($page = 0, $maxPage = ceil($unwrittenUpdatesDBResult->getNumRows() / self::MAX_PRICE_SETS_PER_PAGE); $page < $maxPage; $page++)
 			{
-
 				// ... prepare a separate request ...
-				$oRequest_SetPriceSets = new RequestContainer_SetPriceSets();
+				$oRequest_SetPriceSets = new RequestContainer_SetPriceSets(self::MAX_PRICE_SETS_PER_PAGE);
 
 				// ... fill in data
 				$aPriceUpdateHistoryEntries = array();
@@ -77,7 +69,6 @@ class SoapCall_SetPriceSets extends PlentySoapCall
 						$currentPriceName => $aUnwrittenUpdate['NewPrice'] * (1 + $aUnwrittenUpdate['VAT'] / 100)
 					));
 
-					// @formatter:off
 					$aPriceUpdateHistoryEntries[] = array(
 						'ItemID'           => $aUnwrittenUpdate['ItemID'],
 						'PriceID'          => $aUnwrittenUpdate['PriceID'],
@@ -91,7 +82,6 @@ class SoapCall_SetPriceSets extends PlentySoapCall
 						'PriceID'         => $aUnwrittenUpdate['PriceID'],
 						$currentPriceName => $aUnwrittenUpdate['NewPrice'] * (1 + $aUnwrittenUpdate['VAT'] / 100)
 					);
-					// @formatter:on
 
 				}
 
@@ -116,7 +106,7 @@ class SoapCall_SetPriceSets extends PlentySoapCall
 				} else
 				{
 					// ... otherwise log error and try next request
-					$this->getLogger()->debug(__FUNCTION__ . ' Request Error');
+					$this->debug(__FUNCTION__ . ' Request Error');
 				}
 			}
 		} catch (Exception $e)

@@ -3,16 +3,11 @@
 require_once ROOT . 'includes/FillObjectFromArray.php';
 require_once ROOT . 'includes/RequestContainer.class.php';
 
+/**
+ * Class RequestContainer_SetPriceSets
+ */
 class RequestContainer_SetPriceSets extends RequestContainer
 {
-	/**
-	 * @return RequestContainer_SetPriceSets
-	 */
-	public function __construct()
-	{
-		parent::__construct(SoapCall_SetPriceSets::MAX_PRICE_SETS_PER_PAGE);
-	}
-
 	/**
 	 * returns the assembled request
 	 *
