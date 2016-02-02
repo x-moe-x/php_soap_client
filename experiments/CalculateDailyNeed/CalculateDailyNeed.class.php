@@ -2,6 +2,7 @@
 
 require_once ROOT . 'lib/db/DBQuery.class.php';
 require_once ROOT . 'lib/db/DBQueryResult.class.php';
+require_once ROOT . 'includes/NX_Executable.abstract.php';
 require_once ROOT . 'includes/SKUHelper.php';
 require_once ROOT . 'includes/GetConfig.php';
 require_once ROOT . 'includes/DBUtils2.class.php';
@@ -10,13 +11,8 @@ require_once ROOT . 'includes/DBUtils2.class.php';
  * @author    x-moe-x
  * @copyright net-xpress GmbH & Co. KG www.net-xpress.com
  */
-class CalculateDailyNeed
+class CalculateDailyNeed extends NX_Executable
 {
-	/**
-	 * @var string
-	 */
-	private $identifier4Logger = '';
-
 	/**
 	 * @var array
 	 */
@@ -38,7 +34,8 @@ class CalculateDailyNeed
 	 */
 	public function __construct()
 	{
-		$this->identifier4Logger = __CLASS__;
+
+		parent::__construct(__CLASS__);
 
 		$this->currentTime = time();
 
@@ -155,15 +152,6 @@ GROUP BY
 	OrderItem.SKU
 ORDER BY
 	ItemID" . PHP_EOL;
-	}
-
-	/**
-	 *
-	 * @return Logger
-	 */
-	protected function getLogger()
-	{
-		return Logger::instance($this->identifier4Logger);
 	}
 
 	/**
