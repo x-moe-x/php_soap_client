@@ -4,9 +4,9 @@ require_once ROOT . 'includes/FillObjectFromArray.php';
 require_once ROOT . 'includes/RequestContainer.class.php';
 
 /**
- * Class RequestContainer_SetPriceSets
+ * Class RequestContainer_UpdatePriceSets
  */
-class RequestContainer_SetPriceSets extends RequestContainer
+class RequestContainer_UpdatePriceSets extends RequestContainer
 {
 	/**
 	 * returns the assembled request

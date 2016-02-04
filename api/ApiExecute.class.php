@@ -128,7 +128,7 @@ class ApiExecute
 	/**
 	 * @var string
 	 */
-	const SET_ITEMS_PRICE_SETS = 'setItemsPriceSets';
+	const UPDATE_ITEMS_PRICE_SETS = 'setItemsPriceSets';
 
 	/**
 	 * @var string
@@ -180,7 +180,7 @@ class ApiExecute
 		self::RESET_ARTICLES,
 		self::RESET_ORDERS,
 		self::CALCULATE_AMAZON_RUNNING_COSTS,
-		self::SET_ITEMS_PRICE_SETS,
+		self::UPDATE_ITEMS_PRICE_SETS,
 		self::RESET_PRICE_UPDATES
 	);
 
@@ -483,10 +483,11 @@ class ApiExecute
 						'SetItemsSuppliers',
 					));
 					break;
-				case self::SET_ITEMS_PRICE_SETS :
+				case self::UPDATE_ITEMS_PRICE_SETS :
 					NetXpressSoapExperimentLoader::getInstance()->run(array(
 						'',
-						'SetPriceSets',
+						'UpdatePriceSets',
+						'UpdatePriceSets',
 					));
 					break;
 				case self::SET_ITEMS_WAREHOUSE_SETTINGS :
@@ -565,7 +566,7 @@ class ApiExecute
 							self::executeTasks(array(
 								self::SET_ITEMS_SUPPLIERS,
 								self::SET_ITEMS_WAREHOUSE_SETTINGS,
-								self::SET_ITEMS_PRICE_SETS,
+								self::UPDATE_ITEMS_PRICE_SETS,
 							));
 							break;
 						default :

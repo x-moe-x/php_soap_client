@@ -3,12 +3,12 @@
 require_once ROOT . 'lib/soap/call/PlentySoapCall.abstract.php';
 require_once ROOT . 'api/ApiHelper.class.php';
 require_once ROOT . 'includes/DBUtils2.class.php';
-require_once 'RequestContainer_SetPriceSets.class.php';
+require_once 'RequestContainer_UpdatePriceSets.class.php';
 
 /**
- * Class SoapCall_SetPriceSets
+ * Class UpdatePriceSets
  */
-class SoapCall_SetPriceSets extends PlentySoapCall
+class UpdatePriceSets extends PlentySoapCall
 {
 	/**
 	 * @var int
@@ -21,7 +21,7 @@ class SoapCall_SetPriceSets extends PlentySoapCall
 	private $currentTimeStamp;
 
 	/**
-	 * @return SoapCall_SetPriceSets
+	 * @return UpdatePriceSets
 	 */
 	public function __construct()
 	{
@@ -54,7 +54,7 @@ class SoapCall_SetPriceSets extends PlentySoapCall
 			for ($page = 0, $maxPage = ceil($unwrittenUpdatesDBResult->getNumRows() / self::MAX_PRICE_SETS_PER_PAGE); $page < $maxPage; $page++)
 			{
 				// ... prepare a separate request ...
-				$oRequest_SetPriceSets = new RequestContainer_SetPriceSets(self::MAX_PRICE_SETS_PER_PAGE);
+				$oRequest_SetPriceSets = new RequestContainer_UpdatePriceSets(self::MAX_PRICE_SETS_PER_PAGE);
 
 				// ... fill in data
 				$aPriceUpdateHistoryEntries = array();
