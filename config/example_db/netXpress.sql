@@ -157,6 +157,35 @@ CREATE TABLE `soap_db`.`SetContentPage` (
 	PRIMARY KEY (`CategoryID`, `WebstoreID` , `Lang`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+DROP TABLE `soap_db`.`SetItemsBase`;
+
+CREATE TABLE `soap_db`.`SetItemsBase` (
+	`ItemID` INT(11) NOT NULL,
+	`ItemNo` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`EAN1` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`EAN2` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`EAN3` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`EAN4` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`ISBN` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`ExternalItemID` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Condition` INT(11) DEFAULT NULL,
+	`CustomsTariffNumber` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`FSK` INT(11) DEFAULT NULL,
+	`Marking1ID` INT(11) DEFAULT NULL,
+	`Marking2ID` INT(11) DEFAULT NULL,
+	`Model` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Position` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Others_Position` INT(11) DEFAULT NULL,
+	`ProducerID` INT(11) DEFAULT NULL,
+	`ProducingCountryID` INT(11) DEFAULT NULL,
+	`Published` INT(11) DEFAULT NULL,
+	`Type` INT(11) DEFAULT NULL,
+	`VATInternalID` INT(11) DEFAULT NULL,
+	`WebShopSpecial` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`DeleteStoreIDs` TINYINT(1) DEFAULT 0,
+	PRIMARY KEY (`ItemID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 DROP TABLE `soap_db`.`MetaConfig`;
 
 CREATE TABLE `soap_db`.`MetaConfig` (
