@@ -123,6 +123,11 @@ class ApiExecute
 	/**
 	 * @var string
 	 */
+	const SET_ITEMS_BASE = 'setItemsBase';
+
+	/**
+	 * @var string
+	 */
 	const SET_ITEMS_WAREHOUSE_SETTINGS = 'setItemsWarehouseSettings';
 
 	/**
@@ -494,6 +499,12 @@ class ApiExecute
 					NetXpressSoapExperimentLoader::getInstance()->run(array(
 						'',
 						'SetItemsWarehouseSettings',
+					));
+					break;
+				case self::SET_ITEMS_BASE :
+					NetXpressSoapExperimentLoader::getInstance()->run(array(
+						'',
+						'SetItemsBase',
 					));
 					break;
 				case self::SET_CURRENT_STOCKS :
