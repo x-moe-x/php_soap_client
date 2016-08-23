@@ -38,6 +38,11 @@ class ApiExecute
 	/**
 	 * @var string
 	 */
+	const PREPARE_UPDATE_ITEM_POSITIONS = 'prepareUpdateItemPositions';
+
+	/**
+	 * @var string
+	 */
 	const UPDATE_WAREHOUSE_LIST = 'updateWarehouseList';
 
 	/**
@@ -134,6 +139,11 @@ class ApiExecute
 	 * @var string
 	 */
 	const UPDATE_ITEMS_PRICE_SETS = 'setItemsPriceSets';
+
+	/**
+	 * @var string
+	 */
+	const UPDATE_ITEM_POSITIONS = 'updateItemPositions';
 
 	/**
 	 * @var string
@@ -501,6 +511,12 @@ class ApiExecute
 						'SetItemsWarehouseSettings',
 					));
 					break;
+				case self::PREPARE_UPDATE_ITEM_POSITIONS :
+					NetXpressSoapExperimentLoader::getInstance()->run(array(
+						'PrepareUpdateItemPositions',
+						'PrepareUpdateItemPositions',
+					));
+					break;
 				case self::SET_ITEMS_BASE :
 					NetXpressSoapExperimentLoader::getInstance()->run(array(
 						'',
@@ -528,6 +544,12 @@ class ApiExecute
 					break;
 				case self::RESET_PRICE_UPDATES :
 					DBQuery::getInstance()->truncate('TRUNCATE `PriceUpdate`');
+					break;
+				case self::UPDATE_ITEM_POSITIONS :
+					self::executeTasks(array(
+						self::PREPARE_UPDATE_ITEM_POSITIONS,
+						self::SET_ITEMS_BASE
+					));
 					break;
 				case self::DAILY_TASK :
 					self::executeTasks(array(
