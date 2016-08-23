@@ -175,6 +175,7 @@ CREATE TABLE `soap_db`.`SetItemsBase` (
 	`Marking2ID` INT(11) DEFAULT NULL,
 	`Model` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
 	`Position` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Others_Position` INT(11) DEFAULT NULL,
 	`ProducerID` INT(11) DEFAULT NULL,
 	`ProducingCountryID` INT(11) DEFAULT NULL,
 	`Published` INT(11) DEFAULT NULL,
