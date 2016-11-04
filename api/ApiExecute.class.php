@@ -584,6 +584,7 @@ class ApiExecute
 						self::SET_ITEMS_SUPPLIERS,
 						self::SET_ITEMS_WAREHOUSE_SETTINGS,
 						self::JANSEN_STOCK_UPDATE_TOTAL,
+						self::UPDATE_ITEM_POSITIONS,
 						self::PRICE_CORRECTION,
 					));
 					break;

@@ -221,7 +221,8 @@ class SoapCall_GetItemsBase extends PlentySoapCall
 			'Marking1ID'          => $itemsBase->Marking1ID,
 			'Marking2ID'          => $itemsBase->Marking2ID,
 			'Model'               => $itemsBase->Model,
-			/*	'Others'					=> $oItemsBase->Others,	ignored since not part of the request	*/
+			/*	'Others'					=> $oItemsBase->Others,	ignored except position	*/
+            'Others_Position'     => $itemsBase->Others->Position,
 			/*	'ParcelServicePresetIDs'	=> $oItemsBase->ParcelServicePresetIDs,*/
 			/*	'PriceSet'					=> $oItemsBase->PriceSet,	currently considered irrelevant	*/
 			'ProducerID'          => $itemsBase->ProducerID,
