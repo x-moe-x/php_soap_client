@@ -52,7 +52,8 @@ class SoapCall_SetPriceSets extends PlentySoapCall
 				}
 			}
 
-			//TODO delete updated price sets from db
+			// cleanup
+			DBQuery::getInstance()->truncate("TRUNCATE SetPriceSets");
 		} catch (Exception $e)
 		{
 			$this->onExceptionAction($e);

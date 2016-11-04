@@ -1,4 +1,5 @@
 <?php
+require_once ROOT . 'includes/FillObjectFromArray.php';
 require_once ROOT . 'includes/RequestContainer.class.php';
 
 /**
