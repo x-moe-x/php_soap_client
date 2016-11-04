@@ -186,23 +186,6 @@ CREATE TABLE `soap_db`.`SetItemsBase` (
 	PRIMARY KEY (`ItemID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
-DROP TABLE `soap_db`.`GetItemCategoryCatalog`;
-
-CREATE TABLE `soap_db`.`GetItemCategoryCatalog` (
-	`CategoryID` INT(11) NOT NULL,
-	`Image1` TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
-	`Image2` TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
-	`Lang` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
-	`MetaDescription` TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
-	`MetaKeywords` TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
-	`MetaTitle` TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
-	`Name` TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
-	`NameURL` TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
-	`Position` INT(11) DEFAULT NULL,
-	`Text` TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
-	PRIMARY KEY (`CategoryID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
 DROP TABLE `soap_db`.`MetaConfig`;
 
 CREATE TABLE `soap_db`.`MetaConfig` (
