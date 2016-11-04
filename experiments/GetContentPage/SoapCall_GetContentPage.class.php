@@ -199,6 +199,7 @@ class SoapCall_GetContentPage extends PlentySoapCall
 						'LastUpdateTimestamp'    => $response->LastUpdateTimestamp,
 						'LastUpdateUser'         => $response->LastUpdateUser,
 					);
+					DBQuery::getInstance()->set("SET @temp=" . $contentPageId);
 				} else
 				{
 					$contentPageMisses++;
