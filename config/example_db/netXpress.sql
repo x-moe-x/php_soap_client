@@ -738,6 +738,53 @@ CREATE TABLE `soap_db`.`WriteBackSuggestion` (
 	PRIMARY KEY (`ItemID`, `AttributeValueSetID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+DROP TABLE `soap_db`.`SetPriceSets`;
+
+CREATE TABLE `soap_db`.`SetPriceSets` (
+	`PriceSetID` int(11) NOT NULL,
+	`CustomsPercental` DECIMAL(10,4) DEFAULT NULL,
+	`ExtraShippingCharge1` DECIMAL(10,4) DEFAULT NULL,
+	`ExtraShippingCharge2` DECIMAL(10,4) DEFAULT NULL,
+	`HeightInMM` int(11) DEFAULT NULL,
+	`LengthInMM` int(11) DEFAULT NULL,
+	`Lot` DECIMAL(10,4) DEFAULT NULL,
+	`OperatingCostsPercental` DECIMAL(10,4) DEFAULT NULL,
+	`Package` int(11) DEFAULT NULL,
+	`PackagingUnit` VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Position` int(11) DEFAULT NULL,
+	`Price` DECIMAL(10,4) DEFAULT NULL,
+	`Price1` DECIMAL(10,4) DEFAULT NULL,
+	`Price2` DECIMAL(10,4) DEFAULT NULL,
+	`Price3` DECIMAL(10,4) DEFAULT NULL,
+	`Price4` DECIMAL(10,4) DEFAULT NULL,
+	`Price5` DECIMAL(10,4) DEFAULT NULL,
+	`Price6` DECIMAL(10,4) DEFAULT NULL,
+	`Price7` DECIMAL(10,4) DEFAULT NULL,
+	`Price8` DECIMAL(10,4) DEFAULT NULL,
+	`Price9` DECIMAL(10,4) DEFAULT NULL,
+	`Price10` DECIMAL(10,4) DEFAULT NULL,
+	`Price11` DECIMAL(10,4) DEFAULT NULL,
+	`Price12` DECIMAL(10,4) DEFAULT NULL,
+	`PriceCalculation` int(11) DEFAULT NULL,
+	`RebateLevelPrice6` int(11) DEFAULT NULL,
+	`RebateLevelPrice7` int(11) DEFAULT NULL,
+	`RebateLevelPrice8` int(11) DEFAULT NULL,
+	`RebateLevelPrice9` int(11) DEFAULT NULL,
+	`RebateLevelPrice10` int(11) DEFAULT NULL,
+	`RebateLevelPrice11` int(11) DEFAULT NULL,
+	`ShowOnly` int(11) DEFAULT NULL,
+	`TransportationCosts` DECIMAL(10,4) DEFAULT NULL,
+	`TypeOfPackage` int(11) DEFAULT NULL,
+	`Unit` VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Unit1` VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Unit2` VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`UnitLoadDevice` int(11) DEFAULT NULL,
+	`WarehouseCosts` DECIMAL(10,4) DEFAULT NULL,
+	`WeightInGramm` int(11) DEFAULT NULL,
+	`WeightInGrammNet` int(11) DEFAULT NULL,
+	`WidthInMM` int(11) DEFAULT NULL,
+	PRIMARY KEY (`PriceSetID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 DROP TABLE `soap_db`.`ItemSuppliers`;
 

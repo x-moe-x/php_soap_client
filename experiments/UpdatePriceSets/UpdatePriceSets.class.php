@@ -3,7 +3,7 @@
 require_once ROOT . 'lib/soap/call/PlentySoapCall.abstract.php';
 require_once ROOT . 'api/ApiHelper.class.php';
 require_once ROOT . 'includes/DBUtils2.class.php';
-require_once 'RequestContainer_UpdatePriceSets.class.php';
+require_once ROOT . 'experiments/SetPriceSets/RequestContainer_SetPriceSets.class.php';
 
 /**
  * Class UpdatePriceSets
@@ -54,7 +54,7 @@ class UpdatePriceSets extends PlentySoapCall
 			for ($page = 0, $maxPage = ceil($unwrittenUpdatesDBResult->getNumRows() / self::MAX_PRICE_SETS_PER_PAGE); $page < $maxPage; $page++)
 			{
 				// ... prepare a separate request ...
-				$oRequest_SetPriceSets = new RequestContainer_UpdatePriceSets(self::MAX_PRICE_SETS_PER_PAGE);
+				$oRequest_SetPriceSets = new RequestContainer_SetPriceSets(self::MAX_PRICE_SETS_PER_PAGE);
 
 				// ... fill in data
 				$aPriceUpdateHistoryEntries = array();
