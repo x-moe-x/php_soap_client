@@ -143,6 +143,11 @@ class ApiExecute
 	/**
 	 * @var string
 	 */
+	const PRICE_CORRECTION = 'priceCorrection';
+
+	/**
+	 * @var string
+	 */
 	const UPDATE_ITEM_POSITIONS = 'updateItemPositions';
 
 	/**
@@ -505,6 +510,13 @@ class ApiExecute
 						'UpdatePriceSets',
 					));
 					break;
+				case self::PRICE_CORRECTION :
+					NetXpressSoapExperimentLoader::getInstance()->run(array(
+						'',
+						'PriceCorrection',
+						'PriceCorrection',
+					));
+					break;
 				case self::SET_ITEMS_WAREHOUSE_SETTINGS :
 					NetXpressSoapExperimentLoader::getInstance()->run(array(
 						'',
@@ -513,6 +525,7 @@ class ApiExecute
 					break;
 				case self::PREPARE_UPDATE_ITEM_POSITIONS :
 					NetXpressSoapExperimentLoader::getInstance()->run(array(
+						'',
 						'PrepareUpdateItemPositions',
 						'PrepareUpdateItemPositions',
 					));
@@ -571,6 +584,7 @@ class ApiExecute
 						self::SET_ITEMS_SUPPLIERS,
 						self::SET_ITEMS_WAREHOUSE_SETTINGS,
 						self::JANSEN_STOCK_UPDATE_TOTAL,
+						self::PRICE_CORRECTION,
 					));
 					break;
 				default :
