@@ -58,7 +58,7 @@ class SoapCall_SetItemsFreeTextFields extends PlentySoapCall
 				} else
 				{
 					// ... otherwise log error and try next request
-					$this->getLogger()->debug(__FUNCTION__ . ' Request Error');
+					$this->getLogger()->debug(__FUNCTION__ . ' Request Error (check for empty data in one product spoiling the whole page)');
 				}
 			}
 		} catch (Exception $e)
