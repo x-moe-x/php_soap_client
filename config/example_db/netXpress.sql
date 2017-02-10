@@ -872,6 +872,28 @@ CREATE TABLE `soap_db`.`PriceUpdateQuantities` (
 	PRIMARY KEY (`ItemID`,`AttributeValueSetID`,`PriceID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+DROP TABLE IF EXISTS `soap_db`.`SetAttributeValueSetsDetails`;
+
+CREATE TABLE `soap_db`.`SetAttributeValueSetsDetails` (
+	`ItemID` int(11) NOT NULL,
+	`PriceID` int(11) NOT NULL,
+	`AttributeValueSetID` int(11) NOT NULL,
+	`Variantnumber` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Availability` int(11) DEFAULT NULL,
+	`PurchasePrice` DECIMAL(10,4) DEFAULT NULL,
+	`EAN1` bigint(13) DEFAULT NULL,
+	`EAN2` bigint(13) DEFAULT NULL,
+	`EAN3` bigint(13) DEFAULT NULL,
+	`EAN4` bigint(13) DEFAULT NULL,
+	`ASIN` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Oversale` TINYINT(1) DEFAULT 0,
+	`UVP` DECIMAL(10,4) DEFAULT NULL,
+	`MaxStock` DECIMAL(10,4) DEFAULT NULL,
+	`StockBuffer` DECIMAL(10,4) DEFAULT NULL,
+
+	PRIMARY KEY (`ItemID`,`AttributeValueSetID`,`PriceID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 DROP TABLE IF EXISTS `soap_db`.`PriceUpdateHistory`;
 
 CREATE TABLE `soap_db`.`PriceUpdateHistory` (
