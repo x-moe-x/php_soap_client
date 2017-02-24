@@ -159,7 +159,7 @@ class SoapCall_GetItemsImages extends PlentySoapCall
 
 				if ($response->Success == true) {
 
-					$this->debug(__FUNCTION__ . ' Request Success - articles found : ' . count($response->ItemsImages->item) . ' / page : ' . $this->page);
+					$this->debug(__FUNCTION__ . ' Request Success - images found : ' . count($response->ItemsImages->item) . ' / page : ' . $this->page);
 
 					// auswerten
 					$this->responseInterpretation($response);
