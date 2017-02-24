@@ -699,6 +699,24 @@ CREATE TABLE `soap_db`.`ItemsImages` (
 	PRIMARY KEY (`ImageID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+DROP TABLE `soap_db`.`SetItemImages`;
+
+CREATE TABLE `soap_db`.`SetItemImages` (
+	`ItemID` int(11) NOT NULL,
+	`Position` int(11) NOT NULL,
+	`AttributeValueId` int(11) DEFAULT NULL,
+	`ImageID` int(11) DEFAULT NULL,
+	`ImageFileName` TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
+	`ImageFileEnding` TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
+	`ImageURL` TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
+	`AlternativeText` TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Name` TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
+	`Lang` VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT 'de',
+	`DeleteName` Boolean,
+	`ImageFileLocalPath` TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
+	PRIMARY KEY (`ItemID`,`Position`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 DROP TABLE `soap_db`.`CalculatedDailyNeeds`;
 
 CREATE TABLE `soap_db`.`CalculatedDailyNeeds` (
