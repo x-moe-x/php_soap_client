@@ -30,7 +30,7 @@ class SoapCall_SetLinkedItems extends PlentySoapCall
 			while ($row = $setLinkedItemsDbResult->fetchAssoc())
 			{
 				// ... prepare a separate request ...
-				$preparedRequest = new RequestContainer_SetLinkedItems($row['ItemID'], $row['Relationship']);
+				$preparedRequest = new RequestContainer_SetLinkedItems($row['ItemID'], $row['RelationShip']);
 
 				// ... add linked items ...
 				$linkedItems = explode(',', $row['LinkedItemIDList']);
