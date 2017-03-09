@@ -1,5 +1,4 @@
 <?php
-require_once 'FillObjectFromArray.php';
 
 /**
  * Class RequestContainer is a container to prepare a request which contains multiple elements
