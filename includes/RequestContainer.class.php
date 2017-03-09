@@ -25,6 +25,9 @@ abstract class RequestContainer
 	 */
 	public function __construct($capacity)
 	{
+		if (!$capacity > 0) {
+			throw new RuntimeException("RequestContainer initialized without capacity");
+		}
 		$this->items = array();
 		$this->capacity = $capacity;
 	}
