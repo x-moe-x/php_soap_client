@@ -1077,6 +1077,16 @@ CREATE TABLE `soap_db`.`CurrentStocks` (
 	PRIMARY KEY (`ItemID`, `AttributeValueSetID`, `WarehouseID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+DROP TABLE IF EXISTS `soap_db`.`SetItemsPurchasePrice`;
+
+CREATE TABLE `soap_db`.`SetItemsPurchasePrice` (
+	`ItemID` int(11) NOT NULL,
+	`PriceID` int(11) NOT NULL,
+	`AttributeValueSetID` int(11) NOT NULL,
+	`PurchasePrice` decimal(10,4) DEFAULT NULL,
+	PRIMARY KEY (`ItemID`, `PriceID`, `AttributeValueSetID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 DROP TABLE IF EXISTS `soap_db`.`JansenStockUnmatched`;
 
 CREATE TABLE `soap_db`.`JansenStockUnmatched` (
