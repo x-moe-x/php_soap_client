@@ -1088,6 +1088,15 @@ CREATE TABLE `soap_db`.`SetItemsPurchasePrice` (
 	PRIMARY KEY (`ItemID`, `PriceID`, `AttributeValueSetID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+DROP TABLE IF EXISTS `soap_db`.`ItemBundles`;
+
+CREATE TABLE `soap_db`.`ItemBundles` (
+	`ItemID` int(11) NOT NULL,
+	`BundleItemItemID` int(11) DEFAULT NULL,
+	`BundleItemQuantity` int(11) DEFAULT NULL,
+	PRIMARY KEY (`ItemID`,`BundleItemItemID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 DROP TABLE IF EXISTS `soap_db`.`JansenStockUnmatched`;
 
 CREATE TABLE `soap_db`.`JansenStockUnmatched` (
