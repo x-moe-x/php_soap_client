@@ -1057,6 +1057,7 @@ DROP TABLE IF EXISTS `soap_db`.`CurrentStocks`;
 
 CREATE TABLE `soap_db`.`CurrentStocks` (
 	`ItemID` int(11) NOT NULL,
+	`PriceID` int(11) NOT NULL,
 	`AttributeValueSetID` int(11) NOT NULL,
 	`WarehouseID` int(11) NOT NULL,
 	`AveragePrice` decimal(10,4) DEFAULT NULL,
@@ -1074,7 +1075,7 @@ CREATE TABLE `soap_db`.`CurrentStocks` (
 	`VariantEAN3` bigint(13) DEFAULT NULL,
 	`VariantEAN4` bigint(13) DEFAULT NULL,
 	`WarehouseType` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
-	PRIMARY KEY (`ItemID`, `AttributeValueSetID`, `WarehouseID`)
+	PRIMARY KEY (`ItemID`, `PriceID`, `AttributeValueSetID`, `WarehouseID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 DROP TABLE IF EXISTS `soap_db`.`SetItemsPurchasePrice`;

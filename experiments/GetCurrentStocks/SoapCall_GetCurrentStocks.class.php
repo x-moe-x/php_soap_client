@@ -153,10 +153,11 @@ class SoapCall_GetCurrentStocks extends PlentySoapCall
 	 */
 	private function processStockRecord($stockRecord)
 	{
-		list($itemID, , $attributeValueSetId) = SKU2Values($stockRecord->SKU);
+		list($itemID, $priceId, $attributeValueSetId) = SKU2Values($stockRecord->SKU);
 
 		$this->stockRecords[] = array(
 			'ItemID'               => $itemID,
+			'PriceID'              => $priceId,
 			'AttributeValueSetID'  => $attributeValueSetId,
 			'WarehouseID'          => $stockRecord->WarehouseID,
 			'EAN'                  => $stockRecord->EAN,
