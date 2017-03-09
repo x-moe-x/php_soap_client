@@ -32,11 +32,14 @@ class RequestContainer_SetItemsPurchasePrice extends RequestContainer {
 					$avsId = $current['AttributeValueSetID'];
 				}
 				$sku = Values2SKU($current['ItemID'], $avsId, $priceId);
+			} else {
+				throw new RuntimeException("Could not find either SKU or ItemID[,PriceID[,AttributeValueSetID]]");
 			}
+
 			$purchasePriceUpdate->SKU = $sku;
 			$purchasePriceUpdate->PurchasePrice = $current['PurchasePrice'];
 
-			$result->ItemsPurchasePrice->item[] = $purchasePriceUpdate
+			$result->ItemsPurchasePrice->item[] = $purchasePriceUpdate;
 		}
 
 		return $result;
