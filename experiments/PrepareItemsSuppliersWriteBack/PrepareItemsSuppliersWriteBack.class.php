@@ -1,4 +1,6 @@
 <?php
+require_once ROOT . 'lib/db/DBQuery.class.php';
+require_once ROOT . 'includes/NX_Executable.abstract.php';
 
 /**
  * Class PrepareItemsSuppliersWriteBack
