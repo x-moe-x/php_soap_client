@@ -756,6 +756,24 @@ CREATE TABLE `soap_db`.`WriteBackSuggestion` (
 	PRIMARY KEY (`ItemID`, `AttributeValueSetID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+DROP TABLE `soap_db`.`SetItemsSuppliers`;
+
+CREATE TABLE `soap_db`.`SetItemsSuppliers` (
+	`ItemID` int(11) NOT NULL,
+	`SupplierID` int(11) NOT NULL,
+	`ItemSupplierRowID` int(11) DEFAULT NULL,
+	`IsRebateAllowed` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`ItemSupplierPrice` DECIMAL(10,4) DEFAULT NULL,
+	`LastUpdate` int(11) DEFAULT NULL,
+	`Priority` int(11) DEFAULT NULL,
+	`Rebate` DECIMAL(10,4) DEFAULT NULL,
+	`SupplierDeliveryTime` int(11) DEFAULT NULL,
+	`SupplierItemNumber` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`SupplierMinimumPurchase` DECIMAL(10,4) DEFAULT NULL,
+	`VPE` DECIMAL(10,4) DEFAULT NULL,
+	PRIMARY KEY (`ItemID`, `SupplierID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 DROP TABLE `soap_db`.`SetPriceSets`;
 
 CREATE TABLE `soap_db`.`SetPriceSets` (
