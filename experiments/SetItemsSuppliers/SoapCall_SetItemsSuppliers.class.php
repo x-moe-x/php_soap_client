@@ -32,8 +32,8 @@ class SoapCall_SetItemsSuppliers extends PlentySoapCall
 		$this->getLogger()->debug(__FUNCTION__ . ' writing items suppliers data ...');
 		try
 		{
-			// get all values for articles with write permission
-			$oDBResult = DBQuery::getInstance()->select($this->getWriteBackQuery());
+			// get all data
+			$oDBResult = DBQuery::getInstance()->select("SELECT * FROM SetItemsSuppliers");
 
 			// for every 50 ItemIDs ...
 			for ($page = 0, $maxPage = ceil($oDBResult->getNumRows() / self::MAX_SUPPLIERS_PER_PAGES); $page < $maxPage; $page++)
@@ -64,40 +64,5 @@ class SoapCall_SetItemsSuppliers extends PlentySoapCall
 		{
 			$this->onExceptionAction($e);
 		}
-	}
-
-	/**
-	 * @return string
-	 */
-	private function getWriteBackQuery()
-	{
-		return 'SELECT
-	ItemSuppliers.ItemID,
-	ItemSuppliers.SupplierID,
-	ItemSuppliers.ItemSupplierRowID,
-	ItemSuppliers.IsRebateAllowed,
-	ItemSuppliers.ItemSupplierPrice,
-	ItemSuppliers.LastUpdate,
-	ItemSuppliers.Priority,
-	ItemSuppliers.Rebate,
-	ItemSuppliers.SupplierDeliveryTime,
-	ItemSuppliers.SupplierItemNumber,
-	/* ItemSuppliers.SupplierMinimumPurchase, skipped, use suggestion instead */
-	ItemSuppliers.VPE,
-	WriteBackSuggestion.SupplierMinimumPurchase
-FROM
-	`ItemSuppliers`
-LEFT JOIN
-	`WritePermissions`
-ON
-	ItemSuppliers.ItemID = WritePermissions.ItemID AND WritePermissions.AttributeValueSetID = 0
-LEFT JOIN
-	`WriteBackSuggestion`
-ON
-	ItemSuppliers.ItemID = WriteBackSuggestion.ItemID AND WriteBackSuggestion.AttributeValueSetID = 0
-WHERE
-	WritePermissions.WritePermission = 1
-AND
-	WritePermissions.AttributeValueSetID = 0' . PHP_EOL;
 	}
 }
