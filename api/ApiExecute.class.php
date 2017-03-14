@@ -123,6 +123,11 @@ class ApiExecute
 	/**
 	 * @var string
 	 */
+	const PREPARE_ITEMS_SUPPLIERS_WRITE_BACK = 'prepareItemsSuppliersWriteBack';
+
+	/**
+	 * @var string
+	 */
 	const SET_ITEMS_SUPPLIERS = 'setItemsSuppliers';
 
 	/**
@@ -497,6 +502,13 @@ class ApiExecute
 						'JansenStockMatchForUpdateTotal',
 					));
 					break;
+				case self::PREPARE_ITEMS_SUPPLIERS_WRITE_BACK :
+					NetXpressSoapExperimentLoader::getInstance()->run(array(
+						'',
+						'PrepareItemsSuppliersWriteBack',
+						'PrepareItemsSuppliersWriteBack',
+					));
+					break;
 				case self::SET_ITEMS_SUPPLIERS :
 					NetXpressSoapExperimentLoader::getInstance()->run(array(
 						'',
@@ -581,6 +593,7 @@ class ApiExecute
 						self::CALCULATE_AMAZON_QUANTITIES,
 						self::CALCULATE_AMAZON_RUNNING_COSTS,
 						self::CALCULATE_WRITE_PERMISSIONS,
+						self::PREPARE_ITEMS_SUPPLIERS_WRITE_BACK,
 						self::SET_ITEMS_SUPPLIERS,
 						self::SET_ITEMS_WAREHOUSE_SETTINGS,
 						self::JANSEN_STOCK_UPDATE_TOTAL,
@@ -612,6 +625,7 @@ class ApiExecute
 							break;
 						case self::SET_ALL :
 							self::executeTasks(array(
+								self::PREPARE_ITEMS_SUPPLIERS_WRITE_BACK,
 								self::SET_ITEMS_SUPPLIERS,
 								self::SET_ITEMS_WAREHOUSE_SETTINGS,
 								self::UPDATE_ITEMS_PRICE_SETS,
