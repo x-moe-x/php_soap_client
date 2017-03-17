@@ -17,7 +17,7 @@ class PrepareItemsSuppliersWriteBack extends NX_Executable {
 	}
 
 	private function getQuery() {
-		return "INSERT INTO SetItemsSuppliers
+		return "INSERT INTO SetItemsSuppliers (ItemID, SupplierID, ItemSupplierRowID, IsRebateAllowed, ItemSupplierPrice, LastUpdate, Priority, Rebate, SupplierDeliveryTime, SupplierItemNumber, SupplierMinimumPurchase, VPE)
 	SELECT
 		ItemSuppliers.ItemID,
 		ItemSuppliers.SupplierID,
@@ -30,8 +30,8 @@ class PrepareItemsSuppliersWriteBack extends NX_Executable {
 		ItemSuppliers.SupplierDeliveryTime,
 		ItemSuppliers.SupplierItemNumber,
 		/* ItemSuppliers.SupplierMinimumPurchase, skipped, use suggestion instead */
-		ItemSuppliers.VPE,
-		WriteBackSuggestion.SupplierMinimumPurchase
+		WriteBackSuggestion.SupplierMinimumPurchase,
+		ItemSuppliers.VPE
 	FROM
 		`ItemSuppliers`
 		LEFT JOIN
