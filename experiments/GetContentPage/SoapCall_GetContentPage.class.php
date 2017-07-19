@@ -167,7 +167,7 @@ class SoapCall_GetContentPage extends PlentySoapCall
 		$maxConsecutiveContentPageMisses = 5;
 		try
 		{
-			for ($contentPageId = 0, $contentPageMisses = 0; $contentPageMisses <= $maxConsecutiveContentPageMisses; $contentPageId++)
+			for ($contentPageId = 0, $contentPageMisses = 0; $contentPageMisses <= $maxConsecutiveContentPageMisses && $contentPageId > 759; $contentPageId++)
 			{
 				$response = $this->getPlentySoap()->GetContentPage(Request_GetContentPage::getRequest($contentPageId));
 

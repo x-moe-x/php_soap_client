@@ -862,7 +862,7 @@ function prepareStock() {'use strict';
 			}
 		}, {
 			display : 'Markierung',
-			name : 'Marking',
+			name : 'Marking1ID',
 			width : 60,
 			sortable : true,
 			align : 'center',

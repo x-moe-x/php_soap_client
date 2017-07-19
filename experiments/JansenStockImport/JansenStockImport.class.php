@@ -91,7 +91,7 @@ class JansenStockImport
 							} else
 							{
 								// ... otherwise display error
-								$this->getLogger()->debug(__FUNCTION__ . " EAN invald for article: $externalItemID, " . (empty($csvData[2]) ? 'no EAN' : $csvData[2]));
+								//$this->getLogger()->info(__FUNCTION__ . " EAN invald for article: $externalItemID, " . (empty($csvData[2]) ? 'no EAN' : $csvData[2]));
 							}
 						}
 					}

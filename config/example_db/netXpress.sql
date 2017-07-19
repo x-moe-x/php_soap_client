@@ -48,7 +48,7 @@ CREATE TABLE `OrderHead` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 DROP TABLE `soap_db`.`OrderItem`;
- 
+
 CREATE TABLE `soap_db`.`OrderItem` (
 	`id` int(11) NOT NULL AUTO_INCREMENT,
 	`BundleItemID` int(11) DEFAULT NULL,
@@ -84,7 +84,7 @@ CREATE TABLE `soap_db`.`MetaLastUpdate` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 DROP TABLE `soap_db`.`AttributeValueSets`;
- 
+
 CREATE TABLE `soap_db`.`AttributeValueSets` (
 	`ItemID` int(11) NOT NULL,
 	`AttributeValueSetID` int(11) NOT NULL,
@@ -212,11 +212,12 @@ CREATE TABLE `soap_db`.`LinkedItems` (
 DROP TABLE `soap_db`.`SetLinkedItems`;
 
 CREATE TABLE `soap_db`.`SetLinkedItems` (
-	`ItemID`                   INT(11) NOT NULL,
-	`LinkedItemID`             INT(11) NOT NULL,
-	`Relationship`             VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`ItemID` INT(11) NOT NULL,
+	`LinkedItemID` INT(11) NOT NULL,
+	`Relationship` VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`deleteLink` TINYINT(1) NOT NULL DEFAULT '0',
 	PRIMARY KEY (`ItemID`, `LinkedItemID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE = InnoDB DEFAULT CHARSET = utf8 COLLATE = utf8_unicode_ci;
 
 DROP TABLE `soap_db`.`ItemsTexts`;
 

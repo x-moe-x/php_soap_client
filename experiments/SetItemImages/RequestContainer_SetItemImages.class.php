@@ -1,6 +1,7 @@
 <?php
 
 require_once ROOT . 'includes/RequestContainer.class.php';
+require_once ROOT . 'includes/FillObjectFromArray.php';
 
 /**
  * Class RequestContainer_SetItemImages

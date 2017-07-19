@@ -19,17 +19,22 @@ class RequestContainer_SetLinkedItems extends RequestContainer
 	private $relationship;
 
 	/**
+	 * @var bool
+	 */
+	private $deleteLink;
+
+	/**
 	 * @param string $mainItemId
 	 * @param string $relationship
-	 *
-	 * @return RequestContainer_SetLinkedItems
+	 * @param bool   $deleteLink
 	 */
-	public function __construct($mainItemId, $relationship)
+	public function __construct($mainItemId, $relationship, $deleteLink)
 	{
 		parent::__construct(SoapCall_SetLinkedItems::MAX_LINKED_ITEMS_PER_PAGE);
 
 		$this->mainItemId = $mainItemId;
 		$this->relationship = $relationship;
+		$this->deleteLink = $deleteLink;
 	}
 
 	/**
@@ -51,6 +56,7 @@ class RequestContainer_SetLinkedItems extends RequestContainer
 
 			$linkedItem->CrossItemSKU = Values2SKU($linkedItemId);
 			$linkedItem->Relationship = $this->relationship;
+			$linkedItem->deleteLink = $this->deleteLink;
 
 			$request->CrosssellingList->item[] = $linkedItem;
 		}

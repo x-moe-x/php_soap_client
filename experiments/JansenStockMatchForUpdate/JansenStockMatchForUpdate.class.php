@@ -28,7 +28,6 @@ class JansenStockMatchForUpdate
 	/**
 	 * @var int
 	 */
-	const DEFAULT_N_LATEST_TRANSACTIONS = 3;
 
 	/**
 	 * @var string
@@ -95,12 +94,10 @@ class JansenStockMatchForUpdate
 		{
 			// ... handle matched item variant
 
-			//@formatter:off
 			$this->aUnmatchedItemVariants[] = array(
 				'ItemID'              => $itemVariant['ItemID'],
 				'AttributeValueSetID' => $itemVariant['AttributeValueSetID']
 			);
-			//@formatter:on
 		}
 
 		$this->storeToDB();
